@@ -12,3 +12,32 @@
 # - Tests in only specific regions
 # - Email test results to owner of project
 # Version .01
+
+# Example config.yml
+# --Begin
+ymal = '''
+global:
+  notification: true
+  owner: avattathil@gmail.com
+  project: projectx
+  regions:
+    - us-east-1
+    - us-west-1
+    - us-west-2
+  report_email-to-owner: true
+  report_publish-to-s3: true
+  report_s3bucket: "s3:/taskcat-reports"
+  template_s3bucket: "s3://taskcat-testing"
+tests:
+  projectx-senario-1:
+    parameter_input: projectx-senario-1.json
+    regions:
+      - us-west-1
+      - us-east-1
+    template_file: projectx.template
+  projetx-main-senario-all-regions:
+    parameter_input: projectx-senario-all-regions.json
+    template_file: projectx.template
+'''
+# --End
+# Example config.yml
