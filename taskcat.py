@@ -11,7 +11,6 @@
 # Planed Features: 
 # - Tests in only specific regions
 # - Email test results to owner of project
-# Version .01
 
 # Example config.yml
 # --Begin
@@ -41,3 +40,19 @@ tests:
 '''
 # --End
 # Example config.yml
+
+version='v.01'
+# --imports --
+import os
+import sys
+import pyfiglet
+
+def main():
+	pass
+
+if __name__ == '__main__':
+    me = os.path.basename(__file__)
+    banner = pyfiglet.Figlet(font='standard')
+    print banner.renderText(me.replace('.py', ' '))
+    print "version %s" % version
+    main()
