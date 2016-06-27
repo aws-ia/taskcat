@@ -18,6 +18,7 @@ import sys
 import pyfiglet
 import argparse
 import re
+import yaml
 import boto3
 
 # Version Tag
@@ -281,6 +282,46 @@ class TaskCat (object):
                 print "[DEBUG]", e.ClientError
                 sys.exit(1)
 
+    def validate_ymal(self, yaml_file):
+        print '-' * self._termsize
+        run_tests = []
+        required_global_keys = ['s3bucket',
+                                'qsname',
+                                'reporting',
+                                'regions']
+
+        required_test_parameters = ['template_file',
+                                    'parameter_input']
+        try:
+            if os.path.isfile(yaml_file):
+                with open(yaml_file, 'r') as checkymal:
+                    cfg_yml = yaml.safe_load(checkymal.read())
+                    for key in required_global_keys:
+                        if key in cfg_yml['global'].keys():
+                            pass
+                        else:
+                            print "global:%s missing from " % key + yaml_file
+                            sys.exit(1)
+
+                    for defined in cfg_yml['tests'].keys():
+                        run_tests.append(defined)
+                        print "Queing test => %s " % defined
+                        for parms in cfg_yml['tests'][defined].keys():
+                            for key in required_test_parameters:
+                                if key in cfg_yml['tests'][defined].keys():
+                                    pass
+                                else:
+                                    print "No key %s in test" % key + defined
+                                    sys.exit(1)
+            else:
+                print "[ERROR]Cannot open [%s]" % yaml_file
+                sys.exit(1)
+        except Exception as e:
+            print "[ERROR] ymal [%s] is not formated well!" % yaml_file
+            print "[DEBUG]", e
+            return False
+        return run_tests
+
 
 def direct():
     banner = pyfiglet.Figlet(font='standard')
@@ -292,11 +333,10 @@ def direct():
 
 def main():
     pass
+
 if __name__ == '__main__':
     pass
-#    direct()
+    #direct()
 
 else:
-    print "importing taskcat.io"
-    print "to create a new taskcat"
     main()
