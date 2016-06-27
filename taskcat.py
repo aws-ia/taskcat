@@ -5,9 +5,9 @@
 #
 # taskcat is short for task (cloudformation automated testing)
 # This program takes as input:
-# cfn template and json formated parameter input file
+# cfn template and json formatted parameter input file
 # inputs can be passed as cli for single test
-# for more diverse scenarios you can use a ymal configuration
+# for more diverse scenarios you can use a yaml configuration
 # Planed Features:
 # - Tests in only specific regions
 # - Email test results to owner of project
@@ -18,15 +18,16 @@ import sys
 import pyfiglet
 import argparse
 import re
-import yaml
 import boto3
+import yaml
+
 
 # Version Tag
 version = 'v.01'
 
 # Example config.yml
 # --Begin
-ymal = '''
+yaml_cfg = '''
 global:
   notification: true
   owner: avattathil@gmail.com
@@ -37,8 +38,8 @@ global:
     - us-west-2
   report_email-to-owner: true
   report_publish-to-s3: true
-  report_s3bucket: "s3:/taskcat-reports"
-  template_s3bucket: "s3://taskcat-testing"
+  report_s3bucket: taskcat-reports
+  template_s3bucket: taskcat-testing
 tests:
   projectx-senario-1:
     parameter_input: projectx-senario-1.json
@@ -61,81 +62,83 @@ me = prog_name.replace('.py', ' ')
 # --End
 # --------------------------------System varibles
 
-parser = argparse.ArgumentParser(
-    description='(Cloudformation Test Framework)',
-    prog='alfred.py', prefix_chars='-')
-parser.add_argument(
-    '-c',
-    '--config_yml',
-    type=str,
-    help="[Configuration ymal] Read configuration from alfred.yml")
-parser.add_argument(
-    '-b',
-    '--test_bucket',
-    type=str,
-    help="s3 bucket to used to stage templates only needed with local files")
-parser.add_argument(
-    '-t',
-    '--template',
-    type=str,
-    help="Filesystem Path to template or S3 location")
-parser.add_argument(
-    '-m',
-    '--marketplace',
-    dest='marketplace',
-    action='store_true')
-parser.set_defaults(feature=False)
-parser.add_argument(
-    '-r',
-    '--region',
-    nargs='+',
-    type=str,
-    help="Specfiy a comma seprated list of region where tests should run" +
-    "(example: us-east-1, us-west-1, eu-west-1)")
-parser.add_argument(
-    '-P',
-    '--boto-profile',
-    type=str,
-    help="Authenticate using boto profile")
-parser.add_argument(
-    '-A',
-    '--aws_access_key',
-    type=str,
-    help="AWS Access Key")
-parser.add_argument(
-    '-S',
-    '--aws_secret_key',
-    type=str,
-    help="AWS Secrect Key")
-parser.add_argument(
-    '-p',
-    '--parms_file',
-    type=str,
-    help="Json Formated Input file")
-parser.add_argument(
-    '-ey',
-    '--example_ymal',
-    action='store_true',
-    help="Print out example ymal")
 
+def init_cli_interface():
+    parser = argparse.ArgumentParser(
+        description='Alfred (Cloudformation Test Framework)',
+        prog='alfred.py', prefix_chars='-')
+    parser.add_argument(
+        '-c',
+        '--config_yml',
+        type=str,
+        help="[Configuration yaml] Read configuration from alfred.yml")
+    parser.add_argument(
+        '-b',
+        '--template_s3bucket',
+        type=str,
+        help="s3 bucket to used to test templates")
+    parser.add_argument(
+        '-t',
+        '--template',
+        type=str,
+        help="Filesystem Path to template or S3 location")
+    parser.add_argument(
+        '-m',
+        '--marketplace',
+        dest='marketplace',
+        action='store_true')
+    parser.set_defaults(feature=False)
+    parser.add_argument(
+        '-r',
+        '--region',
+        nargs='+',
+        type=str,
+        help="Specfiy a comma seprated list of region where tests should run" +
+        "(example: us-east-1, us-west-1, eu-west-1)")
+    parser.add_argument(
+        '-P',
+        '--boto-profile',
+        type=str,
+        help="Authenticate using boto profile")
+    parser.add_argument(
+        '-A',
+        '--aws_access_key',
+        type=str,
+        help="AWS Access Key")
+    parser.add_argument(
+        '-S',
+        '--aws_secret_key',
+        type=str,
+        help="AWS Secrect Key")
+    parser.add_argument(
+        '-p',
+        '--parms_file',
+        type=str,
+        help="Json Formated Input file")
+    parser.add_argument(
+        '-ey',
+        '--example_yaml',
+        action='store_true',
+        help="Print out example yaml")
 
-def interface(args):
+    args = parser.parse_args()
+
     if len(sys.argv) == 1:
         print parser.print_help()
         sys.exit(0)
 
-    if args.example_ymal:
+    if args.example_yaml:
         print "An example: config.yml file to be used with %s " % __name__
-        print ymal
+        print yaml_cfg
         sys.exit(0)
 
     if (args.config_yml is not None and
-        args.template is not None or
-        args.test_bucket is not None or
+            args.template is not None or
+            args.template_s3bucket is not None or
             args.region is not None):
-        print "[ERROR] You specified a ymal config file for this test"
+        print "[ERROR] You specified a yaml config file for this test"
         nc = "-t (--template) -b (--test-bucket) -r (--region)"
-        print "[ERROR] %s are not compatable with ymal mode." % nc
+        print "[ERROR] %s are not compatable with yaml mode." % nc
         print "[ERROR] Please remove these flags!"
         print " [INFO] For more info use help" + __file__ + " --help"
         print "        exiting...."
@@ -157,22 +160,27 @@ def interface(args):
                          "with -a (--aws_access_key or -s (--aws_secret_key")
             print parser.print_help()
             sys.exit(1)
-    return args
 
 
-# Core Fuctions
-def regxfind(reobj, dataline):
-    sg = reobj.search(dataline)
-    if (sg):
-        return str(sg.group())
-    else:
-        return str('Not-found')
+def buildmap(start_location, mapstring):
+    fs_map = []
+    for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
+        for fs_file in filelist:
+            fs_path_to_file = (os.path.join(fs_path, fs_file))
+            if (mapstring in fs_path_to_file and
+                    '.git' not in fs_path_to_file):
+                fs_map.append(fs_path_to_file)
+    return fs_map
+
+
+
 
 
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
 
-    def __init__(self, config_yml):
+    def __init__(self, config_yml, tag):
+        self.dname = tag
         self.template_type = "unknown"
         self._template_path = "not set"
         self._parameter_file = "not set"
@@ -185,24 +193,11 @@ class TaskCat (object):
         else:
             print "Cannot Read %s" % config_yml
 
-    def buildmap(self, start_location, mapstring):
-        fsmap = []
-        for fpath, dirs, filelist in os.walk(start_location, topdown=False):
-            for file in filelist:
-                fullpath_to_file = (os.path.join(fpath, file))
-                if (mapstring in fullpath_to_file and
-                   '.git' not in fullpath_to_file):
-                    fsmap.append(fullpath_to_file)
-        return fsmap
-
     def get_template(self):
         return self._template_path
 
     def set_parameter(self, parameter):
         self._parameter_file = parameter
-
-    def set_marketplace(self, ismarketplace):
-        self._marketplace_ami = ismarketplace
 
     def set_template(self, template):
         self._template_path = template
@@ -216,18 +211,15 @@ class TaskCat (object):
     def get_parameter(self):
         return self._parameter_file
 
-    def get_maketplace(self):
-        return self._marketplace_ami
-
-    def s3upload(self, alfred_cfg):
+    def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
-        print "__alfred__: I uploaded the following assets"
+        print "__taskcat__: I uploaded the following assets"
         print '=' * self._termsize
 
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(alfred_cfg['global']['s3bucket'])
-        project = alfred_cfg['global']['project']
-        fsmap = self.buildmap('.', project)
+        bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
+        project = taskcat_cfg['global']['project']
+        fsmap = buildmap('.', project)
         for name in fsmap:
             # upload = re.sub('^./quickstart-', '', name)
             upload = re.sub('^./', '', name)
@@ -249,11 +241,11 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__alfred__: AWS AccountNumber: \t [%s]" % account
-                print "__alfred__: Authenticated via: \t [boto-profile] "
+                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
+                print "__taskcat__: Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you profile!"
-                print "[DEBUG]", e.ClientError
+                print "[DEBUG]", e
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
             boto3.setup_default_session(
@@ -262,11 +254,11 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__alfred__: AWS AccountNumber: \t [%s]" % account
-                print "__alfred__: Authenticated via: \t [role] "
+                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
+                print "__taskcat__: Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you keys!"
-                print "[DEBUG]", e.ClientError
+                print "[DEBUG]", e
                 sys.exit(1)
         else:
             boto3.setup_default_session(
@@ -275,18 +267,19 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__alfred__: AWS AccountNumber: \t [%s]" % account
-                print "__alfred__: Authenticated via: \t [role] "
+                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
+                print "__taskcat__: Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
-                print "[DEBUG]", e.ClientError
+                print "[DEBUG]", e
                 sys.exit(1)
 
-    def validate_ymal(self, yaml_file):
+    def validate_yaml(self, yaml_file):
         print '-' * self._termsize
         run_tests = []
-        required_global_keys = ['s3bucket',
-                                'qsname',
+        required_global_keys = ['template_s3bucket',
+                                'project',
+                                'owner',
                                 'reporting',
                                 'regions']
 
@@ -294,8 +287,9 @@ class TaskCat (object):
                                     'parameter_input']
         try:
             if os.path.isfile(yaml_file):
-                with open(yaml_file, 'r') as checkymal:
-                    cfg_yml = yaml.safe_load(checkymal.read())
+                with open(yaml_file, 'r') as checkyaml:
+                    print me
+                    cfg_yml = yaml.load(checkyaml.read())
                     for key in required_global_keys:
                         if key in cfg_yml['global'].keys():
                             pass
@@ -312,23 +306,122 @@ class TaskCat (object):
                                     pass
                                 else:
                                     print "No key %s in test" % key + defined
+                                    print "[ERROR] while inspecting: " + parms
                                     sys.exit(1)
             else:
                 print "[ERROR]Cannot open [%s]" % yaml_file
                 sys.exit(1)
         except Exception as e:
-            print "[ERROR] ymal [%s] is not formated well!" % yaml_file
+            print "[ERROR] yaml [%s] is not formated well!!" % yaml_file
             print "[DEBUG]", e
             return False
         return run_tests
+
+    def interface(argv):
+        parser = argparse.ArgumentParser(
+            description='Alfred (Cloudformation Test Framework)',
+            prog='alfred.py', prefix_chars='-')
+        parser.add_argument(
+            '-c',
+            '--config_yml',
+            type=str,
+            help="[Configuration yaml] Read configuration from alfred.yml")
+        parser.add_argument(
+            '-b',
+            '--template_s3bucket',
+            type=str,
+            help="s3 bucket for templates ")
+        parser.add_argument(
+            '-t',
+            '--template',
+            type=str,
+            help="Filesystem Path to template or S3 location")
+        parser.add_argument(
+            '-m',
+            '--marketplace',
+            dest='marketplace',
+            action='store_true')
+        parser.set_defaults(feature=False)
+        parser.add_argument(
+            '-r',
+            '--region',
+            nargs='+',
+            type=str,
+            help="Specfiy a comma seprated list of region " +
+            "(example: us-east-1, us-west-1, eu-west-1)")
+        parser.add_argument(
+            '-P',
+            '--boto-profile',
+            type=str,
+            help="Authenticate using boto profile")
+        parser.add_argument(
+            '-A',
+            '--aws_access_key',
+            type=str,
+            help="AWS Access Key")
+        parser.add_argument(
+            '-S',
+            '--aws_secret_key',
+            type=str,
+            help="AWS Secrect Key")
+        parser.add_argument(
+            '-p',
+            '--parms_file',
+            type=str,
+            help="Json Formated Input file")
+        parser.add_argument(
+            '-ey',
+            '--example_yaml',
+            action='store_true',
+            help="Print out example yaml")
+
+        args = parser.parse_args()
+
+        if len(sys.argv) == 1:
+            print parser.print_help()
+            sys.exit(0)
+
+        if args.example_yaml:
+            print "An example: config.yml file to be used with %s " % __name__
+            print yaml_cfg
+            sys.exit(0)
+
+        if (args.config_yml is not None and
+                args.template is not None or
+                args.template_s3bucket is not None or
+                args.region is not None):
+            print "[ERROR] You specified a yaml config file for this test"
+            nc = "-t (--template) -b (--test-bucket) -r (--region)"
+            print "[ERROR] %s are not compatable with yaml mode." % nc
+            print "[ERROR] Please remove these flags!"
+            print " [INFO] For more info use help" + __file__ + " --help"
+            print "        exiting...."
+            sys.exit(1)
+
+        if (args.template is not None and args.parms_file is None):
+            parser.error("You specfied a template file with no parmeters!")
+            print parser.print_help()
+            sys.exit(1)
+        elif (args.template is None and args.parms_file is not None):
+            parser.error("You specfied a parameter file with no template!")
+            print parser.print_help()
+            sys.exit(1)
+
+        if (args.boto_profile is not None):
+            if (args.aws_access_key is not None or
+                    args.aws_secret_key is not None):
+                parser.error("Cannot use boto profile -P (--boto_profile)" +
+                             "with --aws_access_key or --aws_secret_key")
+                print parser.print_help()
+                sys.exit(1)
+
+        return args
 
 
 def direct():
     banner = pyfiglet.Figlet(font='standard')
     print banner.renderText(me)
     print "version %s" % version
-    args = parser.parse_args()
-    interface(args)
 
 
 def main():
@@ -336,7 +429,6 @@ def main():
 
 if __name__ == '__main__':
     pass
-    #direct()
 
 else:
     main()
