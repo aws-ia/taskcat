@@ -117,7 +117,7 @@ class TaskCat (object):
 
     def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
-        print "__taskcat__: I uploaded the following assets"
+        print self.nametag +": I uploaded the following assets"
         print '=' * self._termsize
 
         s3 = boto3.resource('s3')
@@ -145,8 +145,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
-                print "__taskcat__: Authenticated via: \t [boto-profile] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you profile!"
                 print "[DEBUG]", e
@@ -158,8 +158,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
-                print "__taskcat__: Authenticated via: \t [role] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you keys!"
                 print "[DEBUG]", e
@@ -171,8 +171,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print "__taskcat__: AWS AccountNumber: \t [%s]" % account
-                print "__taskcat__: Authenticated via: \t [role] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
                 print "[DEBUG]", e
