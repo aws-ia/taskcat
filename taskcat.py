@@ -17,6 +17,8 @@ import os
 import sys
 import pyfiglet
 import argparse
+import re
+import boto3
 
 # Version Tag
 version = 'v.01'
@@ -182,6 +184,62 @@ class TaskCat (object):
         else:
             print "Cannot Read %s" % config_yml
 
+    def buildmap(self, start_location, mapstring):
+        fsmap = []
+        for fpath, dirs, filelist in os.walk(start_location, topdown=False):
+            for file in filelist:
+                fullpath_to_file = (os.path.join(fpath, file))
+                if (mapstring in fullpath_to_file and
+                   '.git' not in fullpath_to_file):
+                    fsmap.append(fullpath_to_file)
+        return fsmap
+
+    def get_template(self):
+        return self._template_path
+
+    def set_parameter(self, parameter):
+        self._parameter_file = parameter
+
+    def set_marketplace(self, ismarketplace):
+        self._marketplace_ami = ismarketplace
+
+    def set_template(self, template):
+        self._template_path = template
+        if "https://s3" in self._template_path:
+            # print "template type = [s3_object]"
+            self.template_type = "s3_object"
+        else:
+            # print "template type = [local_file]"
+            self.template_type = "local_file"
+
+    def get_parameter(self):
+        return self._parameter_file
+
+    def get_maketplace(self):
+        return self._marketplace_ami
+
+    def s3upload(self, alfred_cfg):
+        print '-' * self._termsize
+        print "__alfred__: I uploaded the following assets"
+        print '=' * self._termsize
+
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(alfred_cfg['global']['s3bucket'])
+        qsname = alfred_cfg['global']['qsname']
+        fsmap = self.buildmap('.', qsname)
+        for name in fsmap:
+            # upload = re.sub('^./quickstart-', '', name)
+            upload = re.sub('^./', '', name)
+            bucket.upload_file(name, upload)
+
+        for buckets in s3.buckets.all():
+            # sname = re.sub('^./quickstart-', '', qsname)
+            for obj in buckets.objects.filter(Prefix=qsname):
+                o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
+                print o
+
+        print '-' * self._termsize
+
 
 def direct():
     banner = pyfiglet.Figlet(font='standard')
@@ -194,7 +252,8 @@ def direct():
 def main():
     pass
 if __name__ == '__main__':
-    direct()
+	pass
+#    direct()
 
 else:
     print "importing taskcat.io"
