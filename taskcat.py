@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # authors:avattathil@gmail.com
-# upstream_repo: https://avattathil/taskcat.io
+# repo: https://avattathil/taskcat.io
 # docs: http://taskcat.io
 #
 # taskcat is short for task (cloudformation automated testing)
 # This program takes as input:
 # cfn template and json formated parameter input file
 # inputs can be passed as cli for single test
-# for more diverse scenarios you can use a ymal configuration 
-# Planed Features: 
+# for more diverse scenarios you can use a ymal configuration
+# Planed Features:
 # - Tests in only specific regions
 # - Email test results to owner of project
 
@@ -17,6 +17,9 @@ import os
 import sys
 import pyfiglet
 import argparse
+
+# Version Tag
+version = 'v.01'
 
 # Example config.yml
 # --Begin
@@ -47,10 +50,14 @@ tests:
 # --End
 # Example config.yml
 
-version='v.01'
+# ------------------------------- System varibles
+# --Begin
 sys_yml = 'sys_config.yml'
+prog_name = os.path.basename(__file__)
+me = prog_name.replace('.py', ' ')
+# --End
+# --------------------------------System varibles
 
-# parse cli arguments
 parser = argparse.ArgumentParser(
     description='Alfred (Cloudformation Test Framework)',
     prog='alfred.py', prefix_chars='-')
@@ -108,45 +115,46 @@ parser.add_argument(
     type=bool,
     help="Print out example ymal")
 
-args = parser.parse_args()
 
-if len(sys.argv) == 1:
-    print parser.print_help()
-    sys.exit(0)
+def interface(args):
+    if len(sys.argv) == 1:
+        print parser.print_help()
+        sys.exit(0)
 
-if args.example_ymal:
-    print "An example: config.yml file to be used with %s " % __name__
-    print ymal
-    sys.exit(0)
+    if args.example_ymal:
+        print "An example: config.yml file to be used with %s " % __name__
+        print ymal
+        sys.exit(0)
 
-if (args.config_yml is not None and
+    if (args.config_yml is not None and
         args.template is not None or
         args.test_bucket is not None or
-        args.region is not None):
-    print "[ERROR] You specified a ymal config file for this test"
-    nc = "-t (--template) -b (--test-bucket) -r (--region)"
-    print "[ERROR] %s are not compatable with ymal mode." % nc
-    print "[ERROR] Please remove these flags!"
-    print " [INFO] For more info use help" + __file__ + " --help"
-    print "        exiting...."
-    sys.exit(1)
+            args.region is not None):
+        print "[ERROR] You specified a ymal config file for this test"
+        nc = "-t (--template) -b (--test-bucket) -r (--region)"
+        print "[ERROR] %s are not compatable with ymal mode." % nc
+        print "[ERROR] Please remove these flags!"
+        print " [INFO] For more info use help" + __file__ + " --help"
+        print "        exiting...."
+        sys.exit(1)
 
-if (args.template is not None and args.parms_file is None):
-    parser.error("You specfied a template file with no parmeters!")
-    print parser.print_help()
-    sys.exit(1)
-elif (args.template is None and args.parms_file is not None):
-    parser.error("You specfied a parameter file with no template!")
-    print parser.print_help()
-    sys.exit(1)
-
-if (args.boto_profile is not None):
-    if (args.aws_access_key is not None or
-            args.aws_secret_key is not None):
-        parser.error("Cannot use boto profile -P (--boto_profile)" +
-                     "with -a (--aws_access_key or -s (--aws_secret_key")
+    if (args.template is not None and args.parms_file is None):
+        parser.error("You specfied a template file with no parmeters!")
         print parser.print_help()
         sys.exit(1)
+    elif (args.template is None and args.parms_file is not None):
+        parser.error("You specfied a parameter file with no template!")
+        print parser.print_help()
+        sys.exit(1)
+
+    if (args.boto_profile is not None):
+        if (args.aws_access_key is not None or
+                args.aws_secret_key is not None):
+            parser.error("Cannot use boto profile -P (--boto_profile)" +
+                         "with -a (--aws_access_key or -s (--aws_secret_key")
+            print parser.print_help()
+            sys.exit(1)
+    return args
 
 
 # Core Fuctions
@@ -157,12 +165,33 @@ def regxfind(reobj, dataline):
     else:
         return str('Not-found')
 
-def main():
-	pass
 
-if __name__ == '__main__':
-    me = os.path.basename(__file__)
+# Task(Cat = Cloudformation automated Testing)
+class TaskCat (object):
+
+    def __init__(self):
+        self.template_type = "unknown"
+        self._template_path = "not set"
+        self._parameter_file = "not set"
+        self.template_location = "not set"
+        self.parameter_location = "not set"
+        self._termsize = 110
+
+
+def direct():
     banner = pyfiglet.Figlet(font='standard')
-    print banner.renderText(me.replace('.py', ' '))
+    print banner.renderText(me)
     print "version %s" % version
+    args = parser.parse_args()
+    interface(args)
+
+
+def main():
+    pass
+if __name__ == '__main__':
+    direct()
+
+else:
+    print "importing taskcat.io"
+    print "to create a new taskcat"
     main()
