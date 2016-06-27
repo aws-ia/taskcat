@@ -57,110 +57,9 @@ tests:
 # ------------------------------- System varibles
 # --Begin
 sys_yml = 'sys_config.yml'
-prog_name = os.path.basename(__file__)
-me = prog_name.replace('.py', ' ')
+
 # --End
 # --------------------------------System varibles
-
-
-def init_cli_interface():
-    parser = argparse.ArgumentParser(
-        description='Alfred (Cloudformation Test Framework)',
-        prog='alfred.py', prefix_chars='-')
-    parser.add_argument(
-        '-c',
-        '--config_yml',
-        type=str,
-        help="[Configuration yaml] Read configuration from alfred.yml")
-    parser.add_argument(
-        '-b',
-        '--template_s3bucket',
-        type=str,
-        help="s3 bucket to used to test templates")
-    parser.add_argument(
-        '-t',
-        '--template',
-        type=str,
-        help="Filesystem Path to template or S3 location")
-    parser.add_argument(
-        '-m',
-        '--marketplace',
-        dest='marketplace',
-        action='store_true')
-    parser.set_defaults(feature=False)
-    parser.add_argument(
-        '-r',
-        '--region',
-        nargs='+',
-        type=str,
-        help="Specfiy a comma seprated list of region where tests should run" +
-        "(example: us-east-1, us-west-1, eu-west-1)")
-    parser.add_argument(
-        '-P',
-        '--boto-profile',
-        type=str,
-        help="Authenticate using boto profile")
-    parser.add_argument(
-        '-A',
-        '--aws_access_key',
-        type=str,
-        help="AWS Access Key")
-    parser.add_argument(
-        '-S',
-        '--aws_secret_key',
-        type=str,
-        help="AWS Secrect Key")
-    parser.add_argument(
-        '-p',
-        '--parms_file',
-        type=str,
-        help="Json Formated Input file")
-    parser.add_argument(
-        '-ey',
-        '--example_yaml',
-        action='store_true',
-        help="Print out example yaml")
-
-    args = parser.parse_args()
-
-    if len(sys.argv) == 1:
-        print parser.print_help()
-        sys.exit(0)
-
-    if args.example_yaml:
-        print "An example: config.yml file to be used with %s " % __name__
-        print yaml_cfg
-        sys.exit(0)
-
-    if (args.config_yml is not None and
-            args.template is not None or
-            args.template_s3bucket is not None or
-            args.region is not None):
-        print "[ERROR] You specified a yaml config file for this test"
-        nc = "-t (--template) -b (--test-bucket) -r (--region)"
-        print "[ERROR] %s are not compatable with yaml mode." % nc
-        print "[ERROR] Please remove these flags!"
-        print " [INFO] For more info use help" + __file__ + " --help"
-        print "        exiting...."
-        sys.exit(1)
-
-    if (args.template is not None and args.parms_file is None):
-        parser.error("You specfied a template file with no parmeters!")
-        print parser.print_help()
-        sys.exit(1)
-    elif (args.template is None and args.parms_file is not None):
-        parser.error("You specfied a parameter file with no template!")
-        print parser.print_help()
-        sys.exit(1)
-
-    if (args.boto_profile is not None):
-        if (args.aws_access_key is not None or
-                args.aws_secret_key is not None):
-            parser.error("Cannot use boto profile -P (--boto_profile)" +
-                         "with -a (--aws_access_key or -s (--aws_secret_key")
-            print parser.print_help()
-            sys.exit(1)
-
 
 def buildmap(start_location, mapstring):
     fs_map = []
@@ -173,25 +72,30 @@ def buildmap(start_location, mapstring):
     return fs_map
 
 
-
-
-
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
 
-    def __init__(self, config_yml, tag):
-        self.dname = tag
+    def __init__(self, nametag):
+        self.nametag = nametag
         self.template_type = "unknown"
+        self.config = 'config.yml'
         self._template_path = "not set"
         self._parameter_file = "not set"
         self.template_location = "not set"
         self.parameter_location = "not set"
-        self.yml_cfg = "not set"
         self._termsize = 110
+        self.interface()
+
+    def set_config(self, config_yml):
+        config_yml
         if os.path.isfile(config_yml):
-            self.yml_cfg = config_yml
+            self.config = config_yml
         else:
-            print "Cannot Read %s" % config_yml
+            print "Cannot locate file %s" % config_yml
+            exit
+
+    def get_config(self):
+        return self.config
 
     def get_template(self):
         return self._template_path
@@ -288,7 +192,6 @@ class TaskCat (object):
         try:
             if os.path.isfile(yaml_file):
                 with open(yaml_file, 'r') as checkyaml:
-                    print me
                     cfg_yml = yaml.load(checkyaml.read())
                     for key in required_global_keys:
                         if key in cfg_yml['global'].keys():
@@ -317,10 +220,10 @@ class TaskCat (object):
             return False
         return run_tests
 
-    def interface(argv):
+    def interface(self):
         parser = argparse.ArgumentParser(
-            description='Alfred (Cloudformation Test Framework)',
-            prog='alfred.py', prefix_chars='-')
+            description='(Cloudformation Test Framework)',
+            prog=__file__, prefix_chars='-')
         parser.add_argument(
             '-c',
             '--config_yml',
@@ -417,11 +320,12 @@ class TaskCat (object):
 
         return args
 
-
-def direct():
-    banner = pyfiglet.Figlet(font='standard')
-    print banner.renderText(me)
-    print "version %s" % version
+    def welcome():
+        prog_name = os.path.basename(__file__)
+        me = prog_name.replace('.py', ' ')
+        banner = pyfiglet.Figlet(font='standard')
+        print banner.renderText(me)
+        print "version %s" % version
 
 
 def main():
