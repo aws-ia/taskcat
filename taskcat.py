@@ -112,7 +112,7 @@ parser.add_argument(
 parser.add_argument(
     '-ey',
     '--example_ymal',
-    type=bool,
+    action='store_true',
     help="Print out example ymal")
 
 
@@ -169,13 +169,18 @@ def regxfind(reobj, dataline):
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
 
-    def __init__(self):
+    def __init__(self, config_yml):
         self.template_type = "unknown"
         self._template_path = "not set"
         self._parameter_file = "not set"
         self.template_location = "not set"
         self.parameter_location = "not set"
+        self.yml_cfg = "not set"
         self._termsize = 110
+        if os.path.isfile(config_yml):
+            self.yml_cfg = config_yml
+        else:
+            print "Cannot Read %s" % config_yml
 
 
 def direct():
