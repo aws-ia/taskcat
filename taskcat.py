@@ -61,7 +61,7 @@ me = prog_name.replace('.py', ' ')
 # --------------------------------System varibles
 
 parser = argparse.ArgumentParser(
-    description='Alfred (Cloudformation Test Framework)',
+    description='(Cloudformation Test Framework)',
     prog='alfred.py', prefix_chars='-')
 parser.add_argument(
     '-c',
@@ -225,20 +225,61 @@ class TaskCat (object):
 
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(alfred_cfg['global']['s3bucket'])
-        qsname = alfred_cfg['global']['qsname']
-        fsmap = self.buildmap('.', qsname)
+        project = alfred_cfg['global']['project']
+        fsmap = self.buildmap('.', project)
         for name in fsmap:
             # upload = re.sub('^./quickstart-', '', name)
             upload = re.sub('^./', '', name)
             bucket.upload_file(name, upload)
 
         for buckets in s3.buckets.all():
-            # sname = re.sub('^./quickstart-', '', qsname)
-            for obj in buckets.objects.filter(Prefix=qsname):
+            # sname = re.sub('^./quickstart-', '', project)
+            for obj in buckets.objects.filter(Prefix=project):
                 o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
                 print o
 
         print '-' * self._termsize
+
+    # Set AWS Credentials
+    def aws_api_init(self, args):
+        print '-' * self._termsize
+        if args.boto_profile:
+            boto3.setup_default_session(profile_name=args.boto_profile)
+            try:
+                sts_client = boto3.client('sts')
+                account = sts_client.get_caller_identity().get('Account')
+                print "__alfred__: AWS AccountNumber: \t [%s]" % account
+                print "__alfred__: Authenticated via: \t [boto-profile] "
+            except Exception as e:
+                print "[ERROR] Credential Error - Please check you profile!"
+                print "[DEBUG]", e.ClientError
+                sys.exit(1)
+        elif args.aws_access_key and args.aws_secret_key:
+            boto3.setup_default_session(
+                aws_access_key_id=args.aws_access_key,
+                aws_secret_access_key=args.aws_secret_key)
+            try:
+                sts_client = boto3.client('sts')
+                account = sts_client.get_caller_identity().get('Account')
+                print "__alfred__: AWS AccountNumber: \t [%s]" % account
+                print "__alfred__: Authenticated via: \t [role] "
+            except Exception as e:
+                print "[ERROR] Credential Error - Please check you keys!"
+                print "[DEBUG]", e.ClientError
+                sys.exit(1)
+        else:
+            boto3.setup_default_session(
+                aws_access_key_id=args.aws_access_key,
+                aws_secret_access_key=args.aws_secret_key)
+            try:
+                sts_client = boto3.client('sts')
+                account = sts_client.get_caller_identity().get('Account')
+                print "__alfred__: AWS AccountNumber: \t [%s]" % account
+                print "__alfred__: Authenticated via: \t [role] "
+            except Exception as e:
+                print "[ERROR] Credential Error - Cannot assume role!"
+                print "[DEBUG]", e.ClientError
+                sys.exit(1)
 
 
 def direct():
@@ -252,7 +293,7 @@ def direct():
 def main():
     pass
 if __name__ == '__main__':
-	pass
+    pass
 #    direct()
 
 else:
