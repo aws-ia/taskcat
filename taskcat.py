@@ -61,6 +61,7 @@ sys_yml = 'sys_config.yml'
 # --End
 # --------------------------------System varibles
 
+
 def buildmap(start_location, mapstring):
     fs_map = []
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
@@ -84,6 +85,7 @@ class TaskCat (object):
         self.template_location = "not set"
         self.parameter_location = "not set"
         self._termsize = 110
+        self.test_region = ['none']
         self.interface()
 
     def set_config(self, config_yml):
@@ -117,11 +119,11 @@ class TaskCat (object):
 
     def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
-        print self.nametag +": I uploaded the following assets"
+        print self.nametag + ": I uploaded the following assets"
         print '=' * self._termsize
 
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
+        bucket = s3.Bucket(taskcat_cfg['global']['template_s3bucket'])
         project = taskcat_cfg['global']['project']
         fsmap = buildmap('.', project)
         for name in fsmap:
@@ -134,8 +136,66 @@ class TaskCat (object):
             for obj in buckets.objects.filter(Prefix=project):
                 o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
                 print o
-
         print '-' * self._termsize
+
+    def get_test_region(self):
+        return self.test_region
+
+    def set_test_region(self, region_list):
+        self.test_region = region_list
+        return region_list
+
+    def get_global_region(self, yaml_cfg):
+        g_regions = []
+        for keys in yaml_cfg['global'].keys():
+            if 'region' in keys:
+                # print self.nametag + ":[DEBUG] Global Regions [%s]" % keys
+                try:
+                    iter(yaml_cfg['global']['regions'])
+                    namespace = 'global'
+                    for region in yaml_cfg['global']['regions']:
+                        # print "found region %s" % region
+                        g_regions.append(region)
+                except TypeError:
+                    print "No regions defined in [%s]:" % namespace
+                    print "Please correct region defs[%s]:" % namespace
+        return g_regions
+
+    def validate_template(self, alfred_cfg, test_list):
+        # Load gobal regions
+        self.set_test_region(self.get_global_region(alfred_cfg))
+        for test in test_list:
+            print self.nametag + "|Validate Template in test[%s]" % test
+            self.set_test_defs(alfred_cfg, test)
+            # print(self.get_test_region())
+
+    def set_test_defs(self, yaml_cfg, test):
+        global_regions = self.get_global_region(yaml_cfg)
+        for tdefs in yaml_cfg['tests'].keys():
+            # print "[DEBUG] tdefs = %s" % tdefs
+            if tdefs == test:
+                t = yaml_cfg['tests'][test]['template_file']
+                p = yaml_cfg['tests'][test]['parameter_input']
+                n = yaml_cfg['global']['project']
+                b = yaml_cfg['global']['template_s3bucket']
+                slash = '/'
+                self.set_template('s3://' + b + slash + n + slash + t)
+                self.set_parameter('s3://' + b + slash + n + slash + p)
+                print "\t |Template Path    => [%s]" % self._template_path
+                print "\t |Parameter Path   => [%s]" % self._parameter_file
+                if 'regions' in yaml_cfg['tests'][test].keys():
+                    if yaml_cfg['tests'][test]['regions'] is not None:
+                        r = yaml_cfg['tests'][test]['regions']
+                        self.set_test_region(r)
+                        print "\t |Defined Regions:"
+                        for r_region in r:
+                            print "\t\t\t - [%s]" % r_region
+                else:
+                    r = global_regions
+                    self.set_test_region(global_regions)
+                    print "\t |Global Regions:"
+                    for r_region in r:
+                        print "\t\t\t - [%s]" % r_region
 
     # Set AWS Credentials
     def aws_api_init(self, args):
@@ -145,8 +205,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [boto-profile] "
+                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ": Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you profile!"
                 print "[DEBUG]", e
@@ -158,8 +218,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [role] "
+                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you keys!"
                 print "[DEBUG]", e
@@ -171,8 +231,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [role] "
+                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
                 print "[DEBUG]", e
