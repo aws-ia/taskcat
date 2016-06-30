@@ -20,6 +20,8 @@ import argparse
 import re
 import boto3
 import yaml
+import json
+import urllib
 
 
 # Version Tag
@@ -39,7 +41,7 @@ global:
   report_email-to-owner: true
   report_publish-to-s3: true
   report_s3bucket: taskcat-reports
-  template_s3bucket: taskcat-testing
+  s3bucket: taskcat-testing
 tests:
   projectx-senario-1:
     parameter_input: projectx-senario-1.json
@@ -78,15 +80,27 @@ class TaskCat (object):
 
     def __init__(self, nametag):
         self.nametag = nametag
-        self.template_type = "unknown"
+        self.project = "not set"
         self.config = 'config.yml'
+        self.template_type = "unknown"
+        self.test_region = ['none']
+        self.s3bucket = "not set"
         self._template_path = "not set"
         self._parameter_file = "not set"
-        self.template_location = "not set"
-        self.parameter_location = "not set"
         self._termsize = 110
-        self.test_region = ['none']
         self.interface()
+
+    def set_project(self, project):
+        self.project = project
+
+    def get_project(self):
+        return self.project
+
+    def set_s3bucket(self, bucket):
+        self.s3bucket = bucket
+
+    def get_s3bucket(self):
+        return self.s3bucket
 
     def set_config(self, config_yml):
         config_yml
@@ -123,20 +137,37 @@ class TaskCat (object):
         print '=' * self._termsize
 
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(taskcat_cfg['global']['template_s3bucket'])
+        bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
+        print "Bucket = bucket %s" % bucket.name
+        self.set_s3bucket(bucket.name)
         project = taskcat_cfg['global']['project']
-        fsmap = buildmap('.', project)
-        for name in fsmap:
+        self.set_project(project)
+        if (os.path.isdir(project)):
+            fsmap = buildmap('.', project)
+            print "Loading Project into s3"
+        else:
+            print "Cannot access directory [%s]" % project
+
+        for filename in fsmap:
+            # print "Obj =  %s" % filename
             # upload = re.sub('^./quickstart-', '', name)
-            upload = re.sub('^./', '', name)
-            bucket.upload_file(name, upload)
+            upload = re.sub('^./', '', filename)
+            bucket.upload_file(filename, upload)
 
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
             for obj in buckets.objects.filter(Prefix=project):
-                o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
-                print o
+                # o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
+                # print o
+                url = self.get_s3_url(bucket.name, obj.key)
+                print url
+
         print '-' * self._termsize
+
+    def get_s3_url(self, bucket, key):
+        s3 = boto3.client('s3')
+        url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
+        return url
 
     def get_test_region(self):
         return self.test_region
@@ -167,7 +198,41 @@ class TaskCat (object):
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.set_test_defs(alfred_cfg, test)
-            # print(self.get_test_region())
+            # print ("DEBUG" + (self.get_test_region())
+
+            try:
+                cfnconnect = boto3.client('cloudformation')
+                print "bucket %s " % (self.get_s3bucket().name)
+                url = self.get_s3_url(self.get_s3bucket().name,
+                                      self.get_template())
+                print url
+                print (self.get_template())
+                cfnconnect.validate_template(TemplateURL=self.get_template())
+            except Exception as e:
+                print "[DEBUG]", e.message
+                sys.stderr.write("[FATAL]:Template Validation Error:\n")
+                sys.exit("[FATAL] : Template not valid ")
+            else:
+                print"[PASS]: Template Validation Successful!"
+                print self.nametag
+                print ("Your template looks stupendous."
+                       " Allow me to continue...\n")
+                parms = urllib.urlopen(self._parameter_file)
+                print "Performing validation json parameter: " + parms
+                jsonstatus = self.validate_json(parms.read())
+                if jsonstatus:
+                    print "[PASS]: Parameters valid [continuing]"
+                    print self.nametag + "Parameters provided are perfect!!"
+                else:
+                    print self.nametag + "Yo, These parameters are whack son!!"
+                    sys.exit("[FATAL]:" + test + " is not valid [failed test]")
+
+    def validate_json(jsonparms):
+        try:
+            json.loads(jsonparms)
+        except ValueError:
+            return False
+        return True
 
     def set_test_defs(self, yaml_cfg, test):
         global_regions = self.get_global_region(yaml_cfg)
@@ -177,7 +242,7 @@ class TaskCat (object):
                 t = yaml_cfg['tests'][test]['template_file']
                 p = yaml_cfg['tests'][test]['parameter_input']
                 n = yaml_cfg['global']['project']
-                b = yaml_cfg['global']['template_s3bucket']
+                b = yaml_cfg['global']['s3bucket']
                 slash = '/'
                 self.set_template('s3://' + b + slash + n + slash + t)
                 self.set_parameter('s3://' + b + slash + n + slash + p)
@@ -241,7 +306,7 @@ class TaskCat (object):
     def validate_yaml(self, yaml_file):
         print '-' * self._termsize
         run_tests = []
-        required_global_keys = ['template_s3bucket',
+        required_global_keys = ['s3bucket',
                                 'project',
                                 'owner',
                                 'reporting',
@@ -291,7 +356,7 @@ class TaskCat (object):
             help="[Configuration yaml] Read configuration from alfred.yml")
         parser.add_argument(
             '-b',
-            '--template_s3bucket',
+            '--s3bucket',
             type=str,
             help="s3 bucket for templates ")
         parser.add_argument(
@@ -351,7 +416,7 @@ class TaskCat (object):
 
         if (args.config_yml is not None and
                 args.template is not None or
-                args.template_s3bucket is not None or
+                args.s3bucket is not None or
                 args.region is not None):
             print "[ERROR] You specified a yaml config file for this test"
             nc = "-t (--template) -b (--test-bucket) -r (--region)"
