@@ -258,7 +258,7 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template(self.get_s3_url(b, t))
                 self.set_parameter(self.get_s3_url(b, p))
-                print "Defining Tests [S]...."
+                print "(Acquiring) tests assets for ............\t[%s]" % test
                 print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
                 print "\t |Project Name     => [%s]" % self.get_project()
                 print "\t |Template Path    => [%s]" % self.get_template()
@@ -278,7 +278,7 @@ class TaskCat (object):
                     for list_o in self.get_test_region():
                         for each in list_o:
                             print "\t\t\t - [%s]" % each
-                print "Defining Tests [E]...."
+                print "(Completed) acquisition of assets for ...\t[%s]" % test
 
     # Set AWS Credentials
     def aws_api_init(self, args):
