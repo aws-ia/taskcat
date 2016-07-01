@@ -138,36 +138,49 @@ class TaskCat (object):
 
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-        print "Bucket = bucket %s" % bucket.name
+        bucket.Acl().put(ACL='public-read')
         self.set_s3bucket(bucket.name)
         project = taskcat_cfg['global']['project']
         self.set_project(project)
         if (os.path.isdir(project)):
             fsmap = buildmap('.', project)
-            print "Loading Project into s3"
         else:
             print "Cannot access directory [%s]" % project
+            sys.exit(1)
 
         for filename in fsmap:
             # print "Obj =  %s" % filename
             # upload = re.sub('^./quickstart-', '', name)
             upload = re.sub('^./', '', filename)
-            bucket.upload_file(filename, upload)
+            bucket.upload_file(filename,
+                               upload,
+                               ExtraArgs={'ACL': 'public-read'})
 
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
             for obj in buckets.objects.filter(Prefix=project):
-                # o = "s3://" + str('{0}/{1}'.format(buckets.name, obj.key))
-                # print o
+                #o = str('{0}/{1}'.format(buckets.name, obj.key))
+                #print o
                 url = self.get_s3_url(bucket.name, obj.key)
                 print url
 
         print '-' * self._termsize
 
-    def get_s3_url(self, bucket, key):
+    def getbucket(self, bucket, key):
         s3 = boto3.client('s3')
         url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
-        return url
+        return str(url)
+
+    def get_s3_url(self, bucket, key):
+        url = ''
+        s3 = boto3.resource('s3')
+        for buckets in s3.buckets.all():
+            # sname = re.sub('^./quickstart-', '', project)
+            for obj in buckets.objects.filter(Prefix=key):
+                #print (str('{0}/{1}'.format(buckets.name, obj.key)))
+                #print (self.getbucket(buckets.name, obj.key))
+                url = (self.getbucket(buckets.name, obj.key))
+        return (url)
 
     def get_test_region(self):
         return self.test_region
@@ -192,40 +205,32 @@ class TaskCat (object):
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
 
-    def validate_template(self, alfred_cfg, test_list):
+    def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
-        self.set_test_region(self.get_global_region(alfred_cfg))
+        self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
-            self.set_test_defs(alfred_cfg, test)
-            # print ("DEBUG" + (self.get_test_region())
-
+            self.define_tests(taskcat_cfg, test)
             try:
                 cfnconnect = boto3.client('cloudformation')
-                print "bucket %s " % (self.get_s3bucket().name)
-                url = self.get_s3_url(self.get_s3bucket().name,
-                                      self.get_template())
-                print url
-                print (self.get_template())
                 cfnconnect.validate_template(TemplateURL=self.get_template())
             except Exception as e:
-                print "[DEBUG]", e.message
-                sys.stderr.write("[FATAL]:Template Validation Error:\n")
-                sys.exit("[FATAL] : Template not valid ")
+                print "[DEBUG]", e
+                sys.exit("[FATAL] : Cannot read from %s" % self.get_template())
             else:
                 print"[PASS]: Template Validation Successful!"
                 print self.nametag
                 print ("Your template looks stupendous."
                        " Allow me to continue...\n")
-                parms = urllib.urlopen(self._parameter_file)
-                print "Performing validation json parameter: " + parms
-                jsonstatus = self.validate_json(parms.read())
-                if jsonstatus:
-                    print "[PASS]: Parameters valid [continuing]"
-                    print self.nametag + "Parameters provided are perfect!!"
-                else:
-                    print self.nametag + "Yo, These parameters are whack son!!"
-                    sys.exit("[FATAL]:" + test + " is not valid [failed test]")
+#                parms = urllib.urlopen(self._parameter_file)
+#                print "Performing validation json parameter: " + parms
+##                jsonstatus = self.validate_json(parms.read())
+#                if jsonstatus:
+# print "[PASS]: Parameters valid [continuing]"
+#                    print self.nametag + "Parameters provided are perfect!!"
+#                else:
+#                    print self.nametag + "Yo, These parameters are whack son!!"
+#                    sys.exit("[FATAL]:" + test + " is not valid [failed test]")
 
     def validate_json(jsonparms):
         try:
@@ -234,7 +239,7 @@ class TaskCat (object):
             return False
         return True
 
-    def set_test_defs(self, yaml_cfg, test):
+    def define_tests(self, yaml_cfg, test):
         global_regions = self.get_global_region(yaml_cfg)
         for tdefs in yaml_cfg['tests'].keys():
             # print "[DEBUG] tdefs = %s" % tdefs
@@ -243,11 +248,14 @@ class TaskCat (object):
                 p = yaml_cfg['tests'][test]['parameter_input']
                 n = yaml_cfg['global']['project']
                 b = yaml_cfg['global']['s3bucket']
-                slash = '/'
-                self.set_template('s3://' + b + slash + n + slash + t)
-                self.set_parameter('s3://' + b + slash + n + slash + p)
-                print "\t |Template Path    => [%s]" % self._template_path
-                print "\t |Parameter Path   => [%s]" % self._parameter_file
+                self.set_s3bucket(b)
+                self.set_project(n)
+                self.set_template(self.get_s3_url(b, t))
+                self.set_parameter(self.get_s3_url(b, p))
+                print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
+                print "\t |Project Name     => [%s]" % self.get_project()
+                print "\t |Template Path    => [%s]" % self.get_template()
+                print "\t |Parameter Path   => [%s]" % self.get_parameter()
                 if 'regions' in yaml_cfg['tests'][test].keys():
                     if yaml_cfg['tests'][test]['regions'] is not None:
                         r = yaml_cfg['tests'][test]['regions']
