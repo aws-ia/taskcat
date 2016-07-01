@@ -263,7 +263,7 @@ class TaskCat (object):
                 print "\t |Project Name     => [%s]" % self.get_project()
                 print "\t |Template Path    => [%s]" % self.get_template()
                 print "\t |Parameter Path   => [%s]" % self.get_parameter()
-                if 'regions' in yaml_cfg['tests'][test].keys():
+                if 'regions' in yaml_cfg['tests'][test]:
                     if yaml_cfg['tests'][test]['regions'] is not None:
                         r = yaml_cfg['tests'][test]['regions']
                         self.set_test_region(r)
@@ -274,8 +274,7 @@ class TaskCat (object):
                     r = global_regions
                     self.set_test_region(global_regions)
                     print "\t |Global Regions:"
-                    for r_region in r:
-                        print "\t\t\t - [%s]" % r_region
+                    print "\t\t\t - [%s]" % self.get_test_region()
                 print "Defining Tests [E]...."
 
     # Set AWS Credentials
