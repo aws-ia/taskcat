@@ -255,7 +255,7 @@ class TaskCat (object):
                 n = yaml_cfg['global']['project']
                 b = yaml_cfg['global']['s3bucket']
                 self.set_s3bucket(b)
-                self.set_project('n')
+                self.set_project(n)
                 self.set_template(self.get_s3_url(b, t))
                 self.set_parameter(self.get_s3_url(b, p))
                 print "Defining Tests [S]...."
