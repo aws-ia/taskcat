@@ -211,13 +211,14 @@ class TaskCat (object):
 
     def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
-        print "--test--"
+        #@TODO
         self.set_test_region(self.get_global_region(taskcat_cfg))
         print (self.get_test_region())
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             print (self.get_template())
+        print "--validation-"
             #try:
             #   cfnconnect = boto3.client('cloudformation')
             #    cfnconnect.validate_template(TemplateURL=self.get_template())
@@ -269,13 +270,16 @@ class TaskCat (object):
                         print "r ---%s " % r
                         self.set_test_region(r)
                         print "\t |Defined Regions:"
-                        for r_region in (self.get_test_region()):
-                            print "\t\t\t - [%s]" % r_region
+                        for list_o in self.get_test_region():
+                            for each in list_o:
+                                print "\t\t\t - [%s]" % each
                 else:
                     global_regions = self.get_global_region(yaml_cfg)
                     self.set_test_region(global_regions)
                     print "\t |Global Regions:"
-                    print "\t\t\t - [%s]" % self.get_test_region()
+                    for list_o in self.get_test_region():
+                        for each in list_o:
+                            print "\t\t\t - [%s]" % each
                 print "Defining Tests [E]...."
 
     # Set AWS Credentials
