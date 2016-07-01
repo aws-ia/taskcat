@@ -173,16 +173,15 @@ class TaskCat (object):
 
     def get_s3_url(self, bucket, key):
 
-        url = key
+        url = ''
+        s3root = "https://s3.amazonaws.com/"
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
-            for obj in buckets.objects.filter(Prefix=(key)):
-                print obj
-                url = (str('{0}/{1}'.format(buckets.name, obj.key)))
-                #print (self.getbucket(buckets.name, obj.key))
-                #url = (self.getbucket(buckets.name, obj.key))
-                print "URL === %s" % url
+            for obj in buckets.objects.filter(Prefix=(self.get_project())):
+                if key in obj.key:
+                    path = (str('{0}/{1}'.format(buckets.name, obj.key)))
+                    url = s3root + path
         return (url)
 
     def get_test_region(self):
@@ -216,14 +215,17 @@ class TaskCat (object):
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
-            print (self.get_template())
-        print "--validation-"
-            #try:
-            #   cfnconnect = boto3.client('cloudformation')
-            #    cfnconnect.validate_template(TemplateURL=self.get_template())
-            #except Exception as e:
-            #    print "[DEBUG]", e
-            #   sys.exit("[FATAL] : Cannot read from %s" % self.get_template())
+            b = self.get_s3bucket()
+            t = self.get_template()
+
+            tp = (self.get_s3_url(self.get_s3bucket(), self.get_template()))
+            print "--validation => " + tp
+            try:
+                cfnconnect = boto3.client('cloudformation')
+                cfnconnect.validate_template(TemplateURL=tp)
+            except Exception as e:
+                print "[DEBUG]", e
+                sys.exit("[FATAL] : Cannot validate %s" % self.get_template())
             #else:
              #   print"[PASS]: Template Validation Successful!"
               #  print self.nametag
@@ -256,7 +258,7 @@ class TaskCat (object):
                 b = yaml_cfg['global']['s3bucket']
                 self.set_s3bucket(b)
                 self.set_project(n)
-                self.set_template(self.get_s3_url(b, t))
+                self.set_template(t)
                 self.set_parameter(self.get_s3_url(b, p))
                 print "(Acquiring) tests assets for ............\t[%s]" % test
                 print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
