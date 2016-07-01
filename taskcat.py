@@ -159,27 +159,30 @@ class TaskCat (object):
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
             for obj in buckets.objects.filter(Prefix=project):
-                #o = str('{0}/{1}'.format(buckets.name, obj.key))
-                #print o
-                url = self.get_s3_url(bucket.name, obj.key)
-                print url
+                o = str('{0}/{1}'.format(buckets.name, obj.key))
+                print o
+                #url = self.get_s3_url(bucket.name, obj.key)
+                #print url
 
         print '-' * self._termsize
 
-    def getbucket(self, bucket, key):
-        s3 = boto3.client('s3')
-        url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
-        return str(url)
+    #def getbucket(self, bucket, key):
+    #   s3 = boto3.client('s3')
+    #   url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
+    #   return str(url)
 
     def get_s3_url(self, bucket, key):
-        url = ''
+
+        url = key
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
-            for obj in buckets.objects.filter(Prefix=key):
-                #print (str('{0}/{1}'.format(buckets.name, obj.key)))
+            for obj in buckets.objects.filter(Prefix=(key)):
+                print obj
+                url = (str('{0}/{1}'.format(buckets.name, obj.key)))
                 #print (self.getbucket(buckets.name, obj.key))
-                url = (self.getbucket(buckets.name, obj.key))
+                #url = (self.getbucket(buckets.name, obj.key))
+                print "URL === %s" % url
         return (url)
 
     def get_test_region(self):
@@ -207,22 +210,25 @@ class TaskCat (object):
 
     def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
+        print "--test--"
         self.set_test_region(self.get_global_region(taskcat_cfg))
+        print (self.get_test_region())
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
-            try:
-                cfnconnect = boto3.client('cloudformation')
-                cfnconnect.validate_template(TemplateURL=self.get_template())
-            except Exception as e:
-                print "[DEBUG]", e
-                sys.exit("[FATAL] : Cannot read from %s" % self.get_template())
-            else:
-                print"[PASS]: Template Validation Successful!"
-                print self.nametag
-                print ("Your template looks stupendous."
-                       " Allow me to continue...\n")
-#                parms = urllib.urlopen(self._parameter_file)
+            print (self.get_template())
+            #try:
+            #   cfnconnect = boto3.client('cloudformation')
+            #    cfnconnect.validate_template(TemplateURL=self.get_template())
+            #except Exception as e:
+            #    print "[DEBUG]", e
+            #   sys.exit("[FATAL] : Cannot read from %s" % self.get_template())
+            #else:
+             #   print"[PASS]: Template Validation Successful!"
+              #  print self.nametag
+              #  print ("Your template looks stupendous."
+              #         " Allow me to continue...\n")
+#              #  parms = urllib.urlopen(self._parameter_file)
 #                print "Performing validation json parameter: " + parms
 ##                jsonstatus = self.validate_json(parms.read())
 #                if jsonstatus:
@@ -249,9 +255,10 @@ class TaskCat (object):
                 n = yaml_cfg['global']['project']
                 b = yaml_cfg['global']['s3bucket']
                 self.set_s3bucket(b)
-                self.set_project(n)
+                self.set_project('n')
                 self.set_template(self.get_s3_url(b, t))
                 self.set_parameter(self.get_s3_url(b, p))
+                print "Defining Tests [S]...."
                 print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
                 print "\t |Project Name     => [%s]" % self.get_project()
                 print "\t |Template Path    => [%s]" % self.get_template()
@@ -262,13 +269,14 @@ class TaskCat (object):
                         self.set_test_region(r)
                         print "\t |Defined Regions:"
                         for r_region in r:
-                            print "\t\t\t - [%s]" % r_region
+                            print "\t\t\t - [%s]" % self.get_test_region()
                 else:
                     r = global_regions
                     self.set_test_region(global_regions)
                     print "\t |Global Regions:"
                     for r_region in r:
                         print "\t\t\t - [%s]" % r_region
+                print "Defining Tests [E]...."
 
     # Set AWS Credentials
     def aws_api_init(self, args):
