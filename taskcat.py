@@ -213,7 +213,6 @@ class TaskCat (object):
         # Load gobal regions
         #@TODO
         self.set_test_region(self.get_global_region(taskcat_cfg))
-        print (self.get_test_region())
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
@@ -267,7 +266,6 @@ class TaskCat (object):
                 if 'regions' in yaml_cfg['tests'][test]:
                     if yaml_cfg['tests'][test]['regions'] is not None:
                         r = yaml_cfg['tests'][test]['regions']
-                        print "r ---%s " % r
                         self.set_test_region(r)
                         print "\t |Defined Regions:"
                         for list_o in self.get_test_region():
