@@ -189,7 +189,8 @@ class TaskCat (object):
         return self.test_region
 
     def set_test_region(self, region_list):
-        self.test_region = region_list
+        self.test_region = []
+        self.test_region.append (region_list)
         return region_list
 
     def get_global_region(self, yaml_cfg):
@@ -246,7 +247,6 @@ class TaskCat (object):
         return True
 
     def define_tests(self, yaml_cfg, test):
-        global_regions = self.get_global_region(yaml_cfg)
         for tdefs in yaml_cfg['tests'].keys():
             # print "[DEBUG] tdefs = %s" % tdefs
             if tdefs == test:
@@ -266,12 +266,13 @@ class TaskCat (object):
                 if 'regions' in yaml_cfg['tests'][test]:
                     if yaml_cfg['tests'][test]['regions'] is not None:
                         r = yaml_cfg['tests'][test]['regions']
+                        print "r ---%s " % r
                         self.set_test_region(r)
                         print "\t |Defined Regions:"
-                        for r_region in r:
-                            print "\t\t\t - [%s]" % self.get_test_region()
+                        for r_region in (self.get_test_region()):
+                            print "\t\t\t - [%s]" % r_region
                 else:
-                    r = global_regions
+                    global_regions = self.get_global_region(yaml_cfg)
                     self.set_test_region(global_regions)
                     print "\t |Global Regions:"
                     print "\t\t\t - [%s]" % self.get_test_region()
