@@ -22,6 +22,7 @@ import boto3
 import yaml
 import json
 import urllib
+import logging
 
 
 # Version Tag
@@ -161,18 +162,10 @@ class TaskCat (object):
             for obj in buckets.objects.filter(Prefix=project):
                 o = str('{0}/{1}'.format(buckets.name, obj.key))
                 print o
-                #url = self.get_s3_url(bucket.name, obj.key)
-                #print url
 
         print '-' * self._termsize
 
-    #def getbucket(self, bucket, key):
-    #   s3 = boto3.client('s3')
-    #   url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
-    #   return str(url)
-
     def get_s3_url(self, bucket, key):
-
         url = ''
         s3root = "https://s3.amazonaws.com/"
         s3 = boto3.resource('s3')
@@ -189,7 +182,7 @@ class TaskCat (object):
 
     def set_test_region(self, region_list):
         self.test_region = []
-        self.test_region.append (region_list)
+        self.test_region.append(region_list)
         return region_list
 
     def get_global_region(self, yaml_cfg):
@@ -210,16 +203,12 @@ class TaskCat (object):
 
     def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
-        #@TODO
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
-            b = self.get_s3bucket()
-            t = self.get_template()
 
             tp = (self.get_s3_url(self.get_s3bucket(), self.get_template()))
-            print "--validation => " + tp
             try:
                 cfnconnect = boto3.client('cloudformation')
                 cfnconnect.validate_template(TemplateURL=tp)
@@ -321,6 +310,7 @@ class TaskCat (object):
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
                 print "[DEBUG]", e
+                logging.debug(e)
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
@@ -387,9 +377,9 @@ class TaskCat (object):
         parser.add_argument(
             '-m',
             '--marketplace',
+            default='False',
             dest='marketplace',
             action='store_true')
-        parser.set_defaults(feature=False)
         parser.add_argument(
             '-r',
             '--region',
@@ -422,6 +412,12 @@ class TaskCat (object):
             '--example_yaml',
             action='store_true',
             help="Print out example yaml")
+        parser.add_argument(
+            '-d',
+            '--debug',
+            type=str,
+            default='off',
+            help="on | off") 
 
         args = parser.parse_args()
 
@@ -462,6 +458,11 @@ class TaskCat (object):
                              "with --aws_access_key or --aws_secret_key")
                 print parser.print_help()
                 sys.exit(1)
+
+        if (args.debug) is None or 'off':
+            args.debug = 'info'
+        else:
+            args.debug = 'debug'
 
         return args
 
