@@ -212,7 +212,10 @@ class TaskCat (object):
             tp = (self.get_s3_url(self.get_s3bucket(), self.get_template()))
             try:
                 cfnconnect = boto3.client('cloudformation')
-                cfnconnect.validate_template(TemplateURL=tp)
+                result = cfnconnect.validate_template(TemplateURL=tp)
+                print "[PASS] : Validated [%s]" % self.get_template()
+                if self.verbose:
+                    print "[DEBUG]", "Validation payload = %s" % result
             except Exception as e:
                 if self.verbose:
                     print "[DEBUG]", e
@@ -251,7 +254,7 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template(t)
                 self.set_parameter(self.get_s3_url(b, p))
-                print "(Acquiring) tests assets for ............\t[%s]" % test
+                print "\t (Acquiring) tests assets for ...........[%s]" % test
                 print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
                 print "\t |Project Name     => [%s]" % self.get_project()
                 print "\t |Template Path    => [%s]" % self.get_template()
@@ -271,7 +274,7 @@ class TaskCat (object):
                     for list_o in self.get_test_region():
                         for each in list_o:
                             print "\t\t\t - [%s]" % each
-                print "(Completed) acquisition of assets for ...\t[%s]" % test
+                print "\t (Completed) acquisition of assets for ...[%s]" % test
 
     # Set AWS Credentials
     def aws_api_init(self, args):
