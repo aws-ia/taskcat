@@ -82,6 +82,7 @@ class TaskCat (object):
     def __init__(self, nametag):
         self.nametag = nametag
         self.project = "not set"
+        self.verbose = False
         self.config = 'config.yml'
         self.template_type = "unknown"
         self.test_region = ['none']
@@ -213,7 +214,8 @@ class TaskCat (object):
                 cfnconnect = boto3.client('cloudformation')
                 cfnconnect.validate_template(TemplateURL=tp)
             except Exception as e:
-                print "[DEBUG]", e
+                if self.verbose:
+                    print "[DEBUG]", e
                 sys.exit("[FATAL] : Cannot validate %s" % self.get_template())
             #else:
              #   print"[PASS]: Template Validation Successful!"
@@ -283,7 +285,8 @@ class TaskCat (object):
                 print self.nametag + ": Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you profile!"
-                print "[DEBUG]", e
+                if self.verbose:
+                    print "[DEBUG]", e
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
             boto3.setup_default_session(
@@ -296,7 +299,8 @@ class TaskCat (object):
                 print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you keys!"
-                print "[DEBUG]", e
+                if self.verbose:
+                    print "[DEBUG]", e
                 sys.exit(1)
         else:
             boto3.setup_default_session(
@@ -309,8 +313,8 @@ class TaskCat (object):
                 print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
-                print "[DEBUG]", e
-                logging.debug(e)
+                if self.verbose:
+                    print "[DEBUG]", e
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
@@ -351,7 +355,8 @@ class TaskCat (object):
                 sys.exit(1)
         except Exception as e:
             print "[ERROR] yaml [%s] is not formated well!!" % yaml_file
-            print "[DEBUG]", e
+            if self.verbose:
+                print "[DEBUG]", e
             return False
         return run_tests
 
@@ -413,11 +418,10 @@ class TaskCat (object):
             action='store_true',
             help="Print out example yaml")
         parser.add_argument(
-            '-d',
-            '--debug',
-            type=str,
-            default='off',
-            help="on | off") 
+            '-v',
+            '--verbose',
+            action='store_true',
+            help="Enables verbosity")
 
         args = parser.parse_args()
 
@@ -429,6 +433,9 @@ class TaskCat (object):
             print "An example: config.yml file to be used with %s " % __name__
             print yaml_cfg
             sys.exit(0)
+
+        if args.verbose:
+            self.verbose = True
 
         if (args.config_yml is not None and
                 args.template is not None or
@@ -458,11 +465,6 @@ class TaskCat (object):
                              "with --aws_access_key or --aws_secret_key")
                 print parser.print_help()
                 sys.exit(1)
-
-        if (args.debug) is None or 'off':
-            args.debug = 'info'
-        else:
-            args.debug = 'debug'
 
         return args
 
