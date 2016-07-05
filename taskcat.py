@@ -22,11 +22,11 @@ import boto3
 import yaml
 import json
 import urllib
-import logging
 
 
 # Version Tag
 version = 'v.01'
+D = '[DEBUG] :'
 
 # Example config.yml
 # --Begin
@@ -213,27 +213,25 @@ class TaskCat (object):
             try:
                 cfnconnect = boto3.client('cloudformation')
                 result = cfnconnect.validate_template(TemplateURL=tp)
-                print "[PASS] : Validated [%s]" % self.get_template()
+                print "[PASSED] :Validated [%s]" % self.get_template()
                 if self.verbose:
-                    print "[DEBUG]", "Validation payload = %s" % result
+                    print D + "Validation payload = %s" % result
             except Exception as e:
                 if self.verbose:
-                    print "[DEBUG]", e
-                sys.exit("[FATAL] : Cannot validate %s" % self.get_template())
-            #else:
-             #   print"[PASS]: Template Validation Successful!"
-              #  print self.nametag
-              #  print ("Your template looks stupendous."
-              #         " Allow me to continue...\n")
-#              #  parms = urllib.urlopen(self._parameter_file)
-#                print "Performing validation json parameter: " + parms
-##                jsonstatus = self.validate_json(parms.read())
-#                if jsonstatus:
-# print "[PASS]: Parameters valid [continuing]"
-#                    print self.nametag + "Parameters provided are perfect!!"
-#                else:
-#                    print self.nametag + "Yo, These parameters are whack son!!"
-#                    sys.exit("[FATAL]:" + test + " is not valid [failed test]")
+                    print D + e
+                sys.exit("[FATAL]  :Cannot validate %s" % self.get_template())
+        return True
+
+    def validate_parameters(self, taskcat_cfg, test_list):
+        parms = urllib.urlopen(self.get_parameter)
+        print "Performing validation json parameter: " + parms
+        jsonstatus = self.validate_json(parms.read())
+        if jsonstatus:
+            print "[PASSED] :Validated [%s]" % self.get_parameter()
+        else:
+            sys.exit("[FATAL] :Cannot validate %s" % self.get_parameter())
+
+        # sys.exit("[FATAL] :" + test + " is not valid [failed test]")
 
     def validate_json(jsonparms):
         try:
@@ -254,27 +252,31 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template(t)
                 self.set_parameter(self.get_s3_url(b, p))
-                print "\t (Acquiring) tests assets for ...........[%s]" % test
-                print "\t |S3 Bucket        => [%s]" % self.get_s3bucket()
-                print "\t |Project Name     => [%s]" % self.get_project()
-                print "\t |Template Path    => [%s]" % self.get_template()
-                print "\t |Parameter Path   => [%s]" % self.get_parameter()
+                if self.verbose:
+                    print D + "(Acquiring) tests assets for .......[%s]" % test
+                    print D + "|S3 Bucket       => [%s]" % self.get_s3bucket()
+                    print D + "|Project Name    => [%s]" % self.get_project()
+                    print D + "|Template Path   => [%s]" % self.get_template()
+                    print D + "|Parameter Path  => [%s]" % self.get_parameter()
                 if 'regions' in yaml_cfg['tests'][test]:
                     if yaml_cfg['tests'][test]['regions'] is not None:
                         r = yaml_cfg['tests'][test]['regions']
                         self.set_test_region(r)
-                        print "\t |Defined Regions:"
-                        for list_o in self.get_test_region():
-                            for each in list_o:
-                                print "\t\t\t - [%s]" % each
+                        if self.verbose:
+                            print D + "|Defined Regions:"
+                            for list_o in self.get_test_region():
+                                for each in list_o:
+                                    print "\t\t\t - [%s]" % each
                 else:
                     global_regions = self.get_global_region(yaml_cfg)
                     self.set_test_region(global_regions)
-                    print "\t |Global Regions:"
-                    for list_o in self.get_test_region():
-                        for each in list_o:
-                            print "\t\t\t - [%s]" % each
-                print "\t (Completed) acquisition of assets for ...[%s]" % test
+                    if self.verbose:
+                        print D + "|Global Regions:"
+                        for list_o in self.get_test_region():
+                            for each in list_o:
+                                print "\t\t\t - [%s]" % each
+                if self.verbose:
+                    print D + "(Completed) acquisition of [%s]" % test
 
     # Set AWS Credentials
     def aws_api_init(self, args):
@@ -289,7 +291,7 @@ class TaskCat (object):
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you profile!"
                 if self.verbose:
-                    print "[DEBUG]", e
+                    print D + e
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
             boto3.setup_default_session(
@@ -303,7 +305,7 @@ class TaskCat (object):
             except Exception as e:
                 print "[ERROR] Credential Error - Please check you keys!"
                 if self.verbose:
-                    print "[DEBUG]", e
+                    print D + e
                 sys.exit(1)
         else:
             boto3.setup_default_session(
@@ -317,7 +319,7 @@ class TaskCat (object):
             except Exception as e:
                 print "[ERROR] Credential Error - Cannot assume role!"
                 if self.verbose:
-                    print "[DEBUG]", e
+                    print D + e
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
