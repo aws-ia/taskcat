@@ -176,19 +176,19 @@ class TaskCat (object):
 
         print '-' * self._termsize
 
-    def get_s3_url(self, bucket, key):
+    def get_s3_url(self, key):
         url = ''
         s3root = "https://s3.amazonaws.com/"
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
             if self.verbose:
-                print D + "Get objects in.... %s" % bucket
+                print D + "Processing .... objects"
             for obj in buckets.objects.filter(Prefix=(self.get_project())):
                 if key in obj.key:
                     path = (str('{0}/{1}'.format(buckets.name, obj.key)))
                     url = s3root + path
-        return url
+                    return url
 
     def get_test_region(self):
         return self.test_region
@@ -221,7 +221,7 @@ class TaskCat (object):
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
 
-            tp = (self.get_s3_url(self.get_s3bucket(), self.get_template()))
+            tp = (self.get_s3_url(self.get_template()))
             try:
                 cfnconnect = boto3.client('cloudformation')
                 result = cfnconnect.validate_template(TemplateURL=tp)
@@ -234,20 +234,30 @@ class TaskCat (object):
                 sys.exit(F + "Cannot validate %s" % self.get_template())
         return True
 
-    def validate_parameters(self, taskcat_cfg, test_list):
-        parms = urllib.urlopen(self.get_parameter)
-        print "Performing validation json parameter: " + parms
-        jsonstatus = self.validate_json(parms.read())
-        if jsonstatus:
-            print P + "Validated [%s]" % self.get_parameter()
-        else:
-            sys.exit(F + "Cannot validate %s" % self.get_parameter())
-
-    def validate_json(jsonparms):
+    def validate_json(self, jsonin):
         try:
-            json.loads(jsonparms)
+            parms = json.load(jsonin)
+            if self.verbose:
+                print (json.dumps(parms, indent=4, separators=(',', ': ')))
         except ValueError:
             return False
+        return True
+
+    def validate_parameters(self, taskcat_cfg, test_list):
+
+        for test in test_list:
+            print test
+            self.define_tests(taskcat_cfg, test)
+            print self.get_parameter()
+            parms = urllib.urlopen(self.get_parameter())
+            #print "Performing validation json parameter: " + str(parms.read())
+            jsonstatus = self.validate_json(parms)
+            print "jsonstatus = %s" % jsonstatus
+            if jsonstatus:
+                print P + "Validated [%s]" % self.get_parameter()
+            else:
+                sys.exit(F + "Cannot validate %s" % self.get_parameter())
+
         return True
 
     def define_tests(self, yaml_cfg, test):
@@ -261,7 +271,7 @@ class TaskCat (object):
                 self.set_s3bucket(b)
                 self.set_project(n)
                 self.set_template(t)
-                self.set_parameter(self.get_s3_url(b, p))
+                self.set_parameter(self.get_s3_url(p))
                 if self.verbose:
                     print D + "(Acquiring) tests assets for .......[%s]" % test
                     print D + "|S3 Bucket       => [%s]" % self.get_s3bucket()
