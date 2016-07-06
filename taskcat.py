@@ -101,6 +101,8 @@ class TaskCat (object):
         self._template_path = "not set"
         self._parameter_file = "not set"
         self._termsize = 110
+        self._banner = ""
+        self._use_global = False
         self.interface()
 
     def set_project(self, project):
@@ -177,7 +179,6 @@ class TaskCat (object):
         print '-' * self._termsize
 
     def get_s3_url(self, key):
-        url = ''
         s3root = "https://s3.amazonaws.com/"
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
@@ -187,7 +188,7 @@ class TaskCat (object):
             for obj in buckets.objects.filter(Prefix=(self.get_project())):
                 if key in obj.key:
                     path = (str('{0}/{1}'.format(buckets.name, obj.key)))
-                    url = s3root + path
+                    url = "{0}{1}".format(s3root, path)
                     return url
 
     def get_test_region(self):
@@ -209,6 +210,7 @@ class TaskCat (object):
                     for region in yamlcfg['global']['regions']:
                         # print "found region %s" % region
                         g_regions.append(region)
+                        self._use_global = True
                 except TypeError:
                     print "No regions defined in [%s]:" % namespace
                     print "Please correct region defs[%s]:" % namespace
@@ -226,8 +228,14 @@ class TaskCat (object):
                 cfnconnect = boto3.client('cloudformation')
                 result = cfnconnect.validate_template(TemplateURL=tp)
                 print P + "Validated [%s]" % self.get_template()
+                cfn_result = (result['Description'])
+                print I + "Template_Description = %s" % cfn_result
                 if self.verbose:
-                    print D + "Validation payload = %s" % result
+                    cfn_parms = json.dumps(
+                        result['Parameters'],
+                        indent=4,
+                        separators=(',', ': '))
+                    print D + "Parameters = %s" % cfn_parms
             except Exception as e:
                 if self.verbose:
                     print D + str(e)
@@ -250,7 +258,6 @@ class TaskCat (object):
             self.define_tests(taskcat_cfg, test)
             print self.get_parameter()
             parms = urllib.urlopen(self.get_parameter())
-            #print "Performing validation json parameter: " + str(parms.read())
             jsonstatus = self.validate_json(parms)
             print "jsonstatus = %s" % jsonstatus
             if jsonstatus:
@@ -260,14 +267,14 @@ class TaskCat (object):
 
         return True
 
-    def define_tests(self, yaml_cfg, test):
-        for tdefs in yaml_cfg['tests'].keys():
+    def define_tests(self, yamlc, test):
+        for tdefs in yamlc['tests'].keys():
             # print "[DEBUG] tdefs = %s" % tdefs
             if tdefs == test:
-                t = yaml_cfg['tests'][test]['template_file']
-                p = yaml_cfg['tests'][test]['parameter_input']
-                n = yaml_cfg['global']['project']
-                b = yaml_cfg['global']['s3bucket']
+                t = yamlc['tests'][test]['template_file']
+                p = yamlc['tests'][test]['parameter_input']
+                n = yamlc['global']['project']
+                b = yamlc['global']['s3bucket']
                 self.set_s3bucket(b)
                 self.set_project(n)
                 self.set_template(t)
@@ -278,9 +285,9 @@ class TaskCat (object):
                     print D + "|Project Name    => [%s]" % self.get_project()
                     print D + "|Template Path   => [%s]" % self.get_template()
                     print D + "|Parameter Path  => [%s]" % self.get_parameter()
-                if 'regions' in yaml_cfg['tests'][test]:
-                    if yaml_cfg['tests'][test]['regions'] is not None:
-                        r = yaml_cfg['tests'][test]['regions']
+                if 'regions' in yamlc['tests'][test]:
+                    if yamlc['tests'][test]['regions'] is not None:
+                        r = yamlc['tests'][test]['regions']
                         self.set_test_region(r)
                         if self.verbose:
                             print D + "|Defined Regions:"
@@ -288,7 +295,7 @@ class TaskCat (object):
                                 for each in list_o:
                                     print "\t\t\t - [%s]" % each
                 else:
-                    global_regions = self.get_global_region(yaml_cfg)
+                    global_regions = self.get_global_region(yamlc)
                     self.set_test_region(global_regions)
                     if self.verbose:
                         print D + "|Global Regions:"
@@ -496,6 +503,7 @@ class TaskCat (object):
     def welcome(self, prog_name):
         me = prog_name.replace('.py', ' ')
         banner = pyfiglet.Figlet(font='standard')
+        self.banner = banner
         print banner.renderText(me)
         print "version %s" % version
 
