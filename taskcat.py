@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 # authors:avattathil@gmail.com
 # repo: https://avattathil/taskcat.io
 # docs: http://taskcat.io
@@ -26,11 +27,17 @@ import urllib
 
 # Version Tag
 version = 'v.01'
-D = '[DEBUG] :'
-E = '[ERROR] :'
-P = '[PASS ] :'
-F = '[FAIL ] :'
-F2 = '[FATAL] :'
+debug = u'\u2691'.encode('utf8')
+error = u'\u26a0'.encode('utf8')
+check = u'\u2714'.encode('utf8')
+fail = u'\u2718'.encode('utf8')
+info = u'\u2139'.encode('utf8')
+E = '[ERROR%s] :' % error
+D = '[DEBUG%s] :' % debug
+P = '[PASS %s] :' % check
+F = '[FAIL %s] :' % fail
+I = '[INFO %s] :' % info
+
 
 # Example config.yml
 # --Begin
@@ -218,13 +225,13 @@ class TaskCat (object):
             try:
                 cfnconnect = boto3.client('cloudformation')
                 result = cfnconnect.validate_template(TemplateURL=tp)
-                print "[PASSED] :Validated [%s]" % self.get_template()
+                print P + "Validated [%s]" % self.get_template()
                 if self.verbose:
                     print D + "Validation payload = %s" % result
             except Exception as e:
                 if self.verbose:
                     print D + str(e)
-                sys.exit("[FATAL]  :Cannot validate %s" % self.get_template())
+                sys.exit(F + "Cannot validate %s" % self.get_template())
         return True
 
     def validate_parameters(self, taskcat_cfg, test_list):
@@ -232,11 +239,9 @@ class TaskCat (object):
         print "Performing validation json parameter: " + parms
         jsonstatus = self.validate_json(parms.read())
         if jsonstatus:
-            print "[PASSED] :Validated [%s]" % self.get_parameter()
+            print P + "Validated [%s]" % self.get_parameter()
         else:
-            sys.exit("[FATAL] :Cannot validate %s" % self.get_parameter())
-
-        # sys.exit("[FATAL] :" + test + " is not valid [failed test]")
+            sys.exit(F + "Cannot validate %s" % self.get_parameter())
 
     def validate_json(jsonparms):
         try:
@@ -351,7 +356,7 @@ class TaskCat (object):
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print "Queing test => %s " % defined
+                        print I + "Queing test => %s " % defined
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
