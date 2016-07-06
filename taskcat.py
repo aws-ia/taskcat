@@ -27,6 +27,10 @@ import urllib
 # Version Tag
 version = 'v.01'
 D = '[DEBUG] :'
+E = '[ERROR] :'
+P = '[PASS ] :'
+F = '[FAIL ] :'
+F2 = '[FATAL] :'
 
 # Example config.yml
 # --Begin
@@ -218,7 +222,7 @@ class TaskCat (object):
                     print D + "Validation payload = %s" % result
             except Exception as e:
                 if self.verbose:
-                    print D + e
+                    print D + str(e)
                 sys.exit("[FATAL]  :Cannot validate %s" % self.get_template())
         return True
 
@@ -289,9 +293,9 @@ class TaskCat (object):
                 print self.nametag + ": AWS AccountNumber: \t [%s]" % account
                 print self.nametag + ": Authenticated via: \t [boto-profile] "
             except Exception as e:
-                print "[ERROR] Credential Error - Please check you profile!"
+                print E + "Credential Error - Please check you profile!"
                 if self.verbose:
-                    print D + e
+                    print D + str(e)
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
             boto3.setup_default_session(
@@ -303,9 +307,9 @@ class TaskCat (object):
                 print self.nametag + ": AWS AccountNumber: \t [%s]" % account
                 print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
-                print "[ERROR] Credential Error - Please check you keys!"
+                print E + "Credential Error - Please check you keys!"
                 if self.verbose:
-                    print D + e
+                    print D + str(e)
                 sys.exit(1)
         else:
             boto3.setup_default_session(
@@ -317,9 +321,9 @@ class TaskCat (object):
                 print self.nametag + ": AWS AccountNumber: \t [%s]" % account
                 print self.nametag + ": Authenticated via: \t [role] "
             except Exception as e:
-                print "[ERROR] Credential Error - Cannot assume role!"
+                print E + "Credential Error - Cannot assume role!"
                 if self.verbose:
-                    print D + e
+                    print D + str(e)
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
@@ -353,15 +357,15 @@ class TaskCat (object):
                                     pass
                                 else:
                                     print "No key %s in test" % key + defined
-                                    print "[ERROR] while inspecting: " + parms
+                                    print E + "While inspecting: " + parms
                                     sys.exit(1)
             else:
-                print "[ERROR]Cannot open [%s]" % yaml_file
+                print E + "Cannot open [%s]" % yaml_file
                 sys.exit(1)
         except Exception as e:
-            print "[ERROR] yaml [%s] is not formated well!!" % yaml_file
+            print E + "yaml [%s] is not formated well!!" % yaml_file
             if self.verbose:
-                print "[DEBUG]", e
+                print D + str(e)
             return False
         return run_tests
 
@@ -446,10 +450,10 @@ class TaskCat (object):
                 args.template is not None or
                 args.s3bucket is not None or
                 args.region is not None):
-            print "[ERROR] You specified a yaml config file for this test"
+            print E + "You specified a yaml config file for this test"
             nc = "-t (--template) -b (--test-bucket) -r (--region)"
-            print "[ERROR] %s are not compatable with yaml mode." % nc
-            print "[ERROR] Please remove these flags!"
+            print " %s are not compatable with yaml mode." % nc
+            print E + " Please remove these flags!"
             print " [INFO] For more info use help" + __file__ + " --help"
             print "        exiting...."
             sys.exit(1)
