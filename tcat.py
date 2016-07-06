@@ -10,35 +10,6 @@
 import taskcat 
 import yaml
 
-# Example config.yml
-# --Begin
-yaml_cfg = '''
-global:
-  marketplace-ami: false
-  owner: quickstart-eng@amazon.com
-  project: quickstart-testproject
-   regions:
-    - us-east-1
-    - us-west-1
-    - us-west-2
-   reporting: true
-   s3bucket: "s3://quickstart-ci-bucket"
-tests:
-  test1:
-     parameter_input: quickstart-parms1.json
-     regions:
-       - us-west-1
-     template_file: quickstart-test1.template
-  test2:
-     parameter_input: quickstart-parms2.json
-     regions:
-       - us-west-1
-       - us-east-1
-    template_file: quickstart-test2.template
-'''
-# --End
-# Example config.yml
-
 version = '2.0'
 
 
