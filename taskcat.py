@@ -109,12 +109,11 @@ class TaskCat (object):
         return self.s3bucket
 
     def set_config(self, config_yml):
-        config_yml
         if os.path.isfile(config_yml):
             self.config = config_yml
         else:
             print "Cannot locate file %s" % config_yml
-            exit
+            exit(1)
 
     def get_config(self):
         return self.config
@@ -148,7 +147,7 @@ class TaskCat (object):
         self.set_s3bucket(bucket.name)
         project = taskcat_cfg['global']['project']
         self.set_project(project)
-        if (os.path.isdir(project)):
+        if os.path.isdir(project):
             fsmap = buildmap('.', project)
         else:
             print "Cannot access directory [%s]" % project
@@ -176,11 +175,13 @@ class TaskCat (object):
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
+            if self.verbose:
+                print D + "Get objects in.... %s" % bucket
             for obj in buckets.objects.filter(Prefix=(self.get_project())):
                 if key in obj.key:
                     path = (str('{0}/{1}'.format(buckets.name, obj.key)))
                     url = s3root + path
-        return (url)
+        return url
 
     def get_test_region(self):
         return self.test_region
@@ -190,15 +191,15 @@ class TaskCat (object):
         self.test_region.append(region_list)
         return region_list
 
-    def get_global_region(self, yaml_cfg):
+    def get_global_region(self, yamlcfg):
         g_regions = []
-        for keys in yaml_cfg['global'].keys():
+        for keys in yamlcfg['global'].keys():
             if 'region' in keys:
                 # print self.nametag + ":[DEBUG] Global Regions [%s]" % keys
                 try:
-                    iter(yaml_cfg['global']['regions'])
+                    iter(yamlcfg['global']['regions'])
                     namespace = 'global'
-                    for region in yaml_cfg['global']['regions']:
+                    for region in yamlcfg['global']['regions']:
                         # print "found region %s" % region
                         g_regions.append(region)
                 except TypeError:
@@ -477,8 +478,7 @@ class TaskCat (object):
 
         return args
 
-    def welcome():
-        prog_name = os.path.basename(__file__)
+    def welcome(self, prog_name):
         me = prog_name.replace('.py', ' ')
         banner = pyfiglet.Figlet(font='standard')
         print banner.renderText(me)
