@@ -350,6 +350,7 @@ class TaskCat (object):
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
+        # type: (object) -> object
         print '-' * self._termsize
         run_tests = []
         required_global_keys = ['s3bucket',
