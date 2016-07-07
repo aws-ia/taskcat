@@ -23,6 +23,7 @@ import boto3
 import yaml
 import json
 import urllib
+from botocore.exceptions import ClientError
 
 
 # Version Tag
@@ -46,6 +47,7 @@ global:
   notification: true
   owner: avattathil@gmail.com
   project: projectx
+  reporting: true
   regions:
     - us-east-1
     - us-west-1
@@ -53,7 +55,7 @@ global:
   report_email-to-owner: true
   report_publish-to-s3: true
   report_s3bucket: taskcat-reports
-  s3bucket: taskcat-testing
+  s3bucket: projectx-templates
 tests:
   projectx-senario-1:
     parameter_input: projectx-senario-1.json
@@ -152,7 +154,6 @@ class TaskCat (object):
 
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-        bucket.Acl().put(ACL='public-read')
         self.set_s3bucket(bucket.name)
         project = taskcat_cfg['global']['project']
         self.set_project(project)
@@ -165,10 +166,16 @@ class TaskCat (object):
         for filename in fsmap:
             # print "Obj =  %s" % filename
             # upload = re.sub('^./quickstart-', '', name)
-            upload = re.sub('^./', '', filename)
-            bucket.upload_file(filename,
-                               upload,
-                               ExtraArgs={'ACL': 'public-read'})
+            try:
+                upload = re.sub('^./', '', filename)
+                bucket.Acl().put(ACL='public-read')
+                bucket.upload_file(filename,
+                                   upload,
+                                   ExtraArgs={'ACL': 'public-read'})
+            except Exception as e:
+                print "Cannot Upload to bucket => %s" % bucket.name
+                if self.verbose:
+                    print D + str(e)
 
         for buckets in s3.buckets.all():
             # sname = re.sub('^./quickstart-', '', project)
@@ -401,7 +408,7 @@ class TaskCat (object):
             '-c',
             '--config_yml',
             type=str,
-            help="[Configuration yaml] Read configuration from alfred.yml")
+            help="[Configuration yaml] Read configuration from config.yml")
         parser.add_argument(
             '-b',
             '--s3bucket',
@@ -463,7 +470,7 @@ class TaskCat (object):
             sys.exit(0)
 
         if args.example_yaml:
-            print "An example: config.yml file to be used with %s " % __name__
+            print "#An example: config.yml file to be used with %s " % __name__
             print yaml_cfg
             sys.exit(0)
 

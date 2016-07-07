@@ -7,15 +7,15 @@
 # Purpose: This program (tcat) is a caloudformation testing tool
 # Tests can defined in a configuration yaml (config.yml)
 
-import taskcat 
+from taskcat import TaskCat
 import yaml
 
 version = '2.0'
 
 
 def main():
-    tcat_obj = taskcat.TaskCat('[TSKCAT] ')
-    tcat_obj.welcome(__file__)
+    tcat_obj = TaskCat('[TSKCAT] ')
+    tcat_obj.welcome('taskcat.io')
     # Initalize cli interface
     # @TODO Add RestFull Interface
     args = tcat_obj.interface()
