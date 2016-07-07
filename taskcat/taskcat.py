@@ -97,10 +97,11 @@ class TaskCat (object):
         self.project = "not set"
         self.verbose = False
         self.config = 'config.yml'
-        self.template_type = "unknown"
         self.test_region = ['none']
         self.s3bucket = "not set"
-        self._template_path = "not set"
+        self.template_path = "not set"
+        self.parameter_path = "not set"
+        self._template_file = "not set"
         self._parameter_file = "not set"
         self._termsize = 110
         self._banner = ""
@@ -130,19 +131,13 @@ class TaskCat (object):
         return self.config
 
     def get_template(self):
-        return self._template_path
+        return self._template_file
 
-    def set_parameter(self, parameter):
+    def set_parameter_file(self, parameter):
         self._parameter_file = parameter
 
-    def set_template(self, template):
-        self._template_path = template
-        if "https://s3" in self._template_path:
-            # print "template type = [s3_object]"
-            self.template_type = "s3_object"
-        else:
-            # print "template type = [local_file]"
-            self.template_type = "local_file"
+    def set_template_file(self, template):
+        self._template_file = template
 
     def get_parameter(self):
         return self._parameter_file
@@ -229,11 +224,11 @@ class TaskCat (object):
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
-
-            tp = (self.get_s3_url(self.get_template()))
+            
             try:
-                cfnconnect = boto3.client('cloudformation')
-                result = cfnconnect.validate_template(TemplateURL=tp)
+                cfnconnect = boto3.client('cloudformation', 'us-west-2')
+                cfnconnect.validate_template(TemplateURL=self.get_s3_url(self.get_template()))
+                result = cfnconnect.validate_template(TemplateURL=self.get_s3_url(self.get_template()))
                 print P + "Validated [%s]" % self.get_template()
                 cfn_result = (result['Description'])
                 print I + "Template_Description = %s" % cfn_result
@@ -284,8 +279,8 @@ class TaskCat (object):
                 b = yamlc['global']['s3bucket']
                 self.set_s3bucket(b)
                 self.set_project(n)
-                self.set_template(t)
-                self.set_parameter(self.get_s3_url(p))
+                self.set_template_file(t)
+                self.set_parameter_file(p)
                 if self.verbose:
                     print D + "(Acquiring) tests assets for .......[%s]" % test
                     print D + "|S3 Bucket       => [%s]" % self.get_s3bucket()
