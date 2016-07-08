@@ -244,7 +244,7 @@ class TaskCat (object):
                     TemplateURL=self.get_s3_url(self.get_template_file()))
                 print P + "Validated [%s]" % self.get_template_file()
                 cfn_result = (result['Description'])
-                print I + "Template_Description = %s" % cfn_result
+                print I + "Template_Description  [%s]" % cfn_result
                 if self.verbose:
                     cfn_parms = json.dumps(
                         result['Parameters'],
@@ -255,6 +255,8 @@ class TaskCat (object):
                 if self.verbose:
                     print D + str(e)
                 sys.exit(F + "Cannot validate %s" % self.get_template_file())
+            print "\t ....done"
+        print '-' * self._termsize
         return True
 
     def validate_json(self, jsonin):
@@ -269,17 +271,24 @@ class TaskCat (object):
     def validate_parameters(self, taskcat_cfg, test_list):
 
         for test in test_list:
-            print test
             self.define_tests(taskcat_cfg, test)
-            print self.get_parameter_path()
+            print self.nametag + "|Validate JSON input in test[%s]" % test
+            if self.verbose:
+                print D + "parameter_path = %s" % self.get_parameter_path()
+
             parms = urllib.urlopen(self.get_parameter_path())
             jsonstatus = self.validate_json(parms)
-            print "jsonstatus = %s" % jsonstatus
+
+            if self.verbose:
+                print D + "jsonstatus = %s" % jsonstatus
+
             if jsonstatus:
                 print P + "Validated [%s]" % self.get_parameter_file()
             else:
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
 
+            print "\t ....done"
+        print '-' * self._termsize
         return True
 
     def define_tests(self, yamlc, test):
@@ -294,11 +303,13 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
-                self.set_template_path(self.get_s3_url(self.get_template_file()))
-                self.set_parameter_path(self.get_s3_url(self.get_parameter_file()))
+                self.set_template_path(
+                    self.get_s3_url(self.get_template_file()))
+                self.set_parameter_path(
+                    self.get_s3_url(self.get_parameter_file()))
                 if self.verbose:
                     print D + "(Acquiring) tests assets for .......[%s]" % test
-                    print D + "|S3 Bucket      => [%s]" % self.get_s3bucket()
+                    print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()
                     print D + "|Project    => [%s]" % self.get_project()
                     print D + "|Template   => [%s]" % self.get_template_path()
                     print D + "|Parameter  => [%s]" % self.get_parameter_path()
@@ -391,7 +402,7 @@ class TaskCat (object):
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print I + "Queing test => %s " % defined
+                        print I + " Queing test => %s " % defined
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
