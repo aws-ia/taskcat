@@ -23,7 +23,7 @@ import boto3
 import yaml
 import json
 import urllib
-from botocore.exceptions import ClientError
+import textwrap
 
 
 # Version Tag
@@ -244,7 +244,7 @@ class TaskCat (object):
                     TemplateURL=self.get_s3_url(self.get_template_file()))
                 print P + "Validated [%s]" % self.get_template_file()
                 cfn_result = (result['Description'])
-                print I + "Template_Description  [%s]" % cfn_result
+                print I + "Description  [%s]" % textwrap.fill(cfn_result)
                 if self.verbose:
                     cfn_parms = json.dumps(
                         result['Parameters'],
