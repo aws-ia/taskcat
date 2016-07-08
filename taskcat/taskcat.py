@@ -418,7 +418,7 @@ class TaskCat (object):
             print E + "yaml [%s] is not formated well!!" % yaml_file
             if self.verbose:
                 print D + str(e)
-            return False
+            sys.exit(1)
         return run_tests
 
     def interface(self):
