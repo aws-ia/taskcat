@@ -102,7 +102,7 @@ class TaskCat (object):
         self.template_path = "not set"
         self.parameter_path = "not set"
         self._template_file = "not set"
-        self._parameter_file = "not set"
+        self._parameter_path = "not set"
         self._termsize = 110
         self._banner = ""
         self._use_global = False
@@ -130,17 +130,29 @@ class TaskCat (object):
     def get_config(self):
         return self.config
 
-    def get_template(self):
+    def get_template_file(self):
         return self._template_file
-
-    def set_parameter_file(self, parameter):
-        self._parameter_file = parameter
 
     def set_template_file(self, template):
         self._template_file = template
 
-    def get_parameter(self):
+    def set_parameter_file(self, parameter):
+        self._parameter_file = parameter
+
+    def get_parameter_file(self):
         return self._parameter_file
+
+    def set_parameter_path(self, parameter):
+        self.parameter_path = parameter
+
+    def get_parameter_path(self):
+        return self.parameter_path
+
+    def set_template_path(self, template):
+        self.template_path = template
+
+    def get_template_path(self):
+        return self.template_path
 
     def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
@@ -224,12 +236,13 @@ class TaskCat (object):
         for test in test_list:
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
-            
             try:
                 cfnconnect = boto3.client('cloudformation', 'us-west-2')
-                cfnconnect.validate_template(TemplateURL=self.get_s3_url(self.get_template()))
-                result = cfnconnect.validate_template(TemplateURL=self.get_s3_url(self.get_template()))
-                print P + "Validated [%s]" % self.get_template()
+                cfnconnect.validate_template(
+                    TemplateURL=self.get_s3_url(self.get_template_file()))
+                result = cfnconnect.validate_template(
+                    TemplateURL=self.get_s3_url(self.get_template_file()))
+                print P + "Validated [%s]" % self.get_template_file()
                 cfn_result = (result['Description'])
                 print I + "Template_Description = %s" % cfn_result
                 if self.verbose:
@@ -241,7 +254,7 @@ class TaskCat (object):
             except Exception as e:
                 if self.verbose:
                     print D + str(e)
-                sys.exit(F + "Cannot validate %s" % self.get_template())
+                sys.exit(F + "Cannot validate %s" % self.get_template_file())
         return True
 
     def validate_json(self, jsonin):
@@ -258,14 +271,14 @@ class TaskCat (object):
         for test in test_list:
             print test
             self.define_tests(taskcat_cfg, test)
-            print self.get_parameter()
-            parms = urllib.urlopen(self.get_parameter())
+            print self.get_parameter_path()
+            parms = urllib.urlopen(self.get_parameter_path())
             jsonstatus = self.validate_json(parms)
             print "jsonstatus = %s" % jsonstatus
             if jsonstatus:
-                print P + "Validated [%s]" % self.get_parameter()
+                print P + "Validated [%s]" % self.get_parameter_file()
             else:
-                sys.exit(F + "Cannot validate %s" % self.get_parameter())
+                sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
 
         return True
 
@@ -281,12 +294,14 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
+                self.set_template_path(self.get_s3_url(self.get_template_file()))
+                self.set_parameter_path(self.get_s3_url(self.get_parameter_file()))
                 if self.verbose:
                     print D + "(Acquiring) tests assets for .......[%s]" % test
-                    print D + "|S3 Bucket       => [%s]" % self.get_s3bucket()
-                    print D + "|Project Name    => [%s]" % self.get_project()
-                    print D + "|Template Path   => [%s]" % self.get_template()
-                    print D + "|Parameter Path  => [%s]" % self.get_parameter()
+                    print D + "|S3 Bucket      => [%s]" % self.get_s3bucket()
+                    print D + "|Project    => [%s]" % self.get_project()
+                    print D + "|Template   => [%s]" % self.get_template_path()
+                    print D + "|Parameter  => [%s]" % self.get_parameter_path()
                 if 'regions' in yamlc['tests'][test]:
                     if yamlc['tests'][test]['regions'] is not None:
                         r = yamlc['tests'][test]['regions']
