@@ -218,6 +218,12 @@ class TaskCat (object):
                     url = "{0}{1}".format(s3root, path)
                     return url
 
+    def genpassword(passlength, type):
+        plen = int(passlength)
+        password = ''.join(random.sample(
+            map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
+        return password
+
     def get_test_region(self):
         return self.test_region
 
@@ -242,12 +248,6 @@ class TaskCat (object):
                     print "No regions defined in [%s]:" % namespace
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
-
-    def genpassword(l, type):
-        plen = int(l)
-        password = ''.join(random.sample(
-            map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
-        return password
 
     def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
