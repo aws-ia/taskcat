@@ -236,7 +236,6 @@ class TaskCat (object):
         g_regions = []
         for keys in yamlcfg['global'].keys():
             if 'region' in keys:
-                # print self.nametag + ":[DEBUG] Global Regions [%s]" % keys
                 try:
                     iter(yamlcfg['global']['regions'])
                     namespace = 'global'
@@ -280,6 +279,7 @@ class TaskCat (object):
         return True
 
     def stackcreate(self, taskcat_cfg, test_list):
+        stackids = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
             print self.nametag + "| Preparing to launch [%s]" % test
@@ -287,13 +287,14 @@ class TaskCat (object):
             for region in self.get_test_region():
                 print I + " Preparing to launch in region [%s] " % region
                 try:
-                    #cfnconnect = boto3.client('cloudformation', region)
-                    #cfnconnect.create_stack(
-                    #    StackName="taskcat",
-                    #    DisableRollback=True,
-                    #    TemplateURL=self.get_template_path(),
-                    #    Parameters=self.get_parameter_path(),
-                    #    Capabilities=self.get_capabilities())
+                    cfnconnect = boto3.client('cloudformation', region)
+                    stackdata = cfnconnect.create_stack(
+                        StackName="taskcat",
+                        DisableRollback=True,
+                        TemplateURL=self.get_template_path(),
+                        Parameters=self.get_parameter_path(),
+                        Capabilities=self.get_capabilities())
+                    stackids.append(stackdata)
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
@@ -309,7 +310,7 @@ class TaskCat (object):
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
-        return True
+        return stackids
 
     def validate_json(self, jsonin):
         try:
@@ -321,7 +322,6 @@ class TaskCat (object):
         return True
 
     def validate_parameters(self, taskcat_cfg, test_list):
-
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
             print self.nametag + "| Validate JSON input in test[%s]" % test
@@ -342,6 +342,17 @@ class TaskCat (object):
             print "\t ....done"
         print '-' * self._termsize
         return True
+
+    def if_stackexists(self, stackname, region):
+        cfnconnect = boto3.client('cloudformation', region)
+        try:
+            cfnconnect.describe_stacks(StackName=stackname)
+            exists = "yes"
+        except Exception as e:
+            if self.verbose:
+                print D + str(e)
+                exists = "no"
+        return exists
 
     def define_tests(self, yamlc, test):
         for tdefs in yamlc['tests'].keys():
