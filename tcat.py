@@ -18,7 +18,7 @@ def main():
     tcat_obj.welcome('taskcat.io')
     # Initalize cli interface
     # @TODO Add RestFull Interface
-    args = tcat_obj.interface()
+    args = tcat_obj.interface
     # Init aws api and set default auth method
     tcat_obj.set_config(args.config_yml)
     # tcat_obj.set_config('ci/config.yml')
@@ -44,9 +44,10 @@ def main():
             tcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()
 
-        tcat_obj.s3upload(tcat_cfg)
-        tcat_obj.validate_template(tcat_cfg, test_list)
-        tcat_obj.validate_parameters(tcat_cfg, test_list)
+        #tcat_obj.s3upload(tcat_cfg)
+        #tcat_obj.validate_template(tcat_cfg, test_list)
+        #tcat_obj.validate_parameters(tcat_cfg, test_list)
+        tcat_obj.stackcreate (tcat_cfg, test_list)
 # --End
 # Finish run in ymal mode
 

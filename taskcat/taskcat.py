@@ -24,6 +24,7 @@ import yaml
 import json
 import urllib
 import textwrap
+import random
 
 
 # Version Tag
@@ -95,6 +96,7 @@ class TaskCat (object):
     def __init__(self, nametag):
         self.nametag = nametag
         self.project = "not set"
+        self.capabilities = []
         self.verbose = False
         self.config = 'config.yml'
         self.test_region = ['none']
@@ -106,13 +108,20 @@ class TaskCat (object):
         self._termsize = 110
         self._banner = ""
         self._use_global = False
-        self.interface()
+        self._password = "Notset"
+        self.interface
 
     def set_project(self, project):
         self.project = project
 
     def get_project(self):
         return self.project
+
+    def set_capabilities(self, ability):
+        self.capabilities = ability
+
+    def get_capabilities(self):
+        return self.capabilities
 
     def set_s3bucket(self, bucket):
         self.s3bucket = bucket
@@ -154,6 +163,12 @@ class TaskCat (object):
     def get_template_path(self):
         return self.template_path
 
+    def set_password(self, password):
+        self._password = password
+
+    def get_password(self):
+        return self._password
+
     def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
         print self.nametag + ": I uploaded the following assets"
@@ -171,8 +186,6 @@ class TaskCat (object):
             sys.exit(1)
 
         for filename in fsmap:
-            # print "Obj =  %s" % filename
-            # upload = re.sub('^./quickstart-', '', name)
             try:
                 upload = re.sub('^./', '', filename)
                 bucket.Acl().put(ACL='public-read')
@@ -181,11 +194,12 @@ class TaskCat (object):
                                    ExtraArgs={'ACL': 'public-read'})
             except Exception as e:
                 print "Cannot Upload to bucket => %s" % bucket.name
+                print E + "Check that you bucketname is correct"
                 if self.verbose:
                     print D + str(e)
+                sys.exit(1)
 
         for buckets in s3.buckets.all():
-            # sname = re.sub('^./quickstart-', '', project)
             for obj in buckets.objects.filter(Prefix=project):
                 o = str('{0}/{1}'.format(buckets.name, obj.key))
                 print o
@@ -196,7 +210,6 @@ class TaskCat (object):
         s3root = "https://s3.amazonaws.com/"
         s3 = boto3.resource('s3')
         for buckets in s3.buckets.all():
-            # sname = re.sub('^./quickstart-', '', project)
             if self.verbose:
                 print D + "Processing .... objects"
             for obj in buckets.objects.filter(Prefix=(self.get_project())):
@@ -210,8 +223,8 @@ class TaskCat (object):
 
     def set_test_region(self, region_list):
         self.test_region = []
-        self.test_region.append(region_list)
-        return region_list
+        for region in region_list:
+            self.test_region.append(region)
 
     def get_global_region(self, yamlcfg):
         g_regions = []
@@ -230,6 +243,12 @@ class TaskCat (object):
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
 
+    def genpassword(l, type):
+        plen = int(l)
+        password = ''.join(random.sample(
+            map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
+        return password
+
     def validate_template(self, taskcat_cfg, test_list):
         # Load gobal regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
@@ -237,7 +256,8 @@ class TaskCat (object):
             print self.nametag + "|Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             try:
-                cfnconnect = boto3.client('cloudformation', 'us-west-2')
+                cfnconnect = boto3.client(
+                    'cloudformation', self.get_test_region())
                 cfnconnect.validate_template(
                     TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfnconnect.validate_template(
@@ -255,6 +275,32 @@ class TaskCat (object):
                 if self.verbose:
                     print D + str(e)
                 sys.exit(F + "Cannot validate %s" % self.get_template_file())
+            print "\t ....done"
+        print '-' * self._termsize
+        return True
+
+    def stackcreate(self, taskcat_cfg, test_list):
+        # Load gobal regions
+        self.set_test_region(self.get_global_region(taskcat_cfg))
+        for test in test_list:
+            print self.nametag + "|Preparing to launch [%s]" % test
+            self.define_tests(taskcat_cfg, test)
+            for region in self.get_test_region():
+                print (type(region))
+                print I + "Preparing to launch in region [%s] " % str(region)
+                exit(1)
+                try:
+                    cfnconnect = boto3.client('cloudformation', 'us-west-2')
+                    cfnconnect.create_stack(
+                        StackName="taskcat",
+                        DisableRollback=True,
+                        TemplateURL=self.get_template_path(),
+                        Parameters=self.get_parameter_path(),
+                        Capabilities=self.get_capabilities())
+                except Exception as e:
+                    if self.verbose:
+                        print D + str(e)
+                    sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
         return True
@@ -421,6 +467,7 @@ class TaskCat (object):
             sys.exit(1)
         return run_tests
 
+    @property
     def interface(self):
         parser = argparse.ArgumentParser(
             description='(Cloudformation Test Framework)',
@@ -514,12 +561,12 @@ class TaskCat (object):
             parser.error("You specfied a template file with no parmeters!")
             print parser.print_help()
             sys.exit(1)
-        elif (args.template is None and args.parms_file is not None):
+        elif args.template is None and args.parms_file is not None:
             parser.error("You specfied a parameter file with no template!")
             print parser.print_help()
             sys.exit(1)
 
-        if (args.boto_profile is not None):
+        if args.boto_profile is not None:
             if (args.aws_access_key is not None or
                     args.aws_secret_key is not None):
                 parser.error("Cannot use boto profile -P (--boto_profile)" +
