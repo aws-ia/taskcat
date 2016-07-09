@@ -294,9 +294,10 @@ class TaskCat (object):
                     #    TemplateURL=self.get_template_path(),
                     #    Parameters=self.get_parameter_path(),
                     #    Capabilities=self.get_capabilities())
+
                     if self.verbose:
-                        print D + "Connection region=%s" % region
-                        print D + "StackName=taskcat"
+                        print D + "Boto Connection region=%s" % region
+                        print D + "StackName='taskcat'"
                         print D + "DisableRollback=True"
                         print D + "TemplateURL=%s" % self.get_template_path()
                         print D + "Parameters=%s" % self.get_parameter_path()
