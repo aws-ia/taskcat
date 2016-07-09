@@ -99,7 +99,7 @@ class TaskCat (object):
         self.capabilities = []
         self.verbose = False
         self.config = 'config.yml'
-        self.test_region = ['none']
+        self.test_region = []
         self.s3bucket = "not set"
         self.template_path = "not set"
         self.parameter_path = "not set"
@@ -253,7 +253,7 @@ class TaskCat (object):
         # Load gobal regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
-            print self.nametag + "|Validate Template in test[%s]" % test
+            print self.nametag + "| Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             try:
                 cfnconnect = boto3.client(
@@ -281,22 +281,27 @@ class TaskCat (object):
 
     def stackcreate(self, taskcat_cfg, test_list):
         # Load gobal regions
-        self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
-            print self.nametag + "|Preparing to launch [%s]" % test
+            print self.nametag + "| Preparing to launch [%s]" % test
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
-                print (type(region))
-                print I + "Preparing to launch in region [%s] " % str(region)
-                exit(1)
+                print I + " Preparing to launch in region [%s] " % region
                 try:
-                    cfnconnect = boto3.client('cloudformation', 'us-west-2')
-                    cfnconnect.create_stack(
-                        StackName="taskcat",
-                        DisableRollback=True,
-                        TemplateURL=self.get_template_path(),
-                        Parameters=self.get_parameter_path(),
-                        Capabilities=self.get_capabilities())
+                    #cfnconnect = boto3.client('cloudformation', region)
+                    #cfnconnect.create_stack(
+                    #    StackName="taskcat",
+                    #    DisableRollback=True,
+                    #    TemplateURL=self.get_template_path(),
+                    #    Parameters=self.get_parameter_path(),
+                    #    Capabilities=self.get_capabilities())
+                    if self.verbose:
+                        print D + "Connection region=%s" % region
+                        print D + "StackName=taskcat"
+                        print D + "DisableRollback=True"
+                        print D + "TemplateURL=%s" % self.get_template_path()
+                        print D + "Parameters=%s" % self.get_parameter_path()
+                        print D + "Capabilities=%s" % self.get_capabilities()
+
                 except Exception as e:
                     if self.verbose:
                         print D + str(e)
@@ -318,7 +323,7 @@ class TaskCat (object):
 
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
-            print self.nametag + "|Validate JSON input in test[%s]" % test
+            print self.nametag + "| Validate JSON input in test[%s]" % test
             if self.verbose:
                 print D + "parameter_path = %s" % self.get_parameter_path()
 
@@ -349,12 +354,12 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
-                self.set_template_path(
-                    self.get_s3_url(self.get_template_file()))
-                self.set_parameter_path(
-                    self.get_s3_url(self.get_parameter_file()))
+                #self.set_template_path(
+               #     self.get_s3_url(self.get_template_file()))
+                #self.set_parameter_path(
+                 #   self.get_s3_url(self.get_parameter_file()))
                 if self.verbose:
-                    print D + "(Acquiring) tests assets for .......[%s]" % test
+                    print I + "(Acquiring) tests assets for .......[%s]" % test
                     print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()
                     print D + "|Project    => [%s]" % self.get_project()
                     print D + "|Template   => [%s]" % self.get_template_path()
@@ -362,22 +367,20 @@ class TaskCat (object):
                 if 'regions' in yamlc['tests'][test]:
                     if yamlc['tests'][test]['regions'] is not None:
                         r = yamlc['tests'][test]['regions']
-                        self.set_test_region(r)
+                        self.set_test_region(list(r))
                         if self.verbose:
                             print D + "|Defined Regions:"
                             for list_o in self.get_test_region():
-                                for each in list_o:
-                                    print "\t\t\t - [%s]" % each
+                                print "\t\t\t - [%s]" % list_o
                 else:
                     global_regions = self.get_global_region(yamlc)
-                    self.set_test_region(global_regions)
+                    self.set_test_region(list(global_regions))
                     if self.verbose:
                         print D + "|Global Regions:"
                         for list_o in self.get_test_region():
-                            for each in list_o:
-                                print "\t\t\t - [%s]" % each
+                            print "\t\t\t - [%s]" % list_o
                 if self.verbose:
-                    print D + "(Completed) acquisition of [%s]" % test
+                    print I + "(Completed) acquisition of [%s]" % test
 
     # Set AWS Credentials
     def aws_api_init(self, args):

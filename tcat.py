@@ -23,7 +23,7 @@ def main():
     tcat_obj.set_config(args.config_yml)
     # tcat_obj.set_config('ci/config.yml')
     # Get API Handle - Try all know auth
-    tcat_obj.aws_api_init(args)
+    #tcat_obj.aws_api_init(args)
 
 # Run in ymal mode (Batch Test execution)
 # --Begin
