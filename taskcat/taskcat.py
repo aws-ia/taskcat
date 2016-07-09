@@ -118,7 +118,7 @@ class TaskCat (object):
         return self.project
 
     def set_capabilities(self, ability):
-        self.capabilities = ability
+        self.capabilities.append(ability)
 
     def get_capabilities(self):
         return self.capabilities
@@ -280,7 +280,7 @@ class TaskCat (object):
         return True
 
     def stackcreate(self, taskcat_cfg, test_list):
-        # Load gobal regions
+        self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
             print self.nametag + "| Preparing to launch [%s]" % test
             self.define_tests(taskcat_cfg, test)
