@@ -15,6 +15,7 @@
 
 # --imports --
 import os
+import uuid
 import sys
 import pyfiglet
 import argparse
@@ -103,6 +104,7 @@ class TaskCat (object):
         self.s3bucket = "not set"
         self.template_path = "not set"
         self.parameter_path = "not set"
+        self.defult_region = "us-west-2"
         self._template_file = "not set"
         self._parameter_path = "not set"
         self._termsize = 110
@@ -169,6 +171,12 @@ class TaskCat (object):
     def get_password(self):
         return self._password
 
+    def set_default_region(self, region):
+        self.defult_region = region
+
+    def get_default_region(self):
+        return (self.defult_region)
+
     def s3upload(self, taskcat_cfg):
         print '-' * self._termsize
         print self.nametag + ": I uploaded the following assets"
@@ -218,7 +226,7 @@ class TaskCat (object):
                     url = "{0}{1}".format(s3root, path)
                     return url
 
-    def genpassword(passlength, type):
+    def genpassword(self, passlength):
         plen = int(passlength)
         password = ''.join(random.sample(
             map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
@@ -255,8 +263,10 @@ class TaskCat (object):
             print self.nametag + "| Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             try:
+                if self.verbose:
+                    print D + "boto3 region [%s]" % self.get_default_region()
                 cfnconnect = boto3.client(
-                    'cloudformation', self.get_test_region())
+                    'cloudformation', self.get_default_region())
                 cfnconnect.validate_template(
                     TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfnconnect.validate_template(
@@ -278,31 +288,45 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
-    def stackcreate(self, taskcat_cfg, test_list):
+    def stackcreate(self, taskcat_cfg, test_list, sprefix):
         stackids = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
-            print self.nametag + "| Preparing to launch [%s]" % test
+            print self.nametag + "|Preparing to launch [%s]" % test
+            id = str(uuid.uuid4())
+            sname = re.sub(r'\W+', '', self.nametag)
+            stackname = sname + '-' + sprefix + '-' + test + id[:4]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
-                print I + " Preparing to launch in region [%s] " % region
+                print I + "Preparing to launch in region [%s] " % region
                 try:
-                    cfnconnect = boto3.client('cloudformation', region)
-                    stackdata = cfnconnect.create_stack(
-                        StackName="taskcat",
-                        DisableRollback=True,
-                        TemplateURL=self.get_template_path(),
-                        Parameters=self.get_parameter_path(),
-                        Capabilities=self.get_capabilities())
-                    stackids.append(stackdata)
+                    cfnconnect = boto3.client('cloudformation', 'us-west-2')
+                    s_parmsdata = urllib.urlopen(self.get_parameter_path())
+                    s_parms = json.loads(s_parmsdata.read())
+                    for parmdict in s_parms:
+                        for keys in parmdict:
+                            if re.search('\$\[\w+_genpass_\d{1,2}]',
+                                         parmdict['ParameterValue']):
+                                re.sub(
+                                    '[^0-9]', '', parmdict['ParameterValue'])
+                                parmdict[
+                                    'ParameterValue'] = self.get_password(8)
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
-                        print D + "StackName='taskcat'"
+                        print D + "StackName=" + stackname
                         print D + "DisableRollback=True"
                         print D + "TemplateURL=%s" % self.get_template_path()
-                        print D + "Parameters=%s" % self.get_parameter_path()
+                        print D + "Parameters=%s" % s_parms
                         print D + "Capabilities=%s" % self.get_capabilities()
+
+                    stackdata = cfnconnect.create_stack(
+                        StackName=stackname,
+                        DisableRollback=True,
+                        TemplateURL=self.get_template_path(),
+                        Parameters=s_parms,
+                        Capabilities=self.get_capabilities())
+                    stackids.append(stackdata)
 
                 except Exception as e:
                     if self.verbose:
@@ -310,6 +334,7 @@ class TaskCat (object):
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
+        print stackids
         return stackids
 
     def validate_json(self, jsonin):
@@ -324,7 +349,7 @@ class TaskCat (object):
     def validate_parameters(self, taskcat_cfg, test_list):
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
-            print self.nametag + "| Validate JSON input in test[%s]" % test
+            print self.nametag + "|Validate JSON input in test[%s]" % test
             if self.verbose:
                 print D + "parameter_path = %s" % self.get_parameter_path()
 
@@ -366,10 +391,10 @@ class TaskCat (object):
                 self.set_project(n)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
-                #self.set_template_path(
-               #     self.get_s3_url(self.get_template_file()))
-                #self.set_parameter_path(
-                 #   self.get_s3_url(self.get_parameter_file()))
+                self.set_template_path(
+                    self.get_s3_url(self.get_template_file()))
+                self.set_parameter_path(
+                    self.get_s3_url(self.get_parameter_file()))
                 if self.verbose:
                     print I + "(Acquiring) tests assets for .......[%s]" % test
                     print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()

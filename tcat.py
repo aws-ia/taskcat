@@ -23,7 +23,7 @@ def main():
     tcat_obj.set_config(args.config_yml)
     # tcat_obj.set_config('ci/config.yml')
     # Get API Handle - Try all know auth
-    #tcat_obj.aws_api_init(args)
+    tcat_obj.aws_api_init(args)
 
 # Run in ymal mode (Batch Test execution)
 # --Begin
@@ -45,9 +45,9 @@ def main():
         cfg.close()
 
         #tcat_obj.s3upload(tcat_cfg)
-        #tcat_obj.validate_template(tcat_cfg, test_list)
-        #tcat_obj.validate_parameters(tcat_cfg, test_list)
-        tcat_obj.stackcreate (tcat_cfg, test_list)
+        tcat_obj.validate_template(tcat_cfg, test_list)
+        tcat_obj.validate_parameters(tcat_cfg, test_list)
+        tcat_obj.stackcreate(tcat_cfg, test_list ,'tonyv')
 # --End
 # Finish run in ymal mode
 
