@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 # authors:
 # tonynv@amazon.com
-# sancard@amazon.com
 # License Apaache 2.0
 #
 # Purpose: This program (tcat) is a caloudformation testing tool
 # Tests can defined in a configuration yaml (config.yml)
+# @TODO
+        # system level configuration (sys will override repo configs)
+        # if os.path.isfile(sys_yml):
+        # tcat.load_sysymal(sys_yml)
 
 from taskcat import TaskCat
 import yaml
 
-version = '2.0'
+version = '2.1'
 
 
 def main():
@@ -32,10 +35,6 @@ def main():
         print "[TSKCAT] : Mode of operation: \t [ymal-mode]"
         print "[TSKCAT] : Configuration yml: \t [%s]" % args.config_yml
 
-# @TODO
-        # system level configuration (sys will override repo configs)
-        # if os.path.isfile(sys_yml):
-        # tcat.load_sysymal(sys_yml)
 
         test_list = tcat_obj.validate_yaml(args.config_yml)
 
