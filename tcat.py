@@ -47,7 +47,9 @@ def main():
         #tcat_obj.s3upload(tcat_cfg)
         tcat_obj.validate_template(tcat_cfg, test_list)
         tcat_obj.validate_parameters(tcat_cfg, test_list)
-        tcat_obj.stackcreate(tcat_cfg, test_list ,'tonyv')
+        stackinfo = tcat_obj.stackcreate(tcat_cfg, test_list, 'tonyv')
+#        tcat_obj.get_stackstatus(stackinfo)
+
 # --End
 # Finish run in ymal mode
 

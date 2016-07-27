@@ -295,7 +295,7 @@ class TaskCat (object):
             print self.nametag + "|Preparing to launch [%s]" % test
             id = str(uuid.uuid4())
             sname = re.sub(r'\W+', '', self.nametag)
-            stackname = sname + '-' + sprefix + '-' + test + id[:4]
+            stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
                 print I + "Preparing to launch in region [%s] " % region
@@ -334,7 +334,7 @@ class TaskCat (object):
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
-        print stackids
+        #print stackids
         return stackids
 
     def validate_json(self, jsonin):
@@ -378,6 +378,40 @@ class TaskCat (object):
                 print D + str(e)
                 exists = "no"
         return exists
+
+    def get_stackstatus(self, stackid):
+        def regxfind(reobj, dataline):
+            sg = reobj.search(dataline)
+            if sg:
+                return str(sg.group())
+            else:
+                return str('Not-found')
+
+        region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
+        sname = re.sub(r'\W+', '', str(self.nametag))
+        stack_pattern = sname + '-.*-(\w)*(?=/)'
+        print stack_pattern
+        stackname_re = re.compile(stack_pattern)
+        region = regxfind(region_re, stackid)
+        stackname = regxfind(stackname_re, stackid)
+        testinfo = []
+        cfnconnect = boto3.client('cloudformation', region)
+        try:
+            testquery = (cfnconnect.describe_stacks(StackName=stackname))
+            for result in testquery['Stacks']:
+                testinfo.append(stackname)
+                testinfo.append(region)
+                testinfo.append(result.get('StackStatus'))
+                if result.get('StackStatus') == 'CREATE_IN_PROGRESS' or result.get('StackStatus') == 'DELETE_IN_PROGRESS':
+                    testinfo.append(1)
+                else:
+                    testinfo.append(0)
+        except Exception:
+            testinfo.append(stackname)
+            testinfo.append(region)
+            testinfo.append("USER_DELETED")
+            testinfo.append(0)
+        return testinfo
 
     def define_tests(self, yamlc, test):
         for tdefs in yamlc['tests'].keys():
