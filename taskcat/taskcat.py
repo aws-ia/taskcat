@@ -207,10 +207,9 @@ class TaskCat (object):
                     print D + str(e)
                 sys.exit(1)
 
-        for buckets in s3.buckets.all():
-            for obj in buckets.objects.filter(Prefix=project):
-                o = str('{0}/{1}'.format(buckets.name, obj.key))
-                print o
+        for obj in s3.objects.all():
+            o = str('{0}/{1}'.format(buckets.name, obj.key))
+            print o
 
         print '-' * self._termsize
 
