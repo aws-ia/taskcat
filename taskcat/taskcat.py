@@ -207,23 +207,28 @@ class TaskCat (object):
                     print D + str(e)
                 sys.exit(1)
 
-        for obj in s3.objects.all():
-            o = str('{0}/{1}'.format(buckets.name, obj.key))
+        for obj in bucket.objects.all():
+            o = str('{0}/{1}'.format(self.get_s3bucket(), obj.key))
             print o
 
         print '-' * self._termsize
 
     def get_s3_url(self, key):
-        s3root = "https://s3.amazonaws.com/"
-        s3 = boto3.resource('s3')
-        for buckets in s3.buckets.all():
-            if self.verbose:
-                print D + "Processing .... objects"
-            for obj in buckets.objects.filter(Prefix=(self.get_project())):
-                if key in obj.key:
-                    path = (str('{0}/{1}'.format(buckets.name, obj.key)))
-                    url = "{0}{1}".format(s3root, path)
-                    return url
+        client = boto3.client('s3')
+        bucket_location = boto3.client(
+            's3').get_bucket_location(Bucket=self.get_s3bucket())
+        result = client.list_objects(Bucket=self.get_s3bucket(),
+                                     Prefix=self.get_project())
+        contents = result.get('Contents')
+        for s3obj in contents:
+            for metadata in s3obj.iteritems():
+                if metadata[0] == 'Key':
+                    if key in metadata[1]:
+                        o_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
+                            bucket_location['LocationConstraint'],
+                            self.get_s3bucket(),
+                            metadata[1])
+                        return o_url
 
     def genpassword(self, passlength):
         plen = int(passlength)
@@ -309,7 +314,8 @@ class TaskCat (object):
                                 re.sub(
                                     '[^0-9]', '', parmdict['ParameterValue'])
                                 parmdict[
-                                    'ParameterValue'] = self.get_password(8)
+                                    'ParameterValue'] = self.genpassword(8)
+                                print parmdict['ParameterValue']
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
@@ -333,7 +339,7 @@ class TaskCat (object):
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
-        #print stackids
+        # print stackids
         return stackids
 
     def validate_json(self, jsonin):
@@ -341,7 +347,8 @@ class TaskCat (object):
             parms = json.load(jsonin)
             if self.verbose:
                 print (json.dumps(parms, indent=4, separators=(',', ': ')))
-        except ValueError:
+        except ValueError as e:
+            print E + str(e)
             return False
         return True
 
@@ -352,8 +359,8 @@ class TaskCat (object):
             if self.verbose:
                 print D + "parameter_path = %s" % self.get_parameter_path()
 
-            parms = urllib.urlopen(self.get_parameter_path())
-            jsonstatus = self.validate_json(parms)
+            inputparms = urllib.urlopen(self.get_parameter_path())
+            jsonstatus = self.validate_json(inputparms)
 
             if self.verbose:
                 print D + "jsonstatus = %s" % jsonstatus
@@ -361,6 +368,7 @@ class TaskCat (object):
             if jsonstatus:
                 print P + "Validated [%s]" % self.get_parameter_file()
             else:
+                print D + "parameter_file = %s" % self.get_parameter_file()
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
 
             print "\t ....done"
