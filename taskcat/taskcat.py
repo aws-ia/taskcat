@@ -223,9 +223,14 @@ class TaskCat (object):
         for s3obj in contents:
             for metadata in s3obj.iteritems():
                 if metadata[0] == 'Key':
-                    if key in metadata[1]:
+                    if key in metadata[1] and bucket_location is not None:
                         o_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
                             bucket_location['LocationConstraint'],
+                            self.get_s3bucket(),
+                            metadata[1])
+                        return o_url
+                    else:
+                        o_url = "https://s3.amazonaws.com/{0}/{1}".format(
                             self.get_s3bucket(),
                             metadata[1])
                         return o_url
