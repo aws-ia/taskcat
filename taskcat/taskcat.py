@@ -26,6 +26,7 @@ import json
 import urllib
 import textwrap
 import random
+import time
 
 
 # Version Tag
@@ -400,39 +401,52 @@ class TaskCat (object):
                 exists = "no"
         return exists
 
-    def get_stackstatus(self, stackid):
+    def get_stackstatus(self, stackids, speed):
+        active_tests = 1
+        while (active_tests > 0):
+            current_active_tests = 0
+            for stack in stackids:
+                stackquery = self.stackcheck(stack['StackId'])
+                current_active_tests = stackquery[3] + current_active_tests
+                print I + "[{0}] {1} -> {2}".format(
+                    stackquery[0],
+                    stackquery[1],
+                    stackquery[2])
+                active_tests = current_active_tests
+                time.sleep(speed)
+
+    def stackcheck(self, stack_id):
         def regxfind(reobj, dataline):
             sg = reobj.search(dataline)
             if sg:
                 return str(sg.group())
             else:
                 return str('Not-found')
-
+        sname = re.sub(r'\W+', '', self.nametag)
         region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
-        sname = re.sub(r'\W+', '', str(self.nametag))
-        stack_pattern = sname + '-.*-(\w)*(?=/)'
-        print stack_pattern
-        stackname_re = re.compile(stack_pattern)
-        region = regxfind(region_re, stackid)
-        stackname = regxfind(stackname_re, stackid)
-        testinfo = []
+        stack_name_re = re.compile('(?<=:stack/)(%s.*.)(?=/)' % sname)
+        region = regxfind(region_re, stack_id)
+        stack_name = regxfind(stack_name_re, stack_id)
+        test_info = []
         cfnconnect = boto3.client('cloudformation', region)
         try:
-            testquery = (cfnconnect.describe_stacks(StackName=stackname))
-            for result in testquery['Stacks']:
-                testinfo.append(stackname)
-                testinfo.append(region)
-                testinfo.append(result.get('StackStatus'))
-                if result.get('StackStatus') == 'CREATE_IN_PROGRESS' or result.get('StackStatus') == 'DELETE_IN_PROGRESS':
-                    testinfo.append(1)
+            test_query = (cfnconnect.describe_stacks(StackName=stack_name))
+            for result in test_query['Stacks']:
+                test_info.append(stack_name)
+                test_info.append(region)
+                test_info.append(result.get('StackStatus'))
+                if result.get(
+                        'StackStatus') == 'CREATE_IN_PROGRESS' or result.get(
+                        'StackStatus') == 'DELETE_IN_PROGRESS':
+                    test_info.append(1)
                 else:
-                    testinfo.append(0)
+                    test_info.append(0)
         except Exception:
-            testinfo.append(stackname)
-            testinfo.append(region)
-            testinfo.append("USER_DELETED")
-            testinfo.append(0)
-        return testinfo
+            test_info.append(stack_name)
+            test_info.append(region)
+            test_info.append("USER_DELETED")
+            test_info.append(0)
+        return test_info
 
     def define_tests(self, yamlc, test):
         for tdefs in yamlc['tests'].keys():

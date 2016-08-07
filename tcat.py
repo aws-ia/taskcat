@@ -47,7 +47,7 @@ def main():
         tcat_obj.validate_template(tcat_cfg, test_list)
         tcat_obj.validate_parameters(tcat_cfg, test_list)
         stackinfo = tcat_obj.stackcreate(tcat_cfg, test_list, 'tonyv')
-#        tcat_obj.get_stackstatus(stackinfo)
+        tcat_obj.get_stackstatus(stackinfo , 5)
 
 # --End
 # Finish run in ymal mode
