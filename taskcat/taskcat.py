@@ -315,7 +315,7 @@ class TaskCat (object):
             for region in self.get_test_region():
                 print I + "Preparing to launch in region [%s] " % region
                 try:
-                    cfnconnect = boto3.client('cloudformation', 'us-west-2')
+                    cfnconnect = boto3.client('cloudformation', region)
                     s_parmsdata = urllib.urlopen(self.get_parameter_path())
                     s_parms = json.loads(s_parmsdata.read())
                     for parmdict in s_parms:
@@ -330,14 +330,14 @@ class TaskCat (object):
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
-                        print D + "StackName=" + stackname
+                        print D + "StackName=" + stackname + '-' + region
                         print D + "DisableRollback=True"
                         print D + "TemplateURL=%s" % self.get_template_path()
                         print D + "Parameters=%s" % s_parms
                         print D + "Capabilities=%s" % self.get_capabilities()
 
                     stackdata = cfnconnect.create_stack(
-                        StackName=stackname,
+                        StackName=stackname + stackname + '-' + region,
                         DisableRollback=True,
                         TemplateURL=self.get_template_path(),
                         Parameters=s_parms,
@@ -350,7 +350,7 @@ class TaskCat (object):
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
-        # print stackids
+        print stackids
         return stackids
 
     def validate_json(self, jsonin):
