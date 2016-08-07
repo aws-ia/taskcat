@@ -129,7 +129,7 @@ class TaskCat (object):
         self.s3bucket = bucket
 
     def get_s3bucket(self):
-        return self.s3bucket
+        return str(self.s3bucket)
 
     def set_config(self, config_yml):
         if os.path.isfile(config_yml):
@@ -215,6 +215,10 @@ class TaskCat (object):
 
     def get_s3_url(self, key):
         client = boto3.client('s3')
+        bucket = self.get_s3bucket()
+        if self.verbose:
+            print D + "object={0} in bucket={1}".format(key, bucket)
+
         bucket_location = boto3.client(
             's3').get_bucket_location(Bucket=self.get_s3bucket())
         result = client.list_objects(Bucket=self.get_s3bucket(),
@@ -223,17 +227,19 @@ class TaskCat (object):
         for s3obj in contents:
             for metadata in s3obj.iteritems():
                 if metadata[0] == 'Key':
-                    if key in metadata[1] and bucket_location is not None:
-                        o_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
-                            bucket_location['LocationConstraint'],
-                            self.get_s3bucket(),
-                            metadata[1])
-                        return o_url
-                    else:
-                        o_url = "https://s3.amazonaws.com/{0}/{1}".format(
-                            self.get_s3bucket(),
-                            metadata[1])
-                        return o_url
+                    if key in metadata[1]:
+                        if bucket_location['LocationConstraint'] is not None:
+                            o_url = "https://s3-{0}.{1}/{2}/{3}".format(
+                                bucket_location['LocationConstraint'],
+                                "amazonaws.com",
+                                self.get_s3bucket(),
+                                metadata[1])
+                            return o_url
+                        else:
+                            o_url = "https://s3.amazonaws.com/{0}/{1}".format(
+                                self.get_s3bucket(),
+                                metadata[1])
+                            return o_url
 
     def genpassword(self, passlength):
         plen = int(passlength)
@@ -433,6 +439,7 @@ class TaskCat (object):
                 p = yamlc['tests'][test]['parameter_input']
                 n = yamlc['global']['project']
                 b = yamlc['global']['s3bucket']
+
                 self.set_s3bucket(b)
                 self.set_project(n)
                 self.set_template_file(t)
