@@ -13,11 +13,11 @@
 from taskcat import TaskCat
 import yaml
 
-version = '2.1'
+version = '2.1.1'
 
 
 def main():
-    tcat_obj = TaskCat('[TSKCAT] ')
+    tcat_obj = TaskCat()
     tcat_obj.welcome('taskcat.io')
     # Initalize cli interface
     # @TODO Add RestFull Interface
