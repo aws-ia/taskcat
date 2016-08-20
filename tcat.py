@@ -13,9 +13,6 @@
 from taskcat import TaskCat
 import yaml
 
-version = '2.1.1'
-
-
 def main():
     tcat_obj = TaskCat()
     tcat_obj.welcome('taskcat.io')

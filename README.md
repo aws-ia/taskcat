@@ -3,17 +3,20 @@
 TaskCat is a python Class that help you deploy your cloudformation templates in multiple regions. You can use TaskCat by importing the module and creating a TaskCat object. This repo all the code you need to run taskcat
 
 ### Installing requirements
-    pip install -r requirements.txt in your shell
+```
+pip install install taskcat
+```
 
-### Setting up Test Cases 
-To setup taskcat test tests is a two step process:
-* Step 1 Define your test in the config.ymal
-* Step 2 Build a json input file for your cloudformation template.
+### Examples Code
+`tcat.py` #shows how to import and use taskcat
 
-#### Step 1 Creating a config.ymal
-You can generate a sample config.ymal by running `./tcat.py -ey`
-The following command will create a sample config.ymal
-   ./tcat.py -ey | egrep -v '#|^$'  >config.ymal
-Open the file with and editor and update the filenames to match your need. (See section on working with the ymal file)
+### Take it for a spin
 
-#### Step 2 Building a json input file
+```
+python tcat.py
+```
+
+### Help
+	If you need help you can reach out to via [avattathil@gmail.com](avattathil@gmail.com)
+
+*Enjoy!* 

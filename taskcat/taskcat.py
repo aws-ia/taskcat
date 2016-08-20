@@ -30,7 +30,7 @@ import time
 
 
 # Version Tag
-version = 'v.02'
+version = 'v.01'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
