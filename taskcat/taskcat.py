@@ -580,6 +580,7 @@ class TaskCat (object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
+			prog='taskCat'
             description='(Multi-Region Cloudformation  Deployment)',
             prog=__file__, prefix_chars='-')
         parser.add_argument(
@@ -587,29 +588,29 @@ class TaskCat (object):
             '--config_yml',
             type=str,
             help="[Configuration yaml] Read configuration from config.yml")
-        '''parser.add_argument(
+        parser.add_argument(
             '-b',
             '--s3bucket',
             type=str,
-            help="s3 bucket for templates ")'''
-        '''parser.add_argument(
+            help="s3 bucket for templates ")
+        parser.add_argument(
             '-t',
             '--template',
             type=str,
-            help="Filesystem Path to template")'''
-        '''parser.add_argument(
+            help="Filesystem Path to template")
+        parser.add_argument(
             '-m',
             '--marketplace',
             default='False',
             dest='marketplace',
-            action='store_true')'''
-        '''parser.add_argument(
+            action='store_true')
+        parser.add_argument(
             '-r',
             '--region',
             nargs='+',
             type=str,
             help="Specfiy a comma seprated list of region " +
-            "(example: us-east-1, us-west-1, eu-west-1)")'''
+            "(example: us-east-1, us-west-1, eu-west-1)")
         parser.add_argument(
             '-P',
             '--boto-profile',
@@ -625,11 +626,11 @@ class TaskCat (object):
             '--aws_secret_key',
             type=str,
             help="AWS Secrect Key")
-        '''parser.add_argument(
+        parser.add_argument(
             '-p',
             '--parms_file',
             type=str,
-            help="Json Formated Input file")'''
+            help="Json Formated Input file")
         parser.add_argument(
             '-ey',
             '--example_yaml',

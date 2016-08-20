@@ -1,0 +1,5 @@
+uuid
+pyfiglet
+argparse
+boto3
+pyyaml
