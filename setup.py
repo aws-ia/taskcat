@@ -6,7 +6,7 @@ setup(
   author = 'Tony Vattathil',
   author_email = 'avattathil@gmail.com',
   url = 'https://github.com/avattathil/taskcat.io',
-  version = '0.1.dev1',
+  version = '0.1.dev4',
   download_url = 'https://github.com/avattathil/taskcat.io/archive/master.zip',
   classifiers=[
         'Development Status :: 3 - Alpha',

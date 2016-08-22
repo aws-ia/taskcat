@@ -422,9 +422,9 @@ class TaskCat (object):
                 return str(sg.group())
             else:
                 return str('Not-found')
-        sname = re.sub(r'\W+', '', self.nametag)
+        sname = 'tCat'
         region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
-        stack_name_re = re.compile('(?<=:stack/)(%s.*.)(?=/)' % sname)
+        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         region = regxfind(region_re, stack_id)
         stack_name = regxfind(stack_name_re, stack_id)
         test_info = []
@@ -580,7 +580,6 @@ class TaskCat (object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-			prog='taskCat'
             description='(Multi-Region Cloudformation  Deployment)',
             prog=__file__, prefix_chars='-')
         parser.add_argument(
