@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: taskcat
-Version: 0.1.dev5
+Version: 0.1.dev6
 Summary: An OpenSource Cloudformation Deployment Framework
 Home-page: https://github.com/avattathil/taskcat.io
 Author: Tony Vattathil
@@ -10,9 +10,8 @@ Download-URL: https://github.com/avattathil/taskcat.io/archive/master.zip
 Description: UNKNOWN
 Keywords: aws,cloudformation,cloud,cloudformation testing,cloudformation deploy,taskcat
 Platform: UNKNOWN
-Classifier: Development Status :: 3 - Alpha
+Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: Apache Software License
-Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 2.6
 Classifier: Programming Language :: Python :: 2.7
