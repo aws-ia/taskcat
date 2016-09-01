@@ -6,7 +6,7 @@ setup(
   author = 'Tony Vattathil',
   author_email = 'avattathil@gmail.com',
   url = 'https://github.com/avattathil/taskcat.io',
-  version = '0.1.dev4',
+  version = '0.1.dev6',
   download_url = 'https://github.com/avattathil/taskcat.io/archive/master.zip',
   classifiers=[
         'Development Status :: 3 - Alpha',
@@ -22,10 +22,6 @@ setup(
   #packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
   install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml'],
-
-  package_data={
-      'sample': ['tcat.py'],
-  },
 
   #data_files=[('config', ['ci/config.yml`'])],
 

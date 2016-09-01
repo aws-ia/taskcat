@@ -422,7 +422,6 @@ class TaskCat (object):
                 return str(sg.group())
             else:
                 return str('Not-found')
-        sname = 'tCat'
         region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         region = regxfind(region_re, stack_id)
