@@ -1,20 +1,20 @@
 from setuptools import setup
 setup(
-  name = 'taskcat',
-  packages = ['taskcat'],
-  description = 'An OpenSource Cloudformation Deployment Framework',
-  author = 'Tony Vattathil',
-  author_email = 'avattathil@gmail.com',
-  url = 'https://github.com/avattathil/taskcat.io',
-  version = '0.1.10',
-  download_url = 'https://github.com/avattathil/taskcat.io/archive/master.zip',
-  classifiers=[
+name = 'taskcat',
+packages = ['taskcat'],
+description = 'An OpenSource Cloudformation Deployment Framework',
+author = 'Tony Vattathil',
+author_email = 'avattathil@gmail.com',
+url = 'https://github.com/avattathil/taskcat.io',
+version = '0.1.2.7',
+download_url = 'https://github.com/avattathil/taskcat.io/archive/master.zip',
+classifiers=[
 		'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-  ],
+],
 
   keywords = ['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 

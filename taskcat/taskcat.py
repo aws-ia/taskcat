@@ -27,15 +27,17 @@ import urllib
 import textwrap
 import random
 import time
+import base64
 
 
 # Version Tag
-version = 'v.01'
+version = '0.1.2.7'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
 fail = u'\u2718'.encode('utf8')
 info = u'\u2139'.encode('utf8')
+sig = base64.b64decode("dENhVA==")
 E = '[ERROR%s] :' % error
 D = '[DEBUG%s] :' % debug
 P = '[PASS %s] :' % check
@@ -73,6 +75,7 @@ tests:
 # --End
 # Example config.yml
 
+# Not implemented
 # ------------------------------- System varibles
 # --Begin
 sys_yml = 'sys_config.yml'
@@ -310,7 +313,7 @@ class TaskCat (object):
         for test in test_list:
             print self.nametag + "|Preparing to launch [%s]" % test
             id = str(uuid.uuid4())
-            sname = 'tCaT'
+            sname = str(sig)
             stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
@@ -428,6 +431,7 @@ class TaskCat (object):
         stack_name = regxfind(stack_name_re, stack_id)
         test_info = []
         cfnconnect = boto3.client('cloudformation', region)
+        print "Looking for " + stack_name
         try:
             test_query = (cfnconnect.describe_stacks(StackName=stack_name))
             for result in test_query['Stacks']:
@@ -580,35 +584,13 @@ class TaskCat (object):
     def interface(self):
         parser = argparse.ArgumentParser(
             description='(Multi-Region Cloudformation  Deployment)',
-            prog=__file__, prefix_chars='-')
+            # prog=__file__, prefix_chars='-')
+            prog='taskcat', prefix_chars='-')
         parser.add_argument(
             '-c',
             '--config_yml',
             type=str,
             help="[Configuration yaml] Read configuration from config.yml")
-        parser.add_argument(
-            '-b',
-            '--s3bucket',
-            type=str,
-            help="s3 bucket for templates ")
-        parser.add_argument(
-            '-t',
-            '--template',
-            type=str,
-            help="Filesystem Path to template")
-        parser.add_argument(
-            '-m',
-            '--marketplace',
-            default='False',
-            dest='marketplace',
-            action='store_true')
-        parser.add_argument(
-            '-r',
-            '--region',
-            nargs='+',
-            type=str,
-            help="Specfiy a comma seprated list of region " +
-            "(example: us-east-1, us-west-1, eu-west-1)")
         parser.add_argument(
             '-P',
             '--boto-profile',
@@ -624,11 +606,6 @@ class TaskCat (object):
             '--aws_secret_key',
             type=str,
             help="AWS Secrect Key")
-        parser.add_argument(
-            '-p',
-            '--parms_file',
-            type=str,
-            help="Json Formated Input file")
         parser.add_argument(
             '-ey',
             '--example_yaml',
@@ -653,27 +630,6 @@ class TaskCat (object):
 
         if args.verbose:
             self.verbose = True
-
-        if (args.config_yml is not None and
-                args.template is not None or
-                args.s3bucket is not None or
-                args.region is not None):
-            print E + "You specified a yaml config file for this test"
-            nc = "-t (--template) -b (--test-bucket) -r (--region)"
-            print " %s are not compatable with yaml mode." % nc
-            print E + " Please remove these flags!"
-            print " [INFO] For more info use help" + __file__ + " --help"
-            print "        exiting...."
-            sys.exit(1)
-
-        if (args.template is not None and args.parms_file is None):
-            parser.error("You specfied a template file with no parmeters!")
-            print parser.print_help()
-            sys.exit(1)
-        elif args.template is None and args.parms_file is not None:
-            parser.error("You specfied a parameter file with no template!")
-            print parser.print_help()
-            sys.exit(1)
 
         if args.boto_profile is not None:
             if (args.aws_access_key is not None or
