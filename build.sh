@@ -5,6 +5,7 @@ VERSION=$(grep version taskcat/taskcat.py |head -1 | awk -F'=|,' '{print $2}' | 
 echo $VERSION
 rm  dist/*
 python setup.py sdist 
+python setup.py bdist_wheel 
 
 git tag $VERSION
 git push --tags origin master
