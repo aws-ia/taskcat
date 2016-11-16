@@ -51,28 +51,141 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#welcome-to-mkdocs">Welcome to MkDocs</a></li>
-            <li><a href="#commands">Commands</a></li>
-            <li><a href="#project-layout">Project layout</a></li>
+        <li class="main active"><a href="#taskcat">taskCat</a></li>
+            <li><a href="#what-is-taskcat">What is taskcat?</a></li>
+            <li><a href="#installing-taskcat-module-via-pip">Installing taskcat module via pip</a></li>
+            <li><a href="#taskcat-documentation">taskcat documentation</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="welcome-to-mkdocs">Welcome to MkDocs</h1>
-<p>For full documentation visit <a href="http://mkdocs.org">mkdocs.org</a>.</p>
-<h2 id="commands">Commands</h2>
-<ul>
-<li><code>mkdocs new [dir-name]</code> - Create a new project.</li>
-<li><code>mkdocs serve</code> - Start the live-reloading docs server.</li>
-<li><code>mkdocs build</code> - Build the documentation site.</li>
-<li><code>mkdocs help</code> - Print this help message.</li>
-</ul>
-<h2 id="project-layout">Project layout</h2>
-<pre><code>mkdocs.yml    # The configuration file.
-docs/
-    index.md  # The documentation homepage.
-    ...       # Other markdown pages, images and other files.
-</code></pre></div>
+<h1 id="taskcat">taskCat</h1>
+<p><img src=http://taskcat.io/images/tcat.png height="256"></p>
+<h3 id="what-is-taskcat">What is taskcat?</h3>
+<p>TaskCat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use TaskCat by importing the module and creating a TaskCat object. </p>
+<blockquote>
+<p>This repo example code to help you get started.</p>
+</blockquote>
+<h3 id="installing-taskcat-module-via-pip">Installing taskcat module via pip</h3>
+<p>On Amazon linux:</p>
+<pre><code>sudo pip install taskcat
+</code></pre>
+
+<p>On OSX:
+Install pip first via <code>sudo easy_install pip</code> if dev tools are not installed you will need to install them first</p>
+<pre><code>pip install taskcat
+</code></pre>
+
+<p>On Ubuntu:</p>
+<pre><code>sudo apt-get update
+sudo apt-get install python-pip
+sudo pip install taskcat
+</code></pre>
+
+<h2 id="taskcat-documentation">taskcat documentation</h2>
+<h3 id="setting-up-test-cases">Setting up Test Cases</h3>
+<p>To setup taskcat test tests is a two step process:
+<em> Step 1 Define your test in the config.ymal
+</em> Step 2 Build a json input file for your cloudformation template.</p>
+<h4 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal</h4>
+<p>You can generate a sample config.ymal by running <code>./tcat.py -ey</code>
+The followung command will create a sample config.ymal</p>
+<pre><code>./tcat.py -ey | egrep -v '#|^$'  &gt;config.ymal
+</code></pre>
+
+<p>Open the file with and editor and update the filenames to match your need. (See section on working with the ymal file)</p>
+<h4 id="step-2-building-a-json-input-file">Step 2 Building a json input file</h4>
+<p>The example below shows an input file for a stack that requires two parms <code>KeyPair</code> and <code>InstanceType</code></p>
+<pre><code class="json">
+    [{
+        &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
+        &quot;ParameterValue&quot;: &quot;mykey&quot;
+    }, {
+        &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
+        &quot;ParameterValue&quot;: &quot;t2.small&quot;
+    }]
+</code></pre>
+
+<h4 id="example-code-to-instantiate-taskcat">Example code to instantiate TaskCat</h4>
+<blockquote>
+<p>In the repo you will find tcat.py (This file contain a example of how to create a taskcat object)
+You can either download from the repo or copy and paste the following code to a file called <code>tcat.py</code></p>
+</blockquote>
+<pre><code>#!/usr/bin/env python
+# authors:
+# avattathil@gmail.com
+# License Apaache 2.0
+#
+# Purpose: This program (tcat) is a caloudformation testing tool
+# Tests can defined in a configuration yaml (config.yml)
+# @TODO
+        # system level configuration (sys will override repo configs)
+        # if os.path.isfile(sys_yml):
+        # tcat.load_sysymal(sys_yml)
+
+from taskcat import TaskCat
+import yaml
+
+def main():
+    tcat_obj = TaskCat()
+    tcat_obj.welcome('taskcat.io')
+    # Initalize cli interface
+    # @TODO Add RestFull Interface
+    args = tcat_obj.interface
+    # Init aws api and set default auth method
+    tcat_obj.set_config(args.config_yml)
+    # tcat_obj.set_config('ci/config.yml')
+    # Get API Handle - Try all know auth
+    tcat_obj.aws_api_init(args)
+
+# Run in ymal mode (Batch Test execution)
+# --Begin
+# Check for valid ymal and required keys in config
+    if args.config_yml is not None:
+        print &quot;[TSKCAT] : Mode of operation: \t [ymal-mode]&quot;
+        print &quot;[TSKCAT] : Configuration yml: \t [%s]&quot; % args.config_yml
+
+
+        test_list = tcat_obj.validate_yaml(args.config_yml)
+
+# Load ymal into local tcat config
+        with open(tcat_obj.get_config(), 'r') as cfg:
+            tcat_cfg = yaml.safe_load(cfg.read())
+        cfg.close()
+
+        tcat_obj.s3upload(tcat_cfg)
+        tcat_obj.validate_template(tcat_cfg, test_list)
+        tcat_obj.validate_parameters(tcat_cfg, test_list)
+        stackinfo = tcat_obj.stackcreate(tcat_cfg, test_list, 'tonyv')
+        tcat_obj.get_stackstatus(stackinfo , 5)
+
+# --End
+# Finish run in ymal mode
+
+main()
+</code></pre>
+
+<h4 id="to-run-taskcat">To run taskcat</h4>
+<pre><code>python tcat.py 
+</code></pre>
+
+<blockquote>
+<p>See below for available flags (you need to pass as input -c at minimum)</p>
+</blockquote>
+<h3 id="taskcat-cli-flags">TaskCat CLI Flags</h3>
+<pre><code>  -h, --help   show this help message and exit
+  -c CONFIG_YML, --config_yml CONFIG_YML [Configuration yaml] Read configuration from config.yml
+  -P BOTO_PROFILE, --boto-profile BOTO_PROFILE Authenticate using boto profile
+  -A AWS_ACCESS_KEY, --aws_access_key AWS_ACCESS_KEY AWS Access Key
+  -S AWS_SECRET_KEY, --aws_secret_key AWS_SECRET_KEY AWS Secret Key
+  -ey, --example_yaml  Prints out example yaml
+  -v, --verbose  Enables verbosity
+</code></pre>
+
+<h3 id="help">Help</h3>
+<pre><code>If you need help you can reach out to via [avattathil@gmail.com](avattathil@gmail.com)
+</code></pre>
+<p><em>Enjoy!</em> </p></div>
         </div>
 
         <footer class="col-md-12">
@@ -111,5 +224,5 @@ docs/
 
 <!--
 MkDocs version : 0.16.0
-Build Date UTC : 2016-11-16 20:24:04
+Build Date UTC : 2016-11-16 20:26:21
 -->
