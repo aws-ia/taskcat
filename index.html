@@ -53,7 +53,9 @@
 <p>On OSX:
 Install pip first via <code>sudo easy_install pip</code> if dev tools are not installed you will need to install them first</p>
 
-<pre><code>pip install taskcat
+<pre><code>pip install taskcat --user
+# If you get six error use the following command
+pip install taskcat --upgrade --ignore-installed six --user
 </code></pre>
 
 <p>On Ubuntu:</p>
