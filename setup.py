@@ -3,10 +3,10 @@ setup(
 name = 'taskcat',
 packages = ['taskcat'],
 description = 'An OpenSource Cloudformation Deployment Framework',
-author = 'Tony Vattathil',
-author_email = 'tonynv@amazon.com',
+author = 'Tony Vattathil ,Santiago Cardenas', 
+author_email = 'tonynv@amazon.com , sancard@amazon.com',
 url = 'https://aws-quickstart.github.io/taskcat/',
-version = '0.1.7',
+version = '0.1.14',
 download_url = 'https://github.com/aws-quickstart/taskcat/tarball/master',
 classifiers=[
 		'Development Status :: 4 - Beta',
