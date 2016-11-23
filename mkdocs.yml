@@ -6,10 +6,5 @@ site_author: tonynv@amazon.com sancard@amazon.com
 repo_url: https://github.com/aws-quickstart/taskcat
 
 pages:
-- Home: index.md
-
-markdown_extensions:
-    - toc:
-        permalink: 
-    - admonition:
+- Home: README.md
 
