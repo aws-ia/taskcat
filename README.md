@@ -1,4 +1,7 @@
 # taskcat
+
+> This program requires python2 
+ 
 ### What is taskcat? 
 TaskCat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use TaskCat by importing the module and creating a TaskCat object. 
 
@@ -42,7 +45,7 @@ The example below shows an input file for a stack that requires two parms `KeyPa
 ```
 #!/usr/bin/env python
 # authors:
-# avattathil@gmail.com
+# tonynv,sancard,sshvans
 # License Apaache 2.0
 #
 # Purpose: This program (tcat) is a caloudformation testing tool
