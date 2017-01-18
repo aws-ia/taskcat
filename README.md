@@ -115,6 +115,6 @@ python tcat.py
 ```
 
 ### Help
-	If you need help you can reach out to via [tonynv@amazon.com](tonynv@amazon.com)
+	If you need help you can reach out to via tonynv@amazon.com
 
 *Enjoy!* 
