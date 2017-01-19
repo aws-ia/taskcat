@@ -1,17 +1,16 @@
 Metadata-Version: 1.1
 Name: taskcat
-Version: 0.1.18
+Version: 0.1.19
 Summary: An OpenSource Cloudformation Deployment Framework
 Home-page: https://aws-quickstart.github.io/taskcat/
-Author: Tony Vattathil ,Santiago Cardenas
-Author-email: tonynv@amazon.com , sancard@amazon.com
+Author: Tony Vattathil ,Santiago Cardenas, Shivansh Singh
+Author-email: tonynv@amazon.com , sancard@amazon.com , sshvans@amazon.com
 License: UNKNOWN
 Download-URL: https://github.com/aws-quickstart/taskcat/tarball/master
 Description: UNKNOWN
 Keywords: aws,cloudformation,cloud,cloudformation testing,cloudformation deploy,taskcat
 Platform: UNKNOWN
-Classifier: Development Status :: 4 - Beta
+Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: Apache Software License
-Classifier: Programming Language :: Python :: 2.6
 Classifier: Programming Language :: Python :: 2.7

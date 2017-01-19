@@ -15,7 +15,7 @@ import yaml
 
 def main():
     tcat_obj = TaskCat()
-    tcat_obj.welcome('taskcat.io')
+    tcat_obj.welcome('taskcat')
     # Initalize cli interface
     # @TODO Add RestFull Interface
     args = tcat_obj.interface
@@ -29,7 +29,7 @@ def main():
 # --Begin
 # Check for valid ymal and required keys in config
     if args.config_yml is not None:
-        print "[TSKCAT] : Mode of operation: \t [ymal-mode]"
+        print "[TSKCAT] : Read configuration: \t [ymal-mode]"
         print "[TSKCAT] : Configuration yml: \t [%s]" % args.config_yml
 
 
