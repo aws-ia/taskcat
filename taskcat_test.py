@@ -1,52 +1,52 @@
 #!/usr/bin/env python
-# authors:
-# avattathil@gmail.com
-# License Apaache 2.0
+# authors: tonynv@amazon.com,sancard@amazon.com,sshvans@amazon.com
+# Program License: Amazon License
+# Python Class License: Apache 2.0
 #
-# Purpose: This program (tcat) is a caloudformation testing tool
+# Purpose: This program (taskcat) is a caloudformation testing tool
 # Tests can defined in a configuration yaml (config.yml)
 # @TODO
         # system level configuration (sys will override repo configs)
         # if os.path.isfile(sys_yml):
-        # tcat.load_sysymal(sys_yml)
+        # taskcat.load_sysymal(sys_yml)
 
 from taskcat import TaskCat
 import yaml
 
 def main():
-    tcat_obj = TaskCat()
-    tcat_obj.welcome('taskcat')
+    tcat_instance = TaskCat()
+    tcat_instance.welcome('taskcat')
     # Initalize cli interface
     # @TODO Add RestFull Interface
-    args = tcat_obj.interface
-    # Init aws api and set default auth method
-    tcat_obj.set_config(args.config_yml)
-    # tcat_obj.set_config('ci/config.yml')
+    args = tcat_instance.interface
+    
+    # Get configuration from command line arg (-c)
+    tcat_instance.set_config(args.config_yml)
+    # tcat_instance.set_config('ci/config.yml')
     # Get API Handle - Try all know auth
-    tcat_obj.aws_api_init(args)
-
-# Run in ymal mode (Batch Test execution)
+    tcat_instance.aws_api_init(args)
+    # Enable verbose output by default (DEBUG ON)
+    tcat_instance.verbose = True
 # --Begin
 # Check for valid ymal and required keys in config
     if args.config_yml is not None:
-        print "[TSKCAT] : Read configuration: \t [ymal-mode]"
-        print "[TSKCAT] : Configuration yml: \t [%s]" % args.config_yml
+        print "[TASKCAT] : Reading Configuration form: \t [%s]" % args.config_yml
 
 
-        test_list = tcat_obj.validate_yaml(args.config_yml)
+        test_list = tcat_instance.validate_yaml(args.config_yml)
 
-# Load ymal into local tcat config
-        with open(tcat_obj.get_config(), 'r') as cfg:
-            tcat_cfg = yaml.safe_load(cfg.read())
+# Load ymal into local taskcat config
+        with open(tcat_instance.get_config(), 'r') as cfg:
+            taskcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()
 
-        tcat_obj.stage_in_s3(tcat_cfg)
-        tcat_obj.validate_template(tcat_cfg, test_list)
-        tcat_obj.validate_parameters(tcat_cfg, test_list)
-        stackinfo = tcat_obj.stackcreate(tcat_cfg, test_list, 'tonyv')
-        tcat_obj.get_stackstatus(stackinfo , 5)
+        tcat_instance.stage_in_s3(taskcat_cfg)
+        tcat_instance.validate_template(taskcat_cfg, test_list)
+        tcat_instance.validate_parameters(taskcat_cfg, test_list)
+        stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tonyv')
+        tcat_instance.get_stackstatus(stackinfo , 5)
+        tcat_instance.cleanup(stackinfo , 5)
 
 # --End
-# Finish run in ymal mode
 
 main()
