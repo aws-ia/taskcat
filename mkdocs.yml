@@ -1,9 +1,10 @@
 site_name: taskcat
 site_url: http://taskcat.io
 site_description: Project documentation for taskcat python class.
-site_author: tonynv@amazon.com sancard@amazon.com
 
 repo_url: https://github.com/aws-quickstart/taskcat
+
+theme: readthedocs
 
 pages:
 - Home: index.md

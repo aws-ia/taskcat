@@ -31,18 +31,19 @@ import base64
 
 
 # Version Tag
-version = '0.1.19'
+version = '0.1.22'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
 fail = u'\u2718'.encode('utf8')
 info = u'\u2139'.encode('utf8')
 sig = base64.b64decode("dENhVA==")
-E = '[ERROR%s] :' % error
-D = '[DEBUG%s] :' % debug
-P = '[PASS %s] :' % check
-F = '[FAIL %s] :' % fail
-I = '[INFO %s] :' % info
+id = str(uuid.uuid4())
+E = '[ERROR %s ] :' % error
+D = '[DEBUG %s ] :' % debug
+P = '[PASS  %s ] :' % check
+F = '[FAIL  %s ] :' % fail
+I = '[INFO  %s ] :' % info
 
 
 # Example config.yml
@@ -181,15 +182,24 @@ class TaskCat (object):
     def get_default_region(self):
         return (self.defult_region)
 
-    def s3upload(self, taskcat_cfg):
+    def stage_in_s3(self, taskcat_cfg):
         print '-' * self._termsize
         print self.nametag + ": I uploaded the following assets"
         print '=' * self._termsize
 
+        project = taskcat_cfg['global']['qsname']
+
         s3 = boto3.resource('s3')
-        bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-        self.set_s3bucket(bucket.name)
-        project = taskcat_cfg['global']['project']
+        if 's3bucket' in taskcat_cfg['global'].keys():
+            bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
+            self.set_s3bucket(bucket.name)
+        else:
+            auto_bucket = 'taskcat-' + project + "-" + id[:8]
+            print I + "Staging Bucket =" + auto_bucket 
+            s3.create_bucket(Bucket=auto_bucket)
+            bucket = s3.Bucket(auto_bucket)
+            self.set_s3bucket(bucket.name)
+
         self.set_project(project)
         if os.path.isdir(project):
             fsmap = buildmap('.', project)
@@ -312,7 +322,6 @@ class TaskCat (object):
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
             print self.nametag + "|Preparing to launch [%s]" % test
-            id = str(uuid.uuid4())
             sname = str(sig)
             stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
             self.define_tests(taskcat_cfg, test)
@@ -457,8 +466,8 @@ class TaskCat (object):
             if tdefs == test:
                 t = yamlc['tests'][test]['template_file']
                 p = yamlc['tests'][test]['parameter_input']
-                n = yamlc['global']['project']
-                b = yamlc['global']['s3bucket']
+                n = yamlc['global']['qsname']
+                b = self.get_s3bucket()
 
                 self.set_s3bucket(b)
                 self.set_project(n)
@@ -540,8 +549,7 @@ class TaskCat (object):
         # type: (object) -> object
         print '-' * self._termsize
         run_tests = []
-        required_global_keys = ['s3bucket',
-                                'project',
+        required_global_keys = ['qsname',
                                 'owner',
                                 'reporting',
                                 'regions']
