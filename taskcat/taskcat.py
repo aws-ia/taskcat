@@ -99,7 +99,7 @@ def buildmap(start_location, mapstring):
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
 
-    def __init__(self, nametag='[TSKCAT] '):
+    def __init__(self, nametag='[TASKCAT ] '):
         self.nametag = nametag
         self.project = "not set"
         self.capabilities = []
@@ -402,30 +402,7 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
-    def if_stackexists(self, stackname, region):
-        cfnconnect = boto3.client('cloudformation', region)
-        try:
-            cfnconnect.describe_stacks(StackName=stackname)
-            exists = "yes"
-        except Exception as e:
-            if self.verbose:
-                print D + str(e)
-                exists = "no"
-        return exists
 
-    def get_stackstatus(self, stackids, speed):
-        active_tests = 1
-        while (active_tests > 0):
-            current_active_tests = 0
-            for stack in stackids:
-                stackquery = self.stackcheck(stack['StackId'])
-                current_active_tests = stackquery[3] + current_active_tests
-                print I + "[{0}] {1} -> {2}".format(
-                    stackquery[0],
-                    stackquery[1],
-                    stackquery[2])
-                active_tests = current_active_tests
-                time.sleep(speed)
 
     def stackcheck(self, stack_id):
         def regxfind(reobj, dataline):
@@ -440,7 +417,7 @@ class TaskCat (object):
         stack_name = regxfind(stack_name_re, stack_id)
         test_info = []
         cfnconnect = boto3.client('cloudformation', region)
-        print "Looking for " + stack_name
+        #print "Looking for " + stack_name
         try:
             test_query = (cfnconnect.describe_stacks(StackName=stack_name))
             for result in test_query['Stacks']:
@@ -459,6 +436,67 @@ class TaskCat (object):
             test_info.append("USER_DELETED")
             test_info.append(0)
         return test_info
+
+
+    def get_stackstatus(self, stackids, speed):
+        active_tests = 1
+        while (active_tests > 0):
+            current_active_tests = 0
+            for stack in stackids:
+                stackquery = self.stackcheck(stack['StackId'])
+                current_active_tests = stackquery[3] + current_active_tests
+                print I + "[{0}] {1} -> {2}".format(
+                    stackquery[0],
+                    stackquery[1],
+                    stackquery[2])
+                active_tests = current_active_tests
+                time.sleep(speed)
+
+
+    def cleanup(self, stackids, speed):
+        stackidtodelete = stackids
+        for stackid in stackidtodelete:
+            self.stackdelete(stackid['StackId'])
+        stackidtodelete[:] = []
+
+    def stackdelete(self, stack_id):
+        cleanup_complete = 'no' 
+        def regxfind(reobj, dataline):
+            sg = reobj.search(dataline)
+            if sg:
+                return str(sg.group())
+            else:
+                return str('Not-found')
+        region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
+        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
+        region = regxfind(region_re, stack_id)
+        stack_name = regxfind(stack_name_re, stack_id)
+        test_info = []
+        cfnconnect = boto3.client('cloudformation', region)
+        print "Deleting for " + stack_name
+
+        stillaround = self.if_stackexists(stack_name, region)
+
+        if stillaround == 'yes':
+            print "Stack exist attempt stackdelete"
+            cfnconnect.delete_stack(StackName=stack_name)
+        elif stillaround == 'no':
+            cleanup_complete = 'yes' 
+            print "Stack is gone!"
+        return cleanup_complete
+
+    def if_stackexists(self, stackname, region):
+        exists = None
+        cfnconnect = boto3.client('cloudformation', region)
+        try:
+            cfnconnect.describe_stacks(StackName=stackname)
+            exists = "yes"
+        except Exception as e:
+            if self.verbose:
+                print D + str(e)
+                exists = "no"
+        print "value of exists = %s " % exists
+        return exists 
 
     def define_tests(self, yamlc, test):
         for tdefs in yamlc['tests'].keys():
