@@ -400,7 +400,20 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
+    def parse_stack_info (stack_id):
+        stack_info = dict()
+        def regxfind(reobj, dataline):
+            sg = reobj.search(dataline)
+            if sg:
+                return str(sg.group())
+            else:
+                return str('Not-found')
 
+        region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
+        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
+        stack_info['region'] = regxfind(region_re, stack_id)
+        stack_info['stack_name'] = regxfind(stack_name_re, stack_id)
+        return stack_info
 
     def stackcheck(self, stack_id):
         def regxfind(reobj, dataline):
