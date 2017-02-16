@@ -9,7 +9,7 @@ rm  dist/*
 python setup.py sdist 
 python setup.py bdist_wheel 
 python -m mkdocs gh-deploy --clean  
-python setup.py upload_docs --upload-dir=site
+#python setup.py upload_docs --upload-dir=site
 
 git tag $VERSION
 git push --tags origin master
