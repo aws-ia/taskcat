@@ -362,8 +362,9 @@ class TaskCat (object):
         print '-' * self._termsize
         for stack in stackids:
             created = str(stack['StackId']).split('/')
+            arn = created[0].split(':stack',1)[0] 
             print self.nametag + "| >> LAUNCHING STACKS <<"
-            print I + "|arn = %s " % created[0]
+            print I + "|arn = %s " % arn
 
         return stackids
 
@@ -400,19 +401,25 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
-
-
-    def stackcheck(self, stack_id):
+    def parse_stack_info (self,stack_id):
+        stack_info = dict()
         def regxfind(reobj, dataline):
             sg = reobj.search(dataline)
             if sg:
                 return str(sg.group())
             else:
                 return str('Not-found')
+
         region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        region = regxfind(region_re, stack_id)
-        stack_name = regxfind(stack_name_re, stack_id)
+        stack_info['region'] = regxfind(region_re, stack_id)
+        stack_info['stack_name'] = regxfind(stack_name_re, stack_id)
+        return stack_info
+
+    def stackcheck(self, stack_id):
+        stackdata = self.parse_stack_info (stack_id)
+        region = stackdata['region']
+        stack_name = stackdata['stack_name']
         test_info = []
         cfnconnect = boto3.client('cloudformation', region)
         #print "Looking for " + stack_name
@@ -461,16 +468,9 @@ class TaskCat (object):
 
 
     def stackdelete(self, stack_id):
-        def regxfind(reobj, dataline):
-            sg = reobj.search(dataline)
-            if sg:
-                return str(sg.group())
-            else:
-                return str('Not-found')
-        region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
-        region = regxfind(region_re, stack_id)
-        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        stack_name = regxfind(stack_name_re, stack_id)
+        stackdata = self.parse_stack_info (stack_id)
+        region = stackdata['region']
+        stack_name = stackdata['stack_name']
         cfnconnect = boto3.client('cloudformation', region)
         cfnconnect.delete_stack(StackName=stack_name)
 
