@@ -1,3 +1,6 @@
 # Compile Source #
 ##################
 *.pyc
+# Doc Site
+site/
+
