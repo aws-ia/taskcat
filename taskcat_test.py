@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# authors: tonynv@amazon.com,sancard@amazon.com,sshvans@amazon.com
+# authors: tonynv@amazon.com,sshvans@amazon.com
 # Program License: Amazon License
 # Python Class License: Apache 2.0
 #
-# Purpose: This program (taskcat) is a caloudformation testing tool
 # Tests can defined in a configuration yaml (config.yml)
 # @TODO
         # system level configuration (sys will override repo configs)
@@ -30,7 +29,7 @@ def main():
 # --Begin
 # Check for valid ymal and required keys in config
     if args.config_yml is not None:
-        print "[TASKCAT] : Reading Configuration form: \t [%s]" % args.config_yml
+        print "[TASKCAT ] : Reading Configuration form: \t [%s]" % args.config_yml
 
 
         test_list = tcat_instance.validate_yaml(args.config_yml)

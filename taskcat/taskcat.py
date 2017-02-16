@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# authors:avattathil@gmail.com
-# repo: https://avattathil/taskcat.io
+# authors:
+# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# repo: https://github.com/aws-quickstart/taskcat
 # docs: http://taskcat.io
 #
-# taskcat is short for task (cloudformation automated testing)
 # This program takes as input:
-# cfn template and json formatted parameter input file
-# inputs can be passed as cli for single test
-# for more diverse scenarios you can use a yaml configuration
+# cfn template and json formatted parameter input file define the tests in config.yml (Exmaple below)
 # Planed Features:
-# - Tests in only specific regions
 # - Email test results to owner of project
 
 # --imports --
@@ -365,7 +362,8 @@ class TaskCat (object):
         print '-' * self._termsize
         for stack in stackids:
             created = str(stack['StackId']).split('/')
-            print I + "Launching = %s " % created
+            print self.nametag + "| >> LAUNCHING STACKS <<"
+            print I + "|arn = %s " % created[0]
 
         return stackids
 
@@ -433,7 +431,7 @@ class TaskCat (object):
         except Exception:
             test_info.append(stack_name)
             test_info.append(region)
-            test_info.append("USER_DELETED")
+            test_info.append("STACK_DELETED")
             test_info.append(0)
         return test_info
 
@@ -455,12 +453,14 @@ class TaskCat (object):
 
     def cleanup(self, stackids, speed):
         stackidtodelete = stackids
-        for stackid in stackidtodelete:
-            self.stackdelete(stackid['StackId'])
-        stackidtodelete[:] = []
+        for stack in stackidtodelete:
+            self.stackdelete(stack['StackId'])
+            print self.nametag + "| >> CLEANUP STACKS <<"
+        #stackidtodelete[:] = []
+        self.get_stackstatus(stackids , 5)
+
 
     def stackdelete(self, stack_id):
-        cleanup_complete = 'no' 
         def regxfind(reobj, dataline):
             sg = reobj.search(dataline)
             if sg:
@@ -468,22 +468,11 @@ class TaskCat (object):
             else:
                 return str('Not-found')
         region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
-        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         region = regxfind(region_re, stack_id)
+        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         stack_name = regxfind(stack_name_re, stack_id)
-        test_info = []
         cfnconnect = boto3.client('cloudformation', region)
-        print "Deleting for " + stack_name
-
-        stillaround = self.if_stackexists(stack_name, region)
-
-        if stillaround == 'yes':
-            print "Stack exist attempt stackdelete"
-            cfnconnect.delete_stack(StackName=stack_name)
-        elif stillaround == 'no':
-            cleanup_complete = 'yes' 
-            print "Stack is gone!"
-        return cleanup_complete
+        cfnconnect.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
         exists = None
@@ -495,7 +484,7 @@ class TaskCat (object):
             if self.verbose:
                 print D + str(e)
                 exists = "no"
-        print "value of exists = %s " % exists
+        print I + "Successfully Deleted[%s]" % stackname
         return exists 
 
     def define_tests(self, yamlc, test):
