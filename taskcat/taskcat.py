@@ -362,8 +362,9 @@ class TaskCat (object):
         print '-' * self._termsize
         for stack in stackids:
             created = str(stack['StackId']).split('/')
+            arn = created[0].split(':stack',1)[0] 
             print self.nametag + "| >> LAUNCHING STACKS <<"
-            print I + "|arn = %s " % created[0]
+            print I + "|arn = %s " % arn
 
         return stackids
 
