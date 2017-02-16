@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: taskcat
-Version: 0.1.26
+Version: 0.1.27
 Summary: An OpenSource Cloudformation Deployment Framework
 Home-page: https://aws-quickstart.github.io/taskcat/
 Author: Tony Vattathil ,Santiago Cardenas, Shivansh Singh

@@ -1,5 +1,5 @@
 # taskcat
-> version = '0.1.26'
+> version = '0.1.27'
 > This program requires python2 
  
 ### What is taskcat? 
