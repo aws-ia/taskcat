@@ -251,24 +251,27 @@ class TaskCat (object):
             for metadata in s3obj.iteritems():
                 if metadata[0] == 'Key':
                     if key in metadata[1]:
-                        if bucket_location['LocationConstraint'] is not None:
-                            o_url = "https://s3-{0}.{1}/{2}/{3}".format(
-                                bucket_location['LocationConstraint'],
-                                "amazonaws.com",
-                                self.get_s3bucket(),
-                                metadata[1])
-                            return o_url
-                        else:
-                            o_url = "https://s3.amazonaws.com/{0}/{1}".format(
-                                self.get_s3bucket(),
-                                metadata[1])
-                            return o_url
+                        # Finding exact match
+                        terms = metadata[1].split("/")
+                        if key == terms[-1]:
+                            if bucket_location['LocationConstraint'] is not None:
+                                o_url = "https://s3-{0}.{1}/{2}/{3}".format(
+                                    bucket_location['LocationConstraint'],
+                                    "amazonaws.com",
+                                    self.get_s3bucket(),
+                                    metadata[1])
+                                return o_url
+                            else:
+                                o_url = "https://s3.amazonaws.com/{0}/{1}".format(
+                                    self.get_s3bucket(),
+                                    metadata[1])
+                                return o_url
 
     def genpassword(self, passlength):
         plen = int(passlength)
         password = ''.join(random.sample(
             map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
-        return password
+        return password + "@"
 
     def get_test_region(self):
         return self.test_region
