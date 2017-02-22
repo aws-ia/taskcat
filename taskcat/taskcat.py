@@ -18,13 +18,13 @@ import pyfiglet
 import argparse
 import re
 import boto3
-import yaml
 import json
 import urllib
 import textwrap
 import random
 import time
 import base64
+import yaml
 
 
 # Version Tag
@@ -112,8 +112,8 @@ class TaskCat (object):
         self._termsize = 110
         self._banner = ""
         self._use_global = False
-        self._password = "Notset"
-        self.interface
+        self._password = "not set"
+        self.run_cleanup = None
 
     def set_project(self, project):
         self.project = project
@@ -192,7 +192,7 @@ class TaskCat (object):
             self.set_s3bucket(bucket.name)
         else:
             auto_bucket = 'taskcat-' + project + "-" + id[:8]
-            print I + "Staging Bucket =" + auto_bucket 
+            print I + "Staging Bucket =" + auto_bucket
             s3.create_bucket(Bucket=auto_bucket)
             bucket = s3.Bucket(auto_bucket)
             self.set_s3bucket(bucket.name)
@@ -282,8 +282,14 @@ class TaskCat (object):
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
 
+    def set_docleanup(self, cleanup_value):
+        self.run_cleanup = cleanup_value
+
+    def get_docleanup(self):
+        return self.run_cleanup
+
     def validate_template(self, taskcat_cfg, test_list):
-        # Load gobal regions
+        # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
             print self.nametag + "| Validate Template in test[%s]" % test
@@ -336,7 +342,10 @@ class TaskCat (object):
                                     '[^0-9]', '', parmdict['ParameterValue'])
                                 parmdict[
                                     'ParameterValue'] = self.genpassword(8)
-                                print parmdict['ParameterValue']
+                                print "key => {0} parameter => {1}".format(
+                                    keys,
+                                    parmdict['ParameterValue']
+                                )
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
@@ -362,7 +371,7 @@ class TaskCat (object):
         print '-' * self._termsize
         for stack in stackids:
             created = str(stack['StackId']).split('/')
-            arn = created[0].split(':stack',1)[0] 
+            arn = created[0].split(':stack', 1)[0]
             print self.nametag + "| >> LAUNCHING STACKS <<"
             print I + "|arn = %s " % arn
 
@@ -372,7 +381,7 @@ class TaskCat (object):
         try:
             parms = json.load(jsonin)
             if self.verbose:
-                print (json.dumps(parms, indent=4, separators=(',', ': ')))
+                print(json.dumps(parms, indent=4, separators=(',', ': ')))
         except ValueError as e:
             print E + str(e)
             return False
@@ -401,28 +410,28 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
-    def parse_stack_info (self,stack_id):
+    def parse_stack_info(self, stack_id):
         stack_info = dict()
-        def regxfind(reobj, dataline):
-            sg = reobj.search(dataline)
+
+        def regxfind(re_object, dataline):
+            sg = re_object.search(dataline)
             if sg:
                 return str(sg.group())
             else:
                 return str('Not-found')
 
-        region_re = re.compile('(?<=:)(.\w\-.+(\w*)\-\d)(?=:)')
+        region_re = re.compile('(?<=:)(.\w-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         stack_info['region'] = regxfind(region_re, stack_id)
         stack_info['stack_name'] = regxfind(stack_name_re, stack_id)
         return stack_info
 
     def stackcheck(self, stack_id):
-        stackdata = self.parse_stack_info (stack_id)
+        stackdata = self.parse_stack_info(stack_id)
         region = stackdata['region']
         stack_name = stackdata['stack_name']
         test_info = []
         cfnconnect = boto3.client('cloudformation', region)
-        #print "Looking for " + stack_name
         try:
             test_query = (cfnconnect.describe_stacks(StackName=stack_name))
             for result in test_query['Stacks']:
@@ -442,7 +451,6 @@ class TaskCat (object):
             test_info.append(0)
         return test_info
 
-
     def get_stackstatus(self, stackids, speed):
         active_tests = 1
         while (active_tests > 0):
@@ -457,18 +465,22 @@ class TaskCat (object):
                 active_tests = current_active_tests
                 time.sleep(speed)
 
-
     def cleanup(self, stackids, speed):
-        stackidtodelete = stackids
-        for stack in stackidtodelete:
-            self.stackdelete(stack['StackId'])
-            print self.nametag + "| >> CLEANUP STACKS <<"
-        #stackidtodelete[:] = []
-        self.get_stackstatus(stackids , 5)
+        docleanup = self.get_docleanup()
+        if self.verbose:
+            print D + "cleanup => %s " % str(docleanup)
 
+        if docleanup:
+            stackidtodelete = stackids
+            for stack in stackidtodelete:
+                self.stackdelete(stack['StackId'])
+                print self.nametag + "| >> CLEANUP STACKS <<"
+            self.get_stackstatus(stackids, speed)
+        else:
+            print I + "cleanup => False [Retain Stack]"
 
     def stackdelete(self, stack_id):
-        stackdata = self.parse_stack_info (stack_id)
+        stackdata = self.parse_stack_info(stack_id)
         region = stackdata['region']
         stack_name = stackdata['stack_name']
         cfnconnect = boto3.client('cloudformation', region)
@@ -485,7 +497,7 @@ class TaskCat (object):
                 print D + str(e)
                 exists = "no"
         print I + "Successfully Deleted[%s]" % stackname
-        return exists 
+        return exists
 
     def define_tests(self, yamlc, test):
         for tdefs in yamlc['tests'].keys():
@@ -495,6 +507,18 @@ class TaskCat (object):
                 p = yamlc['tests'][test]['parameter_input']
                 n = yamlc['global']['qsname']
                 b = self.get_s3bucket()
+
+                # Checks if cleanup flag is set
+                # If cleanup is set to 'false' stack will not be deleted after
+                # launch attempt
+                if 'cleanup' in yamlc['global'].keys():
+                    cleanupstack = yamlc['global']['cleanup']
+                    if cleanupstack:
+                        self.set_docleanup(True)
+                    else:
+                        self.set_docleanup(False)
+                else:
+                    self.set_docleanup(False)
 
                 self.set_s3bucket(b)
                 self.set_project(n)
