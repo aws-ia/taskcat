@@ -224,13 +224,26 @@ class TaskCat (object):
 
         print '-' * self._termsize
 
+    def get_available_azs(self, region, count):
+        available_azs = []
+        ec2_client = boto3.client('ec2', region_name=region)
+        availability_zones = ec2_client.describe_availability_zones(
+            Filters=[{'Name': 'state', 'Values': ['available']}])
+
+        for az in availability_zones['AvailabilityZones']:
+            available_azs.append(az['ZoneName'])
+
+        azs = ','.join(available_azs[:count])
+        return azs
+
     def get_s3_url(self, key):
         client = boto3.client('s3')
         bucket = self.get_s3bucket()
         if self.verbose:
             print D + "object={0} in bucket={1}".format(key, bucket)
 
-        bucket_location = client.get_bucket_location(Bucket=self.get_s3bucket())
+        bucket_location = client.get_bucket_location(
+            Bucket=self.get_s3bucket())
         result = client.list_objects(Bucket=self.get_s3bucket(),
                                      Prefix=self.get_project())
         contents = result.get('Contents')
@@ -339,8 +352,19 @@ class TaskCat (object):
                                          parmdict['ParameterValue']):
                                 re.sub(
                                     '[^0-9]', '', parmdict['ParameterValue'])
+                                parmdict[ 'ParameterValue'] = self.genpassword(8)
+
+                                if self.verbose:
+                                    print D + "Generated > {0} => {1}".format(
+                                        keys,
+                                        parmdict['ParameterValue']
+                                    )
+                            if re.search('\$\[\w+_genaz_\d{1}]',
+                                     parmdict['ParameterValue']):
+                                re.sub(
+                                    '[^0-9]', '', parmdict['ParameterValue'])
                                 parmdict[
-                                    'ParameterValue'] = self.genpassword(8)
+                                    'ParameterValue'] = self.get_available_azs(region,2)
                                 if self.verbose:
                                     print D + "Generated > {0} => {1}".format(
                                         keys,
