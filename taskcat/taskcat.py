@@ -230,8 +230,7 @@ class TaskCat (object):
         if self.verbose:
             print D + "object={0} in bucket={1}".format(key, bucket)
 
-        bucket_location = boto3.client(
-            's3').get_bucket_location(Bucket=self.get_s3bucket())
+        bucket_location = client.get_bucket_location(Bucket=self.get_s3bucket())
         result = client.list_objects(Bucket=self.get_s3bucket(),
                                      Prefix=self.get_project())
         contents = result.get('Contents')
@@ -342,10 +341,11 @@ class TaskCat (object):
                                     '[^0-9]', '', parmdict['ParameterValue'])
                                 parmdict[
                                     'ParameterValue'] = self.genpassword(8)
-                                print "key => {0} parameter => {1}".format(
-                                    keys,
-                                    parmdict['ParameterValue']
-                                )
+                                if self.verbose:
+                                    print D + "Generated > {0} => {1}".format(
+                                        keys,
+                                        parmdict['ParameterValue']
+                                    )
 
                     if self.verbose:
                         print D + "Boto Connection region=%s" % region
@@ -468,7 +468,7 @@ class TaskCat (object):
     def cleanup(self, stackids, speed):
         docleanup = self.get_docleanup()
         if self.verbose:
-            print D + "cleanup => %s " % str(docleanup)
+            print D + "clean-up = %s " % str(docleanup)
 
         if docleanup:
             stackidtodelete = stackids
@@ -477,7 +477,7 @@ class TaskCat (object):
                 print self.nametag + "| >> CLEANUP STACKS <<"
             self.get_stackstatus(stackids, speed)
         else:
-            print I + "cleanup => False [Retain Stack]"
+            print I + "[Retaing Stacks (Cleanup is set to false!)]"
 
     def stackdelete(self, stack_id):
         stackdata = self.parse_stack_info(stack_id)
@@ -514,11 +514,12 @@ class TaskCat (object):
                 if 'cleanup' in yamlc['global'].keys():
                     cleanupstack = yamlc['global']['cleanup']
                     if cleanupstack:
-                        self.set_docleanup(True)
+                        self.set_docleanup(cleanupstack)
                     else:
                         self.set_docleanup(False)
                 else:
-                    self.set_docleanup(False)
+                    # By default do cleanup
+                    self.set_docleanup(True)
 
                 self.set_s3bucket(b)
                 self.set_project(n)
