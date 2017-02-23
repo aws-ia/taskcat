@@ -181,7 +181,7 @@ class TaskCat (object):
 
     def stage_in_s3(self, taskcat_cfg):
         print '-' * self._termsize
-        print self.nametag + ": I uploaded the following assets"
+        print self.nametag + ":I uploaded the following assets"
         print '=' * self._termsize
 
         project = taskcat_cfg['global']['qsname']
@@ -189,10 +189,11 @@ class TaskCat (object):
         s3 = boto3.resource('s3')
         if 's3bucket' in taskcat_cfg['global'].keys():
             bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
+            print I + "Staging Bucket => " + bucket.name
             self.set_s3bucket(bucket.name)
         else:
             auto_bucket = 'taskcat-' + project + "-" + id[:8]
-            print I + "Staging Bucket =" + auto_bucket
+            print I + "Staging Bucket => " + auto_bucket
             s3.create_bucket(Bucket=auto_bucket)
             bucket = s3.Bucket(auto_bucket)
             self.set_s3bucket(bucket.name)
@@ -201,7 +202,10 @@ class TaskCat (object):
         if os.path.isdir(project):
             fsmap = buildmap('.', project)
         else:
-            print "Cannot access directory [%s]" % project
+            print "{0}!Cannot access directory {1}".format(
+                E,
+                project)
+
             sys.exit(1)
 
         for filename in fsmap:
@@ -233,14 +237,19 @@ class TaskCat (object):
         for az in availability_zones['AvailabilityZones']:
             available_azs.append(az['ZoneName'])
 
-        azs = ','.join(available_azs[:count])
-        return azs
+        if len(available_azs) < count:
+            print "{0}!Only {1} az's are available in {2}".format(
+                E,
+                len(available_azs),
+                region)
+            quit()
+        else:
+            azs = ','.join(available_azs[:count])
+            return azs
 
     def get_s3_url(self, key):
         client = boto3.client('s3')
         bucket = self.get_s3bucket()
-        if self.verbose:
-            print D + "object={0} in bucket={1}".format(key, bucket)
 
         bucket_location = client.get_bucket_location(
             Bucket=self.get_s3bucket())
@@ -254,7 +263,9 @@ class TaskCat (object):
                         # Finding exact match
                         terms = metadata[1].split("/")
                         if key == terms[-1]:
-                            if bucket_location['LocationConstraint'] is not None:
+                            if bucket_location[
+                                'LocationConstraint'
+                            ] is not None:
                                 o_url = "https://s3-{0}.{1}/{2}/{3}".format(
                                     bucket_location['LocationConstraint'],
                                     "amazonaws.com",
@@ -262,16 +273,12 @@ class TaskCat (object):
                                     metadata[1])
                                 return o_url
                             else:
-                                o_url = "https://s3.amazonaws.com/{0}/{1}".format(
+                                amzns3 = 's3.amazonaws.com'
+                                o_url = "https://{0}/{1}/{2}".format(
+                                    amzns3,
                                     self.get_s3bucket(),
                                     metadata[1])
                                 return o_url
-
-    def genpassword(self, passlength):
-        plen = int(passlength)
-        password = ''.join(random.sample(
-            map(chr, range(48, 57) + range(65, 90) + range(97, 120)), plen))
-        return password + "@"
 
     def get_test_region(self):
         return self.test_region
@@ -307,7 +314,7 @@ class TaskCat (object):
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
-            print self.nametag + "| Validate Template in test[%s]" % test
+            print self.nametag + ":Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             try:
                 if self.verbose:
@@ -335,6 +342,36 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
+    def genpassword(self, passlength, passtype):
+        if passtype == 'A':
+            plen = int(passlength)
+            password = ''.join(random.sample(
+                map(chr,
+                    range(48, 57) +
+                    range(65, 90) +
+                    range(97, 120)
+                    ), plen))
+            return password
+
+        elif type == 'S':
+            plen = int(passlength)
+            password = ''.join(random.sample(
+                map(chr,
+                    range(48, 57) +
+                    range(65, 90) +
+                    range(97, 120)
+                    ), plen))
+            return password + '@'
+        else:
+            plen = int(passlength)
+            password = ''.join(random.sample(
+                map(chr,
+                    range(48, 57) +
+                    range(65, 90) +
+                    range(97, 120)
+                    ), plen))
+            return password + '@'
+
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         stackids = []
         self.set_capabilities('CAPABILITY_IAM')
@@ -351,35 +388,62 @@ class TaskCat (object):
                     s_parms = json.loads(s_parmsdata.read())
                     for parmdict in s_parms:
                         for keys in parmdict:
-                            if re.search('\$\[\w+_genpass_\d{1,2}]',
-                                         parmdict['ParameterValue']):
-                                re.sub(
-                                    '[^0-9]', '', parmdict['ParameterValue'])
-                                parmdict[ 'ParameterValue'] = self.genpassword(8)
+                            param_value = parmdict['ParameterValue']
+                            count_re = re.compile('\d+(?=])')
+                            gentype_re = re.compile(
+                                '(?!\w+_genpass-)[A|S](?=_\d{1,2}])')
+                            genpass_re = re.compile(
+                                '\$\[\w+_genpass-[A|S]_\d{1,2}]')
+                            genaz_re = re.compile('\$\[\w+_genaz_\d{1}]')
 
-                                if self.verbose:
-                                    print D + "Generated > {0} => {1}".format(
-                                        keys,
-                                        parmdict['ParameterValue']
-                                    )
-                            if re.search('\$\[\w+_genaz_\d{1}]',
-                                     parmdict['ParameterValue']):
-                                re.sub(
-                                    '[^0-9]', '', parmdict['ParameterValue'])
-                                parmdict[
-                                    'ParameterValue'] = self.get_available_azs(region,2)
-                                if self.verbose:
-                                    print D + "Generated > {0} => {1}".format(
-                                        keys,
-                                        parmdict['ParameterValue']
-                                    )
+                            if genpass_re.search(param_value):
+                                passlen = int(
+                                    self.regxfind(count_re, param_value))
+                                gentype = self.regxfind(
+                                    gentype_re, param_value)
+                                if passlen:
+                                    if self.verbose:
+                                        print D + "Auto generating password"
+                                        print D + "Pass size => {0}".format(
+                                            passlen)
+                                        print D + "Pass type => {0}".format(
+                                            gentype)
+
+                                    param_value = self.genpassword(
+                                        passlen, gentype)
+                                    parmdict['ParameterValue'] = param_value
+
+                            if genaz_re.search(param_value):
+                                numazs = int(
+                                    self.regxfind(count_re, param_value))
+                                if numazs:
+                                    if self.verbose:
+                                        print D + "Selecting availablity zones"
+                                        print D + "Requested %s az's" % numazs
+
+                                    param_value = self.get_available_azs(
+                                        region,
+                                        numazs)
+                                    parmdict['ParameterValue'] = param_value
+                                else:
+                                    print E + "$[auto_genaz_(!)]"
+                                    print I + "(Number of az's not specified!"
+                                    print I + "Defaulting to 1 az)"
+                                    param_value = self.get_available_azs(
+                                        region,
+                                        1)
+                                    parmdict['ParameterValue'] = param_value
 
                     if self.verbose:
-                        print D + "Boto Connection region=%s" % region
+                        print D + "Creating Boto Connection region=%s" % region
                         print D + "StackName=" + stackname
                         print D + "DisableRollback=True"
                         print D + "TemplateURL=%s" % self.get_template_path()
-                        print D + "Parameters=%s" % s_parms
+                        print D + "Parameters=%s" % json.dumps(
+                            s_parms,
+                            sort_keys=True,
+                            indent=4,
+                            separators=(',', ': '))
                         print D + "Capabilities=%s" % self.get_capabilities()
 
                     stackdata = cfnconnect.create_stack(
@@ -392,7 +456,7 @@ class TaskCat (object):
 
                 except Exception as e:
                     if self.verbose:
-                        print D + str(e)
+                        print E + str(e)
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
             print "\t ....done"
         print '-' * self._termsize
@@ -437,20 +501,20 @@ class TaskCat (object):
         print '-' * self._termsize
         return True
 
+    def regxfind(self, re_object, dataline):
+        sg = re_object.search(dataline)
+        if sg:
+            return str(sg.group())
+        else:
+            return str('Not-found')
+
     def parse_stack_info(self, stack_id):
         stack_info = dict()
 
-        def regxfind(re_object, dataline):
-            sg = re_object.search(dataline)
-            if sg:
-                return str(sg.group())
-            else:
-                return str('Not-found')
-
         region_re = re.compile('(?<=:)(.\w-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        stack_info['region'] = regxfind(region_re, stack_id)
-        stack_info['stack_name'] = regxfind(stack_name_re, stack_id)
+        stack_info['region'] = self.regxfind(region_re, stack_id)
+        stack_info['stack_name'] = self.regxfind(stack_name_re, stack_id)
         return stack_info
 
     def stackcheck(self, stack_id):
@@ -588,8 +652,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ": Authenticated via: \t [boto-profile] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print E + "Credential Error - Please check you profile!"
                 if self.verbose:
@@ -602,8 +666,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ": Authenticated via: \t [role] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [role] "
             except Exception as e:
                 print E + "Credential Error - Please check you keys!"
                 if self.verbose:
@@ -616,8 +680,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ": AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ": Authenticated via: \t [role] "
+                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
+                print self.nametag + ":Authenticated via: \t [role] "
             except Exception as e:
                 print E + "Credential Error - Cannot assume role!"
                 if self.verbose:
@@ -648,7 +712,7 @@ class TaskCat (object):
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print I + " Queing test => %s " % defined
+                        print self.nametag + "|Queing test => %s " % defined
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
@@ -661,7 +725,7 @@ class TaskCat (object):
                 print E + "Cannot open [%s]" % yaml_file
                 sys.exit(1)
         except Exception as e:
-            print E + "yaml [%s] is not formated well!!" % yaml_file
+            print E + "config.yml [%s] is not formated well!!" % yaml_file
             if self.verbose:
                 print D + str(e)
             sys.exit(1)
