@@ -310,6 +310,74 @@ class TaskCat (object):
     def get_docleanup(self):
         return self.run_cleanup
 
+    # Given a stackId, function returns the list of dictionary items, where each item
+    # consist of logicalId, physicalId and resourceType of the aws resource associated
+    # with the stack.
+    #
+    # Return object syntax:
+    # [
+    #     {
+    #         'logicalId': 'string',
+    #         'physicalId': 'string',
+    #         'resourceType': 'String'
+    #     },
+    # ]
+    def get_resources(self, stackId):
+        l_resources = []
+        try:
+            cfnconnect = boto3.client(
+                'cloudformation', self.get_default_region())
+            result = cfnconnect.describe_stack_resources(
+                StackName=stackId )
+            stackResources = result.get('StackResources')
+            for resource in stackResources:
+                if self.verbose:
+                    print "Resource: LogicalId = {0}, PhysicalId = {1}, Type = {2}".format(
+                        resource.get('LogicalResourceId'),
+                        resource.get('PhysicalResourceId'),
+                        resource.get('ResourceType')
+                    )
+                d = {}
+                d['logicalId'] = resource.get('LogicalResourceId')
+                d['physicalId'] = resource.get('PhysicalResourceId')
+                d['resourceType'] = resource.get('ResourceType')
+                l_resources.append(d)
+        except Exception as e:
+            if self.verbose:
+                print
+                D + str(e)
+            sys.exit(F + "Unable to get resources for stack %s" % stackId)
+        print "\t ....done"
+        return l_resources
+
+    # Given a list of stackIds, function returns the list of dictionary items, where each
+    # item consist of stackId and the resources associated with that stack.
+    #
+    # Return object syntax:
+    # [
+    #     {
+    #         'stackId': 'string',
+    #         'resources': [
+    #             {
+    #                'logicalId': 'string',
+    #                'physicalId': 'string',
+    #                'resourceType': 'String'
+    #             },
+    #         ]
+    #     },
+    # ]
+    def get_all_resources(self, stackIds):
+        l_all_resources = []
+        for anId in stackIds:
+            d = {}
+            d['stackId'] = anId
+            d['resources'] = self.get_resources(anId)
+            l_all_resources.append(d)
+            if self.verbose:
+                print json.dumps(d)
+        return l_all_resources
+
+
     def validate_template(self, taskcat_cfg, test_list):
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
