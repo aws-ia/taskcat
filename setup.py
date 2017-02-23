@@ -6,7 +6,7 @@ description = 'An OpenSource Cloudformation Deployment Framework',
 author = 'Tony Vattathil ,Santiago Cardenas, Shivansh Singh', 
 author_email = 'tonynv@amazon.com , sancard@amazon.com , sshvans@amazon.com',
 url = 'https://aws-quickstart.github.io/taskcat/',
-version = '0.1.28',
+version = '0.1.29',
 download_url = 'https://github.com/aws-quickstart/taskcat/tarball/master',
 classifiers=[
 		'Development Status :: 3 - Alpha',
