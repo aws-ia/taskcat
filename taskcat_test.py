@@ -38,7 +38,7 @@ def main():
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
-        stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tonyv')
+        stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
         tcat_instance.get_stackstatus(stackinfo, 5)
         tcat_instance.cleanup(stackinfo, 5)
 
