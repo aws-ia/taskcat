@@ -98,21 +98,21 @@ class TaskCat (object):
 
     def __init__(self, nametag='[TASKCAT ] '):
         self.nametag = nametag
-        self.project = "not set"
+        self.project = None
         self.capabilities = []
         self.verbose = False
         self.config = 'config.yml'
         self.test_region = []
-        self.s3bucket = "not set"
-        self.template_path = "not set"
-        self.parameter_path = "not set"
+        self.s3bucket = None
+        self.template_path = None
+        self.parameter_path = None
         self.defult_region = "us-west-2"
-        self._template_file = "not set"
-        self._parameter_path = "not set"
+        self._template_file = None
+        self._parameter_path = None
         self._termsize = 110
         self._banner = ""
         self._use_global = False
-        self._password = "not set"
+        self._password = None
         self.run_cleanup = None
 
     def set_project(self, project):
@@ -328,11 +328,12 @@ class TaskCat (object):
             cfnconnect = boto3.client(
                 'cloudformation', self.get_default_region())
             result = cfnconnect.describe_stack_resources(
-                StackName=stackId )
+                StackName=stackId)
             stackResources = result.get('StackResources')
             for resource in stackResources:
                 if self.verbose:
-                    print "Resource: LogicalId = {0}, PhysicalId = {1}, Type = {2}".format(
+                    print "Resource: \
+                    LogicalId = {0}, PhysicalId = {1}, Type = {2}".format(
                         resource.get('LogicalResourceId'),
                         resource.get('PhysicalResourceId'),
                         resource.get('ResourceType')
@@ -377,7 +378,6 @@ class TaskCat (object):
                 print json.dumps(d)
         return l_all_resources
 
-
     def validate_template(self, taskcat_cfg, test_list):
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
@@ -386,7 +386,7 @@ class TaskCat (object):
             self.define_tests(taskcat_cfg, test)
             try:
                 if self.verbose:
-                    print D + "boto3 region [%s]" % self.get_default_region()
+                    print D + "default region [%s]" % self.get_default_region()
                 cfnconnect = boto3.client(
                     'cloudformation', self.get_default_region())
                 cfnconnect.validate_template(
@@ -680,6 +680,7 @@ class TaskCat (object):
                     # By default do cleanup
                     self.set_docleanup(True)
 
+                # Load test setting
                 self.set_s3bucket(b)
                 self.set_project(n)
                 self.set_template_file(t)
@@ -688,6 +689,29 @@ class TaskCat (object):
                     self.get_s3_url(self.get_template_file()))
                 self.set_parameter_path(
                     self.get_s3_url(self.get_parameter_file()))
+
+                # Check to make sure template filenames are correct
+                template_path = self.get_template_path()
+                if not template_path:
+                    print "{0} Could not locate {1}".format(
+                        E,
+                        self.get_template_file())
+                    print "{0} Check to make sure filename is correct?".format(
+                        E,
+                        self.get_parameter_file())
+                    quit()
+
+                # Check to make sure parameter filenames are correct
+                parameter_path = self.get_parameter_path()
+                if not parameter_path:
+                    print "{0} Could not locate {1}".format(
+                        E,
+                        self.get_parameter_file())
+                    print "{0} Check to make sure filename is correct?".format(
+                        E,
+                        self.get_parameter_file())
+                    quit()
+
                 if self.verbose:
                     print I + "(Acquiring) tests assets for .......[%s]" % test
                     print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()
