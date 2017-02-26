@@ -2,11 +2,15 @@
 # -*- coding: UTF-8 -*-
 # authors:
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# Shivansh Singh sshvans@amazon.com,
+# Santiago Cardenas sancard@amazon.com,
+#
 # repo: https://github.com/aws-quickstart/taskcat
-# docs: http://taskcat.io
+# docs: https://aws-quickstart.github.io/taskcat/
 #
 # This program takes as input:
-# cfn template and json formatted parameter input file define the tests in config.yml (Exmaple below)
+# cfn template and json formatted parameter input file
+# To create tests define the test parmaterms in config.yml (Exmaple below)
 # Planed Features:
 # - Email test results to owner of project
 
@@ -636,7 +640,8 @@ class TaskCat (object):
                 print self.nametag + "| >> CLEANUP STACKS <<"
             self.get_stackstatus(stackids, speed)
         else:
-            print I + "[Retaing Stacks (Cleanup is set to false!)]"
+            print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
+                docleanup)
 
     def stackdelete(self, stack_id):
         stackdata = self.parse_stack_info(stack_id)
@@ -673,12 +678,22 @@ class TaskCat (object):
                 if 'cleanup' in yamlc['global'].keys():
                     cleanupstack = yamlc['global']['cleanup']
                     if cleanupstack:
-                        self.set_docleanup(cleanupstack)
+                        if self.verbose:
+                            print D + "cleanup set to ymal value"
+                            self.set_docleanup(cleanupstack)
                     else:
+                        print I + "Cleanup value set to (false)"
                         self.set_docleanup(False)
                 else:
-                    # By default do cleanup
-                    self.set_docleanup(True)
+                    # By default do cleanup unless self.run_cleanup
+                    # was overwridden (set to False) by -n flag
+                    if self.run_cleanup == False:
+                        if self.verbose:
+                            print D + "cleanup set by cli flag {0}".format(
+                                self.run_cleanup)
+                    else:
+                        self.set_docleanup(True)
+                        print I + "No cleanup value set (default to cleanup)"
 
                 # Load test setting
                 self.set_s3bucket(b)
@@ -836,7 +851,7 @@ class TaskCat (object):
             help="[Configuration yaml] Read configuration from config.yml")
         parser.add_argument(
             '-P',
-            '--boto-profile',
+            '--boto_profile',
             type=str,
             help="Authenticate using boto profile")
         parser.add_argument(
@@ -852,6 +867,11 @@ class TaskCat (object):
         parser.add_argument(
             '-ey',
             '--example_yaml',
+            action='store_true',
+            help="Print out example yaml")
+        parser.add_argument(
+            '-n',
+            '--no_cleanup',
             action='store_true',
             help="Print out example yaml")
         parser.add_argument(
@@ -873,6 +893,9 @@ class TaskCat (object):
 
         if args.verbose:
             self.verbose = True
+        # Overwrides Defaults for cleanup but does not overwrite config.yml
+        if args.no_cleanup:
+            self.run_cleanup = False
 
         if args.boto_profile is not None:
             if (args.aws_access_key is not None or

@@ -21,7 +21,7 @@ def main():
     # tcat_instance.set_config('ci/config.yml')
     # Get API Handle - Try all know auth
     tcat_instance.aws_api_init(args)
-    # Enable verbose output by default (DEBUG ON)
+    # Optional: Enables verbose output by default (DEBUG ON)
     tcat_instance.verbose = True
 # --Begin
 # Check for valid ymal and required keys in config
