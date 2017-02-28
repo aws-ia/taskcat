@@ -29,6 +29,7 @@ import random
 import time
 import base64
 import yaml
+import yattag
 
 
 # Version Tag
@@ -837,6 +838,27 @@ class TaskCat (object):
                 print D + str(e)
             sys.exit(1)
         return run_tests
+
+    def genreport():
+        doc = yattag.Doc()
+        tag = doc.tag
+        text = doc.text
+
+        doc.asis('<!DOCTYPE html>')
+        with tag('html'):
+            with tag('head'):
+                doc.stag('meta', charset='utf-8')
+                doc.stag('meta', name='viewport', content="initial-scale=1.0; maximum-scale=1.0; width=device-width;")
+                doc.stag('link', rel='stylesheet', href="https://s3.amazonaws.com/taskcat/taskcat.css")
+                with tag('title'):
+                    text('TaskCat Report')
+
+
+        indent = yattag.indent(doc.getvalue(),
+                        indentation='    ',
+                        newline='\r\n',
+                        indent_text=True)
+        return indent
 
     @property
     def interface(self):
