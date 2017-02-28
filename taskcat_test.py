@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+# authors:
+# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# Shivansh Singh sshvans@amazon.com,
+# Santiago Cardenas sancard@amazon.com,
 """
- authors: tonynv@amazon.com,sshvans@amazon.com
  Program License: Amazon License
  Python Class License: Apache 2.0
 """
@@ -40,7 +43,9 @@ def main():
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
         stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
         tcat_instance.get_stackstatus(stackinfo, 5)
+        tcat_instance.createreport(stackinfo,'taskcat-results.html')
         tcat_instance.cleanup(stackinfo, 5)
+
 
 # --End
 

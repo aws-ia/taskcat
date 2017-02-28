@@ -839,26 +839,69 @@ class TaskCat (object):
             sys.exit(1)
         return run_tests
 
-    def genreport():
+    # Added sample report generation
+    #@TODO hook into test
+    def genreport(self, stackids):
         doc = yattag.Doc()
         tag = doc.tag
         text = doc.text
 
-        doc.asis('<!DOCTYPE html>')
+        def getlogfile():
+            location = "somefile.log"
+            return str(location)
+
         with tag('html'):
             with tag('head'):
                 doc.stag('meta', charset='utf-8')
-                doc.stag('meta', name='viewport', content="initial-scale=1.0; maximum-scale=1.0; width=device-width;")
-                doc.stag('link', rel='stylesheet', href="https://s3.amazonaws.com/taskcat/taskcat.css")
+                doc.stag('meta', name='viewport', content="\
+                        initial-scale=1.0; \
+                        maximum-scale=1.0; \
+                        width=device-width;")
+                doc.stag('link', rel='stylesheet',
+                         href="https://s3.amazonaws.com/taskcat/taskcat.css")
                 with tag('title'):
                     text('TaskCat Report')
 
+            with tag('body'):
+                with tag('table', 'class=table-fill'):
+                    with tag('tbody'):
+                        with tag('thread'):
+                            with tag('tr'):
+                                with tag('th', 'class=text-left'):
+                                    text('QuickStart Project')
+                                with tag('th', 'class=text-left'):
+                                    text('Tested Region')
+                                with tag('th', 'class=text-left'):
+                                    text('Tested Results')
+                                with tag('th', 'class=text-left'):
+                                    text('Test Logs')
+                    with tag('tbody'):
+                        with tag('tr'):
+                            with tag('td', 'class=text-left'):
+                                text('name-of-test')
+                            with tag('td', 'class=text-left'):
+                                text('us-east-1')
+                            with tag('td', 'class=test-green'):
+                                text('CREATE_COMPLETE')
+                            with tag('td', 'class=text-left'):
+                                with tag('a', href=getlogfile()):
+                                    text('View Logs')
 
         indent = yattag.indent(doc.getvalue(),
-                        indentation='    ',
-                        newline='\r\n',
-                        indent_text=True)
+                               indentation='    ',
+                               newline='\r\n',
+                               indent_text=True)
         return indent
+
+    def createreport(self, stackids, filename):
+        #@TODO:
+        # Check for .html extenstion
+        # write to outputs dir
+        # push up to s3 optional
+        logpath = filename
+        file = open(logpath, 'w')
+        file.write(self.genreport(stackids))
+        file.close()
 
     @property
     def interface(self):
