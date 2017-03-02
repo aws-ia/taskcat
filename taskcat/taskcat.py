@@ -623,7 +623,7 @@ class TaskCat (object):
             for stack in stackids:
                 stackquery = self.stackcheck(stack['StackId'])
                 current_active_tests = stackquery[3] + current_active_tests
-                print I + "[{0}] {1} -> {2}".format(
+                print I + "[{0}] {1} ->  \t {2}".format(
                     stackquery[0],
                     stackquery[1],
                     stackquery[2])
@@ -637,9 +637,9 @@ class TaskCat (object):
 
         if docleanup:
             stackidtodelete = stackids
+            print self.nametag + "| >> CLEANUP STACKS <<"
             for stack in stackidtodelete:
                 self.stackdelete(stack['StackId'])
-                print self.nametag + "| >> CLEANUP STACKS <<"
             self.get_stackstatus(stackids, speed)
         else:
             print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
@@ -842,7 +842,7 @@ class TaskCat (object):
 
     # Added sample report generation
     #@TODO hook into test
-    def genreport(self, stackids):
+    def genreport(self, stackdata):
         doc = yattag.Doc()
         tag = doc.tag
         text = doc.text
@@ -869,7 +869,7 @@ class TaskCat (object):
                         with tag('thread'):
                             with tag('tr'):
                                 with tag('th', 'class=text-left'):
-                                    text('QuickStart Project')
+                                    text('Stack Name')
                                 with tag('th', 'class=text-left'):
                                     text('Tested Region')
                                 with tag('th', 'class=text-left'):
@@ -877,16 +877,34 @@ class TaskCat (object):
                                 with tag('th', 'class=text-left'):
                                     text('Test Logs')
                     with tag('tbody'):
-                        with tag('tr'):
-                            with tag('td', 'class=text-left'):
-                                text('name-of-test')
-                            with tag('td', 'class=text-left'):
-                                text('us-east-1')
-                            with tag('td', 'class=test-green'):
-                                text('CREATE_COMPLETE')
-                            with tag('td', 'class=text-left'):
-                                with tag('a', href=getlogfile()):
-                                    text('View Logs')
+                        for _stackdata in stackdata:
+                            stackid = _stackdata['StackId']
+                            stackinfo = self.parse_stack_info(stackid)
+                            region = stackinfo['region']
+                            stackname = stackinfo['stack_name']
+                            cfnconnect = boto3.client('cloudformation', region)
+                            test_query = cfnconnect.describe_stacks(
+                                StackName=stackname)
+                            for result in test_query['Stacks']:
+                                print result
+                                stack_status = result.get('StackStatus')
+                                if stack_status == 'CREATE_COMPLETE':
+                                    status_css = 'class=test-green'
+                                elif stack_status == 'CREATE_FAILED':
+                                    status_css = 'class=test-red'
+                                else:
+                                    status_css = 'class=text-red'
+
+                                with tag('tr'):
+                                    with tag('td', 'class=text-left'):
+                                        text(stackname)
+                                    with tag('td', 'class=text-left'):
+                                        text(region)
+                                    with tag('td', status_css):
+                                        text(str(stack_status))
+                                    with tag('td', 'class=text-left'):
+                                        with tag('a', href=getlogfile()):
+                                            text('View Logs')
 
         indent = yattag.indent(doc.getvalue(),
                                indentation='    ',
