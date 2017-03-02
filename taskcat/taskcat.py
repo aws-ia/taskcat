@@ -21,7 +21,6 @@ import sys
 import pyfiglet
 import argparse
 import re
-import boto3
 import json
 import urllib
 import textwrap
@@ -30,6 +29,8 @@ import time
 import base64
 import yaml
 import yattag
+import boto3
+from botocore.client import Config
 
 
 # Version Tag
@@ -253,7 +254,7 @@ class TaskCat (object):
             return azs
 
     def get_s3_url(self, key):
-        client = boto3.client('s3')
+        client = boto3.client('s3',  config=Config(signature_version='s3v4'))
         bucket = self.get_s3bucket()
 
         bucket_location = client.get_bucket_location(
