@@ -9,14 +9,15 @@ html {} body {
     font-size: 12px;
     font-weight: 200;
     text-rendering: optimizeLegibility;
-    padding: 0;
+    margin: 0;
+    padding: 1px;
 }
 div.taskcat-logo {
     display: block;
     margin: auto;
     width: 100%;
     border: 0;
-    padding: 5px;
+    padding: 0px;
 }
 div.table-title {
     background: #ecf0f1;
@@ -27,14 +28,13 @@ div.table-title {
 }
 div.header-table-fill {
     display: block;
-    margin: auto;
+    margin: 0;
     max-width: 100%;
-    width: 100%;
 }
 .taskcat-logo h3 {
     color: orange;
     font-size: 35px;
-    margin: auto;
+    margin: 0;
     width: 100%;
     text-align: right;
     font-family: Comfortaa;
@@ -74,17 +74,15 @@ div.header-table-fill {
 .header-table-fill td {
     color: #933333 font-size: 14px;
     border: 0;
-    border-right: none;
 }
 .table-fill {
     background: white;
     border-radius: 3px;
     border-collapse: collapse;
     margin: auto;
-    max-width: 100%;
-    padding: 5px;
+    max-width: 98%;
     width: 100%;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
 }
 a {
     text-decoration: none
