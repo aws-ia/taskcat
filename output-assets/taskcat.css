@@ -9,7 +9,7 @@ html {} body {
     font-size: 12px;
     font-weight: 200;
     text-rendering: optimizeLegibility;
-    padding: 25;
+    padding: 0;
 }
 div.taskcat-logo {
     display: block;

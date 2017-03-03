@@ -840,8 +840,6 @@ class TaskCat (object):
             sys.exit(1)
         return run_tests
 
-    # Added sample report generation
-    #@TODO hook into test
     def genreport(self, stackdata):
         doc = yattag.Doc()
         tag = doc.tag
@@ -860,7 +858,7 @@ class TaskCat (object):
             with tag('head'):
                 doc.stag('meta', charset='utf-8')
                 doc.stag(
-                    'meta', name="viewport content=initial-scale=1; maximum-scale=1;")
+                    'meta', name="viewport width=device-width")
                 doc.stag('link', rel='stylesheet',
                          href=output_css)
                 with tag('title'):
