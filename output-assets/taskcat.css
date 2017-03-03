@@ -1,0 +1,170 @@
+/*** author: Tony Vattathil avattathil@gmail.com ***/
+/*** license: Apache 2.0 ***/
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700,300,100);
+@import url(https://fonts.googleapis.com/css?family=Comfortaa:700);
+html {} body {
+    background-color: #ecf0f1;
+    font-family: "Roboto", helvetica, arial, sans-serif;
+    font-size: 12px;
+    font-weight: 200;
+    text-rendering: optimizeLegibility;
+    padding: 25;
+}
+div.taskcat-logo {
+    display: block;
+    margin: auto;
+    width: 100%;
+    border: 0;
+    padding: 5px;
+}
+div.table-title {
+    background: #ecf0f1;
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    width: 100%;
+}
+div.header-table-fill {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    width: 100%;
+}
+.taskcat-logo h3 {
+    color: orange;
+    font-size: 35px;
+    margin: auto;
+    width: 100%;
+    text-align: right;
+    font-family: Comfortaa;
+    text-shadow: #ffffff 0px 1px 1px;
+}
+.taskcat-logo td {
+    padding: 0px;
+    margin: auto;
+    width: 100%;
+    padding: 5px
+}
+.table-title h3 {
+    font-size: 20px;
+    font-weight: 400;
+    font-style: normal;
+    font-family: "Roboto", helvetica, arial, sans-serif;
+}
+.header-table-fill {
+    border-radius: 3px;
+    border-collapse: collapse;
+    margin: auto;
+    max-width: 100%;
+    padding: 0px;
+    width: 100%;
+}
+.header-table-fill th {
+    background: #ecf0f1;
+    border-bottom: 4px solid #3498db;
+    margin: auto;
+    width: 100%;
+    padding: 5px
+}
+.header-table-fill tr {
+    border: 0;
+    border-right: none;
+}
+.header-table-fill td {
+    color: #933333 font-size: 14px;
+    border: 0;
+    border-right: none;
+}
+.table-fill {
+    background: white;
+    border-radius: 3px;
+    border-collapse: collapse;
+    margin: auto;
+    max-width: 100%;
+    padding: 5px;
+    width: 100%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+a {
+    text-decoration: none
+}
+th {
+    color: #D5DDE5;
+    ;
+    background: #1b1e24;
+    border-bottom: 4px solid #9ea7af;
+    border-right: 1px solid #343a45;
+    font-size: 12px;
+    font-weight: 100;
+    padding: 8px;
+    text-align: left;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    vertical-align: middle;
+}
+th:first-child {
+    border-top-left-radius: 3px;
+}
+th:last-child {
+    border-top-right-radius: 3px;
+    border-right: none;
+}
+tr {
+    border-top: 1px solid #C1C3D1;
+    border-bottom-: 1px solid #C1C3D1;
+    color: #666B85;
+    font-size: 16px;
+    font-weight: normal;
+    text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+}
+tr:first-child {
+    border-top: none;
+}
+tr:last-child {
+    border-bottom: none;
+}
+tr:last-child td:first-child {
+    border-bottom-left-radius: 3px;
+}
+tr:last-child td:last-child {
+    border-bottom-right-radius: 3px;
+}
+td {
+    background: #ffffff;
+    padding: 12;
+    text-align: left;
+    vertical-align: middle;
+    font-weight: 300;
+    font-size: 12px;
+    text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #C1C3D1;
+}
+td.test-green {
+    text-align: center;
+    background-color: #98FF98;
+}
+td.test-red {
+    text-align: center;
+    background-color: #FCB3BC;
+}
+td:last-child {
+    border-right: 0px;
+}
+th.text-left {
+    text-align: left;
+}
+th.text-center {
+    text-align: center;
+}
+th.text-right {
+    text-align: right;
+}
+td.text-left {
+    text-align: left;
+}
+td.text-center {
+    text-align: center;
+}
+td.text-right {
+    text-align: right;
+}
