@@ -858,10 +858,9 @@ class TaskCat (object):
 
         with tag('html'):
             with tag('head'):
-
                 doc.stag('meta', charset='utf-8')
-                doc.stag('meta', name='viewport',
-                         content="initial-scale=1.0; maximum-scale=1.0;  width=device-width;")
+                doc.stag(
+                    'meta', name="viewport content=initial-scale=1; maximum-scale=1;")
                 doc.stag('link', rel='stylesheet',
                          href=output_css)
                 with tag('title'):
