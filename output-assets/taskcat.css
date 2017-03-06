@@ -40,6 +40,28 @@ div.header-table-fill {
     font-family: Comfortaa;
     text-shadow: #ffffff 0px 1px 1px;
 }
+.test-info  {
+    color: #3498db;
+    margin: 0;
+    width: 100%;
+    text-align: center;
+    font-family: Comfortaa;
+    text-shadow: #ffffff 0px 0px 0px;
+}
+.test-footer td {
+    background-color: #ecf0f1;
+    padding: 4px;
+    margin: auto;
+    width: 100%;
+    border-top:  2px solid #3498db;
+}
+.test-footer h3 {
+    background-color: #ecf0f1;
+    padding: 2px;
+    margin: auto;
+    width: 100%;
+    border-top:  1px solid black;
+}
 .taskcat-logo td {
     padding: 0px;
     margin: auto;
@@ -72,7 +94,8 @@ div.header-table-fill {
     border-right: none;
 }
 .header-table-fill td {
-    color: #933333 font-size: 14px;
+    color: #933333 
+    font-size: 14px;
     border: 0;
 }
 .table-fill {

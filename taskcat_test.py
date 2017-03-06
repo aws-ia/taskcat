@@ -43,7 +43,7 @@ def main():
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
         stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
         tcat_instance.get_stackstatus(stackinfo, 5)
-        tcat_instance.createreport(stackinfo,'taskcat-results.html')
+        tcat_instance.createreport(test_list, stackinfo, 'taskcat-results.html')
         tcat_instance.cleanup(stackinfo, 5)
 
 
