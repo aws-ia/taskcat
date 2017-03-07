@@ -19,7 +19,7 @@ classifiers=[
 
   #packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-  install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml'],
+  install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml' ,yattag'],
 
   #data_files=[('config', ['ci/config.yml`'])],
 
