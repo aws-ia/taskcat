@@ -90,6 +90,30 @@ class Sweeper(object):
             else:
                 print(e)
 
+    # Given a list of dictionary items where each dictionary item contains a resource list,
+    # this function deletes all the resources given.
+    # Param:
+    #   list - List of dictionary items in the format shown below
+    #
+    #       [
+    #           {
+    #               'stackId': 'string',
+    #               'resources': [
+    #                   {
+    #                       'logicalId': 'string',
+    #                       'physicalId': 'string',
+    #                       'resourceType': 'String'
+    #                   },
+    #               ]
+    #           },
+    #       ]
+
+    def delete_all(self, stack_list):
+        logger.info("Deleting all resources")
+        for stack in stack_list:
+            for resource in stack['resources']:
+                self.__delete_resource(resource['logicalId'], resource['resourceType'])
+
     # Give a resource logical id and resource type, this function deletes the resource
     # Param:
     #   lid - logical id of the resource to be deleted
