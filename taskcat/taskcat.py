@@ -893,7 +893,7 @@ class TaskCat (object):
                     with tag('thread'):
                         with tag('tr'):
                             with tag('th',
-                                     'class=text-left',
+                                     'class=text-center',
                                      'width=25%'):
                                 text('Test Name')
                             with tag('th',
@@ -955,10 +955,11 @@ class TaskCat (object):
 
                                             with tag('tr'):
                                                 with tag('td',
-                                                         'class=text-left'):
-                                                    text(testname)
+                                                         'class=test-info'):
+                                                    with tag('h3'):
+                                                        text(testname)
                                                 with tag('td',
-                                                         'class=text-info'):
+                                                         'class=text-left'):
                                                     text(region)
                                                 with tag('td',
                                                          'class=text-left'):
@@ -971,12 +972,18 @@ class TaskCat (object):
                                                     with tag('a',
                                                              href=getofile()):
                                                         text('View Logs')
-                                        with tag('tr',
-                                                 'class= test-footer'):
-                                            with tag('td',
-                                                     'colspan=5'):
-                                                text('')
-                                    doc.stag('p')
+
+                                            if lastreport == testname:
+                                                print "Completed report for %s" % stackname
+                                                lastreport = testname
+                                            else:
+                                                lastreport = testname
+                                                with tag('tr',
+                                                         'class= test-footer'):
+                                                    with tag('td',
+                                                             'colspan=5'):
+                                                        text('')
+                        doc.stag('p')
 
         indent = yattag.indent(doc.getvalue(),
                                indentation='    ',

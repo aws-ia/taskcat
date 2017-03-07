@@ -40,14 +40,16 @@ div.header-table-fill {
     font-family: Comfortaa;
     text-shadow: #ffffff 0px 1px 1px;
 }
-.test-info  {
+.test-info h3 {
     color: #3498db;
+    font-size: 15px;
     margin: 0;
     width: 100%;
     text-align: center;
     font-family: Comfortaa;
     text-shadow: #ffffff 0px 0px 0px;
 }
+
 .test-footer td {
     background-color: #ecf0f1;
     padding: 4px;
