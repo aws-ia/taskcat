@@ -32,7 +32,7 @@ class Sweeper(object):
     # Param:
     #   bucket_name - Name of the bucket to delete
 
-    def delete_s3_bucket(self, bucket_name):
+    def __delete_s3_bucket(self, bucket_name):
         s3_resource = self.session.resource('s3')
         logger.info('Working on bucket [%s]', bucket_name)
         bucket_resource = s3_resource.Bucket(bucket_name)
@@ -62,7 +62,7 @@ class Sweeper(object):
     # Param:
     #   volume_id - Id of the volume to be deleted
 
-    def delete_volume(self, volume_id):
+    def __delete_volume(self, volume_id):
         ec2_client = self.session.client('ec2')
         logger.info('Deleting EBS Volume [%s]', volume_id)
         try:
@@ -77,7 +77,7 @@ class Sweeper(object):
     # Param:
     # sg_id - Id of the Security Group which needs to be deleted
 
-    def delete_sg(self, sg_id):
+    def __delete_sg(self, sg_id):
         ec2_client = self.session.client('ec2')
         logger.info('Deleting Security Group [%s]', sg_id)
         try:
@@ -90,11 +90,25 @@ class Sweeper(object):
             else:
                 print(e)
 
+    # Give a resource logical id and resource type, this function deletes the resource
+    # Param:
+    #   lid - logical id of the resource to be deleted
+    #   type - resource type
+
+    def __delete_resource(self, lid, type):
+        if type == "AWS::EC2::SecurityGroup":
+            logger.debug("Found Security Group resource")
+            self.__delete_sg(lid)
+        if type == "AWS::EC2::Volume":
+            logger.debug("Found Volume resource")
+            self.__delete_volume(lid)
+        if type == "AWS::S3::Bucket":
+            logger.debug("Found Bucket resource")
+            self.__delete_s3_bucket(lid)
+
+
     # Constructor
 
     def __init__(self, session):
         self.session = session
 
-# session = boto3.session.Session()
-# s = Sweeper(session)
-# s.delete_sg("sg-faf2dd82")
