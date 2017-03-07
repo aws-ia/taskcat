@@ -10,7 +10,7 @@
 #
 # This program takes as input:
 # cfn template and json formatted parameter input file
-# To create tests define the test parmaterms in config.yml (Exmaple below)
+# To create tests define the test parms in config.yml (Exmaple below)
 # Planed Features:
 # - Email test results to owner of project
 
@@ -34,7 +34,7 @@ from botocore.client import Config
 
 
 # Version Tag
-version = '0.1.31'
+version = '0.1.34'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
@@ -42,11 +42,20 @@ fail = u'\u2718'.encode('utf8')
 info = u'\u2139'.encode('utf8')
 sig = base64.b64decode("dENhVA==")
 id = str(uuid.uuid4())
-E = '[ERROR %s ] :' % error
-D = '[DEBUG %s ] :' % debug
-P = '[PASS  %s ] :' % check
-F = '[FAIL  %s ] :' % fail
-I = '[INFO  %s ] :' % info
+header = '\x1b[1;41;0m'
+hightlight = '\x1b[0;30;47m'
+name_color = '\x1b[0;37;44m'
+aqua = '\x1b[0;30;46m'
+green = '\x1b[0;30;42m'
+white = '\x1b[0;30;47m'
+orange = '\x1b[0;30;43m'
+red = '\x1b[0;30;41m'
+rst_color = '\x1b[0m'
+E = '{1}[ERROR {0} ]{2} :'.format(error, red, rst_color)
+D = '{1}[DEBUG {0} ]{2} :'.format(debug, aqua, rst_color)
+P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
+F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
+I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
 
 # Example config.yml
@@ -102,8 +111,8 @@ def buildmap(start_location, mapstring):
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
 
-    def __init__(self, nametag='[TASKCAT ] '):
-        self.nametag = nametag
+    def __init__(self, nametag='[taskcat ]'):
+        self.nametag = '{1}{0}{2}'.format(nametag, name_color, rst_color)
         self.project = None
         self.capabilities = []
         self.verbose = False
@@ -187,9 +196,11 @@ class TaskCat (object):
         return (self.defult_region)
 
     def stage_in_s3(self, taskcat_cfg):
-        print '-' * self._termsize
-        print self.nametag + ":I uploaded the following assets"
-        print '=' * self._termsize
+        print '\n'
+        print "{} |UPLOADED S3 OBJECTS{}".format(
+            self.nametag,
+            header,
+            rst_color)
 
         project = taskcat_cfg['global']['qsname']
 
@@ -233,7 +244,7 @@ class TaskCat (object):
             o = str('{0}/{1}'.format(self.get_s3bucket(), obj.key))
             print o
 
-        print '-' * self._termsize
+        print '\n'
 
     def get_available_azs(self, region, count):
         available_azs = []
@@ -355,7 +366,6 @@ class TaskCat (object):
                 print
                 D + str(e)
             sys.exit(F + "Unable to get resources for stack %s" % stackId)
-        print "\t ....done"
         return l_resources
 
     # Given a list of stackIds, function returns the list of dictionary items, where each
@@ -389,11 +399,11 @@ class TaskCat (object):
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
-            print self.nametag + ":Validate Template in test[%s]" % test
+            print self.nametag + " :Validate Template in test[%s]" % test
             self.define_tests(taskcat_cfg, test)
             try:
                 if self.verbose:
-                    print D + "default region [%s]" % self.get_default_region()
+                    print D + "Default region [%s]" % self.get_default_region()
                 cfn = boto3.client(
                     'cloudformation', self.get_default_region())
                 cfn.validate_template(
@@ -406,15 +416,15 @@ class TaskCat (object):
                 if self.verbose:
                     cfn_parms = json.dumps(
                         result['Parameters'],
-                        indent=4,
+                        indent=11,
                         separators=(',', ': '))
-                    print D + "Parameters = %s" % cfn_parms
+                    print D + "Parameters:"
+                    print cfn_parms
             except Exception as e:
                 if self.verbose:
                     print D + str(e)
                 sys.exit(F + "Cannot validate %s" % self.get_template_file())
-            print "\t ....done"
-        print '-' * self._termsize
+        print '\n'
         return True
 
     def genpassword(self, passlength, passtype):
@@ -451,7 +461,11 @@ class TaskCat (object):
         stackids = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
-            print self.nametag + "|Preparing to launch [%s]" % test
+            print "{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(
+                I,
+                header,
+                test,
+                rst_color)
             sname = str(sig)
             stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
             self.define_tests(taskcat_cfg, test)
@@ -514,12 +528,13 @@ class TaskCat (object):
                         print D + "StackName=" + stackname
                         print D + "DisableRollback=True"
                         print D + "TemplateURL=%s" % self.get_template_path()
-                        print D + "Parameters=%s" % json.dumps(
+                        print D + "Capabilities=%s" % self.get_capabilities()
+                        print D + "Parameters:"
+                        print(json.dumps(
                             s_parms,
                             sort_keys=True,
-                            indent=4,
-                            separators=(',', ': '))
-                        print D + "Capabilities=%s" % self.get_capabilities()
+                            indent=11,
+                            separators=(',', ': ')))
 
                     stackdata = cfn.create_stack(
                         StackName=stackname,
@@ -533,12 +548,13 @@ class TaskCat (object):
                     if self.verbose:
                         print E + str(e)
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
-            print "\t ....done"
-        print '-' * self._termsize
+        print '\n'
         for stack in stackids:
             created = str(stack['StackId']).split('/')
             arn = created[0].split(':stack', 1)[0]
-            print self.nametag + "| >> LAUNCHING STACKS <<"
+            print "{} |LAUNCHING STACKS{}".format(self.nametag,
+                                                  header,
+                                                  rst_color)
             print I + "|arn = %s " % arn
 
         return stackids
@@ -547,7 +563,7 @@ class TaskCat (object):
         try:
             parms = json.load(jsonin)
             if self.verbose:
-                print(json.dumps(parms, indent=4, separators=(',', ': ')))
+                print(json.dumps(parms, indent=11, separators=(',', ': ')))
         except ValueError as e:
             print E + str(e)
             return False
@@ -556,7 +572,7 @@ class TaskCat (object):
     def validate_parameters(self, taskcat_cfg, test_list):
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
-            print self.nametag + "|Validate JSON input in test[%s]" % test
+            print self.nametag + " |Validate JSON input in test[%s]" % test
             if self.verbose:
                 print D + "parameter_path = %s" % self.get_parameter_path()
 
@@ -572,8 +588,7 @@ class TaskCat (object):
                 print D + "parameter_file = %s" % self.get_parameter_file()
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
 
-            print "\t ....done"
-        print '-' * self._termsize
+                print "\n"
         return True
 
     def regxfind(self, re_object, dataline):
@@ -619,17 +634,27 @@ class TaskCat (object):
 
     def get_stackstatus(self, stackids, speed):
         active_tests = 1
+        print "\n"
         while (active_tests > 0):
             current_active_tests = 0
+            print I + "{3}{0} {1} [{2}]{4}".format(
+                'AWS REGION'.ljust(15),
+                'CFN STACKSTATUS'.ljust(25),
+                'CFN STACKNAME',
+                header,
+                rst_color)
             for stack in stackids:
                 stackquery = self.stackcheck(stack['StackId'])
                 current_active_tests = stackquery[3] + current_active_tests
-                print I + "{0},{1},{2}".format(
-                    stackquery[1],
+                print I + "{3}{0} {1} [{2}]{4}".format(
+                    stackquery[1].ljust(15),
+                    stackquery[2].ljust(25),
                     stackquery[0],
-                    stackquery[2])
+                    hightlight,
+                    rst_color)
                 active_tests = current_active_tests
                 time.sleep(speed)
+            print "\n"
 
     def cleanup(self, stackids, speed):
         docleanup = self.get_docleanup()
@@ -638,7 +663,9 @@ class TaskCat (object):
 
         if docleanup:
             stackidtodelete = stackids
-            print self.nametag + "| >> CLEANUP STACKS <<"
+            print "{} |CLEANUP STACKS{}".format(self.nametag,
+                                                header,
+                                                rst_color)
             for stack in stackidtodelete:
                 self.stackdelete(stack['StackId'])
             self.get_stackstatus(stackids, speed)
@@ -696,7 +723,8 @@ class TaskCat (object):
                                 self.run_cleanup)
                     else:
                         self.set_docleanup(True)
-                        print I + "No cleanup value set (default to cleanup)"
+                        if self.verbose:
+                            print I + "No cleanup value set (default to cleanup)"
 
                 # Load test setting
                 self.set_s3bucket(b)
@@ -730,8 +758,9 @@ class TaskCat (object):
                         self.get_parameter_file())
                     quit()
 
+                print '\n'
                 if self.verbose:
-                    print I + "(Acquiring) tests assets for .......[%s]" % test
+                    print I + "|Acquiring tests assets for .......[%s]" % test
                     print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()
                     print D + "|Project    => [%s]" % self.get_project()
                     print D + "|Template   => [%s]" % self.get_template_path()
@@ -751,19 +780,19 @@ class TaskCat (object):
                         print D + "|Global Regions:"
                         for list_o in self.get_test_region():
                             print "\t\t\t - [%s]" % list_o
-                if self.verbose:
-                    print I + "(Completed) acquisition of [%s]" % test
+                print P + "(Completed) acquisition of [%s]" % test
+                print '\n'
 
     # Set AWS Credentials
     def aws_api_init(self, args):
-        print '-' * self._termsize
+        print "\n"
         if args.boto_profile:
             boto3.setup_default_session(profile_name=args.boto_profile)
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [boto-profile] "
+                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
+                print self.nametag + " :Authenticated via: \t [boto-profile] "
             except Exception as e:
                 print E + "Credential Error - Please check you profile!"
                 if self.verbose:
@@ -776,8 +805,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [role] "
+                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
+                print self.nametag + " :Authenticated via: \t [role] "
             except Exception as e:
                 print E + "Credential Error - Please check you keys!"
                 if self.verbose:
@@ -790,8 +819,8 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + ":AWS AccountNumber: \t [%s]" % account
-                print self.nametag + ":Authenticated via: \t [role] "
+                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
+                print self.nametag + " :Authenticated via: \t [role] "
             except Exception as e:
                 print E + "Credential Error - Cannot assume role!"
                 if self.verbose:
@@ -799,8 +828,7 @@ class TaskCat (object):
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
-        # type: (object) -> object
-        print '-' * self._termsize
+        print '\n'
         run_tests = []
         required_global_keys = ['qsname',
                                 'owner',
@@ -811,6 +839,8 @@ class TaskCat (object):
                                     'parameter_input']
         try:
             if os.path.isfile(yaml_file):
+                print self.nametag + " :Reading Config form: {0}".format(
+                    yaml_file)
                 with open(yaml_file, 'r') as checkyaml:
                     cfg_yml = yaml.load(checkyaml.read())
                     for key in required_global_keys:
@@ -822,7 +852,7 @@ class TaskCat (object):
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print self.nametag + "|Queing test => %s " % defined
+                        print self.nametag + " |Queing test => %s " % defined
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
@@ -841,11 +871,14 @@ class TaskCat (object):
             sys.exit(1)
         return run_tests
 
-    def genreport(self, test_list, stackids):
+    def genreport(self, test_list, stackids, logpath):
         doc = yattag.Doc()
 
-        def getofile():
-            location = "somefile.log"
+        def getofile(region, stackname):
+            location = "{}-{}-{}".format(
+                stackname,
+                region,
+                '.txt')
             return str(location)
 
         tag = doc.tag
@@ -915,7 +948,7 @@ class TaskCat (object):
                                 text('Test Logs')
 
                         for test in test_list:
-                            print "Generating Report for test [%s]" % test
+                            print I + ":Generating Report for test [%s]" % test
                             report_data = {}
                             test_data = []
                             for _stack in stackids:
@@ -952,17 +985,14 @@ class TaskCat (object):
                                         if testname != grp:
                                             if grp is not None:
                                                 grp = testname
-                                                print "Group complete"
                                                 with tag('tr',
-                                                     'class= test-footer'):
-                                                    with tag('td', 'colspan=5'):
+                                                         'class= test-footer'):
+                                                    with tag('td',
+                                                             'colspan=5'):
                                                         text('')
                                             else:
                                                 grp = testname
                                         else:
-                                            print "Grouping {0} =>{1}".format(
-                                                stackname,
-                                                testname)
                                             grp = testname
 
                                             with tag('tr'):
@@ -981,10 +1011,10 @@ class TaskCat (object):
                                                     text(str(_status))
                                                 with tag('td',
                                                          'class=text-left'):
-                                                    with tag('a',
-                                                             href=getofile()):
+                                                    log = getofile(
+                                                        region, stackname)
+                                                    with tag('a', href=log):
                                                         text('View Logs')
-
 
                         doc.stag('p')
 
@@ -996,16 +1026,21 @@ class TaskCat (object):
 
     def createreport(self, test_list, stackids, filename):
         #@TODO:
-        # Check for .html extenstion
-        # write to outputs dir
         # push up to s3 optional
+        o_directory = 'taskcat_outputs'
 
-        print self.nametag + ">> GENERATING REPORTS <<"
+        try:
+            os.stat(o_directory)
+        except:
+            os.mkdir(o_directory)
+        print "{} |GENERATING REPORTS{}".format(self.nametag,
+                                                header,
+                                                rst_color)
         print I + "Writing report to [%s]" % filename
-        logpath = filename
+        logpath = o_directory + "/filename"
         file = open(logpath, 'w')
         file.write(
-            self.genreport(test_list, stackids))
+            self.genreport(test_list, stackids, logpath))
         file.close()
 
     @property
@@ -1080,7 +1115,9 @@ class TaskCat (object):
     def welcome(self, prog_name='taskcat.io'):
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
-        print banner.renderText(prog_name)
+        print "{0}".format(
+            banner.renderText(prog_name),
+            "\n")
         print "version %s" % version
 
 

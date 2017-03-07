@@ -1,6 +1,11 @@
 # Compile Source #
 ##################
 *.pyc
+
+# Misc #
+.idea/
+.project
+
 # Doc Site
 site/
 

@@ -6,7 +6,7 @@ description = 'An OpenSource Cloudformation Deployment Framework',
 author = 'Tony Vattathil ,Santiago Cardenas, Shivansh Singh', 
 author_email = 'tonynv@amazon.com , sancard@amazon.com , sshvans@amazon.com',
 url = 'https://aws-quickstart.github.io/taskcat/',
-version = '0.1.31',
+version = '0.1.34',
 download_url = 'https://github.com/aws-quickstart/taskcat/tarball/master',
 classifiers=[
 		'Development Status :: 3 - Alpha',
@@ -19,7 +19,7 @@ classifiers=[
 
   #packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-  install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml'],
+  install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml' ,'yattag'],
 
   #data_files=[('config', ['ci/config.yml`'])],
 
