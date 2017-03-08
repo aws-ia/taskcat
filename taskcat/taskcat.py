@@ -1054,7 +1054,6 @@ class TaskCat (object):
             '-c',
             '--config_yml',
             type=str,
-            required=True,
             help="(Required!) [config.yml] pass '-ey' for example")
         parser.add_argument(
             '-P',
