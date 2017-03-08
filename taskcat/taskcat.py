@@ -1037,7 +1037,7 @@ class TaskCat (object):
                                                 header,
                                                 rst_color)
         print I + "Writing report to [%s]" % filename
-        logpath = o_directory + "/filename"
+        logpath = o_directory + "/" + filename
         file = open(logpath, 'w')
         file.write(
             self.genreport(test_list, stackids, logpath))
