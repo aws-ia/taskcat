@@ -1,6 +1,5 @@
 setup.cfg
 setup.py
-taskcat/__init__.py
 taskcat/sweeper.py
 taskcat/taskcat.py
 taskcat.egg-info/PKG-INFO
