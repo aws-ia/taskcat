@@ -515,9 +515,9 @@ class TaskCat (object):
                                         numazs)
                                     parmdict['ParameterValue'] = param_value
                                 else:
-                                    print E + "$[auto_genaz_(!)]"
-                                    print I + "(Number of az's not specified!"
-                                    print I + "Defaulting to 1 az)"
+                                    print I + "$[auto_genaz_(!)]"
+                                    print I + "Number of az's not specified!"
+                                    print I + " - (Defaulting to 1 az)"
                                     param_value = self.get_available_azs(
                                         region,
                                         1)
@@ -724,7 +724,8 @@ class TaskCat (object):
                     else:
                         self.set_docleanup(True)
                         if self.verbose:
-                            print I + "No cleanup value set (default to cleanup)"
+                            print I + "No cleanup value set"
+                            print I + " - (Defaulting to cleanup)"
 
                 # Load test setting
                 self.set_s3bucket(b)
@@ -1046,14 +1047,15 @@ class TaskCat (object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description='(Multi-Region Cloudformation  Deployment)',
+            description='(Multi-Region Cloudformation Deployment Tool)',
             # prog=__file__, prefix_chars='-')
             prog='taskcat', prefix_chars='-')
         parser.add_argument(
             '-c',
             '--config_yml',
             type=str,
-            help="[Configuration yaml] Read configuration from config.yml")
+            required=True,
+            help="(Required!) [config.yml] pass '-ey' for example")
         parser.add_argument(
             '-P',
             '--boto_profile',
@@ -1078,7 +1080,7 @@ class TaskCat (object):
             '-n',
             '--no_cleanup',
             action='store_true',
-            help="Print out example yaml")
+            help="Sets cleanup to false (Does not teardown stacks)")
         parser.add_argument(
             '-v',
             '--verbose',
