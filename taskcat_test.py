@@ -44,7 +44,6 @@ def main():
         testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
         tcat_instance.get_stackstatus(testdata, 5)
         tcat_instance.createreport(testdata, 'taskcat-results.html')
-        quit()
         tcat_instance.cleanup(testdata, 5)
 
 

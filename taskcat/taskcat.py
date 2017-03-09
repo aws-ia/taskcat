@@ -571,14 +571,12 @@ class TaskCat (object):
             for stack in test.items():
                 testname = stack[0]
                 for stack in stack[1]:
-                    created = str(stack['StackId'])
-                    arn = created[0].split(':stack', 1)
                     print "{} |{}LAUNCHING STACKS for test =[ {} ]".format(
                         self.nametag,
                         header,
                         testname,
                         rst_color)
-                    print I + "|arn = %s " % arn
+                    print I + str(stack['StackId'])
 
         return testdata
 
@@ -661,11 +659,11 @@ class TaskCat (object):
         print "\n"
         while (active_tests > 0):
             current_active_tests = 0
-            print I + "{} {} {} [{}]".format(
+            print I + "{}{} {} [{}]{}".format(
+                header,
                 'AWS REGION'.ljust(15),
                 'CFN STACKSTATUS'.ljust(25),
                 'CFN STACKNAME',
-                header,
                 rst_color)
 
             for test in testdata:
@@ -685,29 +683,32 @@ class TaskCat (object):
                         time.sleep(speed)
             print "\n"
 
-    def cleanup(self, stackids, speed):
+    def cleanup(self, testdata, speed):
         docleanup = self.get_docleanup()
         if self.verbose:
             print D + "clean-up = %s " % str(docleanup)
 
         if docleanup:
-            stackidtodelete = stackids
             print "{} |CLEANUP STACKS{}".format(self.nametag,
                                                 header,
                                                 rst_color)
-            for stack in stackidtodelete:
-                self.stackdelete(stack['StackId'])
-            self.get_stackstatus(stackids, speed)
+            self.stackdelete(testdata)
+            self.get_stackstatus(testdata, speed)
         else:
             print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
                 docleanup)
 
-    def stackdelete(self, stack_id):
-        stackdata = self.parse_stack_info(stack_id)
-        region = stackdata['region']
-        stack_name = stackdata['stack_name']
-        cfn = boto3.client('cloudformation', region)
-        cfn.delete_stack(StackName=stack_name)
+    def stackdelete(self, testdata):
+        for test in testdata:
+            for stack in test.items():
+                testname = stack[0]
+                for stack in stack[1]:
+                    stackdata = self.parse_stack_info(
+                        str(stack['StackId']))
+                    region = stackdata['region']
+                    stack_name = stackdata['stack_name']
+                    cfn = boto3.client('cloudformation', region)
+                    cfn.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
         exists = None
@@ -1030,7 +1031,8 @@ class TaskCat (object):
                                                 with tag('a', href=log):
                                                     text('View Logs')
 
-                        doc.stag('p')
+                        doc.stag('p') 
+                        print '\n'
 
         indent = yattag.indent(doc.getvalue(),
                                indentation='    ',
