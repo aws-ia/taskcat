@@ -3,7 +3,7 @@
 > Current beta release date is: March,20,2017 
 
 # taskcat
-> version = '0.1.35'
+> version = '0.1.36'
 > This program requires python2 
  
 ### What is taskcat? 
