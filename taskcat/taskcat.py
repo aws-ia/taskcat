@@ -107,6 +107,22 @@ def buildmap(start_location, mapstring):
                 fs_map.append(fs_path_to_file)
     return fs_map
 
+class TestData(object):
+    def __init__(self):
+        self.__test_name = None
+        self.__test_stacks = []
+
+    def set_test_name(self, name):
+        self.__test_name = name
+
+    def get_test_name(self):
+        return self.__test_name
+
+    def get_test_stacks(self):
+        return self.__test_stacks
+
+    def add_test_stack(self, stack):
+        self.__test_stacks.append(stack)
 
 # Task(Cat = Cloudformation automated Testing)
 class TaskCat (object):
