@@ -1040,30 +1040,17 @@ class TaskCat (object):
                         doc.stag('p')
                         print '\n'
 
-        indent = yattag.indent(doc.getvalue(),
-                               indentation='    ',
-                               newline='\r\n',
-                               indent_text=True)
-        return indent
+        htmloutput = yattag.indent(doc.getvalue(),
+                                   indentation='    ',
+                                   newline='\r\n',
+                                   indent_text=True)
 
-    def getcfnlogs(testdata, logpath):
-        #@sancad
-        # This is just a stub please add deep log collection here
-        resource = {}
-        print I + "(Collecting Stacklogs)"
-        for test in testdata:
-            for stack in test.items():
-                testname = stack[0]
-                for stack in stack[1]:
-                    stackinfo = self.parse_stack_info(str(stack['StackId']))
-                    # Get stack resources
-                    resource[stackinfo['region']] = (
-                        self.get_resources(str(stack['StackId'])))
+        file = open(logpath, 'w')
+        file.write(htmloutput)
+        file.close()
 
-                    # test_logpath = logpath+'_'+[stackinfo['region']
-                    #file = open(test_logpath, 'w')
-                    #file.write(self.genreport(testdata, test_logpath))
-                    # file.close()
+        return htmloutput
+
 
     def createreport(self, testdata, filename):
         # push up to s3 optional
@@ -1079,15 +1066,10 @@ class TaskCat (object):
         print I + "Creating report in [%s]" % o_directory
         logpath = o_directory + "/" + filename
 
-        # Collect cfn logs for each test and write them to output dir
-        # File path o_directory + filename + region
 
         # Generate html test dashboard
-        # Use logpath + region to create View Logs link
-        file = open(logpath, 'w')
-        file.write(
-            self.genreport(testdata, logpath))
-        file.close()
+        # Uses logpath + region to create View Logs link
+        self.genreport(testdata, logpath)
 
     @property
     def interface(self):
