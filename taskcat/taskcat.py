@@ -328,7 +328,7 @@ class TaskCat (object):
     def get_docleanup(self):
         return self.run_cleanup
 
-    # Given a stackId, function returns the list of dictionary items, where each item
+    # Given a stackname, and region function returns the list of dictionary items, where each item
     # consist of logicalId, physicalId and resourceType of the aws resource associated
     # with the stack.
     #
@@ -340,20 +340,23 @@ class TaskCat (object):
     #         'resourceType': 'String'
     #     },
     # ]
-    def get_resources(self, stackId):
+    def get_resources(self, stackname, region):
         l_resources = []
         try:
             cfn = boto3.client(
-                'cloudformation', self.get_default_region())
+                'cloudformation', region)
             result = cfn.describe_stack_resources(
-                StackName=stackId)
+                StackName=stackname)
             stackResources = result.get('StackResources')
             for resource in stackResources:
                 if self.verbose:
-                    print "Resource: \
-                    LogicalId = {0}, PhysicalId = {1}, Type = {2}".format(
+                    print D + "Resources: for {}".format(stackname)
+                    print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                        '\n\t\tLogicalId',
                         resource.get('LogicalResourceId'),
+                        '\n\t\tPhysicalId',
                         resource.get('PhysicalResourceId'),
+                        '\n\t\tType',
                         resource.get('ResourceType')
                     )
                 d = {}
@@ -365,7 +368,7 @@ class TaskCat (object):
             if self.verbose:
                 print
                 D + str(e)
-            sys.exit(F + "Unable to get resources for stack %s" % stackId)
+            sys.exit(F + "Unable to get resources for stack %s" % stackname)
         return l_resources
 
     # Given a list of stackIds, function returns the list of dictionary items, where each
@@ -384,6 +387,8 @@ class TaskCat (object):
     #         ]
     #     },
     # ]
+
+    #@TODO Update to take region
     def get_all_resources(self, stackIds):
         l_all_resources = []
         for anId in stackIds:
@@ -457,7 +462,6 @@ class TaskCat (object):
                     ), plen))
             return password + '@'
 
-    # @TODO need to make testdata a class
     # Takes in:
     # taskcat_cfg taskcat cfg as ymal object
     # test_list as list
@@ -470,6 +474,8 @@ class TaskCat (object):
     # - Each element in the list is a dict of test_names
     # -- Each iten in dict contain data returned from
     #    create_stack 'StackID' and 'ResponseMetadata'
+
+    # @TODO need to make testdata a class
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         testdata = []
         self.set_capabilities('CAPABILITY_IAM')
@@ -1046,7 +1052,7 @@ class TaskCat (object):
                                                     state['region'],
                                                     state['stack_name'],
                                                     'resource_log')
-                                                # TODO Add css to below links
+                                                #@TODO css to links 
                                                 with tag('a', href=clog):
                                                     text('View Logs ')
                                                 with tag('a', href=rlog):
