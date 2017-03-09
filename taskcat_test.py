@@ -41,10 +41,11 @@ def main():
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
-        stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
-        tcat_instance.get_stackstatus(stackinfo, 5)
-        tcat_instance.createreport(test_list, stackinfo, 'taskcat-results.html')
-        tcat_instance.cleanup(stackinfo, 5)
+        testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
+        tcat_instance.get_stackstatus(testdata, 5)
+        quit()
+        tcat_instance.createreport(test_list, testdata, 'taskcat-results.html')
+        tcat_instance.cleanup(testdata, 5)
 
 
 # --End

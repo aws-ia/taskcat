@@ -197,7 +197,7 @@ class TaskCat (object):
 
     def stage_in_s3(self, taskcat_cfg):
         print '\n'
-        print "{} |UPLOADED S3 OBJECTS{}".format(
+        print "{} |CONTENTS OF  S3 BUCKET{}".format(
             self.nametag,
             header,
             rst_color)
@@ -457,10 +457,24 @@ class TaskCat (object):
                     ), plen))
             return password + '@'
 
+    # Takes in:
+    # taskcat_cfg taskcat cfg as ymal object
+    # test_list as list
+    # sprefix (special prefix) as string
+    #
+    # Purpose of sprefix:
+    # sprefix can be used to tag the stackname
+    # Returns:
+    # list_of_test
+    # - Each element in the list is a dict of test_names
+    # -- Each iten in dict contain data returned from
+    #    create_stack 'StackID' and 'ResponseMetadata'
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
-        stackids = []
+        testdata = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
+            testid = {}
+            stackids = []
             print "{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(
                 I,
                 header,
@@ -542,22 +556,30 @@ class TaskCat (object):
                         TemplateURL=self.get_template_path(),
                         Parameters=s_parms,
                         Capabilities=self.get_capabilities())
+
                     stackids.append(stackdata)
+                    testid[test] = stackids
+                    testdata.append(testid)
 
                 except Exception as e:
                     if self.verbose:
                         print E + str(e)
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
         print '\n'
-        for stack in stackids:
-            created = str(stack['StackId']).split('/')
-            arn = created[0].split(':stack', 1)[0]
-            print "{} |LAUNCHING STACKS{}".format(self.nametag,
-                                                  header,
-                                                  rst_color)
-            print I + "|arn = %s " % arn
+        for test in testdata:
+            for stack in test.items():
+                testname = stack[0]
+                for stack in stack[1]:
+                    created = str(stack['StackId']).split('/')
+                    arn = created[0].split(':stack', 1)[0]
+                    print "{} |{}LAUNCHING STACKS for test =[ {} ]".format(
+                        self.nametag,
+                        header,
+                        testname,
+                        rst_color)
+                    print I + "|arn = %s " % arn
 
-        return stackids
+        return testdata
 
     def validate_json(self, jsonin):
         try:
@@ -598,13 +620,13 @@ class TaskCat (object):
         else:
             return str('Not-found')
 
-    def parse_stack_info(self, stack_id):
+    def parse_stack_info(self, stackdata):
         stack_info = dict()
 
         region_re = re.compile('(?<=:)(.\w-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        stack_info['region'] = self.regxfind(region_re, stack_id)
-        stack_info['stack_name'] = self.regxfind(stack_name_re, stack_id)
+        stack_info['region'] = self.regxfind(region_re, stackdata)
+        stack_info['stack_name'] = self.regxfind(stack_name_re, stackdata)
         return stack_info
 
     def stackcheck(self, stack_id):
@@ -612,6 +634,7 @@ class TaskCat (object):
         region = stackdata['region']
         stack_name = stackdata['stack_name']
         test_info = []
+
         cfn = boto3.client('cloudformation', region)
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -632,28 +655,33 @@ class TaskCat (object):
             test_info.append(0)
         return test_info
 
-    def get_stackstatus(self, stackids, speed):
+    def get_stackstatus(self, testdata, speed):
         active_tests = 1
         print "\n"
         while (active_tests > 0):
             current_active_tests = 0
-            print I + "{3}{0} {1} [{2}]{4}".format(
+            print I + "{} {} {} [{}]{}".format(
+                'TEST NAME'.ljust(25),
                 'AWS REGION'.ljust(15),
                 'CFN STACKSTATUS'.ljust(25),
                 'CFN STACKNAME',
                 header,
                 rst_color)
-            for stack in stackids:
-                stackquery = self.stackcheck(stack['StackId'])
-                current_active_tests = stackquery[3] + current_active_tests
-                print I + "{3}{0} {1} [{2}]{4}".format(
-                    stackquery[1].ljust(15),
-                    stackquery[2].ljust(25),
-                    stackquery[0],
-                    hightlight,
-                    rst_color)
-                active_tests = current_active_tests
-                time.sleep(speed)
+            for test in testdata:
+                for stack in test.items():
+                    testname = stack[0]
+                    for stack in stack[1]:
+                        stackquery = self.stackcheck(str(stack['StackId']))
+                        current_active_tests = stackquery[3] + current_active_tests
+                        print I + "{}{} {} [{}]{}".format(
+                            hightlight,
+                            testname.ljust(25),
+                            stackquery[1].ljust(15),
+                            stackquery[2].ljust(25),
+                            stackquery[0],
+                            rst_color)
+                        active_tests = current_active_tests
+                        time.sleep(speed)
             print "\n"
 
     def cleanup(self, stackids, speed):
@@ -959,14 +987,18 @@ class TaskCat (object):
                                 region = stack_info['region']
 
                                 if test in stackname:
+                                    test_data.append(test)
                                     test_data.append(region)
                                     test_data.append(stackname)
-                                    report_data = {test: test_data}
+                                    report_data = {test+'-'+region: test_data}
 
                                     for _t, _tdata in report_data.items():
                                         testname = _t
-                                        region = _tdata[0]
-                                        stackname = _tdata[1]
+                                        region = _tdata[1]
+                                        stackname = _tdata[2]
+                                        print "test %s" % test
+                                        print "testname %s" % testname
+                                        print "region %s" % region
 
                                         cfn = boto3.client(
                                             'cloudformation', region)
@@ -982,19 +1014,6 @@ class TaskCat (object):
                                                 status_css = 'class=test-red'
                                             else:
                                                 status_css = 'class=test-red'
-
-                                        if testname != grp:
-                                            if grp is not None:
-                                                grp = testname
-                                                with tag('tr',
-                                                         'class= test-footer'):
-                                                    with tag('td',
-                                                             'colspan=5'):
-                                                        text('')
-                                            else:
-                                                grp = testname
-                                        else:
-                                            grp = testname
 
                                             with tag('tr'):
                                                 with tag('td',
