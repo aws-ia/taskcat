@@ -491,13 +491,12 @@ class TaskCat (object):
     # -- Each iten in dict contain data returned from
     #    create_stack 'StackID' and 'ResponseMetadata'
 
-    # @TODO need to make testdata a class
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
-        testdata = []
+        testdata_list = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
-            stackids = []
-            testid = {}
+            testdata = TestData()
+            testdata.set_test_name(test)
             print "{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(
                 I,
                 header,
@@ -580,28 +579,24 @@ class TaskCat (object):
                         Parameters=s_parms,
                         Capabilities=self.get_capabilities())
 
-                    stackids.append(stackdata)
+                    testdata.add_test_stack(stackdata)
 
                 except Exception as e:
                     if self.verbose:
                         print E + str(e)
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
 
-            testid[test] = stackids
-            testdata.append(testid)
+            testdata_list.append(testdata)
         print '\n'
-        for test in testdata:
-            for stack in test.items():
-                testname = stack[0]
-                for stack in stack[1]:
-                    print "{} |{}LAUNCHING STACKS for test =[ {} ]".format(
-                        self.nametag,
-                        header,
-                        testname,
-                        rst_color)
-                    print I + str(stack['StackId'])
-
-        return testdata
+        for test in testdata_list:
+            for stack in test.get_test_stacks():
+                print "{} |{}LAUNCHING STACKS for test =[ {} ]".format(
+                    self.nametag,
+                    header,
+                    test.get_test_name(),
+                    rst_color)
+                print I + str(stack['StackId'])
+        return testdata_list
 
     def validate_json(self, jsonin):
         try:
@@ -677,7 +672,7 @@ class TaskCat (object):
             test_info.append(0)
         return test_info
 
-    def get_stackstatus(self, testdata, speed):
+    def get_stackstatus(self, testdata_list, speed):
         active_tests = 1
         print "\n"
         while (active_tests > 0):
@@ -689,24 +684,23 @@ class TaskCat (object):
                 'CFN STACKNAME',
                 rst_color)
 
-            for test in testdata:
-                for stack in test.items():
-                    testname = stack[0]
-                    for stack in stack[1]:
-                        stackquery = self.stackcheck(str(stack['StackId']))
-                        current_active_tests = stackquery[
-                            3] + current_active_tests
-                        print I + "{3}{0} {1} [{2}]{4}".format(
-                            stackquery[1].ljust(15),
-                            stackquery[2].ljust(25),
-                            stackquery[0],
-                            hightlight,
-                            rst_color)
-                        active_tests = current_active_tests
-                        time.sleep(speed)
+            for test in testdata_list:
+                for stack in test.get_test_stacks():
+                    stackquery = self.stackcheck(str(stack['StackId']))
+                    current_active_tests = stackquery[
+                                               3] + current_active_tests
+                    print I + "{3}{0} {1} [{2}]{4}".format(
+                        stackquery[1].ljust(15),
+                        stackquery[2].ljust(25),
+                        stackquery[0],
+                        hightlight,
+                        rst_color)
+                    stack['status'] = stackquery[2]
+                    active_tests = current_active_tests
+                    time.sleep(speed)
             print "\n"
 
-    def cleanup(self, testdata, speed):
+    def cleanup(self, testdata_list, speed):
         docleanup = self.get_docleanup()
         if self.verbose:
             print D + "clean-up = %s " % str(docleanup)
@@ -715,23 +709,21 @@ class TaskCat (object):
             print "{} |CLEANUP STACKS{}".format(self.nametag,
                                                 header,
                                                 rst_color)
-            self.stackdelete(testdata)
-            self.get_stackstatus(testdata, speed)
+            self.stackdelete(testdata_list)
+            self.get_stackstatus(testdata_list, speed)
         else:
             print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
                 docleanup)
 
-    def stackdelete(self, testdata):
-        for test in testdata:
-            for stack in test.items():
-                testname = stack[0]
-                for stack in stack[1]:
-                    stackdata = self.parse_stack_info(
-                        str(stack['StackId']))
-                    region = stackdata['region']
-                    stack_name = stackdata['stack_name']
-                    cfn = boto3.client('cloudformation', region)
-                    cfn.delete_stack(StackName=stack_name)
+    def stackdelete(self, testdata_list):
+        for test in testdata_list:
+            for stack in test.get_test_stacks():
+                stackdata = self.parse_stack_info(
+                    str(stack['StackId']))
+                region = stackdata['region']
+                stack_name = stackdata['stack_name']
+                cfn = boto3.client('cloudformation', region)
+                cfn.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
         exists = None
@@ -925,7 +917,7 @@ class TaskCat (object):
             sys.exit(1)
         return run_tests
 
-    def genreport(self, testdata, dashboard_filename):
+    def genreport(self, testdata_list, dashboard_filename):
         doc = yattag.Doc()
 
         # Type of cfnlog reutrn cfn logsfile
@@ -1028,51 +1020,50 @@ class TaskCat (object):
                                      'width=15%'):
                                 text('Test Logs')
 
-                            for test in testdata:
+                            for test in testdata_list:
                                 with tag('tr', 'class= test-footer'):
                                     with tag('td', 'colspan=5'):
                                         text('')
-                                for stack in test.items():
-                                    state = []
-                                    testname = stack[0]
-                                    print I + "(Generating Reports)"
-                                    print I + " - Processing {}".format(
-                                        testname)
-                                    for stack in stack[1]:
-                                        state = self.parse_stack_info(
-                                            str(stack['StackId']))
-                                        status, css = get_teststate(
-                                            state['stack_name'],
-                                            state['region'])
 
-                                        with tag('tr'):
-                                            with tag('td',
-                                                     'class=test-info'):
-                                                with tag('h3'):
-                                                    text(testname)
-                                            with tag('td',
-                                                     'class=text-left'):
-                                                text(state['region'])
-                                            with tag('td',
-                                                     'class=text-left'):
-                                                text(state['stack_name'])
-                                            with tag('td', css):
-                                                text(str(status))
-                                            with tag('td',
-                                                     'class=text-left'):
-                                                clog = getofile(
-                                                    state['region'],
-                                                    state['stack_name'],
-                                                    'cfnlog')
-                                                rlog = getofile(
-                                                    state['region'],
-                                                    state['stack_name'],
-                                                    'resource_log')
-                                                #@TODO css to links 
-                                                with tag('a', href=clog):
-                                                    text('View Logs ')
-                                                with tag('a', href=rlog):
-                                                    text('Resource Logs ')
+                                testname = test.get_test_name()
+                                print I + "(Generating Reports)"
+                                print I + " - Processing {}".format(
+                                    testname)
+                                for stack in test.get_test_stacks():
+                                    state = self.parse_stack_info(
+                                        str(stack['StackId']))
+                                    status, css = get_teststate(
+                                        state['stack_name'],
+                                        state['region'])
+
+                                    with tag('tr'):
+                                        with tag('td',
+                                                 'class=test-info'):
+                                            with tag('h3'):
+                                                text(testname)
+                                        with tag('td',
+                                                 'class=text-left'):
+                                            text(state['region'])
+                                        with tag('td',
+                                                 'class=text-left'):
+                                            text(state['stack_name'])
+                                        with tag('td', css):
+                                            text(str(status))
+                                        with tag('td',
+                                                 'class=text-left'):
+                                            clog = getofile(
+                                                state['region'],
+                                                state['stack_name'],
+                                                'cfnlog')
+                                            rlog = getofile(
+                                                state['region'],
+                                                state['stack_name'],
+                                                'resource_log')
+                                            #@TODO css to links
+                                            with tag('a', href=clog):
+                                                text('View Logs ')
+                                            with tag('a', href=rlog):
+                                                text('Resource Logs ')
                             with tag('tr', 'class= test-footer'):
                                 with tag('td', 'colspan=5'):
                                     vtag = 'generated by {} {}'.format(
@@ -1094,42 +1085,40 @@ class TaskCat (object):
 
         return htmloutput
 
-    def collect_resources(self, testdata, logpath):
+    def collect_resources(self, testdata_list, logpath):
         resource = {}
         print I + "(Collecting Resources)"
-        for test in testdata:
-            for stack in test.items():
-                testname = stack[0]
-                for stack in stack[1]:
-                    stackinfo = self.parse_stack_info(str(stack['StackId']))
-                    # Get stack resources
-                    resource[stackinfo['region']] = (
-                        self.get_resources(
-                            str(stackinfo['stack_name']),
-                            str(stackinfo['region'])
-                        )
+        for test in testdata_list:
+            for stack in test.get_test_stacks():
+                stackinfo = self.parse_stack_info(str(stack['StackId']))
+                # Get stack resources
+                resource[stackinfo['region']] = (
+                    self.get_resources(
+                        str(stackinfo['stack_name']),
+                        str(stackinfo['region'])
                     )
-                    extension = '.txt'
-                    test_logpath = '{}/{}-{}-{}{}'.format(
-                        logpath,
-                        stackinfo['stack_name'],
-                        stackinfo['region'],
-                        'resources',
-                        extension)
+                )
+                extension = '.txt'
+                test_logpath = '{}/{}-{}-{}{}'.format(
+                    logpath,
+                    stackinfo['stack_name'],
+                    stackinfo['region'],
+                    'resources',
+                    extension)
 
-                    # Write resource logs
-                    print I + "Writing Resouce logs".format(test_logpath)
-                    file = open(test_logpath, 'w')
-                    # @TODO use yattag to bild html table from (for now just
-                    # fomation json)
-                    file.write(str(
-                        json.dumps(
-                            resource,
-                            indent=4,
-                            separators=(',', ': '))))
-                    file.close()
+                # Write resource logs
+                print I + "Writing Resouce logs".format(test_logpath)
+                file = open(test_logpath, 'w')
+                # @TODO use yattag to bild html table from (for now just
+                # fomation json)
+                file.write(str(
+                    json.dumps(
+                        resource,
+                        indent=4,
+                        separators=(',', ': '))))
+                file.close()
 
-    def createreport(self, testdata, filename):
+    def createreport(self, testdata_list, filename):
         o_directory = 'taskcat_outputs'
 
         try:
@@ -1144,11 +1133,11 @@ class TaskCat (object):
 
         # Collect resources
         # File path o_directory + filename + region
-        self.collect_resources(testdata, o_directory)
+        self.collect_resources(testdata_list, o_directory)
 
         # Generate html test dashboard
         # Uses logpath + region to create View Logs link
-        self.genreport(testdata, dashboard_filename)
+        self.genreport(testdata_list, dashboard_filename)
 
     @property
     def interface(self):
