@@ -16,7 +16,8 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
 # create formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # add formatter to ch
 ch.setFormatter(formatter)
@@ -24,7 +25,9 @@ ch.setFormatter(formatter)
 # add ch to logger
 logger.addHandler(ch)
 
-# Sweeper class provide functions to delete the AWS resources as per the defined rules.
+# Sweeper class provide functions to delete the AWS resources as per the
+# defined rules.
+
 
 class Sweeper(object):
 
@@ -40,7 +43,8 @@ class Sweeper(object):
         try:
             object_versions = bucket_resource.object_versions.all()
             for object_version in object_versions:
-                # TODO: Delete sets of 1000 object versions to reduce delete requests
+                # TODO: Delete sets of 1000 object versions to reduce delete
+                # requests
                 object_version.delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
@@ -86,7 +90,8 @@ class Sweeper(object):
             if e.response['Error']['Code'] == 'InvalidGroup.InUse':
                 logger.warn("Unable to delete Security group. It is in-use.")
             if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
-                logger.warn("Unable to delete Security group. Security group not found.")
+                logger.warn(
+                    "Unable to delete Security group. (not found).")
             else:
                 print(e)
 
@@ -112,7 +117,8 @@ class Sweeper(object):
         logger.info("Deleting all resources")
         for stack in stack_list:
             for resource in stack['resources']:
-                self.__delete_resource(resource['logicalId'], resource['resourceType'])
+                self.__delete_resource(
+                    resource['logicalId'], resource['resourceType'])
 
     # Give a resource logical id and resource type, this function deletes the resource
     # Param:
@@ -130,9 +136,7 @@ class Sweeper(object):
             logger.debug("Found Bucket resource")
             self.__delete_s3_bucket(lid)
 
-
     # Constructor
 
     def __init__(self, session):
         self.session = session
-

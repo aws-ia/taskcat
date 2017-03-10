@@ -107,7 +107,9 @@ def buildmap(start_location, mapstring):
                 fs_map.append(fs_path_to_file)
     return fs_map
 
+
 class TestData(object):
+
     def __init__(self):
         self.__test_name = None
         self.__test_stacks = []
@@ -125,6 +127,8 @@ class TestData(object):
         self.__test_stacks.append(stack)
 
 # Task(Cat = Cloudformation automated Testing)
+
+
 class TaskCat (object):
 
     def __init__(self, nametag='[taskcat ]'):
@@ -485,11 +489,7 @@ class TaskCat (object):
     #
     # Purpose of sprefix:
     # sprefix can be used to tag the stackname
-    # Returns:
-    # list_of_test
-    # - Each element in the list is a dict of test_names
-    # -- Each iten in dict contain data returned from
-    #    create_stack 'StackID' and 'ResponseMetadata'
+    # Returns: list of testdata objects
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         testdata_list = []
@@ -688,7 +688,7 @@ class TaskCat (object):
                 for stack in test.get_test_stacks():
                     stackquery = self.stackcheck(str(stack['StackId']))
                     current_active_tests = stackquery[
-                                               3] + current_active_tests
+                        3] + current_active_tests
                     print I + "{3}{0} {1} [{2}]{4}".format(
                         stackquery[1].ljust(15),
                         stackquery[2].ljust(25),
@@ -925,9 +925,10 @@ class TaskCat (object):
         def getofile(region, stackname, type):
             extension = '.txt'
             if type == 'cfnlog':
-                location = "{}-{}{}".format(
+                location = "{}-{}-{}{}".format(
                     stackname,
                     region,
+                    'cfnlogs',
                     extension)
                 return str(location)
             elif type == 'resource_log':
@@ -1107,7 +1108,6 @@ class TaskCat (object):
                     extension)
 
                 # Write resource logs
-                print I + "Writing Resouce logs".format(test_logpath)
                 file = open(test_logpath, 'w')
                 # @TODO use yattag to bild html table from (for now just
                 # fomation json)
@@ -1117,6 +1117,41 @@ class TaskCat (object):
                         indent=4,
                         separators=(',', ': '))))
                 file.close()
+    def get_cfnlogs(self, stackname, region):
+        cfnlogs = stackname + region + "logcontentstub"
+        #
+        #
+        ''' @sancard add recursive log collection here '''
+        #
+        #
+        #
+        return cfnlogs
+
+
+    def createcfnlogs(self, testdata_list, logpath):
+        cfnlogs = []
+        print I + "(Collecting Cfn Logs)"
+        for test in testdata_list:
+            for stack in test.get_test_stacks():
+                stackinfo = self.parse_stack_info(str(stack['StackId']))
+                # Get stack resources
+                cfnlogs.append( self.get_cfnlogs(
+                        str(stackinfo['stack_name']),
+                        str(stackinfo['region'])
+                    )
+                )
+                extension = '.txt'
+                test_logpath = '{}/{}-{}-{}{}'.format(
+                    logpath,
+                    stackinfo['stack_name'],
+                    stackinfo['region'],
+                    'cfnlogs',
+                    extension)
+
+                # Write cfn logs
+                file = open(test_logpath, 'w')
+                file.write(str(cfnlogs))
+                file.close() 
 
     def createreport(self, testdata_list, filename):
         o_directory = 'taskcat_outputs'
@@ -1134,6 +1169,11 @@ class TaskCat (object):
         # Collect resources
         # File path o_directory + filename + region
         self.collect_resources(testdata_list, o_directory)
+
+        # Collect recursive logs
+        # file path is allready setup by getofile function in genreports
+        self.createcfnlogs(testdata_list, o_directory)
+
 
         # Generate html test dashboard
         # Uses logpath + region to create View Logs link
