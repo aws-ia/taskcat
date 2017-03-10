@@ -34,7 +34,7 @@ from botocore.client import Config
 
 
 # Version Tag
-version = '0.1.36'
+version = '0.1.37'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
