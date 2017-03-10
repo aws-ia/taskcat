@@ -452,7 +452,14 @@ class TaskCat (object):
         print '\n'
         return True
 
+        # A = AlphaNumeric
+        # Example 'vGceIP8EHC'
     def genpassword(self, passlength, passtype):
+        if self.verbose:
+            print D + "Auto generating password"
+            print D + "Pass size => {0}".format(passlength)
+            print D + "Pass type => {0}".format(passtype)
+
         if passtype == 'A':
             plen = int(passlength)
             password = ''.join(random.sample(
@@ -463,15 +470,17 @@ class TaskCat (object):
                     ), plen))
             return password
 
-        elif type == 'S':
+        # S = Special Chars
+        # Example '_a^3Y6Z\\]^'
+        elif passtype == 'S':
             plen = int(passlength)
             password = ''.join(random.sample(
                 map(chr,
-                    range(48, 57) +
-                    range(65, 90) +
-                    range(97, 120)
+                    range(50, 60) +
+                    range(80, 100) +
+                    range(90, 100)
                     ), plen))
-            return password + '@'
+            return password
         else:
             plen = int(passlength)
             password = ''.join(random.sample(
@@ -480,7 +489,7 @@ class TaskCat (object):
                     range(65, 90) +
                     range(97, 120)
                     ), plen))
-            return password + '@'
+            return password
 
     # Takes in:
     # taskcat_cfg taskcat cfg as ymal object
@@ -516,9 +525,9 @@ class TaskCat (object):
                             param_value = parmdict['ParameterValue']
                             count_re = re.compile('\d+(?=])')
                             gentype_re = re.compile(
-                                '(?!\w+_genpass-)[A|S](?=_\d{1,2}])')
+                                '(?!\w+_genpass)[A|S](?=_\d{1,2}])')
                             genpass_re = re.compile(
-                                '\$\[\w+_genpass-[A|S]_\d{1,2}]')
+                                '\$\[\w+_genpass?(\w)_\d{1,2}]')
                             genaz_re = re.compile('\$\[\w+_genaz_\d{1}]')
 
                             if genpass_re.search(param_value):
@@ -528,12 +537,9 @@ class TaskCat (object):
                                     gentype_re, param_value)
                                 if passlen:
                                     if self.verbose:
-                                        print D + "Auto generating password"
-                                        print D + "Pass size => {0}".format(
-                                            passlen)
-                                        print D + "Pass type => {0}".format(
-                                            gentype)
-
+                                        print "{}AutoGen values for {}".format(
+                                            D,
+                                            param_value)
                                     param_value = self.genpassword(
                                         passlen, gentype)
                                     parmdict['ParameterValue'] = param_value
@@ -590,12 +596,16 @@ class TaskCat (object):
         print '\n'
         for test in testdata_list:
             for stack in test.get_test_stacks():
-                print "{} |{}LAUNCHING STACKS for test =[ {} ]".format(
+                print "{} |{}LAUNCHING STACKS{}".format(
                     self.nametag,
                     header,
-                    test.get_test_name(),
                     rst_color)
-                print I + str(stack['StackId'])
+                print "{} {}{} {} {}".format(
+                    I,
+                    header,
+                    test.get_test_name(),
+                    str(stack['StackId']).split(':stack', 1),
+                    rst_color)
         return testdata_list
 
     def validate_json(self, jsonin):
@@ -1117,6 +1127,7 @@ class TaskCat (object):
                         indent=4,
                         separators=(',', ': '))))
                 file.close()
+
     def get_cfnlogs(self, stackname, region):
         cfnlogs = stackname + region + "logcontentstub"
         #
@@ -1127,7 +1138,6 @@ class TaskCat (object):
         #
         return cfnlogs
 
-
     def createcfnlogs(self, testdata_list, logpath):
         cfnlogs = []
         print I + "(Collecting Cfn Logs)"
@@ -1135,10 +1145,10 @@ class TaskCat (object):
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
                 # Get stack resources
-                cfnlogs.append( self.get_cfnlogs(
-                        str(stackinfo['stack_name']),
-                        str(stackinfo['region'])
-                    )
+                cfnlogs.append(self.get_cfnlogs(
+                    str(stackinfo['stack_name']),
+                    str(stackinfo['region'])
+                )
                 )
                 extension = '.txt'
                 test_logpath = '{}/{}-{}-{}{}'.format(
@@ -1151,7 +1161,7 @@ class TaskCat (object):
                 # Write cfn logs
                 file = open(test_logpath, 'w')
                 file.write(str(cfnlogs))
-                file.close() 
+                file.close()
 
     def createreport(self, testdata_list, filename):
         o_directory = 'taskcat_outputs'
@@ -1173,7 +1183,6 @@ class TaskCat (object):
         # Collect recursive logs
         # file path is allready setup by getofile function in genreports
         self.createcfnlogs(testdata_list, o_directory)
-
 
         # Generate html test dashboard
         # Uses logpath + region to create View Logs link
