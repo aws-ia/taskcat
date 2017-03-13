@@ -240,10 +240,48 @@ class TaskCat (object):
         if os.path.isdir(project):
             fsmap = buildmap('.', project)
         else:
-            print "{0}!Cannot access directory {1}".format(
-                E,
-                project)
+            example1 = '''
+            # Name of example project = [projectx]
+            # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
+            Hint: if taskcat.py is not in your path specify the full path to taskcat.py
+            
+            # Example of expected directory/project structure
+            projectx
+            ├── LICENSE.txt
+            ├── ci
+            │   ├── taskcat.yml         # TaskCat Configuration file
+            │   ├── projectx-input.json # Inputs to pass during stackcreation
+            ├── scripts
+            │   └── project-userdata.sh # Any scripts that is part of this project
+            └── templates
+                └── projectx.template
 
+            # Contents of taskcat.yml
+            global:
+              qsname: projectx
+              regions:
+                - us-east-1
+                - us-west-1
+                - us-west-2
+             
+            tests:
+              pojectx-test:
+                template_file: projectx.template
+                parameter_input: projectx-input.json
+                '''
+
+            print '''\t\t Hint: The name specfied as value of qsname ({})
+                    must match the root directory of your project'''.format(project)
+            print "{0}!Cannot find directory [{1}] in {2}".format(
+                E,
+                project,
+                os.getcwd()
+            )
+            print "\n\t    Example:{}".format(
+                example1,
+                '\n')
+
+            print I + "Please cd to where you project is located"
             sys.exit(1)
 
         for filename in fsmap:
