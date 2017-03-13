@@ -458,38 +458,44 @@ class TaskCat (object):
         if self.verbose:
             print D + "Auto generating password"
             print D + "Pass size => {0}".format(passlength)
-            print D + "Pass type => {0}".format(passtype)
 
+            password = []
+            numbers = "1234567890"
+            lowercase = "abcdefghijklmnopqrstuvwxyz"
+            uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            specialchars = "!#$&{*:[=,]-_%@+"
+
+        # Generates password string with:
+        # lowercase,uppercase and numeric chars
         if passtype == 'A':
-            plen = int(passlength)
-            password = ''.join(random.sample(
-                map(chr,
-                    range(48, 57) +
-                    range(65, 90) +
-                    range(97, 120)
-                    ), plen))
-            return password
+            print D + "Pass type => {0}".format('alpha-numeric')
 
-        # S = Special Chars
-        # Example '_a^3Y6Z\\]^'
+            while len(password) < passlength:
+                password.append(random.choice(lowercase))
+                password.append(random.choice(uppercase))
+                password.append(random.choice(numbers))
+
+        # Generates password string with:
+        # lowercase,uppercase, numbers and special chars
         elif passtype == 'S':
-            plen = int(passlength)
-            password = ''.join(random.sample(
-                map(chr,
-                    range(50, 60) +
-                    range(80, 100) +
-                    range(90, 100)
-                    ), plen))
-            return password
+            print D + "Pass type => ('specialchars')"
+            while len(password) < passlength:
+                password.append(random.choice(lowercase))
+                password.append(random.choice(uppercase))
+                password.append(random.choice(numbers))
+                password.append(random.choice(specialchars))
         else:
-            plen = int(passlength)
-            password = ''.join(random.sample(
-                map(chr,
-                    range(48, 57) +
-                    range(65, 90) +
-                    range(97, 120)
-                    ), plen))
-            return password
+            # If no passtype is defined (None)
+            # Defaults to alpha-numeric
+            # Generates password string with:
+            # lowercase,uppercase, numbers and special chars
+            print D + "Pass type => default ('alpha-numeric')"
+            while len(password) < passlength:
+                password.append(random.choice(lowercase))
+                password.append(random.choice(uppercase))
+                password.append(random.choice(numbers))
+
+        return ''.join(password)
 
     # Takes in:
     # taskcat_cfg taskcat cfg as ymal object
@@ -520,21 +526,63 @@ class TaskCat (object):
                     cfn = boto3.client('cloudformation', region)
                     s_parmsdata = urllib.urlopen(self.get_parameter_path())
                     s_parms = json.loads(s_parmsdata.read())
+                    gentype = None
+
+                    # Auto-generated stack inputs
+
+                    # (Passwords)
+                    # Value that matches the following pattern will be replaced
+                    # - Parameters must start with $[
+                    # - Parameters must end with ]
+                    # - genpass in invoked when _genpass_X is found
+                    # - X is lengeth of the string
+                    # Example: $[taskcat_genpass_8]
+                    # Optionally - you can specify the type of password by adding
+                    # - A aplha-numeric passwords
+                    # - S passwords with special characters
+                    # Example: $[taskcat_genpass_8A]
+                    # Generates: tI8zN3iX8
+                    # or
+                    # Example: $[taskcat_genpass_8S]
+                    # Generates: mA5@cB5!
+
+                    # (Availablity Zones)
+                    # Value that matches the following pattern will be replaced
+                    # - Parameters must start with $[
+                    # - Parameters must end with ]
+                    # - genaz in invoked when _genaz_X is found
+                    # - A number of AZ's will be selected from the region
+                    #   the stack is attempting to launch
+                    # Example: $[taskcat_genaz_2] (if the region is us-east-2)
+                    # Generates: us-east-1a, us-east-2b
+
                     for parmdict in s_parms:
                         for keys in parmdict:
+
                             param_value = parmdict['ParameterValue']
-                            count_re = re.compile('\d+(?=])')
+                            # Determines the size of the password to generate
+                            count_re = re.compile('(?!\w+_genpass_)\d{1,2}')
+
+                            # Determines the type of password to generate
                             gentype_re = re.compile(
-                                '(?!\w+_genpass)[A|S](?=_\d{1,2}])')
+                                '(?!\w+_genpass_\d{1,2}])(A|S)')
+                            # Determines if _genpass has been requested
                             genpass_re = re.compile(
-                                '\$\[\w+_genpass?(\w)_\d{1,2}]')
+                                '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
                             genaz_re = re.compile('\$\[\w+_genaz_\d{1}]')
 
+                            # Autogenerated value to password input in runtime
                             if genpass_re.search(param_value):
                                 passlen = int(
                                     self.regxfind(count_re, param_value))
                                 gentype = self.regxfind(
                                     gentype_re, param_value)
+                                if not gentype:
+                                    # Set default password type
+                                    # A vaule of D will generate a simple alpha
+                                    # aumeric password
+                                    gentype = 'D'
+
                                 if passlen:
                                     if self.verbose:
                                         print "{}AutoGen values for {}".format(
@@ -557,7 +605,7 @@ class TaskCat (object):
                                         numazs)
                                     parmdict['ParameterValue'] = param_value
                                 else:
-                                    print I + "$[auto_genaz_(!)]"
+                                    print I + "$[taskcat_genaz_(!)]"
                                     print I + "Number of az's not specified!"
                                     print I + " - (Defaulting to 1 az)"
                                     param_value = self.get_available_azs(

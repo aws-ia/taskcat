@@ -48,8 +48,11 @@ The example below shows an input file for a stack that requires two parms `KeyPa
 
 ```
 #!/usr/bin/env python
+# authors:
+# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# Shivansh Singh sshvans@amazon.com,
+# Santiago Cardenas sancard@amazon.com,
 """
- authors: tonynv@amazon.com,sancard@amazon.com,sshvans@amazon.com
  Program License: Amazon License
  Python Class License: Apache 2.0
 """
@@ -70,7 +73,7 @@ def main():
     # tcat_instance.set_config('ci/config.yml')
     # Get API Handle - Try all know auth
     tcat_instance.aws_api_init(args)
-    # Enable verbose output by default (DEBUG ON)
+    # Optional: Enables verbose output by default (DEBUG ON)
     tcat_instance.verbose = True
 # --Begin
 # Check for valid ymal and required keys in config
@@ -87,13 +90,16 @@ def main():
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
-        stackinfo = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tonyv')
-        tcat_instance.get_stackstatus(stackinfo, 5)
-        tcat_instance.cleanup(stackinfo, 5)
+        testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
+        tcat_instance.get_stackstatus(testdata, 5)
+        tcat_instance.createreport(testdata, 'taskcat-results.html')
+        tcat_instance.cleanup(testdata, 5)
+
 
 # --End
 
 main()
+
 ```
 
 #### To run taskcat
