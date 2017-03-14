@@ -446,13 +446,12 @@ class TaskCat (object):
     #     },
     # ]
 
-    #@TODO Update to take region
-    def get_all_resources(self, stackIds):
+    def get_all_resources(self, stackIds, region):
         l_all_resources = []
         for anId in stackIds:
             d = {}
             d['stackId'] = anId
-            d['resources'] = self.get_resources(anId)
+            d['resources'] = self.get_resources(anId, region)
             l_all_resources.append(d)
             if self.verbose:
                 print json.dumps(d)
@@ -807,9 +806,30 @@ class TaskCat (object):
                                                 rst_color)
             self.stackdelete(testdata_list)
             self.get_stackstatus(testdata_list, speed)
+            self.deep_cleanup(testdata_list)
         else:
             print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
                 docleanup)
+
+    # This function deletes the AWS resources which couldn't be deleted by deleting Cloudformation stack
+    def deep_cleanup(self, testdata_list):
+        for test in testdata_list:
+            failed_stack_ids = []
+            for stack in test.get_test_stacks():
+                if str(stack['status']) == 'DELETE_FAILED':
+                    failed_stack_ids.append(stack['StackId'])
+            if len(failed_stack_ids) == 0:
+                print I + "All stacks deleted successfully. Deep clean-up not required."
+                continue
+
+            print I + "Few stacks failed to delete. Starting deep clean-up."
+            # get test region from the stack id
+            stackdata = self.parse_stack_info(
+                str(failed_stack_ids[0]))
+            region = stackdata['region']
+            stack_name = stackdata['stack_name']
+            self.get_all_resources(failed_stack_ids, region)
+
 
     def stackdelete(self, testdata_list):
         for test in testdata_list:
