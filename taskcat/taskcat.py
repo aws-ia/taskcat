@@ -31,6 +31,7 @@ import yaml
 import yattag
 import boto3
 from botocore.client import Config
+from sweeper import Sweeper
 
 
 # Version Tag
@@ -400,6 +401,10 @@ class TaskCat (object):
     # ]
     def get_resources(self, stackname, region):
         l_resources = []
+        self.get_resources_helper(stackname, region, l_resources)
+        return l_resources
+
+    def get_resources_helper(self, stackname, region, l_resources):
         try:
             cfn = boto3.client(
                 'cloudformation', region)
@@ -417,17 +422,22 @@ class TaskCat (object):
                         '\n\t\tType',
                         resource.get('ResourceType')
                     )
-                d = {}
-                d['logicalId'] = resource.get('LogicalResourceId')
-                d['physicalId'] = resource.get('PhysicalResourceId')
-                d['resourceType'] = resource.get('ResourceType')
-                l_resources.append(d)
+                if resource.get('ResourceType') == 'AWS::CloudFormation::Stack':
+                    stackdata = self.parse_stack_info(
+                        str(resource.get('PhysicalResourceId')))
+                    region = stackdata['region']
+                    self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources)
+                else:
+                    d = {}
+                    d['logicalId'] = resource.get('LogicalResourceId')
+                    d['physicalId'] = resource.get('PhysicalResourceId')
+                    d['resourceType'] = resource.get('ResourceType')
+                    l_resources.append(d)
         except Exception as e:
             if self.verbose:
                 print
                 D + str(e)
             sys.exit(F + "Unable to get resources for stack %s" % stackname)
-        return l_resources
 
     # Given a list of stackIds, function returns the list of dictionary items, where each
     # item consist of stackId and the resources associated with that stack.
@@ -453,8 +463,6 @@ class TaskCat (object):
             d['stackId'] = anId
             d['resources'] = self.get_resources(anId, region)
             l_all_resources.append(d)
-            if self.verbose:
-                print json.dumps(d)
         return l_all_resources
 
     def validate_template(self, taskcat_cfg, test_list):
@@ -822,13 +830,30 @@ class TaskCat (object):
                 print I + "All stacks deleted successfully. Deep clean-up not required."
                 continue
 
-            print I + "Few stacks failed to delete. Starting deep clean-up."
+            print I + "Few stacks failed to delete. Collecting resources for deep clean-up."
             # get test region from the stack id
             stackdata = self.parse_stack_info(
                 str(failed_stack_ids[0]))
             region = stackdata['region']
-            stack_name = stackdata['stack_name']
-            self.get_all_resources(failed_stack_ids, region)
+            session = boto3.session.Session(region_name=region)
+            s = Sweeper(session)
+            failed_stacks = self.get_all_resources(failed_stack_ids, region)
+            # print all resources which failed to delete
+            if self.verbose:
+                print D + "Resources which failed to delete:\n"
+                for failed_stack in failed_stacks:
+                    print D + "Stack Id: " + failed_stack['stackId']
+                    for res in failed_stack['resources']:
+                        print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                            '\n\t\tLogicalId',
+                            res.get('logicalId'),
+                            '\n\t\tPhysicalId',
+                            res.get('physicalId'),
+                            '\n\t\tType',
+                            res.get('resourceType')
+                        )
+                s.delete_all(failed_stacks)
+
 
 
     def stackdelete(self, testdata_list):
