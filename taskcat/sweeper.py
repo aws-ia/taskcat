@@ -118,14 +118,14 @@ class Sweeper(object):
         for stack in stack_list:
             for resource in stack['resources']:
                 self.__delete_resource(
-                    resource['logicalId'], resource['resourceType'])
+                    resource['logicalId'], resource['resourceType'], resource['physicalId'])
 
     # Give a resource logical id and resource type, this function deletes the resource
     # Param:
     #   lid - logical id of the resource to be deleted
     #   type - resource type
 
-    def __delete_resource(self, lid, type):
+    def __delete_resource(self, lid, type, pid):
         if type == "AWS::EC2::SecurityGroup":
             logger.debug("Found Security Group resource")
             self.__delete_sg(lid)
@@ -134,9 +134,12 @@ class Sweeper(object):
             self.__delete_volume(lid)
         if type == "AWS::S3::Bucket":
             logger.debug("Found Bucket resource")
-            self.__delete_s3_bucket(lid)
+            self.__delete_s3_bucket(pid)
 
     # Constructor
 
     def __init__(self, session):
         self.session = session
+
+
+
