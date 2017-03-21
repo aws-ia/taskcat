@@ -99,6 +99,16 @@ sys_yml = 'sys_config.yml'
 
 
 def buildmap(start_location, mapstring):
+    """
+    Given a start location and a string value, this function returns a list of
+    file paths containing the given string value, down in the directory
+    structure from the start location.
+
+    :param start_location: directory from where to start looking for the file
+    :param mapstring: value to match in the file path
+    :return:
+        list of file paths containing the given value.
+    """
     fs_map = []
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
         for fs_file in filelist:
@@ -108,7 +118,9 @@ def buildmap(start_location, mapstring):
                 fs_map.append(fs_path_to_file)
     return fs_map
 
-
+"""
+    This class is used to represent the test data.
+"""
 class TestData(object):
 
     def __init__(self):
@@ -127,10 +139,19 @@ class TestData(object):
     def add_test_stack(self, stack):
         self.__test_stacks.append(stack)
 
-# Task(Cat = Cloudformation automated Testing)
+"""
+    Task(Cat = Cloudformation automated Testing)
+
+    This is the main TaskCat class, which provides various functions to
+    perform testing of cloudformation templates in multiple regions and
+    generate report.
+"""
 
 
 class TaskCat (object):
+
+    # CONSTRUCTOR
+    # ============
 
     def __init__(self, nametag='[taskcat ]'):
         self.nametag = '{1}{0}{2}'.format(nametag, name_color, rst_color)
@@ -151,6 +172,9 @@ class TaskCat (object):
         self._use_global = False
         self._password = None
         self.run_cleanup = None
+
+    # SETTERS AND GETTERS
+    # ===================
 
     def set_project(self, project):
         self.project = project
@@ -216,7 +240,34 @@ class TaskCat (object):
     def get_default_region(self):
         return (self.defult_region)
 
+    def get_test_region(self):
+        return self.test_region
+
+    def set_test_region(self, region_list):
+        self.test_region = []
+        for region in region_list:
+            self.test_region.append(region)
+
+    def set_docleanup(self, cleanup_value):
+        self.run_cleanup = cleanup_value
+
+    def get_docleanup(self):
+        return self.run_cleanup
+
+    ##      FUNCTIONS       ##
+    # ====================== #
+
     def stage_in_s3(self, taskcat_cfg):
+        """
+        Upload templates and other artifacts to s3.
+
+        This function creates the s3 bucket with name provided in the config yml file. If
+        no bucket name provided, it creates the s3 bucket using project name provided in
+        config yml file. And uploads the templates and other artifacts to the s3 bucket.
+
+        :param taskcat_cfg: Taskcat configuration provided in yml file
+
+        """
         print '\n'
         print "{} |CONTENTS OF  S3 BUCKET{}".format(
             self.nametag,
@@ -306,6 +357,15 @@ class TaskCat (object):
         print '\n'
 
     def get_available_azs(self, region, count):
+        """
+        Returns a list of availability zones in a given region.
+
+        :param region: Region for the availability zones
+        :param count: Minimum number of availability zones needed
+
+        :return: List of availability zones in a given region
+
+        """
         available_azs = []
         ec2_client = boto3.client('ec2', region_name=region)
         availability_zones = ec2_client.describe_availability_zones(
@@ -325,6 +385,13 @@ class TaskCat (object):
             return azs
 
     def get_s3_url(self, key):
+        """
+        Returns S3 url of a given object.
+
+        :param key: Name of the object whose S3 url is being returned
+        :return: S3 url of the given key
+
+        """
         client = boto3.client('s3',  config=Config(signature_version='s3v4'))
         bucket = self.get_s3bucket()
 
@@ -357,15 +424,14 @@ class TaskCat (object):
                                     metadata[1])
                                 return o_url
 
-    def get_test_region(self):
-        return self.test_region
-
-    def set_test_region(self, region_list):
-        self.test_region = []
-        for region in region_list:
-            self.test_region.append(region)
-
     def get_global_region(self, yamlcfg):
+        """
+        Returns a list of regions defined under global region in the yml config file.
+
+        :param yamlcfg: Content of the yml config file
+        :return: List of regions
+
+        """
         g_regions = []
         for keys in yamlcfg['global'].keys():
             if 'region' in keys:
@@ -381,30 +447,33 @@ class TaskCat (object):
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
 
-    def set_docleanup(self, cleanup_value):
-        self.run_cleanup = cleanup_value
-
-    def get_docleanup(self):
-        return self.run_cleanup
-
-    # Given a stackname, and region function returns the list of dictionary items, where each item
-    # consist of logicalId, physicalId and resourceType of the aws resource associated
-    # with the stack.
-    #
-    # Return object syntax:
-    # [
-    #     {
-    #         'logicalId': 'string',
-    #         'physicalId': 'string',
-    #         'resourceType': 'String'
-    #     },
-    # ]
     def get_resources(self, stackname, region):
+        """
+        Given a stackname, and region function returns the list of dictionary items, where each item
+        consist of logicalId, physicalId and resourceType of the aws resource associated
+        with the stack.
+
+        :param stackname: Cloudformation stack name
+        :param region: AWS region
+        :return: List of objects in the following format
+             [
+                 {
+                     'logicalId': 'string',
+                     'physicalId': 'string',
+                     'resourceType': 'String'
+                 },
+             ]
+
+        """
         l_resources = []
         self.get_resources_helper(stackname, region, l_resources)
         return l_resources
 
     def get_resources_helper(self, stackname, region, l_resources):
+        """
+        This is a helper function of get_resources function. Check get_resources function for details.
+
+        """
         try:
             cfn = boto3.client(
                 'cloudformation', region)
@@ -439,24 +508,29 @@ class TaskCat (object):
                 D + str(e)
             sys.exit(F + "Unable to get resources for stack %s" % stackname)
 
-    # Given a list of stackIds, function returns the list of dictionary items, where each
-    # item consist of stackId and the resources associated with that stack.
-    #
-    # Return object syntax:
-    # [
-    #     {
-    #         'stackId': 'string',
-    #         'resources': [
-    #             {
-    #                'logicalId': 'string',
-    #                'physicalId': 'string',
-    #                'resourceType': 'String'
-    #             },
-    #         ]
-    #     },
-    # ]
 
     def get_all_resources(self, stackIds, region):
+        """
+        Given a list of stackIds, function returns the list of dictionary items, where each
+        item consist of stackId and the resources associated with that stack.
+
+        :param stackIds: List of Stack Ids
+        :param region: AWS region
+        :return: A list of dictionary object in the following format
+                [
+                    {
+                        'stackId': 'string',
+                        'resources': [
+                            {
+                               'logicalId': 'string',
+                               'physicalId': 'string',
+                               'resourceType': 'String'
+                            },
+                        ]
+                    },
+                ]
+
+        """
         l_all_resources = []
         for anId in stackIds:
             d = {}
@@ -466,6 +540,14 @@ class TaskCat (object):
         return l_all_resources
 
     def validate_template(self, taskcat_cfg, test_list):
+        """
+        Returns TRUE if all the template files are valid, otherwise FALSE.
+
+        :param taskcat_cfg: TaskCat config object
+        :param test_list: List of tests
+
+        :return: TRUE if templates are valid, othewise FALSE
+        """
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
@@ -497,12 +579,18 @@ class TaskCat (object):
         print '\n'
         return True
 
-        # A = AlphaNumeric
-        # Example 'vGceIP8EHC'
-    def genpassword(self, passlength, passtype):
+    def genpassword(self, pass_length, pass_type):
+        """
+        Returns a password of given length and type.
+
+        :param pass_length: Length of the desired password
+        :param pass_type: Type of the desired password - String only OR Alphanumeric
+            * A = AlphaNumeric, Example 'vGceIP8EHC'
+        :return: Password of given length and type
+        """
         if self.verbose:
             print D + "Auto generating password"
-            print D + "Pass size => {0}".format(passlength)
+            print D + "Pass size => {0}".format(pass_length)
 
             password = []
             numbers = "1234567890"
@@ -512,19 +600,19 @@ class TaskCat (object):
 
         # Generates password string with:
         # lowercase,uppercase and numeric chars
-        if passtype == 'A':
+        if pass_type == 'A':
             print D + "Pass type => {0}".format('alpha-numeric')
 
-            while len(password) < passlength:
+            while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
-        elif passtype == 'S':
+        elif pass_type == 'S':
             print D + "Pass type => ('specialchars')"
-            while len(password) < passlength:
+            while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
@@ -535,23 +623,25 @@ class TaskCat (object):
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
             print D + "Pass type => default ('alpha-numeric')"
-            while len(password) < passlength:
+            while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
         return ''.join(password)
 
-    # Takes in:
-    # taskcat_cfg taskcat cfg as ymal object
-    # test_list as list
-    # sprefix (special prefix) as string
-    #
-    # Purpose of sprefix:
-    # sprefix can be used to tag the stackname
-    # Returns: list of testdata objects
-
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
+        """
+        This function creates cloudformation stack for the given tests.
+
+        :param taskcat_cfg: TaskCat config as ymal object
+        :param test_list: List of tests
+        :param sprefix: Special prefix as string. Purpose of this param is to use it for tagging
+            the stack.
+
+        :return: List of TestData objects
+
+        """
         testdata_list = []
         self.set_capabilities('CAPABILITY_IAM')
         for test in test_list:
@@ -702,6 +792,13 @@ class TaskCat (object):
         return testdata_list
 
     def validate_json(self, jsonin):
+        """
+        This function validates the given JSON.
+
+        :param jsonin: Json object to be validated
+
+        :return: TRUE if given Json is valid, FALSE otherwise.
+        """
         try:
             parms = json.load(jsonin)
             if self.verbose:
@@ -712,6 +809,14 @@ class TaskCat (object):
         return True
 
     def validate_parameters(self, taskcat_cfg, test_list):
+        """
+        This function validates the parameters file of the cloudformation template.
+
+        :param taskcat_cfg: TaskCat config yaml object
+        :param test_list: List of tests
+
+        :return: TRUE if the parameters file is valid, FALSE othwerise
+        """
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
             print self.nametag + " |Validate JSON input in test[%s]" % test
@@ -733,23 +838,48 @@ class TaskCat (object):
                 print "\n"
         return True
 
-    def regxfind(self, re_object, dataline):
-        sg = re_object.search(dataline)
+    def regxfind(self, re_object, data_line):
+        """
+        Returns the matching string.
+
+        :param re_object: Regex object
+        :param data_line: String to be searched
+
+        :return: Matching String if found, otherwise return 'Not-found'
+        """
+        sg = re_object.search(data_line)
         if sg:
             return str(sg.group())
         else:
             return str('Not-found')
 
-    def parse_stack_info(self, stackdata):
+    def parse_stack_info(self, stack_name):
+        """
+        Returns a dictionary object containing the region and stack name.
+
+        :param stack_name: Full stack name arn
+        :return: Dictionary object containing the region and stack name
+
+        """
         stack_info = dict()
 
         region_re = re.compile('(?<=:)(.\w-.+(\w*)\-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        stack_info['region'] = self.regxfind(region_re, stackdata)
-        stack_info['stack_name'] = self.regxfind(stack_name_re, stackdata)
+        stack_info['region'] = self.regxfind(region_re, stack_name)
+        stack_info['stack_name'] = self.regxfind(stack_name_re, stack_name)
         return stack_info
 
     def stackcheck(self, stack_id):
+        """
+        Given the stack id, this function returns the status of the stack as
+        a list with stack name, region, and status as list items, in the respective
+        order.
+
+        :param stack_id: Cloudformation stack id
+
+        :return: List containing the stack name, region and stack status in the
+            respective order.
+        """
         stackdata = self.parse_stack_info(stack_id)
         region = stackdata['region']
         stack_name = stackdata['stack_name']
@@ -776,6 +906,15 @@ class TaskCat (object):
         return test_info
 
     def get_stackstatus(self, testdata_list, speed):
+        """
+        Given a list of TestData objects, this function checks the stack status
+        of each cloudformation stack and updates the corresponding TestData object
+        with the status.
+
+        :param testdata_list: List of TestData object
+        :param speed: Interval (in seconds) in which the status has to be checked in loop
+
+        """
         active_tests = 1
         print "\n"
         while (active_tests > 0):
@@ -804,6 +943,14 @@ class TaskCat (object):
             print "\n"
 
     def cleanup(self, testdata_list, speed):
+        """
+        This function deletes the cloudformation stacks of the given tests.
+
+        :param testdata_list: List of TestData objects
+        :param speed: Interval (in seconds) in which the status has to be checked
+            while deleting the stacks.
+
+        """
         docleanup = self.get_docleanup()
         if self.verbose:
             print D + "clean-up = %s " % str(docleanup)
@@ -819,8 +966,14 @@ class TaskCat (object):
             print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
                 docleanup)
 
-    # This function deletes the AWS resources which couldn't be deleted by deleting Cloudformation stack
     def deep_cleanup(self, testdata_list):
+        """
+        This function deletes the AWS resources which couldn't be deleted
+        by deleting Cloudformation stacks.
+
+        :param testdata_list: List of TestData objects
+
+        """
         for test in testdata_list:
             failed_stack_ids = []
             for stack in test.get_test_stacks():
@@ -854,9 +1007,13 @@ class TaskCat (object):
                         )
                 s.delete_all(failed_stacks)
 
-
-
     def stackdelete(self, testdata_list):
+        """
+        This function deletes the cloudformation stacks of the given tests.
+
+        :param testdata_list: List of TestData objects
+
+        """
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackdata = self.parse_stack_info(
@@ -867,6 +1024,15 @@ class TaskCat (object):
                 cfn.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
+        """
+        This function checks if a stack exist with the given stack name.
+        Returns "yes" if exist, otherwise "no".
+
+        :param stackname: Stack name
+        :param region: AWS region
+
+        :return: "yes" if stack exist, otherwise "no"
+        """
         exists = None
         cfn = boto3.client('cloudformation', region)
         try:
@@ -880,6 +1046,14 @@ class TaskCat (object):
         return exists
 
     def define_tests(self, yamlc, test):
+        """
+        This function reads the given test config yaml object and defines
+        the tests as per the given config object.
+
+        :param yamlc: TaskCat config yaml object
+        :param test: Test scenarios
+
+        """
         for tdefs in yamlc['tests'].keys():
             # print "[DEBUG] tdefs = %s" % tdefs
             if tdefs == test:
@@ -972,6 +1146,15 @@ class TaskCat (object):
 
     # Set AWS Credentials
     def aws_api_init(self, args):
+        """
+        This function reads the AWS credentials from various sources to ensure
+        that the client has right credentials defined to successfully run
+        TaskCat against an AWS account.
+
+        :param args: Command line arguments for AWS credentials. It could be
+            either profile name, access key and secret key or none.
+
+        """
         print "\n"
         if args.boto_profile:
             boto3.setup_default_session(profile_name=args.boto_profile)
@@ -1015,6 +1198,12 @@ class TaskCat (object):
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
+        """
+        This function validates the given yaml file.
+
+        :param yaml_file: Yaml file name
+
+        """
         print '\n'
         run_tests = []
         required_global_keys = ['qsname',
@@ -1059,6 +1248,13 @@ class TaskCat (object):
         return run_tests
 
     def genreport(self, testdata_list, dashboard_filename):
+        """
+        This function generates the test report.
+
+        :param testdata_list: List of TestData objects
+        :param dashboard_filename: Report file name
+
+        """
         doc = yattag.Doc()
 
         # Type of cfnlog reutrn cfn logsfile
@@ -1228,6 +1424,14 @@ class TaskCat (object):
         return htmloutput
 
     def collect_resources(self, testdata_list, logpath):
+        """
+        This function collects the AWS resources information created by the
+        Cloudformation stack for generating the report.
+
+        :param testdata_list: List of TestData object
+        :param logpath: Log file path
+
+        """
         resource = {}
         print I + "(Collecting Resources)"
         for test in testdata_list:
@@ -1270,6 +1474,13 @@ class TaskCat (object):
         return cfnlogs
 
     def createcfnlogs(self, testdata_list, logpath):
+        """
+        This function creates the Cloudformation log files.
+
+        :param testdata_list: List of TestData objects
+        :param logpath: Log file path
+        :return:
+        """
         cfnlogs = []
         print I + "(Collecting Cfn Logs)"
         for test in testdata_list:
@@ -1295,6 +1506,13 @@ class TaskCat (object):
                 file.close()
 
     def createreport(self, testdata_list, filename):
+        """
+        This function creates the test report.
+
+        :param testdata_list: List of TestData objects
+        :param filename: Report file name
+        :return:
+        """
         o_directory = 'taskcat_outputs'
 
         try:
