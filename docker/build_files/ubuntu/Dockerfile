@@ -6,7 +6,7 @@
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
-LABEL version=1.38
+LABEL version=1.40
 
 # Operating Systems
 LABEL container-os: ubuntu

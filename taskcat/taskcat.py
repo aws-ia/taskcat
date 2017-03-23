@@ -35,7 +35,7 @@ from sweeper import Sweeper
 
 
 # Version Tag
-version = '0.1.38'
+version = '0.1.40'
 debug = u'\u2691'.encode('utf8')
 error = u'\u26a0'.encode('utf8')
 check = u'\u2714'.encode('utf8')
