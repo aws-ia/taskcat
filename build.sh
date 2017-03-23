@@ -5,6 +5,8 @@
 ./build-tools/newversion.sh ./README.md
 ./build-tools/newversion.sh  docker/build_files/ubuntu/Dockerfile 
 ./build-tools/newversion.sh  docker/build_files/centos/Dockerfile 
+./build-tools/newversion.sh  docker/build_files/alpine/Dockerfile 
+
 VERSION=$(grep version taskcat/taskcat.py |head -1 | awk -F'=|,' '{print $2}' | sed -e s/\'//|tr -d " "|tr -d "'")
 echo $VERSION
 python setup.py sdist 
