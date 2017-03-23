@@ -15,11 +15,11 @@ print "\x1b[0;30;46m [INITALIZING taskcat Installer!!]\x1b[0m"
 darwin_install='''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat
-chmod 755 taskcat
 if [[ $(id -u) -eq 0  ]] ; 
 then 
 	pip -q --no-cache-dir install taskcat --user
-	cp taskcat ${INSTALL_DIR}
+	mv taskcat ${INSTALL_DIR}
+	chmod 755 ${INSTALL_DIR}/taskcat
 	echo '\n\t[taskcat] INSTALL COMPLETE' 
 	echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
 	echo
@@ -29,11 +29,12 @@ then
 	echo "\t[i] Answer 'y' to prompt"
 else 
 	pip -q --no-cache-dir install taskcat  --user
+	chmod 755 taskcat
 	echo '\n\t[taskcat] INSTALL COMPLETE' 
 	echo '\t[i] Root previlages were not provied!' 
 	echo '\t[i] taskcat is installed in => ' $(pwd)
 	echo '\t[i] Please add taskcat to your path'
-	echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
+	echo "\t[i] sudo mv taskcat ${INSTALL_DIR}"
 	echo
 	echo '\n\t[taskcat] Tip: To uninstall run' 
 	echo "\t[1] rm taskcat"
@@ -47,4 +48,4 @@ fi
 
 if osinfo[0] == 'Darwin':
 	install_exit_code = subprocess.call(darwin_install, shell=True)
-	#run_exit_code = subprocess.call('./taskcat', shell=True)
+	install_exit_code = subprocess.call(taskcat, shell=True)
