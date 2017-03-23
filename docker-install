@@ -18,9 +18,9 @@ INSTALL_DIR='/usr/local/bin'
 if [[ -d $HOME/.aws ]]; then 
  	echo "[INFO] : Found boto profile)"
  	echo "[INFO] : Boto profile will map to container during execution"
-	echo "docker run -v ${HOME}/.aws:/mnt/.aws -v $(pwd):/mnt -it taskcat/taskcat taskcat" >taskcat.docker
+	echo "docker run -i --rm -v ${HOME}/.aws:/mnt/.aws -v $(pwd):/mnt taskcat/taskcat taskcat" >taskcat.docker
 else  
-	echo "docker run -v $(pwd):/mnt -it taskcat/taskcat" > taskcat
+	echo "docker run -i --rm -v $(pwd):/mnt  taskcat/taskcat" > taskcat
 
 fi
 
@@ -31,6 +31,7 @@ then
 	chmod 755 ${INSTALL_DIR}/taskcat
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
+        echo '\t[i] to run program type taskcat
         echo
 else 
         docker pull taskcat/taskcat
@@ -41,6 +42,7 @@ else
         echo '\t[i] taskcat is installed in => ' $(pwd)
         echo '\t[i] Please add taskcat to your path'
         echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
+        echo '\t[i] to run program type ./taskcat
         echo
 fi
 '''
