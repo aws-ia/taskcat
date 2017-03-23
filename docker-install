@@ -50,4 +50,4 @@ fi
 
 if osinfo[0] == 'Darwin':
 	install_exit_code = subprocess.call(darwin_install, shell=True)
-	install_exit_code = subprocess.call(taskcat, shell=True)
+	install_exit_code = subprocess.call('taskcat', shell=True)
