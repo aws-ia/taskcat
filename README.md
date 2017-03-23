@@ -39,12 +39,12 @@ json
 ### Installing taskcat (Option 1)
 > Prerequisites: Python 2.7 and pip
 
-    curl -s https://github.com/aws-quickstart/taskcat/blob/master/pip-install | sudo python -E
+    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | sudo python -E
 
 ### Installing taskcat via docker (Option 2)
 > Prerequisites: docker
 
-    curl -s https://github.com/aws-quickstart/taskcat/blob/master/pip-install | sudo python -E
+    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/docker-install | sudo python -E
 
 
 ### Run taskcat 
