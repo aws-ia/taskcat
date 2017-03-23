@@ -31,8 +31,7 @@ then
 	chmod 755 ${INSTALL_DIR}/taskcat
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
-        echo '\t[i] to run program type taskcat
-        echo
+        echo '\t[i] to run program type taskcat'
 else 
         docker pull taskcat/taskcat
         mv taskcat.docker taskcat
@@ -42,8 +41,7 @@ else
         echo '\t[i] taskcat is installed in => ' $(pwd)
         echo '\t[i] Please add taskcat to your path'
         echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
-        echo '\t[i] to run program type ./taskcat
-        echo
+        echo '\t[i] to run program type ./taskcat'
 fi
 '''
 
