@@ -3,6 +3,7 @@
 # Based on Centos
 ############################################################
 
+FROM centos:latest
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
@@ -10,8 +11,6 @@ LABEL version=1.38
 
 # Operating Systems
 LABEL container-os: centos
-FROM centos:latest
-
 
 # Run as root
 USER root
@@ -35,10 +34,13 @@ RUN git clone https://github.com/aws-quickstart/taskcat.git
 RUN cd taskcat && pip install -r requirements.txt && pip install .
 
 # Add taskcat to container path
-RUN cp taskcat_test.py /usr/bin/taskcat
+RUN cd taskcat && cp taskcat_test.py /usr/bin/taskcat
 
 # Set the work directory
 WORKDIR /mnt
 
 # Make taskcat executable
 RUN chmod 755 /usr/bin/taskcat
+
+# Remove source
+RUN rm -rf taskcat 

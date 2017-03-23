@@ -10,6 +10,8 @@ python-dateutil==1.5
 pytz==2013.7
 PyYAML==3.11
 six==1.4.1
-xattr==0.6.4
-zope.interface==4.1.1
 yattag==1.7.2
+
+
+  install_requires=['uuid', 'pyfiglet', 'argparse', 'boto3', 'pyyaml' ,'yattag'],
+
