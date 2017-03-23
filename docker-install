@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+# authors:
+# Tony Vattathil tonynv@amazon.com
+"""
+ Python Class License: Apache 2.0
+"""
+
+import os
+import platform
+import subprocess
+
+osinfo = platform.uname()
+print "\x1b[0;30;46m [INITALIZING taskcat Installer!!]\x1b[0m" 
+
+darwin_install='''
+INSTALL_DIR='/usr/local/bin'
+
+if [[ -d $HOME/.aws ]]; then 
+ 	echo "[INFO] : Found boto profile)"
+ 	echo "[INFO] : Boto profile will map to container during execution"
+	echo "docker run -v ${HOME}/.aws:/mnt/.aws -v $(pwd):/mnt -it taskcat/taskcat taskcat" >taskcat.docker
+else  
+	echo "docker run -v $(pwd):/mnt -it taskcat/taskcat" > taskcat
+
+fi
+
+chmod 755 taskcat
+if [[ $(id -u) -eq 0  ]] ;
+then 
+        docker pull taskcat/taskcat
+        cp taskcat.docker ${INSTALL_DIR}/taskcat
+        echo '\n\t[taskcat] INSTALL COMPLETE'
+        echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
+        echo
+else 
+        docker pull taskcat/taskcat
+        cp taskcat.docker taskcat
+        echo '\n\t[taskcat] INSTALL COMPLETE'
+        echo '\t[i] Root previlages were not provied!'
+        echo '\t[i] taskcat is installed in => ' $(pwd)
+        echo '\t[i] Please add taskcat to your path'
+        echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
+        echo
+fi
+'''
+
+
+
+
+if osinfo[0] == 'Darwin':
+	install_exit_code = subprocess.call(darwin_install, shell=True)

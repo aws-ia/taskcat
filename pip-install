@@ -32,7 +32,7 @@ else
 	echo '\n\t[taskcat] INSTALL COMPLETE' 
 	echo '\t[i] Root previlages were not provied!' 
 	echo '\t[i] taskcat is installed in => ' $(pwd)
-	echo '\t[i] Please add taskcat to you path'
+	echo '\t[i] Please add taskcat to your path'
 	echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
 	echo
 	echo '\n\t[taskcat] Tip: To uninstall run' 
