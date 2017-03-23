@@ -110,30 +110,139 @@
 This program requires python2 </p>
 </blockquote>
 <h1 id="currently-in-beta-release">Currently in beta release</h1>
-<h3 id="what-is-taskcat">What is taskcat?</h3>
-<p>TaskCat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use TaskCat by importing the module and creating a TaskCat object. </p>
-<h3 id="setting-up-test-cases">Setting up Test Cases</h3>
-<p>To setup taskcat test tests is a two step process:
-<em> Step 1 Define your test in the config.ymal
-</em> Step 2 Build a json input file for your cloudformation template.</p>
-<h4 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal</h4>
-<p>You can generate a sample config.ymal by running <code>./taskcat.py -ey</code>
-The followup's command will create a sample config.ymal</p>
-<pre><code>./taskcat.py -ey | egrep -v '#|^$'  &gt;config.ymal
+<h2 id="what-is-taskcat">What is taskcat?</h2>
+<p>taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. </p>
+<h2 id="setting-up-test-cases">Setting up Test Cases</h2>
+<ul>
+<li>Step 1 Define your test in the config.yml</li>
+<li>Step 2 Build a json input file for your cloudformation template.</li>
+</ul>
+<h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal</h3>
+<p>You can generate a sample config.ymal by running <code>taskcat -ey</code>
+The followup's command will create a sample config.yml</p>
+<pre><code>./taskcat -ey | egrep -v '#|^$'  &gt;config.yml
 </code></pre>
 
-<p>Open the file with and editor and update the filenames to match your need. (See section on working with the ymal file)</p>
-<h4 id="step-2-building-a-json-input-file">Step 2 Building a json input file</h4>
-<p>The example below shows an input file for a stack that requires two parameters <code>KeyPair</code> and <code>InstanceType</code>
-json</p>
-<pre><code>[{
+<p>Open the config.yml file with and editor and update the filenames to match your need. </p>
+<h4 id="example-of-configyml">Example of config.yml</h4>
+<pre><code>global:
+  owner: owner@company.com
+  project: sample-cloudformation-project &lt;- Must match the root directory of project (usually the name of git repo)
+  regions:
+    - us-east-1
+    - us-east-2
+    - us-west-1
+    - us-west-2
+  #s3bucket: projectx-templates &lt;- (Optional) Only needed if you want to use a specific bucket 
+tests:
+  # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
+  senario-1:
+    parameter_input: sample-cloudformation-input.json
+    regions:
+      - us-west-1
+      - us-east-1
+    template_file: sample-cloudformation-project-withvpc.template
+  # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs
+      senario-all-regions:
+    parameter_input: sample-cloudformation-input.jsonon
+    template_file: sample-cloudformation-project-withvpc.template
+</code></pre>
+<h4 id="example-of-project-directory-structure">Example of project directory structure</h4>
+<pre><code>sample-cloudformation-project/
+├── LICENSE.txt
+├── README.md
+├── ci
+│   └── config.yml &lt;- This the config file that will hold all the test definitions 
+│   └──  sample-cloudformation-input.json &lt;-  This file contain input that will pass in during stack creation (See auto parms for more info)
+    ├── scripts
+    │   └── userdata.sh &lt;- If you have userdata scripts you can load then in the scripts directory
+    ├── submodules  &lt;- If you have git submodules you can load them in the submodules directory
+    │   └── quickstart-aws-vpc
+    │       └── templates
+    │           └── aws-vpc.template
+    └── templates
+        ├── sample-cloudformation-project-novpc.template 
+        └── sample-cloudformation-project-withvpc.template &lt;- Second version on template that will create a vpc with the worklo    ad
+</code></pre>
+<h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file</h3>
+<p>The example below shows an input file for a stack that requires four parameters <code>KeyPair</code>,<code>InstanceType</code>, <code>AvailablityZones</code> and <code>Password</code></p>
+<p>Note: you can auto generate values at runtime using special tokens (see example below).</p>
+<blockquote>
+<p>The following json will evaluate</p>
+</blockquote>
+<h4 id="from">From:</h4>
+<pre><code>[
+    {
     "ParameterKey": "KeyPair",
     "ParameterValue": "mykey"
-}, {
+    }, 
+    {
     "ParameterKey": "InstanceType",
     "ParameterValue": "t2.small"
-}]
+    }
+    {
+    "ParameterKey": "AvailablityZones",
+    "ParameterValue": "$[taskcat_genaz_2]" 
+    }, 
+    {
+    "ParameterKey": "Password",
+    "ParameterValue": "$[taskcat_genpass_8A]"
+    }, 
+]
 </code></pre>
+<h4 id="to">To:</h4>
+<pre><code>[
+    {
+    "ParameterKey": "KeyPair",
+    "ParameterValue": "mykey"
+    }, 
+    {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t2.small"
+    }
+    {
+    "ParameterKey": "AvailablityZones",
+    "ParameterValue": "us-east-1a, us-east1b" 
+    }, 
+    {
+    "ParameterKey": "Password",
+    "ParameterValue": "tI8zN3iX8"
+    }, 
+]
+</code></pre>
+<h4 id="more-information-on-auto-generated-stack-inputs">More information on Auto-generated stack inputs</h4>
+<h3 id="passwords">(Passwords)</h3>
+<p>Value that matches the following pattern will be replaced</p>
+<ul>
+<li>Parameters must start with $[</li>
+<li>Parameters must end with ]</li>
+<li>genpass in invoked when _genpass_X is found</li>
+<li>X is lengeth of the string</li>
+</ul>
+<p>(Optionally - you can specify the type of password by adding A or S)</p>
+<ul>
+<li>A aplha-numeric passwords</li>
+<li>S passwords with special characters</li>
+</ul>
+<blockquote>
+<p>Example: $[taskcat_genpass_8A]
+Generates: <code>tI8zN3iX8</code>
+Example: $[taskcat_genpass_8S]
+Generates: mA5@cB5!</p>
+</blockquote>
+<h3 id="availablity-zones">(Availablity Zones)</h3>
+<p>Value that matches the following pattern will be replaced</p>
+<ul>
+<li>Parameters must start with $[</li>
+<li>Parameters must end with ]</li>
+<li>genaz in invoked when _genaz_X is found</li>
+<li>A number of AZ's will be selected from the region the stack is attempting to launch</li>
+</ul>
+<blockquote>
+<p>Example: $[taskcat_genaz_2]<br />
+Generates: us-east-1a, us-east-2b
+(if the region is us-east-1)</p>
+</blockquote>
 <h2 id="installing-taskcat">Installing taskcat</h2>
 <h3 id="installing-taskcat-option-1">Installing taskcat (Option 1)</h3>
 <blockquote>
@@ -147,10 +256,19 @@ json</p>
 </blockquote>
 <pre><code>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/docker-install | sudo python -E
 </code></pre>
-<h3 id="run-taskcat">Run taskcat</h3>
-<pre><code>docker run -v $(pwd):/mnt -it taskcat/taskcat taskcat -h
-</code></pre>
+<blockquote>
 <p>Note: (If you do not have root privileges taskcat will install in the current directory)</p>
+</blockquote>
+<h3 id="run-taskcat">Run taskcat</h3>
+<p>If you have AWS credentials sourced </p>
+<pre><code> taskcat -c sample-cloudformation-project/ci/config.yml
+</code></pre>
+<p>If you need to pass ACCESS and SECRET keys</p>
+<pre><code>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+</code></pre>
+<p>If you want to use a different account or profile</p>
+<pre><code>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+</code></pre>
               
             </div>
           </div>
@@ -190,5 +308,5 @@ json</p>
 
 <!--
 MkDocs version : 0.16.1
-Build Date UTC : 2017-03-23 05:53:18
+Build Date UTC : 2017-03-23 06:54:37
 -->
