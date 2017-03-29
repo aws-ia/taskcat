@@ -151,7 +151,7 @@ Value that matches the following pattern will be replaced
 
     curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | sudo python -E
 
-### Installing taskcat via docker (Option 2)
+### Installing taskcat via docker (Option 2) beta (please report bugs)
 > Prerequisites: docker
 
     curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/docker-install | sudo python -E

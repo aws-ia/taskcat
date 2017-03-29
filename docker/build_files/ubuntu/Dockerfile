@@ -2,6 +2,7 @@
 # taskcat Dockerfile
 # Based on Ubuntu
 ############################################################
+FROM ubuntu:latest
 
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
@@ -10,7 +11,6 @@ LABEL version=1.40
 
 # Operating Systems
 LABEL container-os: ubuntu
-FROM ubuntu:/latest
 
 # Run as 
 USER root
@@ -31,7 +31,7 @@ RUN git clone https://github.com/aws-quickstart/taskcat.git
 RUN cd taskcat && pip install -r requirements.txt && pip install .
 
 # Add taskcat to container path
-RUN cp taskcat_test.py /usr/bin/taskcat
+RUN cd taskcat && cp taskcat_test.py /usr/bin/taskcat
 
 # Set the work directory
 WORKDIR /mnt
