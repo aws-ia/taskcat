@@ -48,4 +48,5 @@ fi
 # Mac
 if osinfo[0] == 'Darwin':
 	install_exit_code = subprocess.call(darwin_install, shell=True)
-	install_exit_code = subprocess.call('taskcat', shell=True)
+
+print "\n Ready!! type \'taskcat\' to start \n"
