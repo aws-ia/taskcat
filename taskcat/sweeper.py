@@ -3,7 +3,7 @@
 # authors:
 # Shivansh Singh sshvans@amazon.com
 
-import boto3
+from __future__ import print_function
 import botocore
 import logging
 
