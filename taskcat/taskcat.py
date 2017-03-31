@@ -9,9 +9,9 @@
 # docs: https://aws-quickstart.github.io/taskcat/
 #
 # This program takes as input:
-# cfn template and json formatted parameter input file
-# To create tests define the test parms in config.yml (Exmaple below)
-# Planed Features:
+# CloudFormation template and json formatted parameter input file
+# To create tests define the test params in config.yml (Example below)
+# Planned Features:
 # - Email test results to owner of project
 
 # --imports --
@@ -141,10 +141,10 @@ class TestData(object):
         self.__test_stacks.append(stack)
 
 """
-    Task(Cat = Cloudformation automated Testing)
+    Task(Cat = CloudFormation Automated Testing)
 
     This is the main TaskCat class, which provides various functions to
-    perform testing of cloudformation templates in multiple regions and
+    perform testing of CloudFormation templates in multiple regions and
     generate report.
 """
 
@@ -438,7 +438,7 @@ class TaskCat (object):
         consist of logicalId, physicalId and resourceType of the aws resource associated
         with the stack.
 
-        :param stackname: Cloudformation stack name
+        :param stackname: CloudFormation stack name
         :param region: AWS region
         :return: List of objects in the following format
              [
@@ -460,10 +460,8 @@ class TaskCat (object):
 
         """
         try:
-            cfn = boto3.client(
-                'cloudformation', region)
-            result = cfn.describe_stack_resources(
-                StackName=stackname)
+            cfn = boto3.client('cloudformation', region)
+            result = cfn.describe_stack_resources(StackName=stackname)
             stackResources = result.get('StackResources')
             for resource in stackResources:
                 if self.verbose:
@@ -482,16 +480,16 @@ class TaskCat (object):
                     region = stackdata['region']
                     self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources)
                 else:
-                    d = {}
-                    d['logicalId'] = resource.get('LogicalResourceId')
-                    d['physicalId'] = resource.get('PhysicalResourceId')
-                    d['resourceType'] = resource.get('ResourceType')
+                    d = {
+                        'logicalId': resource.get('LogicalResourceId'),
+                        'physicalId': resource.get('PhysicalResourceId'),
+                        'resourceType': resource.get('ResourceType')
+                    }
                     l_resources.append(d)
         except Exception as e:
             if self.verbose:
                 print(D + str(e))
             sys.exit(F + "Unable to get resources for stack %s" % stackname)
-
 
     def get_all_resources(self, stackIds, region):
         """
@@ -517,9 +515,10 @@ class TaskCat (object):
         """
         l_all_resources = []
         for anId in stackIds:
-            d = {}
-            d['stackId'] = anId
-            d['resources'] = self.get_resources(anId, region)
+            d = {
+                'stackId': anId,
+                'resources': self.get_resources(anId, region)
+            }
             l_all_resources.append(d)
         return l_all_resources
 
@@ -540,22 +539,16 @@ class TaskCat (object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = boto3.client(
-                    'cloudformation', self.get_default_region())
-                cfn.validate_template(
-                    TemplateURL=self.get_s3_url(self.get_template_file()))
-                result = cfn.validate_template(
-                    TemplateURL=self.get_s3_url(self.get_template_file()))
+                cfn = boto3.client('cloudformation', self.get_default_region())
+                cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
+                result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 print(P + "Validated [%s]" % self.get_template_file())
                 cfn_result = (result['Description'])
                 print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 if self.verbose:
-                    cfn_parms = json.dumps(
-                        result['Parameters'],
-                        indent=11,
-                        separators=(',', ': '))
+                    cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
                     print(D + "Parameters:")
-                    print(cfn_parms)
+                    print(cfn_params)
             except Exception as e:
                 if self.verbose:
                     print(D + str(e))
@@ -616,7 +609,7 @@ class TaskCat (object):
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
-        This function creates cloudformation stack for the given tests.
+        This function creates CloudFormation stack for the given tests.
 
         :param taskcat_cfg: TaskCat config as ymal object
         :param test_list: List of tests
@@ -733,11 +726,7 @@ class TaskCat (object):
                         print(D + "TemplateURL=%s" % self.get_template_path())
                         print(D + "Capabilities=%s" % self.get_capabilities())
                         print(D + "Parameters:")
-                        print(json.dumps(
-                            s_parms,
-                            sort_keys=True,
-                            indent=11,
-                            separators=(',', ': ')))
+                        print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
 
                     stackdata = cfn.create_stack(
                         StackName=stackname,
@@ -785,7 +774,7 @@ class TaskCat (object):
 
     def validate_parameters(self, taskcat_cfg, test_list):
         """
-        This function validates the parameters file of the cloudformation template.
+        This function validates the parameters file of the CloudFormation template.
 
         :param taskcat_cfg: TaskCat config yaml object
         :param test_list: List of tests
@@ -850,7 +839,7 @@ class TaskCat (object):
         a list with stack name, region, and status as list items, in the respective
         order.
 
-        :param stack_id: Cloudformation stack id
+        :param stack_id: CloudFormation stack id
 
         :return: List containing the stack name, region and stack status in the
             respective order.
@@ -883,7 +872,7 @@ class TaskCat (object):
     def get_stackstatus(self, testdata_list, speed):
         """
         Given a list of TestData objects, this function checks the stack status
-        of each cloudformation stack and updates the corresponding TestData object
+        of each CloudFormation stack and updates the corresponding TestData object
         with the status.
 
         :param testdata_list: List of TestData object
@@ -897,8 +886,8 @@ class TaskCat (object):
             print(I + "{}{} {} [{}]{}".format(
                 header,
                 'AWS REGION'.ljust(15),
-                'CFN STACKSTATUS'.ljust(25),
-                'CFN STACKNAME',
+                'CLOUDFORMATION STACK STATUS'.ljust(25),
+                'CLOUDFORMATION STACK NAME',
                 rst_color))
 
             for test in testdata_list:
@@ -919,7 +908,7 @@ class TaskCat (object):
 
     def cleanup(self, testdata_list, speed):
         """
-        This function deletes the cloudformation stacks of the given tests.
+        This function deletes the CloudFormation stacks of the given tests.
 
         :param testdata_list: List of TestData objects
         :param speed: Interval (in seconds) in which the status has to be checked
@@ -941,7 +930,7 @@ class TaskCat (object):
     def deep_cleanup(self, testdata_list):
         """
         This function deletes the AWS resources which couldn't be deleted
-        by deleting Cloudformation stacks.
+        by deleting CloudFormation stacks.
 
         :param testdata_list: List of TestData objects
 
@@ -981,7 +970,7 @@ class TaskCat (object):
 
     def stackdelete(self, testdata_list):
         """
-        This function deletes the cloudformation stacks of the given tests.
+        This function deletes the CloudFormation stacks of the given tests.
 
         :param testdata_list: List of TestData objects
 
@@ -1223,22 +1212,21 @@ class TaskCat (object):
         """
         doc = yattag.Doc()
 
-        # Type of cfnlog reutrn cfn logsfile
-        # Type of resource_log reutrn resource logsfile
-        def getofile(region, stackname, type):
+        # Type of cfnlog return cfn log file
+        # Type of resource_log reutrn resource log file
+        def getofile(region, stack_name, type):
             extension = '.txt'
             if type == 'cfnlog':
-                location = "{}-{}-{}{}".format(stackname, region, 'cfnlogs', extension)
+                location = "{}-{}-{}{}".format(stack_name, region, 'cfnlogs', extension)
                 return str(location)
             elif type == 'resource_log':
-                location = "{}-{}-{}{}".format(stackname, region, 'resources', extension)
+                location = "{}-{}-{}{}".format(stack_name, region, 'resources', extension)
                 return str(location)
 
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            cfn = boto3.client(
-                'cloudformation', region)
+            cfn = boto3.client('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
 
             for result in test_query['Stacks']:
@@ -1381,7 +1369,7 @@ class TaskCat (object):
     def collect_resources(self, testdata_list, logpath):
         """
         This function collects the AWS resources information created by the
-        Cloudformation stack for generating the report.
+        CloudFormation stack for generating the report.
 
         :param testdata_list: List of TestData object
         :param logpath: Log file path
@@ -1430,14 +1418,14 @@ class TaskCat (object):
 
     def createcfnlogs(self, testdata_list, logpath):
         """
-        This function creates the Cloudformation log files.
+        This function creates the CloudFormation log files.
 
         :param testdata_list: List of TestData objects
         :param logpath: Log file path
         :return:
         """
         cfnlogs = []
-        print(I + "(Collecting Cfn Logs)")
+        print(I + "(Collecting CloudFormation Logs)")
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
@@ -1455,7 +1443,7 @@ class TaskCat (object):
                     'cfnlogs',
                     extension)
 
-                # Write cfn logs
+                # Write CloudFormation logs
                 file = open(test_logpath, 'w')
                 file.write(str(cfnlogs))
                 file.close()
@@ -1483,7 +1471,7 @@ class TaskCat (object):
         self.collect_resources(testdata_list, o_directory)
 
         # Collect recursive logs
-        # file path is allready setup by getofile function in genreports
+        # file path is already setup by getofile function in genreports
         self.createcfnlogs(testdata_list, o_directory)
 
         # Generate html test dashboard
@@ -1493,7 +1481,7 @@ class TaskCat (object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description='(Multi-Region Cloudformation Deployment Tool)',
+            description='(Multi-Region CloudFormation Deployment Tool)',
             # prog=__file__, prefix_chars='-')
             prog='taskcat', prefix_chars='-')
         parser.add_argument(
