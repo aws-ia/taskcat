@@ -1419,6 +1419,29 @@ class TaskCat (object):
                         separators=(',', ': '))))
                 file.close()
 
+    def get_cfn_stack_events(self, stackname, region):
+        """
+        Given a stack name and the region, this function returns the event logs of the given stack, as list.
+        :param stackname: Name of the stack
+        :param region: Region stack belongs to
+        :return: Event logs of the stack
+        """
+        cfn_client = boto3.client('cloudformation', region)
+        try:
+            stack_events = []
+            response = cfn_client.describe_stack_events(StackName=stackname)
+            stack_events.extend(response['StackEvents'])
+            while 'NextToken' in response:
+                response = cfn_client.describe_stack_events(NextToken=response['NextToken'], StackName=stackname)
+                stack_events.extend(response['StackEvents'])
+        except botocore.exceptions.ClientError:
+            print E + "Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(
+                region) + "]"
+            sys.exit("[FATAL]: Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(
+                region) + "]")
+
+        return stack_events
+
     def get_cfnlogs(self, stackname, region):
         """
         This function returns the event logs of the given stack in a specific format.
