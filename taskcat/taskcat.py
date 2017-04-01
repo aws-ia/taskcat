@@ -30,6 +30,9 @@ import base64
 import yaml
 import yattag
 import boto3
+import botocore
+import tabulate
+import datetime
 from botocore.client import Config
 from sweeper import Sweeper
 
@@ -447,7 +450,7 @@ class TaskCat (object):
                     print "Please correct region defs[%s]:" % namespace
         return g_regions
 
-    def get_resources(self, stackname, region):
+    def get_resources(self, stackname, region, include_stacks=False):
         """
         Given a stackname, and region function returns the list of dictionary items, where each item
         consist of logicalId, physicalId and resourceType of the aws resource associated
@@ -466,47 +469,55 @@ class TaskCat (object):
 
         """
         l_resources = []
-        self.get_resources_helper(stackname, region, l_resources)
+        self.get_resources_helper(stackname, region, l_resources, include_stacks)
         return l_resources
 
-    def get_resources_helper(self, stackname, region, l_resources):
+    def get_resources_helper(self, stackname, region, l_resources, include_stacks):
         """
         This is a helper function of get_resources function. Check get_resources function for details.
 
         """
-        try:
-            cfn = boto3.client(
-                'cloudformation', region)
-            result = cfn.describe_stack_resources(
-                StackName=stackname)
-            stackResources = result.get('StackResources')
-            for resource in stackResources:
+        if stackname != 'None':
+            try:
+                cfn = boto3.client(
+                    'cloudformation', region)
+                result = cfn.describe_stack_resources(
+                    StackName=stackname)
+                stackResources = result.get('StackResources')
+                for resource in stackResources:
+                    if self.verbose:
+                        print D + "Resources: for {}".format(stackname)
+                        print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                            '\n\t\tLogicalId',
+                            resource.get('LogicalResourceId'),
+                            '\n\t\tPhysicalId',
+                            resource.get('PhysicalResourceId'),
+                            '\n\t\tType',
+                            resource.get('ResourceType')
+                        )
+                    # if resource is a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
+                    if resource.get('ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
+                        if include_stacks:
+                            d = {}
+                            d['logicalId'] = resource.get('LogicalResourceId')
+                            d['physicalId'] = resource.get('PhysicalResourceId')
+                            d['resourceType'] = resource.get('ResourceType')
+                            l_resources.append(d)
+                        stackdata = self.parse_stack_info(
+                            str(resource.get('PhysicalResourceId')))
+                        region = stackdata['region']
+                        self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources, include_stacks)
+                    # else if resource is not a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
+                    elif resource.get('ResourceType') != 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
+                        d = {}
+                        d['logicalId'] = resource.get('LogicalResourceId')
+                        d['physicalId'] = resource.get('PhysicalResourceId')
+                        d['resourceType'] = resource.get('ResourceType')
+                        l_resources.append(d)
+            except Exception as e:
                 if self.verbose:
-                    print D + "Resources: for {}".format(stackname)
-                    print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
-                        '\n\t\tLogicalId',
-                        resource.get('LogicalResourceId'),
-                        '\n\t\tPhysicalId',
-                        resource.get('PhysicalResourceId'),
-                        '\n\t\tType',
-                        resource.get('ResourceType')
-                    )
-                if resource.get('ResourceType') == 'AWS::CloudFormation::Stack':
-                    stackdata = self.parse_stack_info(
-                        str(resource.get('PhysicalResourceId')))
-                    region = stackdata['region']
-                    self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources)
-                else:
-                    d = {}
-                    d['logicalId'] = resource.get('LogicalResourceId')
-                    d['physicalId'] = resource.get('PhysicalResourceId')
-                    d['resourceType'] = resource.get('ResourceType')
-                    l_resources.append(d)
-        except Exception as e:
-            if self.verbose:
-                print
-                D + str(e)
-            sys.exit(F + "Unable to get resources for stack %s" % stackname)
+                    print D + str(e)
+                sys.exit(F + "Unable to get resources for stack %s" % stackname)
 
 
     def get_all_resources(self, stackIds, region):
@@ -1463,16 +1474,6 @@ class TaskCat (object):
                         separators=(',', ': '))))
                 file.close()
 
-    def get_cfnlogs(self, stackname, region):
-        cfnlogs = stackname + region + "logcontentstub"
-        #
-        #
-        ''' @sancard add recursive log collection here '''
-        #
-        #
-        #
-        return cfnlogs
-
     def createcfnlogs(self, testdata_list, logpath):
         """
         This function creates the Cloudformation log files.
@@ -1486,24 +1487,72 @@ class TaskCat (object):
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
-                # Get stack resources
-                cfnlogs.append(self.get_cfnlogs(
-                    str(stackinfo['stack_name']),
-                    str(stackinfo['region'])
-                )
-                )
+                stackname = str(stackinfo['stack_name'])
+                region = str(stackinfo['region'])
                 extension = '.txt'
                 test_logpath = '{}/{}-{}-{}{}'.format(
                     logpath,
-                    stackinfo['stack_name'],
-                    stackinfo['region'],
+                    stackname,
+                    region,
                     'cfnlogs',
                     extension)
+                self.write_logs(str(stack['StackId']), test_logpath)
 
-                # Write cfn logs
-                file = open(test_logpath, 'w')
-                file.write(str(cfnlogs))
-                file.close()
+    def write_logs(self, stack_id, logpath):
+        """
+        This function writes the event logs of the given stack and all the child stacks to a given file.
+        :param stack_id: Stack Id
+        :param logpath: Log file path
+        :return: 
+        """
+        stackinfo = self.parse_stack_info(str(stack_id))
+        stackname = str(stackinfo['stack_name'])
+        region = str(stackinfo['region'])
+
+        # Get stack resources
+        cfnlogs = self.get_cfnlogs(stackname, region)
+
+        if cfnlogs[0]['ResourceStatus'] != 'CREATE_COMPLETE':
+            if 'ResourceStatusReason' in cfnlogs[0]:
+                reason = cfnlogs[0]['ResourceStatusReason']
+            else:
+                reason = 'Unknown'
+        else:
+            reason = "Stack launch was successful"
+
+        print "\t |StackName: " + stackname
+        print "\t |Region: " + region
+        print "\t |Logging to: " + logpath
+        print "\t |Tested on: " + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
+        print "------------------------------------------------------------------------------------------"
+        print "ResourceStatusReason: "
+        print textwrap.fill(str(reason), 85)
+        print "=========================================================================================="
+        with open(logpath, "a") as log_output:
+            log_output.write("-----------------------------------------------------------------------------\n")
+            log_output.write("Region: " + region + "\n")
+            log_output.write("StackName: " + stackname + "\n")
+            log_output.write("*****************************************************************************\n")
+            log_output.write("ResourceStatusReason:  \n")
+            log_output.write(textwrap.fill(str(reason), 85) + "\n")
+            log_output.write("*****************************************************************************\n")
+            log_output.write("*****************************************************************************\n")
+            log_output.write("Events:  \n")
+            log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
+            log_output.write(
+                "\n*****************************************************************************\n")
+            log_output.write("-----------------------------------------------------------------------------\n")
+            log_output.write("Tested on: " + datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p") + "\n")
+            log_output.write(
+                "-----------------------------------------------------------------------------\n\n")
+            log_output.close()
+
+        # Collect resources of the stack and get event logs for any child stacks
+        resources = self.get_resources(stackname, region, include_stacks=True)
+        for resource in resources:
+            if resource['resourceType'] == 'AWS::CloudFormation::Stack':
+                self.write_logs(resource['physicalId'], logpath)
+
 
     def createreport(self, testdata_list, filename):
         """
