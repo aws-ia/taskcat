@@ -1419,6 +1419,35 @@ class TaskCat (object):
                         separators=(',', ': '))))
                 file.close()
 
+    def get_cfnlogs(self, stackname, region):
+        """
+        This function returns the event logs of the given stack in a specific format.
+        :param stackname: Name of the stack
+        :param region: Region stack belongs to
+        :return: Event logs of the stack
+        """
+        cfnlogs = stackname + region + "logcontentstub"
+
+        print I + "Collecting logs for " + stackname + "\"\n"
+        # Collect stack_events
+        stack_events = self.get_cfn_stack_events(stackname, region)
+        # Uncomment line for debug
+        # pprint.pprint (stack_events)
+        events = []
+        for event in stack_events:
+            event_details = {'TimeStamp': event['Timestamp'],
+                             'ResourceStatus': event['ResourceStatus'],
+                             'ResourceType': event['ResourceType'],
+                             'LogicalResourceId': event['LogicalResourceId']}
+            if 'ResourceStatusReason' in event:
+                event_details['ResourceStatusReason'] = event['ResourceStatusReason']
+            else:
+                event_details['ResourceStatusReason'] = ''
+
+            events.append(event_details)
+
+        return events
+
     def createcfnlogs(self, testdata_list, logpath):
         """
         This function creates the CloudFormation log files.
