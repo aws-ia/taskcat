@@ -1435,8 +1435,7 @@ class TaskCat(object):
                 response = cfn_client.describe_stack_events(NextToken=response['NextToken'], StackName=stackname)
                 stack_events.extend(response['StackEvents'])
         except botocore.exceptions.ClientError:
-            print E + "Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(
-                region) + "]"
+            print(E + "Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(region) + "]")
             sys.exit("[FATAL]: Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(
                 region) + "]")
 
@@ -1451,7 +1450,7 @@ class TaskCat(object):
         """
         cfnlogs = stackname + region + "logcontentstub"
 
-        print I + "Collecting logs for " + stackname + "\"\n"
+        print(I + "Collecting logs for " + stackname + "\"\n")
         # Collect stack_events
         stack_events = self.get_cfn_stack_events(stackname, region)
         # Uncomment line for debug
