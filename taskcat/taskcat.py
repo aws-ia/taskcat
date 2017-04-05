@@ -16,6 +16,7 @@
 
 # --imports --
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import uuid
 import sys
@@ -35,7 +36,7 @@ import botocore
 import tabulate
 import datetime
 from botocore.client import Config
-from sweeper import Sweeper
+from .sweeper import Sweeper
 
 
 # Version Tag

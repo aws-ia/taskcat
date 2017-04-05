@@ -1,2 +1,3 @@
-from taskcat import *
-from sweeper import *
+from __future__ import absolute_import
+from .taskcat import *
+from .sweeper import *
