@@ -9,12 +9,13 @@
 # docs: https://aws-quickstart.github.io/taskcat/
 #
 # This program takes as input:
-# cfn template and json formatted parameter input file
-# To create tests define the test parms in config.yml (Exmaple below)
-# Planed Features:
+# CloudFormation template and json formatted parameter input file
+# To create tests define the test params in config.yml (Example below)
+# Planned Features:
 # - Email test results to owner of project
 
 # --imports --
+from __future__ import print_function
 import os
 import uuid
 import sys
@@ -140,10 +141,10 @@ class TestData(object):
         self.__test_stacks.append(stack)
 
 """
-    Task(Cat = Cloudformation automated Testing)
+    Task(Cat = CloudFormation Automated Testing)
 
     This is the main TaskCat class, which provides various functions to
-    perform testing of cloudformation templates in multiple regions and
+    perform testing of CloudFormation templates in multiple regions and
     generate report.
 """
 
@@ -153,7 +154,7 @@ class TaskCat (object):
     # CONSTRUCTOR
     # ============
 
-    def __init__(self, nametag='[taskcat ]'):
+    def __init__(self, nametag='[taskcat]'):
         self.nametag = '{1}{0}{2}'.format(nametag, name_color, rst_color)
         self.project = None
         self.capabilities = []
@@ -198,7 +199,7 @@ class TaskCat (object):
         if os.path.isfile(config_yml):
             self.config = config_yml
         else:
-            print "Cannot locate file %s" % config_yml
+            print("Cannot locate file %s" % config_yml)
             exit(1)
 
     def get_config(self):
@@ -268,22 +269,19 @@ class TaskCat (object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
-        print '\n'
-        print "{} |CONTENTS OF  S3 BUCKET{}".format(
-            self.nametag,
-            header,
-            rst_color)
+        print('\n')
+        print("{} |CONTENTS OF  S3 BUCKET{}".format(self.nametag, header, rst_color))
 
         project = taskcat_cfg['global']['qsname']
 
         s3 = boto3.resource('s3')
         if 's3bucket' in taskcat_cfg['global'].keys():
             bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-            print I + "Staging Bucket => " + bucket.name
+            print(I + "Staging Bucket => " + bucket.name)
             self.set_s3bucket(bucket.name)
         else:
             auto_bucket = 'taskcat-' + project + "-" + id[:8]
-            print I + "Staging Bucket => " + auto_bucket
+            print(I + "Staging Bucket => " + auto_bucket)
             s3.create_bucket(Bucket=auto_bucket)
             bucket = s3.Bucket(auto_bucket)
             self.set_s3bucket(bucket.name)
@@ -317,23 +315,16 @@ class TaskCat (object):
                 - us-west-2
              
             tests:
-              pojectx-test:
+              projectx-test:
                 template_file: projectx.template
                 parameter_input: projectx-input.json
                 '''
 
-            print '''\t\t Hint: The name specfied as value of qsname ({})
-                    must match the root directory of your project'''.format(project)
-            print "{0}!Cannot find directory [{1}] in {2}".format(
-                E,
-                project,
-                os.getcwd()
-            )
-            print "\n\t    Example:{}".format(
-                example1,
-                '\n')
-
-            print I + "Please cd to where you project is located"
+            print('''\t\t Hint: The name specfied as value of qsname ({})
+                    must match the root directory of your project'''.format(project))
+            print("{0}!Cannot find directory [{1}] in {2}".format(E, project, os.getcwd()))
+            print("\n\t    Example:{}".format(example1, '\n'))
+            print(I + "Please cd to where you project is located")
             sys.exit(1)
 
         for filename in fsmap:
@@ -344,17 +335,17 @@ class TaskCat (object):
                                    upload,
                                    ExtraArgs={'ACL': 'public-read'})
             except Exception as e:
-                print "Cannot Upload to bucket => %s" % bucket.name
-                print E + "Check that you bucketname is correct"
+                print("Cannot Upload to bucket => %s" % bucket.name)
+                print(E + "Check that you bucketname is correct")
                 if self.verbose:
-                    print D + str(e)
+                    print(D + str(e))
                 sys.exit(1)
 
         for obj in bucket.objects.all():
             o = str('{0}/{1}'.format(self.get_s3bucket(), obj.key))
-            print o
+            print(o)
 
-        print '\n'
+        print('\n')
 
     def get_available_azs(self, region, count):
         """
@@ -375,10 +366,7 @@ class TaskCat (object):
             available_azs.append(az['ZoneName'])
 
         if len(available_azs) < count:
-            print "{0}!Only {1} az's are available in {2}".format(
-                E,
-                len(available_azs),
-                region)
+            print("{0}!Only {1} az's are available in {2}".format(E, len(available_azs), region))
             quit()
         else:
             azs = ','.join(available_azs[:count])
@@ -418,10 +406,7 @@ class TaskCat (object):
                                 return o_url
                             else:
                                 amzns3 = 's3.amazonaws.com'
-                                o_url = "https://{0}/{1}/{2}".format(
-                                    amzns3,
-                                    self.get_s3bucket(),
-                                    metadata[1])
+                                o_url = "https://{0}/{1}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
                                 return o_url
 
     def get_global_region(self, yamlcfg):
@@ -439,12 +424,12 @@ class TaskCat (object):
                     iter(yamlcfg['global']['regions'])
                     namespace = 'global'
                     for region in yamlcfg['global']['regions']:
-                        # print "found region %s" % region
+                        # print("found region %s" % region)
                         g_regions.append(region)
                         self._use_global = True
                 except TypeError:
-                    print "No regions defined in [%s]:" % namespace
-                    print "Please correct region defs[%s]:" % namespace
+                    print("No regions defined in [%s]:" % namespace)
+                    print("Please correct region defs[%s]:" % namespace)
         return g_regions
 
     def get_resources(self, stackname, region):
@@ -453,7 +438,7 @@ class TaskCat (object):
         consist of logicalId, physicalId and resourceType of the aws resource associated
         with the stack.
 
-        :param stackname: Cloudformation stack name
+        :param stackname: CloudFormation stack name
         :param region: AWS region
         :return: List of objects in the following format
              [
@@ -475,39 +460,36 @@ class TaskCat (object):
 
         """
         try:
-            cfn = boto3.client(
-                'cloudformation', region)
-            result = cfn.describe_stack_resources(
-                StackName=stackname)
+            cfn = boto3.client('cloudformation', region)
+            result = cfn.describe_stack_resources(StackName=stackname)
             stackResources = result.get('StackResources')
             for resource in stackResources:
                 if self.verbose:
-                    print D + "Resources: for {}".format(stackname)
-                    print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                    print(D + "Resources: for {}".format(stackname))
+                    print(D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
                         '\n\t\tLogicalId',
                         resource.get('LogicalResourceId'),
                         '\n\t\tPhysicalId',
                         resource.get('PhysicalResourceId'),
                         '\n\t\tType',
                         resource.get('ResourceType')
-                    )
+                    ))
                 if resource.get('ResourceType') == 'AWS::CloudFormation::Stack':
                     stackdata = self.parse_stack_info(
                         str(resource.get('PhysicalResourceId')))
                     region = stackdata['region']
                     self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources)
                 else:
-                    d = {}
-                    d['logicalId'] = resource.get('LogicalResourceId')
-                    d['physicalId'] = resource.get('PhysicalResourceId')
-                    d['resourceType'] = resource.get('ResourceType')
+                    d = {
+                        'logicalId': resource.get('LogicalResourceId'),
+                        'physicalId': resource.get('PhysicalResourceId'),
+                        'resourceType': resource.get('ResourceType')
+                    }
                     l_resources.append(d)
         except Exception as e:
             if self.verbose:
-                print
-                D + str(e)
+                print(D + str(e))
             sys.exit(F + "Unable to get resources for stack %s" % stackname)
-
 
     def get_all_resources(self, stackIds, region):
         """
@@ -533,9 +515,10 @@ class TaskCat (object):
         """
         l_all_resources = []
         for anId in stackIds:
-            d = {}
-            d['stackId'] = anId
-            d['resources'] = self.get_resources(anId, region)
+            d = {
+                'stackId': anId,
+                'resources': self.get_resources(anId, region)
+            }
             l_all_resources.append(d)
         return l_all_resources
 
@@ -551,32 +534,26 @@ class TaskCat (object):
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
         for test in test_list:
-            print self.nametag + " :Validate Template in test[%s]" % test
+            print(self.nametag + " :Validate Template in test[%s]" % test)
             self.define_tests(taskcat_cfg, test)
             try:
                 if self.verbose:
-                    print D + "Default region [%s]" % self.get_default_region()
-                cfn = boto3.client(
-                    'cloudformation', self.get_default_region())
-                cfn.validate_template(
-                    TemplateURL=self.get_s3_url(self.get_template_file()))
-                result = cfn.validate_template(
-                    TemplateURL=self.get_s3_url(self.get_template_file()))
-                print P + "Validated [%s]" % self.get_template_file()
+                    print(D + "Default region [%s]" % self.get_default_region())
+                cfn = boto3.client('cloudformation', self.get_default_region())
+                cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
+                result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
+                print(P + "Validated [%s]" % self.get_template_file())
                 cfn_result = (result['Description'])
-                print I + "Description  [%s]" % textwrap.fill(cfn_result)
+                print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 if self.verbose:
-                    cfn_parms = json.dumps(
-                        result['Parameters'],
-                        indent=11,
-                        separators=(',', ': '))
-                    print D + "Parameters:"
-                    print cfn_parms
+                    cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
+                    print(D + "Parameters:")
+                    print(cfn_params)
             except Exception as e:
                 if self.verbose:
-                    print D + str(e)
+                    print(D + str(e))
                 sys.exit(F + "Cannot validate %s" % self.get_template_file())
-        print '\n'
+        print('\n')
         return True
 
     def genpassword(self, pass_length, pass_type):
@@ -589,8 +566,8 @@ class TaskCat (object):
         :return: Password of given length and type
         """
         if self.verbose:
-            print D + "Auto generating password"
-            print D + "Pass size => {0}".format(pass_length)
+            print(D + "Auto generating password")
+            print(D + "Pass size => {0}".format(pass_length))
 
             password = []
             numbers = "1234567890"
@@ -601,7 +578,7 @@ class TaskCat (object):
         # Generates password string with:
         # lowercase,uppercase and numeric chars
         if pass_type == 'A':
-            print D + "Pass type => {0}".format('alpha-numeric')
+            print(D + "Pass type => {0}".format('alpha-numeric'))
 
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
@@ -611,7 +588,7 @@ class TaskCat (object):
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == 'S':
-            print D + "Pass type => ('specialchars')"
+            print(D + "Pass type => ('specialchars')")
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -622,7 +599,7 @@ class TaskCat (object):
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            print D + "Pass type => default ('alpha-numeric')"
+            print(D + "Pass type => default ('alpha-numeric')")
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -632,7 +609,7 @@ class TaskCat (object):
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
-        This function creates cloudformation stack for the given tests.
+        This function creates CloudFormation stack for the given tests.
 
         :param taskcat_cfg: TaskCat config as ymal object
         :param test_list: List of tests
@@ -647,16 +624,12 @@ class TaskCat (object):
         for test in test_list:
             testdata = TestData()
             testdata.set_test_name(test)
-            print "{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(
-                I,
-                header,
-                test,
-                rst_color)
+            print("{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(I, header, test, rst_color))
             sname = str(sig)
             stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
-                print I + "Preparing to launch in region [%s] " % region
+                print(I + "Preparing to launch in region [%s] " % region)
                 try:
                     cfn = boto3.client('cloudformation', region)
                     s_parmsdata = urllib.urlopen(self.get_parameter_path())
@@ -720,9 +693,7 @@ class TaskCat (object):
 
                                 if passlen:
                                     if self.verbose:
-                                        print "{}AutoGen values for {}".format(
-                                            D,
-                                            param_value)
+                                        print("{}AutoGen values for {}".format(D, param_value))
                                     param_value = self.genpassword(
                                         passlen, gentype)
                                     parmdict['ParameterValue'] = param_value
@@ -732,34 +703,30 @@ class TaskCat (object):
                                     self.regxfind(count_re, param_value))
                                 if numazs:
                                     if self.verbose:
-                                        print D + "Selecting availablity zones"
-                                        print D + "Requested %s az's" % numazs
+                                        print(D + "Selecting availablity zones")
+                                        print(D + "Requested %s az's" % numazs)
 
                                     param_value = self.get_available_azs(
                                         region,
                                         numazs)
                                     parmdict['ParameterValue'] = param_value
                                 else:
-                                    print I + "$[taskcat_genaz_(!)]"
-                                    print I + "Number of az's not specified!"
-                                    print I + " - (Defaulting to 1 az)"
+                                    print(I + "$[taskcat_genaz_(!)]")
+                                    print(I + "Number of az's not specified!")
+                                    print(I + " - (Defaulting to 1 az)")
                                     param_value = self.get_available_azs(
                                         region,
                                         1)
                                     parmdict['ParameterValue'] = param_value
 
                     if self.verbose:
-                        print D + "Creating Boto Connection region=%s" % region
-                        print D + "StackName=" + stackname
-                        print D + "DisableRollback=True"
-                        print D + "TemplateURL=%s" % self.get_template_path()
-                        print D + "Capabilities=%s" % self.get_capabilities()
-                        print D + "Parameters:"
-                        print(json.dumps(
-                            s_parms,
-                            sort_keys=True,
-                            indent=11,
-                            separators=(',', ': ')))
+                        print(D + "Creating Boto Connection region=%s" % region)
+                        print(D + "StackName=" + stackname)
+                        print(D + "DisableRollback=True")
+                        print(D + "TemplateURL=%s" % self.get_template_path())
+                        print(D + "Capabilities=%s" % self.get_capabilities())
+                        print(D + "Parameters:")
+                        print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
 
                     stackdata = cfn.create_stack(
                         StackName=stackname,
@@ -772,23 +739,20 @@ class TaskCat (object):
 
                 except Exception as e:
                     if self.verbose:
-                        print E + str(e)
+                        print(E + str(e))
                     sys.exit(F + "Cannot launch %s" % self.get_template_file())
 
             testdata_list.append(testdata)
-        print '\n'
+        print('\n')
         for test in testdata_list:
             for stack in test.get_test_stacks():
-                print "{} |{}LAUNCHING STACKS{}".format(
-                    self.nametag,
-                    header,
-                    rst_color)
-                print "{} {}{} {} {}".format(
+                print("{} |{}LAUNCHING STACKS{}".format(self.nametag, header, rst_color))
+                print("{} {}{} {} {}".format(
                     I,
                     header,
                     test.get_test_name(),
                     str(stack['StackId']).split(':stack', 1),
-                    rst_color)
+                    rst_color))
         return testdata_list
 
     def validate_json(self, jsonin):
@@ -804,13 +768,13 @@ class TaskCat (object):
             if self.verbose:
                 print(json.dumps(parms, indent=11, separators=(',', ': ')))
         except ValueError as e:
-            print E + str(e)
+            print(E + str(e))
             return False
         return True
 
     def validate_parameters(self, taskcat_cfg, test_list):
         """
-        This function validates the parameters file of the cloudformation template.
+        This function validates the parameters file of the CloudFormation template.
 
         :param taskcat_cfg: TaskCat config yaml object
         :param test_list: List of tests
@@ -819,23 +783,23 @@ class TaskCat (object):
         """
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
-            print self.nametag + " |Validate JSON input in test[%s]" % test
+            print(self.nametag + " |Validate JSON input in test[%s]" % test)
             if self.verbose:
-                print D + "parameter_path = %s" % self.get_parameter_path()
+                print(D + "parameter_path = %s" % self.get_parameter_path())
 
             inputparms = urllib.urlopen(self.get_parameter_path())
             jsonstatus = self.validate_json(inputparms)
 
             if self.verbose:
-                print D + "jsonstatus = %s" % jsonstatus
+                print(D + "jsonstatus = %s" % jsonstatus)
 
             if jsonstatus:
-                print P + "Validated [%s]" % self.get_parameter_file()
+                print(P + "Validated [%s]" % self.get_parameter_file())
             else:
-                print D + "parameter_file = %s" % self.get_parameter_file()
+                print(D + "parameter_file = %s" % self.get_parameter_file())
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
 
-                print "\n"
+                print('\n')
         return True
 
     def regxfind(self, re_object, data_line):
@@ -875,7 +839,7 @@ class TaskCat (object):
         a list with stack name, region, and status as list items, in the respective
         order.
 
-        :param stack_id: Cloudformation stack id
+        :param stack_id: CloudFormation stack id
 
         :return: List containing the stack name, region and stack status in the
             respective order.
@@ -908,7 +872,7 @@ class TaskCat (object):
     def get_stackstatus(self, testdata_list, speed):
         """
         Given a list of TestData objects, this function checks the stack status
-        of each cloudformation stack and updates the corresponding TestData object
+        of each CloudFormation stack and updates the corresponding TestData object
         with the status.
 
         :param testdata_list: List of TestData object
@@ -916,35 +880,35 @@ class TaskCat (object):
 
         """
         active_tests = 1
-        print "\n"
+        print('\n')
         while (active_tests > 0):
             current_active_tests = 0
-            print I + "{}{} {} [{}]{}".format(
+            print(I + "{}{} {} [{}]{}".format(
                 header,
                 'AWS REGION'.ljust(15),
-                'CFN STACKSTATUS'.ljust(25),
-                'CFN STACKNAME',
-                rst_color)
+                'CLOUDFORMATION STACK STATUS'.ljust(25),
+                'CLOUDFORMATION STACK NAME',
+                rst_color))
 
             for test in testdata_list:
                 for stack in test.get_test_stacks():
                     stackquery = self.stackcheck(str(stack['StackId']))
                     current_active_tests = stackquery[
                         3] + current_active_tests
-                    print I + "{3}{0} {1} [{2}]{4}".format(
+                    print(I + "{3}{0} {1} [{2}]{4}".format(
                         stackquery[1].ljust(15),
                         stackquery[2].ljust(25),
                         stackquery[0],
                         hightlight,
-                        rst_color)
+                        rst_color))
                     stack['status'] = stackquery[2]
                     active_tests = current_active_tests
                     time.sleep(speed)
-            print "\n"
+            print('\n')
 
     def cleanup(self, testdata_list, speed):
         """
-        This function deletes the cloudformation stacks of the given tests.
+        This function deletes the CloudFormation stacks of the given tests.
 
         :param testdata_list: List of TestData objects
         :param speed: Interval (in seconds) in which the status has to be checked
@@ -953,23 +917,20 @@ class TaskCat (object):
         """
         docleanup = self.get_docleanup()
         if self.verbose:
-            print D + "clean-up = %s " % str(docleanup)
+            print(D + "clean-up = %s " % str(docleanup))
 
         if docleanup:
-            print "{} |CLEANUP STACKS{}".format(self.nametag,
-                                                header,
-                                                rst_color)
+            print("{} |CLEANUP STACKS{}".format(self.nametag, header, rst_color))
             self.stackdelete(testdata_list)
             self.get_stackstatus(testdata_list, speed)
             self.deep_cleanup(testdata_list)
         else:
-            print I + "[Retaining Stacks (Cleanup is set to {0}]".format(
-                docleanup)
+            print(I + "[Retaining Stacks (Cleanup is set to {0}]".format(docleanup))
 
     def deep_cleanup(self, testdata_list):
         """
         This function deletes the AWS resources which couldn't be deleted
-        by deleting Cloudformation stacks.
+        by deleting CloudFormation stacks.
 
         :param testdata_list: List of TestData objects
 
@@ -980,10 +941,10 @@ class TaskCat (object):
                 if str(stack['status']) == 'DELETE_FAILED':
                     failed_stack_ids.append(stack['StackId'])
             if len(failed_stack_ids) == 0:
-                print I + "All stacks deleted successfully. Deep clean-up not required."
+                print(I + "All stacks deleted successfully. Deep clean-up not required.")
                 continue
 
-            print I + "Few stacks failed to delete. Collecting resources for deep clean-up."
+            print(I + "Few stacks failed to delete. Collecting resources for deep clean-up.")
             # get test region from the stack id
             stackdata = self.parse_stack_info(
                 str(failed_stack_ids[0]))
@@ -993,23 +954,23 @@ class TaskCat (object):
             failed_stacks = self.get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:
-                print D + "Resources which failed to delete:\n"
+                print(D + "Resources which failed to delete:\n")
                 for failed_stack in failed_stacks:
-                    print D + "Stack Id: " + failed_stack['stackId']
+                    print(D + "Stack Id: " + failed_stack['stackId'])
                     for res in failed_stack['resources']:
-                        print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                        print(D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
                             '\n\t\tLogicalId',
                             res.get('logicalId'),
                             '\n\t\tPhysicalId',
                             res.get('physicalId'),
                             '\n\t\tType',
                             res.get('resourceType')
-                        )
+                        ))
                 s.delete_all(failed_stacks)
 
     def stackdelete(self, testdata_list):
         """
-        This function deletes the cloudformation stacks of the given tests.
+        This function deletes the CloudFormation stacks of the given tests.
 
         :param testdata_list: List of TestData objects
 
@@ -1040,9 +1001,9 @@ class TaskCat (object):
             exists = "yes"
         except Exception as e:
             if self.verbose:
-                print D + str(e)
+                print(D + str(e))
                 exists = "no"
-        print I + "Successfully Deleted[%s]" % stackname
+        print(I + "Successfully Deleted[%s]" % stackname)
         return exists
 
     def define_tests(self, yamlc, test):
@@ -1055,7 +1016,7 @@ class TaskCat (object):
 
         """
         for tdefs in yamlc['tests'].keys():
-            # print "[DEBUG] tdefs = %s" % tdefs
+            # print("[DEBUG] tdefs = %s" % tdefs)
             if tdefs == test:
                 t = yamlc['tests'][test]['template_file']
                 p = yamlc['tests'][test]['parameter_input']
@@ -1069,23 +1030,22 @@ class TaskCat (object):
                     cleanupstack = yamlc['global']['cleanup']
                     if cleanupstack:
                         if self.verbose:
-                            print D + "cleanup set to ymal value"
+                            print(D + "cleanup set to ymal value")
                             self.set_docleanup(cleanupstack)
                     else:
-                        print I + "Cleanup value set to (false)"
+                        print(I + "Cleanup value set to (false)")
                         self.set_docleanup(False)
                 else:
                     # By default do cleanup unless self.run_cleanup
                     # was overwridden (set to False) by -n flag
                     if self.run_cleanup == False:
                         if self.verbose:
-                            print D + "cleanup set by cli flag {0}".format(
-                                self.run_cleanup)
+                            print(D + "cleanup set by cli flag {0}".format(self.run_cleanup))
                     else:
                         self.set_docleanup(True)
                         if self.verbose:
-                            print I + "No cleanup value set"
-                            print I + " - (Defaulting to cleanup)"
+                            print(I + "No cleanup value set")
+                            print(I + " - (Defaulting to cleanup)")
 
                 # Load test setting
                 self.set_s3bucket(b)
@@ -1100,49 +1060,41 @@ class TaskCat (object):
                 # Check to make sure template filenames are correct
                 template_path = self.get_template_path()
                 if not template_path:
-                    print "{0} Could not locate {1}".format(
-                        E,
-                        self.get_template_file())
-                    print "{0} Check to make sure filename is correct?".format(
-                        E,
-                        self.get_parameter_file())
+                    print("{0} Could not locate {1}".format(E, self.get_template_file()))
+                    print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
                     quit()
 
                 # Check to make sure parameter filenames are correct
                 parameter_path = self.get_parameter_path()
                 if not parameter_path:
-                    print "{0} Could not locate {1}".format(
-                        E,
-                        self.get_parameter_file())
-                    print "{0} Check to make sure filename is correct?".format(
-                        E,
-                        self.get_parameter_file())
+                    print("{0} Could not locate {1}".format(E, self.get_parameter_file()))
+                    print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
                     quit()
 
-                print '\n'
+                print('\n')
                 if self.verbose:
-                    print I + "|Acquiring tests assets for .......[%s]" % test
-                    print D + "|S3 Bucket  => [%s]" % self.get_s3bucket()
-                    print D + "|Project    => [%s]" % self.get_project()
-                    print D + "|Template   => [%s]" % self.get_template_path()
-                    print D + "|Parameter  => [%s]" % self.get_parameter_path()
+                    print(I + "|Acquiring tests assets for .......[%s]" % test)
+                    print(D + "|S3 Bucket  => [%s]" % self.get_s3bucket())
+                    print(D + "|Project    => [%s]" % self.get_project())
+                    print(D + "|Template   => [%s]" % self.get_template_path())
+                    print(D + "|Parameter  => [%s]" % self.get_parameter_path())
                 if 'regions' in yamlc['tests'][test]:
                     if yamlc['tests'][test]['regions'] is not None:
                         r = yamlc['tests'][test]['regions']
                         self.set_test_region(list(r))
                         if self.verbose:
-                            print D + "|Defined Regions:"
+                            print(D + "|Defined Regions:")
                             for list_o in self.get_test_region():
-                                print "\t\t\t - [%s]" % list_o
+                                print("\t\t\t - [%s]" % list_o)
                 else:
                     global_regions = self.get_global_region(yamlc)
                     self.set_test_region(list(global_regions))
                     if self.verbose:
-                        print D + "|Global Regions:"
+                        print(D + "|Global Regions:")
                         for list_o in self.get_test_region():
-                            print "\t\t\t - [%s]" % list_o
-                print P + "(Completed) acquisition of [%s]" % test
-                print '\n'
+                            print("\t\t\t - [%s]" % list_o)
+                print(P + "(Completed) acquisition of [%s]" % test)
+                print('\n')
 
     # Set AWS Credentials
     def aws_api_init(self, args):
@@ -1155,18 +1107,18 @@ class TaskCat (object):
             either profile name, access key and secret key or none.
 
         """
-        print "\n"
+        print('\n')
         if args.boto_profile:
             boto3.setup_default_session(profile_name=args.boto_profile)
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
-                print self.nametag + " :Authenticated via: \t [boto-profile] "
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [boto-profile] ")
             except Exception as e:
-                print E + "Credential Error - Please check you profile!"
+                print(E + "Credential Error - Please check you profile!")
                 if self.verbose:
-                    print D + str(e)
+                    print(D + str(e))
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
             boto3.setup_default_session(
@@ -1175,12 +1127,12 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
-                print self.nametag + " :Authenticated via: \t [role] "
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [role] ")
             except Exception as e:
-                print E + "Credential Error - Please check you keys!"
+                print(E + "Credential Error - Please check you keys!")
                 if self.verbose:
-                    print D + str(e)
+                    print(D + str(e))
                 sys.exit(1)
         else:
             boto3.setup_default_session(
@@ -1189,12 +1141,12 @@ class TaskCat (object):
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
-                print self.nametag + " :AWS AccountNumber: \t [%s]" % account
-                print self.nametag + " :Authenticated via: \t [role] "
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [role] ")
             except Exception as e:
-                print E + "Credential Error - Cannot assume role!"
+                print(E + "Credential Error - Cannot assume role!")
                 if self.verbose:
-                    print D + str(e)
+                    print(D + str(e))
                 sys.exit(1)
 
     def validate_yaml(self, yaml_file):
@@ -1204,46 +1156,49 @@ class TaskCat (object):
         :param yaml_file: Yaml file name
 
         """
-        print '\n'
+        print('\n')
         run_tests = []
-        required_global_keys = ['qsname',
-                                'owner',
-                                'reporting',
-                                'regions']
+        required_global_keys = [
+            'qsname',
+            'owner',
+            'reporting',
+            'regions'
+        ]
 
-        required_test_parameters = ['template_file',
-                                    'parameter_input']
+        required_test_parameters = [
+            'template_file',
+            'parameter_input'
+        ]
         try:
             if os.path.isfile(yaml_file):
-                print self.nametag + " :Reading Config form: {0}".format(
-                    yaml_file)
+                print(self.nametag + " :Reading Config form: {0}".format(yaml_file))
                 with open(yaml_file, 'r') as checkyaml:
                     cfg_yml = yaml.load(checkyaml.read())
                     for key in required_global_keys:
                         if key in cfg_yml['global'].keys():
                             pass
                         else:
-                            print "global:%s missing from " % key + yaml_file
+                            print("global:%s missing from " % key + yaml_file)
                             sys.exit(1)
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print self.nametag + " |Queing test => %s " % defined
+                        print(self.nametag + " |Queing test => %s " % defined)
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
                                     pass
                                 else:
-                                    print "No key %s in test" % key + defined
-                                    print E + "While inspecting: " + parms
+                                    print("No key %s in test" % key + defined)
+                                    print(E + "While inspecting: " + parms)
                                     sys.exit(1)
             else:
-                print E + "Cannot open [%s]" % yaml_file
+                print(E + "Cannot open [%s]" % yaml_file)
                 sys.exit(1)
         except Exception as e:
-            print E + "config.yml [%s] is not formated well!!" % yaml_file
+            print(E + "config.yml [%s] is not formated well!!" % yaml_file)
             if self.verbose:
-                print D + str(e)
+                print(D + str(e))
             sys.exit(1)
         return run_tests
 
@@ -1257,30 +1212,21 @@ class TaskCat (object):
         """
         doc = yattag.Doc()
 
-        # Type of cfnlog reutrn cfn logsfile
-        # Type of resource_log reutrn resource logsfile
-        def getofile(region, stackname, type):
+        # Type of cfnlog return cfn log file
+        # Type of resource_log reutrn resource log file
+        def getofile(region, stack_name, type):
             extension = '.txt'
             if type == 'cfnlog':
-                location = "{}-{}-{}{}".format(
-                    stackname,
-                    region,
-                    'cfnlogs',
-                    extension)
+                location = "{}-{}-{}{}".format(stack_name, region, 'cfnlogs', extension)
                 return str(location)
             elif type == 'resource_log':
-                location = "{}-{}-{}{}".format(
-                    stackname,
-                    region,
-                    'resources',
-                    extension)
+                location = "{}-{}-{}{}".format(stack_name, region, 'resources', extension)
                 return str(location)
 
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            cfn = boto3.client(
-                'cloudformation', region)
+            cfn = boto3.client('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
 
             for result in test_query['Stacks']:
@@ -1364,9 +1310,8 @@ class TaskCat (object):
                                         text('')
 
                                 testname = test.get_test_name()
-                                print I + "(Generating Reports)"
-                                print I + " - Processing {}".format(
-                                    testname)
+                                print(I + "(Generating Reports)")
+                                print(I + " - Processing {}".format(testname))
                                 for stack in test.get_test_stacks():
                                     state = self.parse_stack_info(
                                         str(stack['StackId']))
@@ -1404,13 +1349,11 @@ class TaskCat (object):
                                                 text('Resource Logs ')
                             with tag('tr', 'class= test-footer'):
                                 with tag('td', 'colspan=5'):
-                                    vtag = 'generated by {} {}'.format(
-                                        'taskcat',
-                                        version)
+                                    vtag = 'generated by {} {}'.format('taskcat', version)
                                     text(vtag)
 
                         doc.stag('p')
-                        print '\n'
+                        print('\n')
 
         htmloutput = yattag.indent(doc.getvalue(),
                                    indentation='    ',
@@ -1426,14 +1369,14 @@ class TaskCat (object):
     def collect_resources(self, testdata_list, logpath):
         """
         This function collects the AWS resources information created by the
-        Cloudformation stack for generating the report.
+        CloudFormation stack for generating the report.
 
         :param testdata_list: List of TestData object
         :param logpath: Log file path
 
         """
         resource = {}
-        print I + "(Collecting Resources)"
+        print(I + "(Collecting Resources)")
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
@@ -1475,14 +1418,14 @@ class TaskCat (object):
 
     def createcfnlogs(self, testdata_list, logpath):
         """
-        This function creates the Cloudformation log files.
+        This function creates the CloudFormation log files.
 
         :param testdata_list: List of TestData objects
         :param logpath: Log file path
         :return:
         """
         cfnlogs = []
-        print I + "(Collecting Cfn Logs)"
+        print(I + "(Collecting CloudFormation Logs)")
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
@@ -1500,7 +1443,7 @@ class TaskCat (object):
                     'cfnlogs',
                     extension)
 
-                # Write cfn logs
+                # Write CloudFormation logs
                 file = open(test_logpath, 'w')
                 file.write(str(cfnlogs))
                 file.close()
@@ -1519,10 +1462,8 @@ class TaskCat (object):
             os.stat(o_directory)
         except:
             os.mkdir(o_directory)
-        print "{} |GENERATING REPORTS{}".format(self.nametag,
-                                                header,
-                                                rst_color)
-        print I + "Creating report in [%s]" % o_directory
+        print("{} |GENERATING REPORTS{}".format(self.nametag, header, rst_color))
+        print(I + "Creating report in [%s]" % o_directory)
         dashboard_filename = o_directory + "/" + filename
 
         # Collect resources
@@ -1530,7 +1471,7 @@ class TaskCat (object):
         self.collect_resources(testdata_list, o_directory)
 
         # Collect recursive logs
-        # file path is allready setup by getofile function in genreports
+        # file path is already setup by getofile function in genreports
         self.createcfnlogs(testdata_list, o_directory)
 
         # Generate html test dashboard
@@ -1540,7 +1481,7 @@ class TaskCat (object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description='(Multi-Region Cloudformation Deployment Tool)',
+            description='(Multi-Region CloudFormation Deployment Tool)',
             # prog=__file__, prefix_chars='-')
             prog='taskcat', prefix_chars='-')
         parser.add_argument(
@@ -1582,12 +1523,12 @@ class TaskCat (object):
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
-            print parser.print_help()
+            print(parser.print_help())
             sys.exit(0)
 
         if args.example_yaml:
-            print "#An example: config.yml file to be used with %s " % __name__
-            print yaml_cfg
+            print("#An example: config.yml file to be used with %s " % __name__)
+            print(yaml_cfg)
             sys.exit(0)
 
         if args.verbose:
@@ -1601,7 +1542,7 @@ class TaskCat (object):
                     args.aws_secret_key is not None):
                 parser.error("Cannot use boto profile -P (--boto_profile)" +
                              "with --aws_access_key or --aws_secret_key")
-                print parser.print_help()
+                print(parser.print_help())
                 sys.exit(1)
 
         return args
@@ -1609,10 +1550,8 @@ class TaskCat (object):
     def welcome(self, prog_name='taskcat.io'):
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
-        print "{0}".format(
-            banner.renderText(prog_name),
-            "\n")
-        print "version %s" % version
+        print("{0}".format(banner.renderText(prog_name), '\n'))
+        print("version %s" % version)
 
 
 def main():
