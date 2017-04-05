@@ -471,15 +471,24 @@ class TaskCat (object):
                 stackResources = result.get('StackResources')
                 for resource in stackResources:
                     if self.verbose:
+<<<<<<< HEAD
                         print(D + "Resources: for {}".format(stackname))
                         print(D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+=======
+                        print D + "Resources: for {}".format(stackname)
+                        print D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
+>>>>>>> 3ee0916a32a8f6a458336e57b8b1a8b7c0555baf
                             '\n\t\tLogicalId',
                             resource.get('LogicalResourceId'),
                             '\n\t\tPhysicalId',
                             resource.get('PhysicalResourceId'),
                             '\n\t\tType',
                             resource.get('ResourceType')
+<<<<<<< HEAD
                         ))
+=======
+                        )
+>>>>>>> 3ee0916a32a8f6a458336e57b8b1a8b7c0555baf
                     # if resource is a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
                     if resource.get('ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
                         if include_stacks:
@@ -501,8 +510,14 @@ class TaskCat (object):
                         l_resources.append(d)
             except Exception as e:
                 if self.verbose:
+<<<<<<< HEAD
                     print(D + str(e))
                 sys.exit(F + "Unable to get resources for stack %s" % stackname)
+=======
+                    print D + str(e)
+                sys.exit(F + "Unable to get resources for stack %s" % stackname)
+
+>>>>>>> 3ee0916a32a8f6a458336e57b8b1a8b7c0555baf
 
     def get_all_resources(self, stackIds, region):
         """
