@@ -24,7 +24,6 @@ import pyfiglet
 import argparse
 import re
 import json
-import urllib
 import textwrap
 import random
 import time
@@ -36,17 +35,18 @@ import botocore
 import tabulate
 import datetime
 from botocore.client import Config
+from botocore.vendored import requests
 from .sweeper import Sweeper
 
 
 # Version Tag
 version = '0.1.40'
-debug = u'\u2691'.encode('utf8')
-error = u'\u26a0'.encode('utf8')
-check = u'\u2714'.encode('utf8')
-fail = u'\u2718'.encode('utf8')
-info = u'\u2139'.encode('utf8')
-sig = base64.b64decode("dENhVA==")
+debug = '⚑'
+error = '✖'
+check = '✔'
+fail = '✘'
+info = 'ℹ'
+sig = base64.b64decode("dENhVA==").decode()
 id = str(uuid.uuid4())
 header = '\x1b[1;41;0m'
 hightlight = '\x1b[0;30;47m'
@@ -393,7 +393,7 @@ class TaskCat(object):
                                      Prefix=self.get_project())
         contents = result.get('Contents')
         for s3obj in contents:
-            for metadata in s3obj.iteritems():
+            for metadata in s3obj.items():
                 if metadata[0] == 'Key':
                     if key in metadata[1]:
                         # Finding exact match
@@ -646,8 +646,8 @@ class TaskCat(object):
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
                     cfn = boto3.client('cloudformation', region)
-                    s_parmsdata = urllib.urlopen(self.get_parameter_path())
-                    s_parms = json.loads(s_parmsdata.read())
+                    s_parmsdata = requests.get(self.get_parameter_path()).text
+                    s_parms = json.loads(s_parmsdata)
                     gentype = None
 
                     # Auto-generated stack inputs
@@ -778,7 +778,7 @@ class TaskCat(object):
         :return: TRUE if given Json is valid, FALSE otherwise.
         """
         try:
-            parms = json.load(jsonin)
+            parms = json.loads(jsonin)
             if self.verbose:
                 print(json.dumps(parms, indent=11, separators=(',', ': ')))
         except ValueError as e:
@@ -801,7 +801,8 @@ class TaskCat(object):
             if self.verbose:
                 print(D + "parameter_path = %s" % self.get_parameter_path())
 
-            inputparms = urllib.urlopen(self.get_parameter_path())
+            print(type(requests.get(self.get_parameter_path()).text))
+            inputparms = requests.get(self.get_parameter_path()).text
             jsonstatus = self.validate_json(inputparms)
 
             if self.verbose:
