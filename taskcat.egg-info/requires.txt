@@ -1,6 +1,5 @@
-uuid
-pyfiglet
-argparse
 boto3
+pyfiglet
 pyyaml
+tabulate
 yattag

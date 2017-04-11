@@ -40,12 +40,12 @@ from .sweeper import Sweeper
 
 
 # Version Tag
-version = '0.1.40'
-debug = '⚑'
-error = '✖'
-check = '✔'
-fail = '✘'
-info = 'ℹ'
+version = '0.1.43'
+debug = ''
+error = ''
+check = ''
+fail = ''
+info = ''
 sig = base64.b64decode("dENhVA==").decode()
 id = str(uuid.uuid4())
 header = '\x1b[1;41;0m'

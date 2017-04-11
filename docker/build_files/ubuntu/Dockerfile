@@ -7,7 +7,7 @@ FROM ubuntu:latest
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
-LABEL version=1.40
+LABEL version=1.44
 
 # Operating Systems
 LABEL container-os: ubuntu

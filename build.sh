@@ -10,7 +10,7 @@
 VERSION=$(grep version taskcat/taskcat.py |head -1 | awk -F'=|,' '{print $2}' | sed -e s/\'//|tr -d " "|tr -d "'")
 echo $VERSION
 python setup.py sdist 
-python setup.py bdist_wheel 
+#python setup.py bdist_wheel 
 python -m mkdocs gh-deploy --clean  
 #python setup.py upload_docs --upload-dir=site
 
