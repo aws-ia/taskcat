@@ -40,7 +40,7 @@ from .sweeper import Sweeper
 
 
 # Version Tag
-version = '0.1.43'
+version = '0.1.44'
 debug = ''
 error = ''
 check = ''
