@@ -5,12 +5,10 @@
  Python Class License: Apache 2.0
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import sys
 if sys.version_info[0] < 3:
-    raise "Python 3 is installed! use the python3 taskcat-installer"
+    print  "Python 3 is installed! use the python3 taskcat-installer"
+    sys.exit()
 
 import os
 import platform
