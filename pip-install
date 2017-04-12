@@ -10,7 +10,12 @@ from __future__ import absolute_import
 
 import sys
 if sys.version_info[0] < 3:
-    raise "taskcat is support on Python 3"
+    raise Exception("This version of the taskcat \
+installer is supported only on Python 3\n\
+Install python3 and retry install\n\
+Or use: unsupported python 2 installer (pip2-install)\
+	")
+    sys.exit(1)
 
 import os
 import platform
