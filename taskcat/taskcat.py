@@ -21,7 +21,6 @@ import os
 import uuid
 import sys
 import pyfiglet
-import argparse
 import re
 import json
 import textwrap
@@ -34,6 +33,8 @@ import boto3
 import botocore
 import tabulate
 import datetime
+import argparse
+from argparse import RawTextHelpFormatter
 from botocore.client import Config
 from botocore.vendored import requests
 from .sweeper import Sweeper
@@ -583,11 +584,11 @@ class TaskCat(object):
             print(D + "Auto generating password")
             print(D + "Pass size => {0}".format(pass_length))
 
-            password = []
-            numbers = "1234567890"
-            lowercase = "abcdefghijklmnopqrstuvwxyz"
-            uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            specialchars = "!#$&{*:[=,]-_%@+"
+        password = []
+        numbers = "1234567890"
+        lowercase = "abcdefghijklmnopqrstuvwxyz"
+        uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        specialchars = "!#$&{*:[=,]-_%@+"
 
         # Generates password string with:
         # lowercase,uppercase and numeric chars
@@ -648,7 +649,7 @@ class TaskCat(object):
                     cfn = boto3.client('cloudformation', region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
-                    gentype = None
+                    #gentype = None
 
                     # Auto-generated stack inputs
 
@@ -813,7 +814,6 @@ class TaskCat(object):
             else:
                 print(D + "parameter_file = %s" % self.get_parameter_file())
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
-
                 print('\n')
         return True
 
@@ -1584,9 +1584,34 @@ class TaskCat(object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description='(Multi-Region CloudFormation Deployment Tool)',
-            # prog=__file__, prefix_chars='-')
-            prog='taskcat', prefix_chars='-')
+            description = """Multi-Region CloudFormation Deployment Tool)
+            
+    [Auto-generated stack inputs] 
+    Autoselect available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
+    Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
+        - Parameters value in json input file must start with \'$[\' end with \']\'
+    
+    Example:[ {
+        "ParameterKey": "GenAZ",
+        "ParameterValue": "$[taskcat_genaz_2]"
+    } ]
+    Generates: us-east-1a, us-east-2b
+    
+    Example:[ {
+        "ParameterKey": "Password",
+        "ParameterValue": "$[taskcat_genpass_8]"
+    } ]
+    
+    Generates: tI8zN3iX8 
+    Optionally: $[taskcat_genpass_8S]
+    Generates: mA5@cB5!
+    
+    For more info see: http://taskcat.io
+
+        """,
+            prog='taskcat',
+            prefix_chars='-',
+            formatter_class=RawTextHelpFormatter)
         parser.add_argument(
             '-c',
             '--config_yml',
