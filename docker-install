@@ -23,7 +23,7 @@ if [[ -d $HOME/.aws ]]; then
 	echo "echo \"[dockerize]\"" >taskcat.docker
 	echo "docker run -it --rm -v ${HOME}/.aws:/root/.aws -v \$(pwd):/mnt taskcat/taskcat taskcat \$@" >>taskcat.docker
 else  
-	echo "[dockerize]" >taskcat.docker
+	echo "echo [dockerize]" >taskcat.docker
 	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat \$@" >> taskcat.docker
 
 fi
