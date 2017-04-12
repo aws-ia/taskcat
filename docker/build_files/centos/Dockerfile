@@ -39,6 +39,3 @@ WORKDIR /mnt
 
 # Make taskcat executable
 RUN chmod 755 /usr/local/bin/taskcat
-
-# Remove source
-RUN rm -rf taskcat 
