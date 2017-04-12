@@ -45,29 +45,31 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
 	<ul class="current">
+	  
           
-            <li>
-    <li class="toctree-l1 current">
-        <a class="current" href=".">Home</a>
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#taskcat">taskcat</a></li>
+    
+
+    <li class="toctree-l2"><a href="#currently-in-beta-release">Currently in beta release</a></li>
+    
+        <ul>
         
-            <ul>
-            
-                <li class="toctree-l3"><a href="#taskcat">taskcat</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#currently-in-beta-release">Currently in beta release</a></li>
-                
-                    <li><a class="toctree-l4" href="#what-is-taskcat">What is taskcat?</a></li>
-                
-                    <li><a class="toctree-l4" href="#setting-up-test-cases">Setting up Test Cases</a></li>
-                
-                    <li><a class="toctree-l4" href="#installing-taskcat">Installing taskcat</a></li>
-                
-            
-            </ul>
+            <li><a class="toctree-l3" href="#what-is-taskcat">What is taskcat?</a></li>
         
-    </li>
-<li>
+            <li><a class="toctree-l3" href="#setting-up-test-cases">Setting up Test Cases</a></li>
+        
+            <li><a class="toctree-l3" href="#installing-taskcat">Installing taskcat</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
           
         </ul>
       </div>
@@ -106,10 +108,11 @@
               
                 <h1 id="taskcat">taskcat</h1>
 <blockquote>
-<p>version = '0.1.41'
-This program requires python2 </p>
+<p>version = '0.1.46'
+This program requires python3 </p>
 </blockquote>
 <h1 id="currently-in-beta-release">Currently in beta release</h1>
+<p>Please report bugs here https://github.com/aws-quickstart/taskcat/issues</p>
 <h2 id="what-is-taskcat">What is taskcat?</h2>
 <p>taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. </p>
 <h2 id="setting-up-test-cases">Setting up Test Cases</h2>
@@ -128,12 +131,12 @@ The followup's command will create a sample config.yml</p>
 <pre><code>global:
   owner: owner@company.com
   project: sample-cloudformation-project &lt;- Must match the root directory of project (usually the name of git repo)
+  #s3bucket: projectx-templates &lt;- (Optional) Only needed if you want to use a specific bucket 
   regions:
     - us-east-1
     - us-east-2
     - us-west-1
     - us-west-2
-  #s3bucket: projectx-templates &lt;- (Optional) Only needed if you want to use a specific bucket 
 tests:
   # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
   senario-1:
@@ -248,9 +251,9 @@ Generates: us-east-1a, us-east-2b
 <blockquote>
 <p>Prerequisites: Python 2.7 and pip</p>
 </blockquote>
-<pre><code>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | sudo python -E
+<pre><code>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | python -E
 </code></pre>
-<h3 id="installing-taskcat-via-docker-option-2-beta-please-report-bugs">Installing taskcat via docker (Option 2) beta (please report bugs)</h3>
+<h3 id="installing-taskcat-via-docker-option-2">Installing taskcat via docker (Option 2)</h3>
 <blockquote>
 <p>Prerequisites: docker</p>
 </blockquote>
@@ -295,7 +298,7 @@ Generates: us-east-1a, us-east-2b
   <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
-          <a href="https://github.com/aws-quickstart/taskcat" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+          <a href="https://github.com/aws-quickstart/taskcat" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
       
@@ -307,6 +310,6 @@ Generates: us-east-1a, us-east-2b
 </html>
 
 <!--
-MkDocs version : 0.16.1
-Build Date UTC : 2017-04-05 01:27:37
+MkDocs version : 0.16.3
+Build Date UTC : 2017-04-12 03:27:36
 -->
