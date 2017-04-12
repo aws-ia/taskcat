@@ -10,21 +10,21 @@ from __future__ import absolute_import
 
 import sys
 if sys.version_info[0] < 3:
-    raise "taskcat is support on Python 3"
+    raise "Python 3 is installed! use the python3 taskcat-installer"
 
 import os
 import platform
 import subprocess
 
 osinfo = platform.uname()
-print ("[INITALIZING taskcat Installer!!]") 
+print "[INITALIZING taskcat Installer!!]"
 
 darwin_install='''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat
 if [[ $(id -u) -eq 0  ]] ; 
 then 
-	pip3 -q --no-cache-dir install taskcat --user
+	pip2 -q --no-cache-dir install taskcat --user
 	mv taskcat ${INSTALL_DIR}
 	chmod 755 ${INSTALL_DIR}/taskcat
 	echo '\n\t[taskcat] INSTALL COMPLETE' 
@@ -32,10 +32,10 @@ then
 	echo
 	echo '\n\t[taskcat] Tip: To uninstall run: ' 
 	echo "\t[1] rm ${INSTALL_DIR}/taskcat"
-	echo "\t[2] sudo pip3 uninstall taskcat"
+	echo "\t[2] sudo pip2 uninstall taskcat"
 	echo "\t[i] Answer 'y' to prompt"
 else 
-	pip3 -q --no-cache-dir install taskcat  --user
+	pip2 -q --no-cache-dir install taskcat  --user
 	chmod 755 taskcat
 	echo '\n\t[taskcat] INSTALL COMPLETE' 
 	echo '\t[i] Root previlages were not provied!' 
@@ -45,7 +45,7 @@ else
 	echo
 	echo '\n\t[taskcat] Tip: To uninstall run' 
 	echo "\t[1] rm taskcat"
-	echo "\t[2] pip3 uninstall taskcat"
+	echo "\t[2] pip2 uninstall taskcat"
 	echo "\t[i] Answer 'y' to prompt"
 fi 
 '''
