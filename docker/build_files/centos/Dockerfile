@@ -22,25 +22,23 @@ RUN yum -y install epel-release && yum clean all
 RUN yum update -y
 
 # Install basic applications
-RUN yum  install -y git curl 
+RUN yum install -y curl 
 
 # Install Python and Basic Python Tools
-RUN yum install -y python python-pip python-devel gcc
+RUN yum install -y  python python34-pip python-devel gcc
+RUN unlink /usr/bin/python
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Clone taskcat
-RUN git clone https://github.com/aws-quickstart/taskcat.git
+RUN pip3 install taskcat 
 
-# Build taskcat from git master
-RUN cd taskcat && pip install -r requirements.txt && pip install .
-
-# Add taskcat to container path
-RUN cd taskcat && cp taskcat_test.py /usr/bin/taskcat
+RUN curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py  -o /usr/local/bin/taskcat
 
 # Set the work directory
 WORKDIR /mnt
 
 # Make taskcat executable
-RUN chmod 755 /usr/bin/taskcat
+RUN chmod 755 /usr/local/bin/taskcat
 
 # Remove source
 RUN rm -rf taskcat 

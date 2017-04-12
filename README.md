@@ -149,7 +149,7 @@ Value that matches the following pattern will be replaced
 ### Installing taskcat (Option 1)
 > Prerequisites: Python 2.7 and pip
 
-    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | sudo python -E
+    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | python -E
 
 ### Installing taskcat via docker (Option 2) beta (please report bugs)
 > Prerequisites: docker
