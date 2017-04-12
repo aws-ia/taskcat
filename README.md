@@ -1,10 +1,10 @@
 
 # taskcat
-> version = '0.1.45'
-> This program requires python2 
+> version = '0.1.50'
+> This program requires python3 
 
 # Currently in beta release
-
+Please report bugs here https://github.com/aws-quickstart/taskcat/issues
  
 ## What is taskcat? 
 taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. 
@@ -25,12 +25,12 @@ Open the config.yml file with and editor and update the filenames to match your 
     global:
       owner: owner@company.com
       project: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)
+      #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket 
       regions:
         - us-east-1
         - us-east-2
         - us-west-1
         - us-west-2
-      #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket 
     tests:
       # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
       senario-1:
@@ -147,11 +147,11 @@ Value that matches the following pattern will be replaced
 ## Installing taskcat
 
 ### Installing taskcat (Option 1)
-> Prerequisites: Python 3 and pip3
+> Prerequisites: Python 2.7 and pip
 
-    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | sudo python -E
+    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/pip-install | python -E
 
-### Installing taskcat via docker (Option 2) beta (please report bugs)
+### Installing taskcat via docker (Option 2) 
 > Prerequisites: docker
 
     curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/docker-install | sudo python -E
