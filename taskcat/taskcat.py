@@ -41,7 +41,7 @@ from .sweeper import Sweeper
 
 
 # Version Tag
-version = '0.1.50'
+version = '0.1.51'
 debug = ''
 error = ''
 check = ''
@@ -169,7 +169,7 @@ class TaskCat(object):
         self.s3bucket = None
         self.template_path = None
         self.parameter_path = None
-        self.defult_region = "us-west-2"
+        self.defult_region = "us-east-1"
         self._template_file = None
         self._parameter_path = None
         self._termsize = 110

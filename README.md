@@ -1,6 +1,6 @@
 
 # taskcat
-> version = '0.1.50'
+> version = '0.1.51'
 > This program requires python3 
 
 # Currently in beta release

@@ -6,29 +6,25 @@ description = 'An OpenSource Cloudformation Deployment Framework',
 author = 'Tony Vattathil, Santiago Cardenas, Shivansh Singh',
 author_email = 'tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com',
 url = 'https://aws-quickstart.github.io/taskcat/',
-version = '0.1.50',
+version = '0.1.51',
+license='Apache License 2.0',
 download_url = 'https://github.com/aws-quickstart/taskcat/tarball/master',
 classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.7',
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: Apache Software License',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Topic :: Software Development :: Libraries',
+
 ],
 
-  keywords = ['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
+keywords = ['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 
-  #packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
-  install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag'],
-
-  #data_files=[('config', ['ci/config.yml`'])],
-
-  # To provide executable scripts, use entry points in preference to the
-  # "scripts" keyword. Entry points provide cross-platform support and allow
-  # pip to create the appropriate form of executable for the target platform.
-  #entry_points={
-  #    'console_scripts': [
-  #        'sample=sample:main',
-  #    ],
-  #},
+def read_requirements():
+    '''parses requirements from requirements.txt'''
+    reqs_path = os.path.join(__location__, 'requirements.txt')
+    install_reqs = parse_requirements(reqs_path, session=PipSession())
+    reqs = [str(ir.req) for ir in install_reqs]
+    return reqs
 )
