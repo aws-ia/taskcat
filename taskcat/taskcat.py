@@ -41,7 +41,7 @@ from .sweeper import Sweeper
 
 
 # Version Tag
-version = '0.1.51'
+version = '0.1.58'
 debug = ''
 error = ''
 check = ''

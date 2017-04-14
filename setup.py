@@ -1,4 +1,5 @@
 from setuptools import setup
+
 setup(
 name = 'taskcat',
 packages = ['taskcat'],
@@ -6,7 +7,7 @@ description = 'An OpenSource Cloudformation Deployment Framework',
 author = 'Tony Vattathil, Santiago Cardenas, Shivansh Singh',
 author_email = 'tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com',
 url = 'https://aws-quickstart.github.io/taskcat/',
-version = '0.1.51',
+version = '0.1.58',
 license='Apache License 2.0',
 download_url = 'https://github.com/aws-quickstart/taskcat/tarball/master',
 classifiers=[
@@ -21,10 +22,6 @@ classifiers=[
 
 keywords = ['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 
-def read_requirements():
-    '''parses requirements from requirements.txt'''
-    reqs_path = os.path.join(__location__, 'requirements.txt')
-    install_reqs = parse_requirements(reqs_path, session=PipSession())
-    reqs = [str(ir.req) for ir in install_reqs]
-    return reqs
+install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag'],
+
 )
