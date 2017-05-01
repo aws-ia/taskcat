@@ -1,5 +1,5 @@
 cd $1
-VERSION="0.1.50"
+VERSION="0.1.58"
 IMAGE="taskcat"
 ORG="taskcat"
 
