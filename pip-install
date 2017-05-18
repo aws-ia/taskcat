@@ -9,20 +9,21 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import sys
+import platform
+import subprocess
 
 if sys.version_info[0] < 3:
+    # noinspection PyPep8,PyPep8
     raise Exception("This version of the taskcat \
 installer is supported only on Python 3\n\
 Install python3 and retry install\n\
 Or use: unsupported python 2 installer (pip2-install)\
 	")
 
-import platform
-import subprocess
-
 osinfo = platform.uname()
 print("[INITALIZING taskcat Installer!!]")
 
+# noinspection PyPep8
 darwin_install = '''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat.run
@@ -45,6 +46,7 @@ fi
 	echo "\t[2] sudo pip3 uninstall taskcat"
 	echo "\t[i] Answer 'y' to prompt"
 '''
+# noinspection PyPep8
 if osinfo[0] == 'Darwin':
     install_exit_code = subprocess.call(darwin_install, shell=True)
     install_exit_code = subprocess.call('taskcat', shell=True)

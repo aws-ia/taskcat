@@ -14,6 +14,7 @@ import subprocess
 osinfo = platform.uname()
 print("[INITALIZING taskcat Installer!!]")
 
+# noinspection PyPep8,PyPep8
 darwin_install = '''
 INSTALL_DIR='/usr/local/bin'
 

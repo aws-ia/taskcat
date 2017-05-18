@@ -30,6 +30,7 @@ logger.addHandler(ch)
 # defined rules.
 
 
+# noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
 class Sweeper(object):
 
     # Given an s3 bucket name, this function deletes all the versions of the bucket
@@ -49,9 +50,9 @@ class Sweeper(object):
                 object_version.delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
-                logger.warn("Unable to delete object versions. (AccessDenied)")
+                logger.warning("Unable to delete object versions. (AccessDenied)")
             if e.response['Error']['Code'] == 'NoSuchBucket':
-                logger.warn("Unable to get versions. (NoSuchBucket)")
+                logger.warning("Unable to get versions. (NoSuchBucket)")
             else:
                 print(e)
         logger.info('Deleting bucket [%s]', bucket_name)
@@ -59,7 +60,7 @@ class Sweeper(object):
             bucket_resource.delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchBucket':
-                logger.warn("Bucket was already deleted. (NoSuchBucket)")
+                logger.warning("Bucket was already deleted. (NoSuchBucket)")
             else:
                 print(e)
 
@@ -74,7 +75,7 @@ class Sweeper(object):
             ec2_client.delete_volume(VolumeId=volume_id)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
-                logger.warn("Unable to delete volume. (AccessDenied)")
+                logger.warning("Unable to delete volume. (AccessDenied)")
             else:
                 print(e)
 
@@ -89,9 +90,9 @@ class Sweeper(object):
             ec2_client.delete_security_group(GroupId=sg_id)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'InvalidGroup.InUse':
-                logger.warn("Unable to delete Security group. It is in-use.")
+                logger.warning("Unable to delete Security group. It is in-use.")
             if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
-                logger.warn(
+                logger.warning(
                     "Unable to delete Security group. (not found).")
             else:
                 print(e)
@@ -126,14 +127,14 @@ class Sweeper(object):
     #   lid - logical id of the resource to be deleted
     #   type - resource type
 
-    def __delete_resource(self, lid, type, pid):
-        if type == "AWS::EC2::SecurityGroup":
+    def __delete_resource(self, lid, rtype, pid):
+        if rtype == "AWS::EC2::SecurityGroup":
             logger.debug("Found Security Group resource")
             self.__delete_sg(lid)
-        if type == "AWS::EC2::Volume":
+        if rtype == "AWS::EC2::Volume":
             logger.debug("Found Volume resource")
             self.__delete_volume(lid)
-        if type == "AWS::S3::Bucket":
+        if rtype == "AWS::S3::Bucket":
             logger.debug("Found Bucket resource")
             self.__delete_s3_bucket(pid)
 

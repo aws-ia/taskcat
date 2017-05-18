@@ -83,27 +83,27 @@ global:
   report_s3bucket: taskcat-reports
   s3bucket: projectx-templates
 tests:
-  projectx-senario-1:
-    parameter_input: projectx-senario-1.json
+  projectx-scenario-1:
+    parameter_input: projectx-scenario-1.json
     regions:
       - us-west-1
       - us-east-1
     template_file: projectx.template
-  projetx-main-senario-all-regions:
-    parameter_input: projectx-senario-all-regions.json
+  projetx-mainscenarioo-all-regions:
+    parameter_input: projectx-scenario-all-regions.json
     template_file: projectx.template
 '''
 # --End
 # Example config.yml
 
 # Not implemented
-# ------------------------------- System varibles
+# ------------------------------- System variables
 # --Begin
 sys_yml = 'sys_config.yml'
 
 
 # --End
-# --------------------------------System varibles
+# --------------------------------System variables
 
 
 def buildmap(start_location, mapstring):
@@ -121,8 +121,7 @@ def buildmap(start_location, mapstring):
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
         for fs_file in filelist:
             fs_path_to_file = (os.path.join(fs_path, fs_file))
-            if (mapstring in fs_path_to_file and
-                        '.git' not in fs_path_to_file):
+            if mapstring in fs_path_to_file and '.git' not in fs_path_to_file:
                 fs_map.append(fs_path_to_file)
     return fs_map
 
@@ -159,6 +158,7 @@ class TestData(object):
 """
 
 
+# noinspection PyUnresolvedReferences
 class TaskCat(object):
     # CONSTRUCTOR
     # ============
@@ -266,8 +266,8 @@ class TaskCat(object):
     def get_docleanup(self):
         return self.run_cleanup
 
-    ##      FUNCTIONS       ##
-    # ====================== #
+    #      FUNCTIONS       #
+    # ==================== #
 
     def stage_in_s3(self, taskcat_cfg):
         """
@@ -482,8 +482,8 @@ class TaskCat(object):
                     'cloudformation', region)
                 result = cfn.describe_stack_resources(
                     StackName=stackname)
-                stackResources = result.get('StackResources')
-                for resource in stackResources:
+                stackresources = result.get('StackResources')
+                for resource in stackresources:
                     if self.verbose:
                         print(D + "Resources: for {}".format(stackname))
                         print(D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
@@ -519,12 +519,12 @@ class TaskCat(object):
                     print(D + str(e))
                 sys.exit(F + "Unable to get resources for stack %s" % stackname)
 
-    def get_all_resources(self, stackIds, region):
+    def get_all_resources(self, stackids, region):
         """
-        Given a list of stackIds, function returns the list of dictionary items, where each
+        Given a list of stackids, function returns the list of dictionary items, where each
         item consist of stackId and the resources associated with that stack.
 
-        :param stackIds: List of Stack Ids
+        :param stackids: List of Stack Ids
         :param region: AWS region
         :return: A list of dictionary object in the following format
                 [
@@ -542,7 +542,7 @@ class TaskCat(object):
 
         """
         l_all_resources = []
-        for anId in stackIds:
+        for anId in stackids:
             d = {
                 'stackId': anId,
                 'resources': self.get_resources(anId, region)
@@ -557,7 +557,7 @@ class TaskCat(object):
         :param taskcat_cfg: TaskCat config object
         :param test_list: List of tests
 
-        :return: TRUE if templates are valid, othewise FALSE
+        :return: TRUE if templates are valid, else FALSE
         """
         # Load global regions
         self.set_test_region(self.get_global_region(taskcat_cfg))
@@ -639,7 +639,7 @@ class TaskCat(object):
         """
         This function creates CloudFormation stack for the given tests.
 
-        :param taskcat_cfg: TaskCat config as ymal object
+        :param taskcat_cfg: TaskCat config as yaml object
         :param test_list: List of tests
         :param sprefix: Special prefix as string. Purpose of this param is to use it for tagging
             the stack.
@@ -746,7 +746,7 @@ class TaskCat(object):
                                     self.regxfind(count_re, param_value))
                                 if numazs:
                                     if self.verbose:
-                                        print(D + "Selecting availablity zones")
+                                        print(D + "Selecting availability zones")
                                         print(D + "Requested %s az's" % numazs)
 
                                     param_value = self.get_available_azs(
@@ -821,7 +821,7 @@ class TaskCat(object):
         :param taskcat_cfg: TaskCat config yaml object
         :param test_list: List of tests
 
-        :return: TRUE if the parameters file is valid, FALSE othwerise
+        :return: TRUE if the parameters file is valid, else FALSE
         """
         for test in test_list:
             self.define_tests(taskcat_cfg, test)
@@ -891,6 +891,7 @@ class TaskCat(object):
         test_info = []
 
         cfn = boto3.client('cloudformation', region)
+        # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
             for result in test_query['Stacks']:
@@ -898,8 +899,7 @@ class TaskCat(object):
                 test_info.append(region)
                 test_info.append(result.get('StackStatus'))
                 if result.get(
-                        'StackStatus') == 'CREATE_IN_PROGRESS' or result.get(
-                    'StackStatus') == 'DELETE_IN_PROGRESS':
+                        'StackStatus') == 'CREATE_IN_PROGRESS' or result.get('StackStatus') == 'DELETE_IN_PROGRESS':
                     test_info.append(1)
                 else:
                     test_info.append(0)
@@ -1237,7 +1237,7 @@ class TaskCat(object):
                 print(E + "Cannot open [%s]" % yaml_file)
                 sys.exit(1)
         except Exception as e:
-            print(E + "config.yml [%s] is not formated well!!" % yaml_file)
+            print(E + "config.yml [%s] is not formatted well!!" % yaml_file)
             if self.verbose:
                 print(D + str(e))
             sys.exit(1)
@@ -1254,7 +1254,7 @@ class TaskCat(object):
         doc = yattag.Doc()
 
         # Type of cfnlog return cfn log file
-        # Type of resource_log reutrn resource log file
+        # Type of resource_log return resource log file
         def getofile(region, stack_name, resource_type):
             extension = '.txt'
             if resource_type == 'cfnlog':
@@ -1267,19 +1267,20 @@ class TaskCat(object):
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            global status_css, status
             cfn = boto3.client('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
+            rstatus = None
+            status_css = None
 
             for result in test_query['Stacks']:
-                status = result.get('StackStatus')
-                if status == 'CREATE_COMPLETE':
+                rstatus = result.get('StackStatus')
+                if rstatus == 'CREATE_COMPLETE':
                     status_css = 'class=test-green'
-                elif status == 'CREATE_FAILED':
+                elif rstatus == 'CREATE_FAILED':
                     status_css = 'class=test-red'
                 else:
                     status_css = 'class=test-red'
-            return status, status_css
+            return rstatus, status_css
 
         tag = doc.tag
         text = doc.text
@@ -1287,7 +1288,6 @@ class TaskCat(object):
         repo_link = 'https://github.com/aws-quickstart/taskcat'
         output_css = 'https://taskcat.s3.amazonaws.com/assets/css/taskcat.css'
         doc_link = 'http://taskcat.io'
-        footer = 'Report Generated by TaskCat'
 
         with tag('html'):
             with tag('head'):
@@ -1439,8 +1439,6 @@ class TaskCat(object):
 
                 # Write resource logs
                 file = open(test_logpath, 'w')
-                # @TODO use yattag to bild html table from (for now just
-                # fomation json)
                 file.write(str(
                     json.dumps(
                         resource,
@@ -1588,6 +1586,7 @@ class TaskCat(object):
         """
         o_directory = 'taskcat_outputs'
 
+        # noinspection PyBroadException
         try:
             os.stat(o_directory)
         except Exception:
@@ -1614,7 +1613,7 @@ class TaskCat(object):
             description="""Multi-Region CloudFormation Deployment Tool)
             
     [Auto-generated stack inputs] 
-    Autoselect available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
+    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
     Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
         - Parameters value in json input file must start with \'$[\' end with \']\'
     
@@ -1688,13 +1687,12 @@ class TaskCat(object):
 
         if args.verbose:
             self.verbose = True
-        # Overwrides Defaults for cleanup but does not overwrite config.yml
+        # Overrides Defaults for cleanup but does not overwrite config.yml
         if args.no_cleanup:
             self.run_cleanup = False
 
         if args.boto_profile is not None:
-            if (args.aws_access_key is not None or
-                        args.aws_secret_key is not None):
+            if args.aws_access_key is not None or args.aws_secret_key is not None:
                 parser.error("Cannot use boto profile -P (--boto_profile)" +
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
