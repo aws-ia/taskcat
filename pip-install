@@ -5,26 +5,25 @@
  Python Class License: Apache 2.0
 """
 
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
 import sys
+
 if sys.version_info[0] < 3:
     raise Exception("This version of the taskcat \
 installer is supported only on Python 3\n\
 Install python3 and retry install\n\
 Or use: unsupported python 2 installer (pip2-install)\
 	")
-    sys.exit(1)
 
-import os
 import platform
 import subprocess
 
 osinfo = platform.uname()
-print ("[INITALIZING taskcat Installer!!]") 
+print("[INITALIZING taskcat Installer!!]")
 
-darwin_install='''
+darwin_install = '''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat.run
 chmod 755 taskcat.run
@@ -47,5 +46,5 @@ fi
 	echo "\t[i] Answer 'y' to prompt"
 '''
 if osinfo[0] == 'Darwin':
-	install_exit_code = subprocess.call(darwin_install, shell=True)
-	install_exit_code = subprocess.call('taskcat', shell=True)
+    install_exit_code = subprocess.call(darwin_install, shell=True)
+    install_exit_code = subprocess.call('taskcat', shell=True)

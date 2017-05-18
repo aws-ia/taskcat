@@ -5,16 +5,16 @@
  License: Apache 2.0
 """
 
-from __future__ import print_function
 from __future__ import absolute_import
-import os
+from __future__ import print_function
+
 import platform
 import subprocess
 
 osinfo = platform.uname()
-print ("[INITALIZING taskcat Installer!!]") 
+print("[INITALIZING taskcat Installer!!]")
 
-darwin_install='''
+darwin_install = '''
 INSTALL_DIR='/usr/local/bin'
 
 if [[ -d $HOME/.aws ]]; then 
@@ -51,6 +51,6 @@ fi
 
 # Mac
 if osinfo[0] == 'Darwin':
-	install_exit_code = subprocess.call(darwin_install, shell=True)
+    install_exit_code = subprocess.call(darwin_install, shell=True)
 
-print ("\n Ready!! type \'taskcat\' to start \n")
+print("\n Ready!! type \'taskcat\' to start \n")

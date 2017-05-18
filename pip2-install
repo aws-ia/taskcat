@@ -5,19 +5,18 @@
  Python Class License: Apache 2.0
 """
 
-import sys
-if sys.version_info[0] < 3:
-    print  "Python 3 is installed! use the python3 taskcat-installer"
-    sys.exit()
-
-import os
 import platform
 import subprocess
+import sys
+
+if sys.version_info[0] < 3:
+    print("Python 3 is installed! use the python3 taskcat-installer")
+    sys.exit()
 
 osinfo = platform.uname()
-print "[INITALIZING taskcat Installer!!]"
+print("[INITALIZING taskcat Installer!!]")
 
-darwin_install='''
+darwin_install = '''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat
 if [[ $(id -u) -eq 0  ]] ; 
@@ -48,9 +47,6 @@ else
 fi 
 '''
 
-
-
-
 if osinfo[0] == 'Darwin':
-	install_exit_code = subprocess.call(darwin_install, shell=True)
-	install_exit_code = subprocess.call('taskcat', shell=True)
+    install_exit_code = subprocess.call(darwin_install, shell=True)
+    install_exit_code = subprocess.call('taskcat', shell=True)

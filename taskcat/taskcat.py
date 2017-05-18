@@ -43,14 +43,14 @@ from botocore.vendored import requests
 from .sweeper import Sweeper
 
 # Version Tag
-version = '0.1.58'
+version = '0.1.60'
 debug = ''
 error = ''
 check = ''
 fail = ''
 info = ''
 sig = base64.b64decode("dENhVA==").decode()
-id = str(uuid.uuid4())
+jobid = str(uuid.uuid4())
 header = '\x1b[1;41;0m'
 hightlight = '\x1b[0;30;47m'
 name_color = '\x1b[0;37;44m'
@@ -65,7 +65,6 @@ D = '{1}[DEBUG {0} ]{2} :'.format(debug, aqua, rst_color)
 P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
 F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
-
 
 # Example config.yml
 # --Begin
@@ -102,6 +101,7 @@ tests:
 # --Begin
 sys_yml = 'sys_config.yml'
 
+
 # --End
 # --------------------------------System varibles
 
@@ -122,15 +122,17 @@ def buildmap(start_location, mapstring):
         for fs_file in filelist:
             fs_path_to_file = (os.path.join(fs_path, fs_file))
             if (mapstring in fs_path_to_file and
-                    '.git' not in fs_path_to_file):
+                        '.git' not in fs_path_to_file):
                 fs_map.append(fs_path_to_file)
     return fs_map
+
 
 """
     This class is used to represent the test data.
 """
-class TestData(object):
 
+
+class TestData(object):
     def __init__(self):
         self.__test_name = None
         self.__test_stacks = []
@@ -147,6 +149,7 @@ class TestData(object):
     def add_test_stack(self, stack):
         self.__test_stacks.append(stack)
 
+
 """
     Task(Cat = CloudFormation Automated Testing)
 
@@ -157,13 +160,13 @@ class TestData(object):
 
 
 class TaskCat(object):
-
     # CONSTRUCTOR
     # ============
 
     def __init__(self, nametag='[taskcat]'):
         self.nametag = '{1}{0}{2}'.format(nametag, name_color, rst_color)
         self.project = None
+        self.banner = None
         self.capabilities = []
         self.verbose = False
         self.config = 'config.yml'
@@ -173,6 +176,7 @@ class TaskCat(object):
         self.parameter_path = None
         self.defult_region = "us-east-1"
         self._template_file = None
+        self._parameter_file = None
         self._parameter_path = None
         self._termsize = 110
         self._banner = ""
@@ -246,7 +250,7 @@ class TaskCat(object):
         self.defult_region = region
 
     def get_default_region(self):
-        return (self.defult_region)
+        return self.defult_region
 
     def get_test_region(self):
         return self.test_region
@@ -287,7 +291,7 @@ class TaskCat(object):
             print(I + "Staging Bucket => " + bucket.name)
             self.set_s3bucket(bucket.name)
         else:
-            auto_bucket = 'taskcat-' + project + "-" + id[:8]
+            auto_bucket = 'taskcat-' + project + "-" + jobid[:8]
             print(I + "Staging Bucket => " + auto_bucket)
             s3.create_bucket(Bucket=auto_bucket)
             bucket = s3.Bucket(auto_bucket)
@@ -354,7 +358,8 @@ class TaskCat(object):
 
         print('\n')
 
-    def get_available_azs(self, region, count):
+    @staticmethod
+    def get_available_azs(region, count):
         """
         Returns a list of availability zones in a given region.
 
@@ -379,10 +384,10 @@ class TaskCat(object):
             azs = ','.join(available_azs[:count])
             return azs
 
-    def get_s3contents(self, url):
+    @staticmethod
+    def get_s3contents(url):
         payload = requests.get(url)
         return payload.text
-
 
     def get_s3_url(self, key):
         """
@@ -392,8 +397,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        client = boto3.client('s3',  config=Config(signature_version='s3v4'))
-        bucket = self.get_s3bucket()
+        client = boto3.client('s3', config=Config(signature_version='s3v4'))
 
         bucket_location = client.get_bucket_location(
             Bucket=self.get_s3bucket())
@@ -450,6 +454,7 @@ class TaskCat(object):
         consist of logicalId, physicalId and resourceType of the aws resource associated
         with the stack.
 
+        :param include_stacks: 
         :param stackname: CloudFormation stack name
         :param region: AWS region
         :return: List of objects in the following format
@@ -490,23 +495,24 @@ class TaskCat(object):
                             resource.get('ResourceType')
                         ))
                     # if resource is a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
-                    if resource.get('ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
+                    if resource.get(
+                            'ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
                         if include_stacks:
-                            d = {}
-                            d['logicalId'] = resource.get('LogicalResourceId')
-                            d['physicalId'] = resource.get('PhysicalResourceId')
-                            d['resourceType'] = resource.get('ResourceType')
+                            d = {'logicalId': resource.get('LogicalResourceId'),
+                                 'physicalId': resource.get('PhysicalResourceId'),
+                                 'resourceType': resource.get('ResourceType')}
                             l_resources.append(d)
                         stackdata = self.parse_stack_info(
                             str(resource.get('PhysicalResourceId')))
                         region = stackdata['region']
-                        self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources, include_stacks)
+                        self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources,
+                                                  include_stacks)
                     # else if resource is not a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
-                    elif resource.get('ResourceType') != 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
-                        d = {}
-                        d['logicalId'] = resource.get('LogicalResourceId')
-                        d['physicalId'] = resource.get('PhysicalResourceId')
-                        d['resourceType'] = resource.get('ResourceType')
+                    elif resource.get(
+                            'ResourceType') != 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
+                        d = {'logicalId': resource.get('LogicalResourceId'),
+                             'physicalId': resource.get('PhysicalResourceId'),
+                             'resourceType': resource.get('ResourceType')}
                         l_resources.append(d)
             except Exception as e:
                 if self.verbose:
@@ -648,7 +654,7 @@ class TaskCat(object):
             testdata.set_test_name(test)
             print("{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(I, header, test, rst_color))
             sname = str(sig)
-            stackname = sname + '-' + sprefix + '-' + test + '-' + id[:4]
+            stackname = sname + '-' + sprefix + '-' + test + '-' + jobid[:4]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
@@ -656,7 +662,7 @@ class TaskCat(object):
                     cfn = boto3.client('cloudformation', region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
-                    #gentype = None
+                    # gentype = None
 
                     # Auto-generated stack inputs
 
@@ -687,7 +693,7 @@ class TaskCat(object):
                     # Generates: us-east-1a, us-east-2b
 
                     for parmdict in s_parms:
-                        for keys in parmdict:
+                        for _ in parmdict:
 
                             param_value = parmdict['ParameterValue']
                             # Determines the size of the password to generate
@@ -695,21 +701,21 @@ class TaskCat(object):
 
                             # Determines the type of password to generate
                             gentype_re = re.compile(
-                                '(?!\w+_genpass_\d{1,2}])(A|S)')
+                                '(?!\w+_genpass_\d{1,2}])([AS])')
 
                             # Determines if _genpass has been requested
                             genpass_re = re.compile(
                                 '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
 
                             # Determines if _genaz has been requested
-                            genaz_re = re.compile('\$\[\w+_genaz_\d{1}]')
+                            genaz_re = re.compile('\$\[\w+_genaz_\d]')
 
                             # Determines if s3 replacement was requested
                             gets3replace = re.compile('\$\[\w+_url_.+]$')
                             geturl_re = re.compile('(?<=._url_)(.+)(?=]$)')
 
                             if gets3replace.search(param_value):
-                                url = self.regxfind(geturl_re,param_value)
+                                url = self.regxfind(geturl_re, param_value)
                                 param_value = self.get_s3contents(url)
                                 if self.verbose:
                                     print("Raw content of url {}".format(url))
@@ -834,10 +840,10 @@ class TaskCat(object):
             else:
                 print(D + "parameter_file = %s" % self.get_parameter_file())
                 sys.exit(F + "Cannot validate %s" % self.get_parameter_file())
-                print('\n')
         return True
 
-    def regxfind(self, re_object, data_line):
+    @staticmethod
+    def regxfind(re_object, data_line):
         """
         Returns the matching string.
 
@@ -862,7 +868,7 @@ class TaskCat(object):
         """
         stack_info = dict()
 
-        region_re = re.compile('(?<=:)(.\w-.+(\w*)\-\d)(?=:)')
+        region_re = re.compile('(?<=:)(.\w-.+(\w*)-\d)(?=:)')
         stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
         stack_info['region'] = self.regxfind(region_re, stack_name)
         stack_info['stack_name'] = self.regxfind(stack_name_re, stack_name)
@@ -893,7 +899,7 @@ class TaskCat(object):
                 test_info.append(result.get('StackStatus'))
                 if result.get(
                         'StackStatus') == 'CREATE_IN_PROGRESS' or result.get(
-                        'StackStatus') == 'DELETE_IN_PROGRESS':
+                    'StackStatus') == 'DELETE_IN_PROGRESS':
                     test_info.append(1)
                 else:
                     test_info.append(0)
@@ -916,7 +922,7 @@ class TaskCat(object):
         """
         active_tests = 1
         print('\n')
-        while (active_tests > 0):
+        while active_tests > 0:
             current_active_tests = 0
             print(I + "{}{} {} [{}]{}".format(
                 header,
@@ -929,7 +935,7 @@ class TaskCat(object):
                 for stack in test.get_test_stacks():
                     stackquery = self.stackcheck(str(stack['StackId']))
                     current_active_tests = stackquery[
-                        3] + current_active_tests
+                                               3] + current_active_tests
                     print(I + "{3}{0} {1} [{2}]{4}".format(
                         stackquery[1].ljust(15),
                         stackquery[2].ljust(25),
@@ -1073,7 +1079,7 @@ class TaskCat(object):
                 else:
                     # By default do cleanup unless self.run_cleanup
                     # was overwridden (set to False) by -n flag
-                    if self.run_cleanup == False:
+                    if not self.run_cleanup:
                         if self.verbose:
                             print(D + "cleanup set by cli flag {0}".format(self.run_cleanup))
                     else:
@@ -1249,18 +1255,19 @@ class TaskCat(object):
 
         # Type of cfnlog return cfn log file
         # Type of resource_log reutrn resource log file
-        def getofile(region, stack_name, type):
+        def getofile(region, stack_name, resource_type):
             extension = '.txt'
-            if type == 'cfnlog':
+            if resource_type == 'cfnlog':
                 location = "{}-{}-{}{}".format(stack_name, region, 'cfnlogs', extension)
                 return str(location)
-            elif type == 'resource_log':
+            elif resource_type == 'resource_log':
                 location = "{}-{}-{}{}".format(stack_name, region, 'resources', extension)
                 return str(location)
 
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
+            global status_css, status
             cfn = boto3.client('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
 
@@ -1377,7 +1384,7 @@ class TaskCat(object):
                                                 state['region'],
                                                 state['stack_name'],
                                                 'resource_log')
-                                            #@TODO css to links
+                                            # @TODO css to links
                                             with tag('a', href=clog):
                                                 text('View Logs ')
                                             with tag('a', href=rlog):
@@ -1441,7 +1448,8 @@ class TaskCat(object):
                         separators=(',', ': '))))
                 file.close()
 
-    def get_cfn_stack_events(self, stackname, region):
+    @staticmethod
+    def get_cfn_stack_events(stackname, region):
         """
         Given a stack name and the region, this function returns the event logs of the given stack, as list.
         :param stackname: Name of the stack
@@ -1457,7 +1465,8 @@ class TaskCat(object):
                 response = cfn_client.describe_stack_events(NextToken=response['NextToken'], StackName=stackname)
                 stack_events.extend(response['StackEvents'])
         except botocore.exceptions.ClientError:
-            print(E + "Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(region) + "]")
+            print(
+                E + "Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(region) + "]")
             sys.exit("[FATAL]: Error trying to get the events for stack [" + str(stackname) + "] in region [" + str(
                 region) + "]")
 
@@ -1470,7 +1479,6 @@ class TaskCat(object):
         :param region: Region stack belongs to
         :return: Event logs of the stack
         """
-        cfnlogs = stackname + region + "logcontentstub"
 
         print(I + "Collecting logs for " + stackname + "\"\n")
         # Collect stack_events
@@ -1500,7 +1508,6 @@ class TaskCat(object):
         :param logpath: Log file path
         :return:
         """
-        cfnlogs = []
         print(I + "(Collecting CloudFormation Logs)")
         for test in testdata_list:
             for stack in test.get_test_stacks():
@@ -1583,7 +1590,7 @@ class TaskCat(object):
 
         try:
             os.stat(o_directory)
-        except:
+        except Exception:
             os.mkdir(o_directory)
         print("{} |GENERATING REPORTS{}".format(self.nametag, header, rst_color))
         print(I + "Creating report in [%s]" % o_directory)
@@ -1604,7 +1611,7 @@ class TaskCat(object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description = """Multi-Region CloudFormation Deployment Tool)
+            description="""Multi-Region CloudFormation Deployment Tool)
             
     [Auto-generated stack inputs] 
     Autoselect available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
@@ -1687,7 +1694,7 @@ class TaskCat(object):
 
         if args.boto_profile is not None:
             if (args.aws_access_key is not None or
-                    args.aws_secret_key is not None):
+                        args.aws_secret_key is not None):
                 parser.error("Cannot use boto profile -P (--boto_profile)" +
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
@@ -1704,6 +1711,7 @@ class TaskCat(object):
 
 def main():
     pass
+
 
 if __name__ == '__main__':
     pass
