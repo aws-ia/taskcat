@@ -1094,7 +1094,7 @@ class TaskCat(object):
                 template_path = self.get_template_path()
                 if not template_path:
                     print("{0} Could not locate {1}".format(E, self.get_template_file()))
-                    print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
+                    print("{0} Check to make sure filename is correct?".format(E, self.get_template_path()))
                     quit()
 
                 # Check to make sure parameter filenames are correct
