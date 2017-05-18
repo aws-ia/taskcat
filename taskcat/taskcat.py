@@ -15,30 +15,32 @@
 # - Email test results to owner of project
 
 # --imports --
-from __future__ import print_function
 from __future__ import absolute_import
-import os
-import uuid
-import sys
-import pyfiglet
-import re
-import json
-import textwrap
-import random
-import time
+from __future__ import print_function
+
+import argparse
 import base64
-import yaml
-import yattag
+import datetime
+import json
+import os
+import random
+import re
+import sys
+import textwrap
+import time
+import uuid
+from argparse import RawTextHelpFormatter
+
 import boto3
 import botocore
+import pyfiglet
 import tabulate
-import datetime
-import argparse
-from argparse import RawTextHelpFormatter
+import yaml
+import yattag
 from botocore.client import Config
 from botocore.vendored import requests
-from .sweeper import Sweeper
 
+from .sweeper import Sweeper
 
 # Version Tag
 version = '0.1.58'
