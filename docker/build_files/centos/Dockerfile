@@ -7,7 +7,7 @@ FROM centos:latest
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
-LABEL version=1.62
+LABEL version=1.64
 
 # Operating Systems
 LABEL container-os: centos
@@ -16,10 +16,11 @@ LABEL container-os: centos
 USER root
 
 # Install epel, Update, Install basic applications,  Install Python and Basic Python Tools
-RUN yum -y install epel-release && \
+RUN yum clean all && \
+    yum -y install epel-release && \
     yum update -y && \
     yum install -y curl && \
-    yum install -y  python python34-pip python-devel gcc && \
+    yum install -y python python34-pip python-devel gcc && \
     yum clean all
     
 RUN unlink /usr/bin/python
