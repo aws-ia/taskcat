@@ -1696,7 +1696,6 @@ def get_cfn_stack_events(stackname, region):
             response = cfn_client.describe_stack_events(NextToken=response['NextToken'], StackName=stackname)
             stack_events.extend(response['StackEvents'])
     except ClientError as e:
-        print("{E} {e}")
         print("{} Error trying to get the events for stack [{}] in region [{}]".format(
             E,
             str(stackname),

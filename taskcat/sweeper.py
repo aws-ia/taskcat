@@ -70,7 +70,6 @@ class Sweeper(object):
                 # requests
                 object_version.delete()
         except ClientError as e:
-            print(f"{E} {e}")
             if e.response['Error']['Code'] == 'AccessDenied':
                 logger.warning("Unable to delete object versions. (AccessDenied)")
             if e.response['Error']['Code'] == 'NoSuchBucket':
@@ -95,7 +94,7 @@ class Sweeper(object):
         logger.info('Deleting EBS Volume [%s]', volume_id)
         try:
             ec2_client.delete_volume(VolumeId=volume_id)
-        except botocore.exceptions.ClientError as e:
+        except ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
                 logger.warning("Unable to delete volume. (AccessDenied)")
             else:
@@ -111,7 +110,6 @@ class Sweeper(object):
         try:
             ec2_client.delete_security_group(GroupId=sg_id)
         except ClientError as e:
-            print(f"{E} {e}")
             if e.response['Error']['Code'] == 'InvalidGroup.InUse':
                 logger.warning("Unable to delete Security group. It is in-use.")
             if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
