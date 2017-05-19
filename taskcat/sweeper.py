@@ -6,7 +6,28 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import botocore
+from botocore.exceptions import ClientError
 import logging
+
+debug = ''
+error = ''
+check = ''
+fail = ''
+info = ''
+header = '\x1b[1;41;0m'
+hightlight = '\x1b[0;30;47m'
+name_color = '\x1b[0;37;44m'
+aqua = '\x1b[0;30;46m'
+green = '\x1b[0;30;42m'
+white = '\x1b[0;30;47m'
+orange = '\x1b[0;30;43m'
+red = '\x1b[0;30;41m'
+rst_color = '\x1b[0m'
+E = '{1}[ERROR {0} ]{2} :'.format(error, red, rst_color)
+D = '{1}[DEBUG {0} ]{2} :'.format(debug, aqua, rst_color)
+P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
+F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
+I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
 # create logger
 logger = logging.getLogger('Sweeper')
@@ -48,7 +69,8 @@ class Sweeper(object):
                 # TODO: Delete sets of 1000 object versions to reduce delete
                 # requests
                 object_version.delete()
-        except botocore.exceptions.ClientError as e:
+        except ClientError as e:
+            print(f"{E} {e}")
             if e.response['Error']['Code'] == 'AccessDenied':
                 logger.warning("Unable to delete object versions. (AccessDenied)")
             if e.response['Error']['Code'] == 'NoSuchBucket':
@@ -88,7 +110,8 @@ class Sweeper(object):
         logger.info('Deleting Security Group [%s]', sg_id)
         try:
             ec2_client.delete_security_group(GroupId=sg_id)
-        except botocore.exceptions.ClientError as e:
+        except ClientError as e:
+            print(f"{E} {e}")
             if e.response['Error']['Code'] == 'InvalidGroup.InUse':
                 logger.warning("Unable to delete Security group. It is in-use.")
             if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
