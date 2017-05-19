@@ -43,7 +43,7 @@ from botocore.exceptions import ClientError
 from .sweeper import Sweeper
 
 # Version Tag
-version = '0.1.64'
+version = '0.1.65'
 debug = ''
 error = ''
 check = ''
@@ -1696,10 +1696,11 @@ def get_cfn_stack_events(stackname, region):
             response = cfn_client.describe_stack_events(NextToken=response['NextToken'], StackName=stackname)
             stack_events.extend(response['StackEvents'])
     except ClientError as e:
-        print("{} Error trying to get the events for stack [{}] in region [{}]".format(
+        print("{} Error trying to get the events for stack [{}] in region [{}]\b {}".format(
             E,
             str(stackname),
-            str(region)
+            str(region),
+            e
         ))
         sys.exit()
 
