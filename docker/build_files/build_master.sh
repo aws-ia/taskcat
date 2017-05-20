@@ -1,4 +1,4 @@
-cd $1
+cd centos
 VERSION="0.1.58"
 IMAGE="taskcat"
 ORG="taskcat"
