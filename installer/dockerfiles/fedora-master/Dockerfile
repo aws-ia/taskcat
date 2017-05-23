@@ -3,7 +3,7 @@
 # Based on Fedora
 ############################################################
 
-FROM fedora:katest
+FROM fedora:latest
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
