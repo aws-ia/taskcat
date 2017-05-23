@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# authors:
+# Tony Vattathil tonynv@amazon.com
+"""
+ License: Apache 2.0
+"""
+
+from __future__ import absolute_import
+from __future__ import print_function
+
+import platform
+import subprocess
+
+osinfo = platform.uname()
+print("[INITALIZING taskcat Installer!!]")
+
+# noinspection PyPep8,PyPep8
+darwin_install = '''
+INSTALL_DIR='/usr/local/bin'
+
+if [[ -d $HOME/.aws ]]; then 
+ 	echo "[INFO] : Found boto profile)"
+ 	echo "[INFO] : Boto profile will map to container during execution"
+	echo "echo \"[dockerize]\"" >taskcat.docker
+	echo "docker run -it --rm -v ${HOME}/.aws:/root/.aws -v \$(pwd):/mnt taskcat/taskcat taskcat \$@" >>taskcat.docker
+else  
+	echo "echo [dockerize]" >taskcat.docker
+	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat \$@" >> taskcat.docker
+
+fi
+
+if [[ $(id -u) -eq 0  ]] ;
+then 
+        docker pull taskcat/taskcat
+        sudo mv taskcat.docker ${INSTALL_DIR}/taskcat
+	chmod 755 ${INSTALL_DIR}/taskcat
+        echo '\n\t[taskcat] INSTALL COMPLETE'
+        echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
+        echo '\t[i] to run program type taskcat'
+else 
+        docker pull taskcat/taskcat
+        mv taskcat.docker taskcat
+	chmod 755 ${INSTALL_DIR}/taskcat
+        echo '\n\t[taskcat] INSTALL COMPLETE'
+        echo '\t[i] Root previlages were not provied!'
+        echo '\t[i] taskcat is installed in => ' $(pwd)
+        echo '\t[i] Please add taskcat to your path'
+        echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
+        echo '\t[i] to run program type ./taskcat'
+fi
+'''
+
+# Mac
+if osinfo[0] == 'Darwin':
+    install_exit_code = subprocess.call(darwin_install, shell=True)
+
+print("\n Ready!! type \'taskcat\' to start \n")

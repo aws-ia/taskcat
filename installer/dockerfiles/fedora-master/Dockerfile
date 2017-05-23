@@ -1,0 +1,27 @@
+############################################################
+# taskcat Dockerfile
+# Based on Fedora
+############################################################
+
+FROM fedora:katest
+MAINTAINER "Tony Vattathil" tonynv@amazon.com
+
+# Version
+LABEL version=production
+
+# Operating Systems
+LABEL container-os: fedora
+
+# Run as root
+USER root
+
+# Install taskcat (develop)
+RUN pip3 install taskcat --upgrade
+
+ADD https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py /usr/local/bin/taskcat
+
+# Set the work directory
+WORKDIR /mnt
+
+# Make taskcat executable
+RUN chmod 755 /usr/local/bin/taskcat
