@@ -24,7 +24,7 @@ osinfo = platform.uname()
 print("[INITALIZING taskcat Installer!!]")
 
 # noinspection PyPep8
-darwin_install = '''
+linux_install = '''
 INSTALL_DIR='/usr/local/bin'
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat.run
 chmod 755 taskcat.run
@@ -48,5 +48,7 @@ fi
 '''
 # noinspection PyPep8
 if osinfo[0] == 'Darwin':
-    install_exit_code = subprocess.call(darwin_install, shell=True)
+    install_exit_code = subprocess.call(linux_install, shell=True)
     install_exit_code = subprocess.call('taskcat', shell=True)
+elif osinfo[0] == 'Linux':
+    install_exit_code = subprocess.call(linux_install, shell=True)
