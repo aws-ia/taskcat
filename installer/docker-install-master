@@ -15,7 +15,7 @@ osinfo = platform.uname()
 print("[INITALIZING taskcat Installer!!]")
 
 # noinspection PyPep8,PyPep8
-darwin_install = '''
+linux_install = '''
 INSTALL_DIR='/usr/local/bin'
 
 if [[ -d $HOME/.aws ]]; then 
@@ -50,8 +50,9 @@ else
 fi
 '''
 
-# Mac
 if osinfo[0] == 'Darwin':
-    install_exit_code = subprocess.call(darwin_install, shell=True)
+    install_exit_code = subprocess.call(linux_install, shell=True)
+elif osinfo[0] == 'Linux':
+    install_exit_code = subprocess.call(linux_install, shell=True)
 
 print("\n Ready!! type \'taskcat\' to start \n")
