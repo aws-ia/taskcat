@@ -52,3 +52,4 @@ if osinfo[0] == 'Darwin':
     install_exit_code = subprocess.call('taskcat', shell=True)
 elif osinfo[0] == 'Linux':
     install_exit_code = subprocess.call(linux_install, shell=True)
+    install_exit_code = subprocess.call('taskcat', shell=True)
