@@ -261,29 +261,30 @@
                   <a href="https://github.com/aws-quickstart/taskcat/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="taskcat">taskcat</h1>
+                <h1 id="taskcat">taskcat<a class="headerlink" href="#taskcat" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>version = '0.1.76'
 This program requires python3 </p>
 </blockquote>
-<h1 id="currently-in-beta-release">Currently in beta release</h1>
+<h1 id="currently-in-beta-release">Currently in beta release<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
 <p>Please report bugs here https://github.com/aws-quickstart/taskcat/issues</p>
-<h2 id="what-is-taskcat">What is taskcat?</h2>
+<h2 id="what-is-taskcat">What is taskcat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
 <p>taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. </p>
-<h2 id="setting-up-test-cases">Setting up Test Cases</h2>
+<h2 id="setting-up-test-cases">Setting up Test Cases<a class="headerlink" href="#setting-up-test-cases" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Step 1 Define your test in the config.yml</li>
 <li>Step 2 Build a json input file for your cloudformation template.</li>
 </ul>
-<h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal</h3>
+<h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h3>
 <p>You can generate a sample config.ymal by running <code>taskcat -ey</code>
 The followup's command will create a sample config.yml</p>
-<pre><code>./taskcat -ey | egrep -v '#|^$'  &gt;config.yml
-</code></pre>
+<div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
+</pre></div>
+
 
 <p>Open the config.yml file with and editor and update the filenames to match your need. </p>
-<h4 id="example-of-configyml">Example of config.yml</h4>
-<pre><code>global:
+<h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span>global:
   owner: owner@company.com
   project: sample-cloudformation-project &lt;- Must match the root directory of project (usually the name of git repo)
   #s3bucket: projectx-templates &lt;- (Optional) Only needed if you want to use a specific bucket 
@@ -304,9 +305,11 @@ tests:
       senario-all-regions:
     parameter_input: sample-cloudformation-input.jsonon
     template_file: sample-cloudformation-project-withvpc.template
-</code></pre>
-<h4 id="example-of-project-directory-structure">Example of project directory structure</h4>
-<pre><code>sample-cloudformation-project/
+</pre></div>
+
+
+<h4 id="example-of-project-directory-structure">Example of project directory structure<a class="headerlink" href="#example-of-project-directory-structure" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span>sample-cloudformation-project/
 ├── LICENSE.txt
 ├── README.md
 ├── ci
@@ -321,55 +324,61 @@ tests:
     └── templates
         ├── sample-cloudformation-project-novpc.template 
         └── sample-cloudformation-project-withvpc.template &lt;- Second version on template that will create a vpc with the worklo    ad
-</code></pre>
-<h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file</h3>
+</pre></div>
+
+
+<h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file<a class="headerlink" href="#step-2-building-a-json-input-file" title="Permanent link">&para;</a></h3>
 <p>The example below shows an input file for a stack that requires four parameters <code>KeyPair</code>,<code>InstanceType</code>, <code>AvailablityZones</code> and <code>Password</code></p>
 <p>Note: you can auto generate values at runtime using special tokens (see example below).</p>
 <blockquote>
 <p>The following json will evaluate</p>
 </blockquote>
-<h4 id="from">From:</h4>
-<pre><code>[
+<h4 id="from">From:<a class="headerlink" href="#from" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span>[
     {
-    "ParameterKey": "KeyPair",
-    "ParameterValue": "mykey"
+    &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
+    &quot;ParameterValue&quot;: &quot;mykey&quot;
     }, 
     {
-    "ParameterKey": "InstanceType",
-    "ParameterValue": "t2.small"
+    &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
+    &quot;ParameterValue&quot;: &quot;t2.small&quot;
     }
     {
-    "ParameterKey": "AvailablityZones",
-    "ParameterValue": "$[taskcat_genaz_2]" 
+    &quot;ParameterKey&quot;: &quot;AvailablityZones&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_genaz_2]&quot; 
     }, 
     {
-    "ParameterKey": "Password",
-    "ParameterValue": "$[taskcat_genpass_8A]"
+    &quot;ParameterKey&quot;: &quot;Password&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;
     }, 
 ]
-</code></pre>
-<h4 id="to">To:</h4>
-<pre><code>[
+</pre></div>
+
+
+<h4 id="to">To:<a class="headerlink" href="#to" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span>[
     {
-    "ParameterKey": "KeyPair",
-    "ParameterValue": "mykey"
+    &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
+    &quot;ParameterValue&quot;: &quot;mykey&quot;
     }, 
     {
-    "ParameterKey": "InstanceType",
-    "ParameterValue": "t2.small"
+    &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
+    &quot;ParameterValue&quot;: &quot;t2.small&quot;
     }
     {
-    "ParameterKey": "AvailablityZones",
-    "ParameterValue": "us-east-1a, us-east1b" 
+    &quot;ParameterKey&quot;: &quot;AvailablityZones&quot;,
+    &quot;ParameterValue&quot;: &quot;us-east-1a, us-east1b&quot; 
     }, 
     {
-    "ParameterKey": "Password",
-    "ParameterValue": "tI8zN3iX8"
+    &quot;ParameterKey&quot;: &quot;Password&quot;,
+    &quot;ParameterValue&quot;: &quot;tI8zN3iX8&quot;
     }, 
 ]
-</code></pre>
-<h4 id="more-information-on-auto-generated-stack-inputs">More information on Auto-generated stack inputs</h4>
-<h3 id="passwords">(Passwords)</h3>
+</pre></div>
+
+
+<h4 id="more-information-on-auto-generated-stack-inputs">More information on Auto-generated stack inputs<a class="headerlink" href="#more-information-on-auto-generated-stack-inputs" title="Permanent link">&para;</a></h4>
+<h3 id="passwords">(Passwords)<a class="headerlink" href="#passwords" title="Permanent link">&para;</a></h3>
 <p>Value that matches the following pattern will be replaced</p>
 <ul>
 <li>Parameters must start with $[</li>
@@ -388,7 +397,7 @@ Generates: <code>tI8zN3iX8</code>
 Example: $[taskcat_genpass_8S]
 Generates: mA5@cB5!</p>
 </blockquote>
-<h3 id="availablity-zones">(Availablity Zones)</h3>
+<h3 id="availablity-zones">(Availablity Zones)<a class="headerlink" href="#availablity-zones" title="Permanent link">&para;</a></h3>
 <p>Value that matches the following pattern will be replaced</p>
 <ul>
 <li>Parameters must start with $[</li>
@@ -401,32 +410,40 @@ Generates: mA5@cB5!</p>
 Generates: us-east-1a, us-east-2b
 (if the region is us-east-1)</p>
 </blockquote>
-<h2 id="installing-taskcat">Installing taskcat</h2>
-<h3 id="installing-taskcat-option-1">Installing taskcat (Option 1)</h3>
+<h2 id="installing-taskcat">Installing taskcat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
+<h3 id="installing-taskcat-option-1">Installing taskcat (Option 1)<a class="headerlink" href="#installing-taskcat-option-1" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: Python 3.5+ and pip</p>
 </blockquote>
-<pre><code>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
-</code></pre>
-<h3 id="installing-taskcat-via-docker-option-2">Installing taskcat via docker (Option 2)</h3>
+<div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
+</pre></div>
+
+
+<h3 id="installing-taskcat-via-docker-option-2">Installing taskcat via docker (Option 2)<a class="headerlink" href="#installing-taskcat-via-docker-option-2" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: docker</p>
 </blockquote>
-<pre><code>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
-</code></pre>
+<div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
+</pre></div>
+
+
 <blockquote>
 <p>Note: (If you do not have root privileges taskcat will install in the current directory)</p>
 </blockquote>
-<h3 id="run-taskcat">Run taskcat</h3>
+<h3 id="run-taskcat">Run taskcat<a class="headerlink" href="#run-taskcat" title="Permanent link">&para;</a></h3>
 <p>If you have AWS credentials sourced </p>
-<pre><code> taskcat -c sample-cloudformation-project/ci/config.yml
-</code></pre>
+<div class="codehilite"><pre><span></span> taskcat -c sample-cloudformation-project/ci/config.yml
+</pre></div>
+
+
 <p>If you need to pass ACCESS and SECRET keys</p>
-<pre><code>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
-</code></pre>
+<div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+</pre></div>
+
+
 <p>If you want to use a different account or profile</p>
-<pre><code>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
-</code></pre>
+<div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+</pre></div>
                 
                   
                 

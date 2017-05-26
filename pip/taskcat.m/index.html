@@ -312,16 +312,16 @@
                 
                   <h1>Pip Module (taskcat)</h1>
                 
-                <h2 id="module-taskcat">Module taskcat</h2>
-<h2 id="classes">Classes</h2>
+                <h2 id="module-taskcat">Module taskcat<a class="headerlink" href="#module-taskcat" title="Permanent link">&para;</a></h2>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
 <p>TaskCat 
     Ancestors (in MRO)
     ------------------
     taskcat.TaskCat
     builtins.object</p>
-<pre><code>Static methods
+<div class="codehilite"><pre><span></span>Static methods
 --------------
-__init__(self, nametag='[taskcat]')
+__init__(self, nametag=&#39;[taskcat]&#39;)
     Initialize self.  See help(type(self)) for accurate signature.
 
 aws_api_init(self, args)
@@ -361,7 +361,7 @@ createreport(self, testdata_list, filename)
     :return:
 
 deep_cleanup(self, testdata_list)
-    This function deletes the AWS resources which couldn't be deleted
+    This function deletes the AWS resources which couldn&#39;t be deleted
     by deleting CloudFormation stacks.
 
     :param testdata_list: List of TestData objects
@@ -378,7 +378,7 @@ genpassword(self, pass_length, pass_type)
 
     :param pass_length: Length of the desired password
     :param pass_type: Type of the desired password - String only OR Alphanumeric
-        * A = AlphaNumeric, Example 'vGceIP8EHC'
+        * A = AlphaNumeric, Example &#39;vGceIP8EHC&#39;
     :return: Password of given length and type
 
 genreport(self, testdata_list, dashboard_filename)
@@ -396,12 +396,12 @@ get_all_resources(self, stackids, region)
     :return: A list of dictionary object in the following format
             [
                 {
-                    'stackId': 'string',
-                    'resources': [
+                    &#39;stackId&#39;: &#39;string&#39;,
+                    &#39;resources&#39;: [
                         {
-                           'logicalId': 'string',
-                           'physicalId': 'string',
-                           'resourceType': 'String'
+                           &#39;logicalId&#39;: &#39;string&#39;,
+                           &#39;physicalId&#39;: &#39;string&#39;,
+                           &#39;resourceType&#39;: &#39;String&#39;
                         },
                     ]
                 },
@@ -454,9 +454,9 @@ get_resources(self, stackname, region, include_stacks=False)
     :return: List of objects in the following format
          [
              {
-                 'logicalId': 'string',
-                 'physicalId': 'string',
-                 'resourceType': 'String'
+                 &#39;logicalId&#39;: &#39;string&#39;,
+                 &#39;physicalId&#39;: &#39;string&#39;,
+                 &#39;resourceType&#39;: &#39;String&#39;
              },
          ]
 
@@ -489,12 +489,12 @@ get_test_region(self)
 
 if_stackexists(self, stackname, region)
     This function checks if a stack exist with the given stack name.
-    Returns "yes" if exist, otherwise "no".
+    Returns &quot;yes&quot; if exist, otherwise &quot;no&quot;.
 
     :param stackname: Stack name
     :param region: AWS region
 
-    :return: "yes" if stack exist, otherwise "no"
+    :return: &quot;yes&quot; if stack exist, otherwise &quot;no&quot;
 
 parse_stack_info(self, stack_name)
     Returns a dictionary object containing the region and stack name.
@@ -508,7 +508,7 @@ regxfind(re_object, data_line)
     :param re_object: Regex object
     :param data_line: String to be searched
 
-    :return: Matching String if found, otherwise return 'Not-found'
+    :return: Matching String if found, otherwise return &#39;Not-found&#39;
 
 set_capabilities(self, ability)
 
@@ -596,7 +596,7 @@ validate_yaml(self, yaml_file)
 
     :param yaml_file: Yaml file name
 
-welcome(self, prog_name='taskcat.io')
+welcome(self, prog_name=&#39;taskcat.io&#39;)
 
 write_logs(self, stack_id, logpath)
     This function writes the event logs of the given stack and all the child stacks to a given file.
@@ -631,7 +631,7 @@ template_path
 test_region
 
 verbose
-</code></pre>
+</pre></div>
                 
                   
                 
