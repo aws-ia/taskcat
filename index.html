@@ -269,13 +269,17 @@ This program requires python3 </p>
 <h1 id="currently-in-beta-release">Currently in beta release<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
 <p>Please report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues">https://github.com/aws-quickstart/taskcat/issues</a></p>
 <h2 id="what-is-taskcat">What is taskcat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
-<p>taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. </p>
-<h2 id="setting-up-test-cases">Setting up Test Cases<a class="headerlink" href="#setting-up-test-cases" title="Permanent link">&para;</a></h2>
+<p>TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.</p>
+<p>TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
+templates across AWS Regions</p>
+<h2 id="files-youll-need">Files you’ll need<a class="headerlink" href="#files-youll-need" title="Permanent link">&para;</a></h2>
+<p><strong>config.yml</strong> - This file contains the test cases
+<strong>JSON input</strong> - This file contains the imputs that you want to pass to AWS CloudFormation template that is being tested</p>
 <ul>
-<li>Step 1 Define your test in the config.yml</li>
-<li>Step 2 Build a json input file for your cloudformation template.</li>
+<li>Step 1 Building your configuration file </li>
+<li>Step 2 Building your JSON input file.</li>
 </ul>
-<h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h4>
 <p>You can generate a sample config.ymal by running <code class="codehilite">taskcat -ey</code>
 The followup's command will create a sample config.yml
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
@@ -315,14 +319,14 @@ Open the config.yml file with and editor and update the filenames to match your 
 <span class="n">tests</span><span class="o">:</span>
   <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span> <span class="n">and</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
   <span class="n">senario</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span>
-    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span>
     <span class="n">regions</span><span class="o">:</span>
       <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span>
       <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span>
-    <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
+    <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">novpc</span><span class="o">.</span><span class="na">template</span>
+    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="o">.</span><span class="na">json</span>
   <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">all</span> <span class="mi">4</span> <span class="n">region</span> <span class="n">defined</span> <span class="k">in</span> <span class="n">the</span> <span class="n">global</span> <span class="n">region</span> <span class="n">section</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
       <span class="n">senario</span><span class="o">-</span><span class="n">all</span><span class="o">-</span><span class="n">regions</span><span class="o">:</span>
-    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">jsonon</span>
+    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">json</span>
     <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
 </pre></div>
 </td></tr></table>
@@ -342,21 +346,23 @@ Open the config.yml file with and editor and update the filenames to match your 
 12
 13
 14
-15</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">/</span>
-├── LICENSE.txt
-├── README.md
-├── ci
-│   └── config.yml <span class="o">&lt;-</span> This the config file that will hold all the test definitions 
-│   └──  <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>input.json <span class="o">&lt;-</span>  This file contain input that will pass <span class="kr">in</span> during stack creation <span class="p">(</span>See auto parms <span class="kr">for</span> more info<span class="p">)</span>
-    ├── scripts
-    │   └── userdata.sh <span class="o">&lt;-</span> If you have userdata scripts you can load then <span class="kr">in</span> the scripts directory
-    ├── submodules  <span class="o">&lt;-</span> If you have git submodules you can load them <span class="kr">in</span> the submodules directory
-    │   └── quickstart<span class="o">-</span>aws<span class="o">-</span>vpc
-    │       └── templates
-    │           └── aws<span class="o">-</span>vpc.template
-    └── templates
-        ├── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>novpc.template 
-        └── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>withvpc.template <span class="o">&lt;-</span> Second version on template that will create a vpc with the worklo    ad
+15
+16</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">/</span>
+<span class="err">├──</span> <span class="n">LICENSE</span><span class="p">.</span><span class="n">txt</span>
+<span class="err">├──</span> <span class="n">README</span><span class="p">.</span><span class="n">md</span>
+<span class="err">└──</span> <span class="n">ci</span>
+   <span class="err">├──</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="o">&lt;-</span> <span class="n">This</span> <span class="n">the</span> <span class="n">config</span> <span class="n">file</span> <span class="n">that</span> <span class="n">will</span> <span class="n">hold</span> <span class="n">all</span> <span class="n">the</span> <span class="n">test</span> <span class="n">definitions</span> 
+   <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">vpc</span> <span class="n">version</span><span class="p">]</span> <span class="p">(</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
+   <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">no</span><span class="o">-</span><span class="n">vpc</span> <span class="n">version</span><span class="p">](</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
+   <span class="err">├──</span> <span class="n">scripts</span>
+   <span class="err">│</span>   <span class="err">└──</span> <span class="n">userdata</span><span class="p">.</span><span class="n">sh</span> <span class="o">&lt;-</span> <span class="n">If</span> <span class="n">you</span> <span class="n">have</span> <span class="n">userdata</span> <span class="n">scripts</span> <span class="n">you</span> <span class="n">can</span> <span class="n">load</span> <span class="n">then</span> <span class="k">in</span> <span class="n">the</span> <span class="n">scripts</span> <span class="n">directory</span>
+   <span class="err">├──</span> <span class="n">submodules</span>  <span class="o">&lt;-</span> <span class="n">If</span> <span class="n">you</span> <span class="n">have</span> <span class="n">git</span> <span class="n">submodules</span> <span class="n">you</span> <span class="n">can</span> <span class="n">load</span> <span class="n">them</span> <span class="k">in</span> <span class="n">the</span> <span class="n">submodules</span> <span class="n">directory</span>
+   <span class="err">│</span>   <span class="err">└──</span> <span class="n">quickstart</span><span class="o">-</span><span class="n">aws</span><span class="o">-</span><span class="n">vpc</span>
+   <span class="err">│</span>       <span class="err">└──</span> <span class="n">templates</span>
+   <span class="err">│</span>           <span class="err">└──</span> <span class="n">aws</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">template</span>
+   <span class="err">└──</span> <span class="n">templates</span>
+       <span class="err">├──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">template</span> 
+       <span class="err">└──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">template</span> <span class="o">&lt;-</span> <span class="n">Second</span> <span class="n">version</span> <span class="n">on</span> <span class="n">template</span> <span class="n">that</span> <span class="n">will</span> <span class="n">create</span> <span class="n">a</span> <span class="n">vpc</span> <span class="n">with</span> <span class="n">the</span> <span class="n">worklo</span>    <span class="n">ad</span>
 </pre></div>
 </td></tr></table>
 
@@ -477,41 +483,35 @@ Generates: mA5@cB5!</p>
 Generates: us-east-1a, us-east-2b
 (if the region is us-east-1)</p>
 </blockquote>
-<h2 id="installing-taskcat">Installing taskcat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
-<h3 id="installing-taskcat-option-1">Installing taskcat (Option 1)<a class="headerlink" href="#installing-taskcat-option-1" title="Permanent link">&para;</a></h3>
+<h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
+<h3 id="installing-taskcat-option-1">Installing TaskCat (Option 1)<a class="headerlink" href="#installing-taskcat-option-1" title="Permanent link">&para;</a></h3>
 <blockquote>
-<p>Prerequisites: Python 3.5+ and pip</p>
-</blockquote>
+<p>Prerequisites: Python 3.5+ and pip
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
 </pre></div>
-</td></tr></table>
-
-<h3 id="installing-taskcat-via-docker-option-2">Installing taskcat via docker (Option 2)<a class="headerlink" href="#installing-taskcat-via-docker-option-2" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>Prerequisites: docker</p>
+</td></tr></table></p>
 </blockquote>
+<h3 id="installing-taskcat-via-docker-option-2">Installing TaskCat via docker (Option 2)<a class="headerlink" href="#installing-taskcat-via-docker-option-2" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Prerequisites: docker
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 </pre></div>
 </td></tr></table>
-
-<blockquote>
-<p>Note: (If you do not have root privileges taskcat will install in the current directory)</p>
+Note: (If you do not have root privileges taskcat will install in the current directory)</p>
 </blockquote>
-<h3 id="run-taskcat">Run taskcat<a class="headerlink" href="#run-taskcat" title="Permanent link">&para;</a></h3>
-<p>If you have AWS credentials sourced </p>
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span> taskcat -c sample-cloudformation-project/ci/config.yml
+<h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
+<p>If you have AWS credentials sourced 
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>     taskcat -c sample-cloudformation-project/ci/config.yml
 </pre></div>
 </td></tr></table>
-
-<p>If you need to pass ACCESS and SECRET keys</p>
+If you need to pass ACCESS and SECRET keys
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
 </td></tr></table>
-
-<p>If you want to use a different account or profile</p>
+If you want to use a different account or profile
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
 </pre></div>
-</td></tr></table>
+</td></tr></table></p>
                 
                   
                 
