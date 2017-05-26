@@ -43,7 +43,7 @@ from botocore.exceptions import ClientError
 from .sweeper import Sweeper
 
 # Version Tag
-version = '0.1.66'
+version = '0.1.75'
 debug = ''
 error = ''
 check = ''

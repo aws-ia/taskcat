@@ -1,6 +1,6 @@
 
 # taskcat
-> version = '0.1.66'
+> version = '0.1.75'
 > This program requires python3 
 
 # Currently in beta release
@@ -147,7 +147,7 @@ Value that matches the following pattern will be replaced
 ## Installing taskcat
 
 ### Installing taskcat (Option 1)
-> Prerequisites: Python 2.7 and pip
+> Prerequisites: Python 3.5+ and pip
 
     curl -s https://github.com/aws-quickstart/taskcat/blob/master/installer/pip/pip3-install-master| python -E
 
