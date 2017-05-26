@@ -267,7 +267,7 @@
 This program requires python3 </p>
 </blockquote>
 <h1 id="currently-in-beta-release">Currently in beta release<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
-<p>Please report bugs here https://github.com/aws-quickstart/taskcat/issues</p>
+<p>Please report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues">https://github.com/aws-quickstart/taskcat/issues</a></p>
 <h2 id="what-is-taskcat">What is taskcat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
 <p>taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. </p>
 <h2 id="setting-up-test-cases">Setting up Test Cases<a class="headerlink" href="#setting-up-test-cases" title="Permanent link">&para;</a></h2>
@@ -276,13 +276,11 @@ This program requires python3 </p>
 <li>Step 2 Build a json input file for your cloudformation template.</li>
 </ul>
 <h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h3>
-<p>You can generate a sample config.ymal by running <code>taskcat -ey</code>
-The followup's command will create a sample config.yml</p>
+<p>You can generate a sample config.ymal by running <code class="codehilite">taskcat -ey</code>
+The followup's command will create a sample config.yml
 <div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
 </pre></div>
-
-
-<p>Open the config.yml file with and editor and update the filenames to match your need. </p>
+Open the config.yml file with and editor and update the filenames to match your need. </p>
 <h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><span class="n">global</span><span class="o">:</span>
   <span class="n">owner</span><span class="o">:</span> <span class="n">owner</span><span class="err">@</span><span class="n">company</span><span class="o">.</span><span class="na">com</span>
@@ -328,7 +326,7 @@ The followup's command will create a sample config.yml</p>
 
 
 <h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file<a class="headerlink" href="#step-2-building-a-json-input-file" title="Permanent link">&para;</a></h3>
-<p>The example below shows an input file for a stack that requires four parameters <code>KeyPair</code>,<code>InstanceType</code>, <code>AvailablityZones</code> and <code>Password</code></p>
+<p>The example below shows an input file for a stack that requires four parameters <code class="codehilite">KeyPair</code>,<code class="codehilite">InstanceType</code>, <code class="codehilite">AvailablityZones</code> and <code class="codehilite">Password</code></p>
 <p>Note: you can auto generate values at runtime using special tokens (see example below).</p>
 <blockquote>
 <p>The following json will evaluate</p>
@@ -393,7 +391,7 @@ The followup's command will create a sample config.yml</p>
 </ul>
 <blockquote>
 <p>Example: $[taskcat_genpass_8A]
-Generates: <code>tI8zN3iX8</code>
+Generates: <code class="codehilite">tI8zN3iX8</code>
 Example: $[taskcat_genpass_8S]
 Generates: mA5@cB5!</p>
 </blockquote>
