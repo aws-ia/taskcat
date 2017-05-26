@@ -91,94 +91,24 @@
             "title": "Run taskcat"
         },
         {
-            "location": "/",
-            "text": "taskcat\n\n\n\n\nversion = '0.1.76'\nThis program requires python3 \n\n\n\n\nCurrently in beta release\n\n\nPlease report bugs here https://github.com/aws-quickstart/taskcat/issues\n\n\nWhat is taskcat?\n\n\ntaskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. \n\n\nSetting up Test Cases\n\n\n\n\nStep 1 Define your test in the config.yml\n\n\nStep 2 Build a json input file for your cloudformation template.\n\n\n\n\nStep 1 Creating a config.ymal\n\n\nYou can generate a sample config.ymal by running \ntaskcat -ey\n\nThe followup's command will create a sample config.yml\n\n\n./taskcat -ey | egrep -v '#|^$'  >config.yml\n\n\n\n\nOpen the config.yml file with and editor and update the filenames to match your need. \n\n\nExample of config.yml\n\n\nglobal:\n  owner: owner@company.com\n  project: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)\n  #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket \n  regions:\n    - us-east-1\n    - us-east-2\n    - us-west-1\n    - us-west-2\ntests:\n  # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs\n  senario-1:\n    parameter_input: sample-cloudformation-input.json\n    regions:\n      - us-west-1\n      - us-east-1\n    template_file: sample-cloudformation-project-withvpc.template\n  # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs\n      senario-all-regions:\n    parameter_input: sample-cloudformation-input.jsonon\n    template_file: sample-cloudformation-project-withvpc.template\n\n\n\nExample of project directory structure\n\n\nsample-cloudformation-project/\n\u251c\u2500\u2500 LICENSE.txt\n\u251c\u2500\u2500 README.md\n\u251c\u2500\u2500 ci\n\u2502\u00a0\u00a0 \u2514\u2500\u2500 config.yml <- This the config file that will hold all the test definitions \n\u2502\u00a0\u00a0 \u2514\u2500\u2500  sample-cloudformation-input.json <-  This file contain input that will pass in during stack creation (See auto parms for more info)\n    \u251c\u2500\u2500 scripts\n    \u2502\u00a0\u00a0 \u2514\u2500\u2500 userdata.sh <- If you have userdata scripts you can load then in the scripts directory\n    \u251c\u2500\u2500 submodules  <- If you have git submodules you can load them in the submodules directory\n    \u2502\u00a0\u00a0 \u2514\u2500\u2500 quickstart-aws-vpc\n    \u2502\u00a0\u00a0     \u2514\u2500\u2500 templates\n    \u2502\u00a0\u00a0         \u2514\u2500\u2500 aws-vpc.template\n    \u2514\u2500\u2500 templates\n        \u251c\u2500\u2500 sample-cloudformation-project-novpc.template \n        \u2514\u2500\u2500 sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the worklo    ad\n\n\n\nStep 2 Building a json input file\n\n\nThe example below shows an input file for a stack that requires four parameters \nKeyPair\n,\nInstanceType\n, \nAvailablityZones\n and \nPassword\n\n\nNote: you can auto generate values at runtime using special tokens (see example below).\n\n\n\n\nThe following json will evaluate\n\n\n\n\nFrom:\n\n\n[\n    {\n    \"ParameterKey\": \"KeyPair\",\n    \"ParameterValue\": \"mykey\"\n    }, \n    {\n    \"ParameterKey\": \"InstanceType\",\n    \"ParameterValue\": \"t2.small\"\n    }\n    {\n    \"ParameterKey\": \"AvailablityZones\",\n    \"ParameterValue\": \"$[taskcat_genaz_2]\" \n    }, \n    {\n    \"ParameterKey\": \"Password\",\n    \"ParameterValue\": \"$[taskcat_genpass_8A]\"\n    }, \n]\n\n\n\nTo:\n\n\n[\n    {\n    \"ParameterKey\": \"KeyPair\",\n    \"ParameterValue\": \"mykey\"\n    }, \n    {\n    \"ParameterKey\": \"InstanceType\",\n    \"ParameterValue\": \"t2.small\"\n    }\n    {\n    \"ParameterKey\": \"AvailablityZones\",\n    \"ParameterValue\": \"us-east-1a, us-east1b\" \n    }, \n    {\n    \"ParameterKey\": \"Password\",\n    \"ParameterValue\": \"tI8zN3iX8\"\n    }, \n]\n\n\n\nMore information on Auto-generated stack inputs\n\n\n(Passwords)\n\n\nValue that matches the following pattern will be replaced\n\n\n\n\nParameters must start with $[\n\n\nParameters must end with ]\n\n\ngenpass in invoked when _genpass_X is found\n\n\nX is lengeth of the string\n\n\n\n\n(Optionally - you can specify the type of password by adding A or S)\n\n\n\n\nA aplha-numeric passwords\n\n\nS passwords with special characters\n\n\n\n\n\n\nExample: $[taskcat_genpass_8A]\nGenerates: \ntI8zN3iX8\n\nExample: $[taskcat_genpass_8S]\nGenerates: mA5@cB5!\n\n\n\n\n(Availablity Zones)\n\n\nValue that matches the following pattern will be replaced\n\n\n\n\nParameters must start with $[\n\n\nParameters must end with ]\n\n\ngenaz in invoked when _genaz_X is found\n\n\nA number of AZ's will be selected from the region the stack is attempting to launch\n\n\n\n\n\n\nExample: $[taskcat_genaz_2]\n\nGenerates: us-east-1a, us-east-2b\n(if the region is us-east-1)\n\n\n\n\nInstalling taskcat\n\n\nInstalling taskcat (Option 1)\n\n\n\n\nPrerequisites: Python 3.5+ and pip\n\n\n\n\ncurl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E\n\n\n\nInstalling taskcat via docker (Option 2)\n\n\n\n\nPrerequisites: docker\n\n\n\n\ncurl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E\n\n\n\n\n\nNote: (If you do not have root privileges taskcat will install in the current directory)\n\n\n\n\nRun taskcat\n\n\nIf you have AWS credentials sourced \n\n\n taskcat -c sample-cloudformation-project/ci/config.yml\n\n\n\nIf you need to pass ACCESS and SECRET keys\n\n\ntaskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY\n\n\n\nIf you want to use a different account or profile\n\n\ntaskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name",
+            "location": "/pip/taskcat/",
+            "text": "Module taskcat\n\n\ntaskcat python module\n\n\nVariables\n\n\nD\n\n\nE\n\n\nF\n\n\nI\n\n\nP\n\n\naqua\n\n\ncheck\n\n\ndebug\n\n\nerror\n\n\nfail\n\n\ngreen\n\n\nheader\n\n\nhightlight\n\n\ninfo\n\n\njobid\n\n\nname_color\n\n\norange\n\n\nred\n\n\nrst_color\n\n\nsig\n\n\nsys_yml\n\n\nversion\n\n\nwhite\n\n\nyaml_cfg\n\n\nSub-modules\n\n\ntaskcat.sweeper\ntaskcat.taskcat",
             "title": "Pip Module"
         },
         {
-            "location": "/#taskcat",
-            "text": "version = '0.1.76'\nThis program requires python3",
-            "title": "taskcat"
+            "location": "/pip/taskcat/#module-taskcat",
+            "text": "taskcat python module",
+            "title": "Module taskcat"
         },
         {
-            "location": "/#currently-in-beta-release",
-            "text": "Please report bugs here https://github.com/aws-quickstart/taskcat/issues",
-            "title": "Currently in beta release"
+            "location": "/pip/taskcat/#variables",
+            "text": "D  E  F  I  P  aqua  check  debug  error  fail  green  header  hightlight  info  jobid  name_color  orange  red  rst_color  sig  sys_yml  version  white  yaml_cfg",
+            "title": "Variables"
         },
         {
-            "location": "/#what-is-taskcat",
-            "text": "taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object.",
-            "title": "What is taskcat?"
-        },
-        {
-            "location": "/#setting-up-test-cases",
-            "text": "Step 1 Define your test in the config.yml  Step 2 Build a json input file for your cloudformation template.",
-            "title": "Setting up Test Cases"
-        },
-        {
-            "location": "/#step-1-creating-a-configymal",
-            "text": "You can generate a sample config.ymal by running  taskcat -ey \nThe followup's command will create a sample config.yml  ./taskcat -ey | egrep -v '#|^$'  >config.yml  Open the config.yml file with and editor and update the filenames to match your need.",
-            "title": "Step 1 Creating a config.ymal"
-        },
-        {
-            "location": "/#example-of-configyml",
-            "text": "global:\n  owner: owner@company.com\n  project: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)\n  #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket \n  regions:\n    - us-east-1\n    - us-east-2\n    - us-west-1\n    - us-west-2\ntests:\n  # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs\n  senario-1:\n    parameter_input: sample-cloudformation-input.json\n    regions:\n      - us-west-1\n      - us-east-1\n    template_file: sample-cloudformation-project-withvpc.template\n  # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs\n      senario-all-regions:\n    parameter_input: sample-cloudformation-input.jsonon\n    template_file: sample-cloudformation-project-withvpc.template",
-            "title": "Example of config.yml"
-        },
-        {
-            "location": "/#example-of-project-directory-structure",
-            "text": "sample-cloudformation-project/\n\u251c\u2500\u2500 LICENSE.txt\n\u251c\u2500\u2500 README.md\n\u251c\u2500\u2500 ci\n\u2502\u00a0\u00a0 \u2514\u2500\u2500 config.yml <- This the config file that will hold all the test definitions \n\u2502\u00a0\u00a0 \u2514\u2500\u2500  sample-cloudformation-input.json <-  This file contain input that will pass in during stack creation (See auto parms for more info)\n    \u251c\u2500\u2500 scripts\n    \u2502\u00a0\u00a0 \u2514\u2500\u2500 userdata.sh <- If you have userdata scripts you can load then in the scripts directory\n    \u251c\u2500\u2500 submodules  <- If you have git submodules you can load them in the submodules directory\n    \u2502\u00a0\u00a0 \u2514\u2500\u2500 quickstart-aws-vpc\n    \u2502\u00a0\u00a0     \u2514\u2500\u2500 templates\n    \u2502\u00a0\u00a0         \u2514\u2500\u2500 aws-vpc.template\n    \u2514\u2500\u2500 templates\n        \u251c\u2500\u2500 sample-cloudformation-project-novpc.template \n        \u2514\u2500\u2500 sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the worklo    ad",
-            "title": "Example of project directory structure"
-        },
-        {
-            "location": "/#step-2-building-a-json-input-file",
-            "text": "The example below shows an input file for a stack that requires four parameters  KeyPair , InstanceType ,  AvailablityZones  and  Password  Note: you can auto generate values at runtime using special tokens (see example below).   The following json will evaluate",
-            "title": "Step 2 Building a json input file"
-        },
-        {
-            "location": "/#from",
-            "text": "[\n    {\n    \"ParameterKey\": \"KeyPair\",\n    \"ParameterValue\": \"mykey\"\n    }, \n    {\n    \"ParameterKey\": \"InstanceType\",\n    \"ParameterValue\": \"t2.small\"\n    }\n    {\n    \"ParameterKey\": \"AvailablityZones\",\n    \"ParameterValue\": \"$[taskcat_genaz_2]\" \n    }, \n    {\n    \"ParameterKey\": \"Password\",\n    \"ParameterValue\": \"$[taskcat_genpass_8A]\"\n    }, \n]",
-            "title": "From:"
-        },
-        {
-            "location": "/#to",
-            "text": "[\n    {\n    \"ParameterKey\": \"KeyPair\",\n    \"ParameterValue\": \"mykey\"\n    }, \n    {\n    \"ParameterKey\": \"InstanceType\",\n    \"ParameterValue\": \"t2.small\"\n    }\n    {\n    \"ParameterKey\": \"AvailablityZones\",\n    \"ParameterValue\": \"us-east-1a, us-east1b\" \n    }, \n    {\n    \"ParameterKey\": \"Password\",\n    \"ParameterValue\": \"tI8zN3iX8\"\n    }, \n]",
-            "title": "To:"
-        },
-        {
-            "location": "/#more-information-on-auto-generated-stack-inputs",
-            "text": "",
-            "title": "More information on Auto-generated stack inputs"
-        },
-        {
-            "location": "/#passwords",
-            "text": "Value that matches the following pattern will be replaced   Parameters must start with $[  Parameters must end with ]  genpass in invoked when _genpass_X is found  X is lengeth of the string   (Optionally - you can specify the type of password by adding A or S)   A aplha-numeric passwords  S passwords with special characters    Example: $[taskcat_genpass_8A]\nGenerates:  tI8zN3iX8 \nExample: $[taskcat_genpass_8S]\nGenerates: mA5@cB5!",
-            "title": "(Passwords)"
-        },
-        {
-            "location": "/#availablity-zones",
-            "text": "Value that matches the following pattern will be replaced   Parameters must start with $[  Parameters must end with ]  genaz in invoked when _genaz_X is found  A number of AZ's will be selected from the region the stack is attempting to launch    Example: $[taskcat_genaz_2] \nGenerates: us-east-1a, us-east-2b\n(if the region is us-east-1)",
-            "title": "(Availablity Zones)"
-        },
-        {
-            "location": "/#installing-taskcat",
-            "text": "",
-            "title": "Installing taskcat"
-        },
-        {
-            "location": "/#installing-taskcat-option-1",
-            "text": "Prerequisites: Python 3.5+ and pip   curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E",
-            "title": "Installing taskcat (Option 1)"
-        },
-        {
-            "location": "/#installing-taskcat-via-docker-option-2",
-            "text": "Prerequisites: docker   curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E   Note: (If you do not have root privileges taskcat will install in the current directory)",
-            "title": "Installing taskcat via docker (Option 2)"
-        },
-        {
-            "location": "/#run-taskcat",
-            "text": "If you have AWS credentials sourced    taskcat -c sample-cloudformation-project/ci/config.yml  If you need to pass ACCESS and SECRET keys  taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY  If you want to use a different account or profile  taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name",
-            "title": "Run taskcat"
+            "location": "/pip/taskcat/#sub-modules",
+            "text": "taskcat.sweeper\ntaskcat.taskcat",
+            "title": "Sub-modules"
         }
     ]
 }
