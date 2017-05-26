@@ -262,11 +262,9 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-<div class="codehilite"><pre><span></span><span class="nt">&lt;title&gt;</span>sweeper API documentation<span class="nt">&lt;/title&gt;</span>
-<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;description&quot;</span> <span class="na">content=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span>
-</pre></div>
-
-
+<pre><code>&lt;title&gt;sweeper API documentation&lt;/title&gt;
+&lt;meta name="description" content="" /&gt;
+</code></pre>
 <p><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'></p>
 <style type="text/css">
 
@@ -274,14 +272,14 @@
 <li>{
   box-sizing: border-box;
 }
-/*! normalize.css v1.1.1 | MIT License | git.io/normalize */</li>
+/<em>! normalize.css v1.1.1 | MIT License | git.io/normalize </em>/</li>
 </ul>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    HTML5 display definitions
-   ========================================================================== */</p>
-<p>/**
- * Correct <code class="codehilite">block</code> display not defined in IE 6/&#8542;/9 and Firefox 3.
- */</p>
+   ========================================================================== </em>/</p>
+<p>/*<em>
+ * Correct <code>block</code> display not defined in IE 6/7/8/9 and Firefox 3.
+ </em>/</p>
 <p>article,
 aside,
 details,
@@ -296,55 +294,55 @@ section,
 summary {
     display: block;
 }</p>
-<p>/**
- * Correct <code class="codehilite">inline-block</code> display not defined in IE 6/&#8542;/9 and Firefox 3.
- */</p>
+<p>/*<em>
+ * Correct <code>inline-block</code> display not defined in IE 6/7/8/9 and Firefox 3.
+ </em>/</p>
 <p>audio,
 canvas,
 video {
     display: inline-block;
-    *display: inline;
-    *zoom: 1;
+    <em>display: inline;
+    </em>zoom: 1;
 }</p>
-<p>/**
- * Prevent modern browsers from displaying <code class="codehilite">audio</code> without controls.
+<p>/*<em>
+ * Prevent modern browsers from displaying <code>audio</code> without controls.
  * Remove excess height in iOS 5 devices.
- */</p>
+ </em>/</p>
 <p>audio:not([controls]) {
     display: none;
     height: 0;
 }</p>
-<p>/**
- * Address styling not present in IE &#8542;/9, Firefox 3, and Safari 4.
+<p>/*<em>
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
  * Known issue: no IE 6 support.
- */</p>
+ </em>/</p>
 <p>[hidden] {
     display: none;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Base
-   ========================================================================== */</p>
-<p>/**
+   ========================================================================== </em>/</p>
+<p>/*<em>
  * 1. Prevent system color scheme's background color being used in Firefox, IE,
  *    and Opera.
  * 2. Prevent system color scheme's text color being used in Firefox, IE, and
  *    Opera.
- * 3. Correct text resizing oddly in IE 6/7 when body <code class="codehilite">font-size</code> is set using
- *    <code class="codehilite">em</code> units.
+ * 3. Correct text resizing oddly in IE 6/7 when body <code>font-size</code> is set using
+ *    <code>em</code> units.
  * 4. Prevent iOS text size adjust after orientation change, without disabling
  *    user zoom.
- */</p>
+ </em>/</p>
 <p>html {
-    background: #fff; /* 1 <em>/
-    color: #000; /</em> 2 <em>/
-    font-size: 100%; /</em> 3 <em>/
-    -webkit-text-size-adjust: 100%; /</em> 4 <em>/
-    -ms-text-size-adjust: 100%; /</em> 4 */
+    background: #fff; /<em> 1 </em>/
+    color: #000; /<em> 2 </em>/
+    font-size: 100%; /<em> 3 </em>/
+    -webkit-text-size-adjust: 100%; /<em> 4 </em>/
+    -ms-text-size-adjust: 100%; /<em> 4 </em>/
 }</p>
-<p>/**
- * Address <code class="codehilite">font-family</code> inconsistency between <code class="codehilite">textarea</code> and other form
+<p>/*<em>
+ * Address <code>font-family</code> inconsistency between <code>textarea</code> and other form
  * elements.
- */</p>
+ </em>/</p>
 <p>html,
 button,
 input,
@@ -352,36 +350,36 @@ select,
 textarea {
     font-family: sans-serif;
 }</p>
-<p>/**
+<p>/*<em>
  * Address margins handled incorrectly in IE 6/7.
- */</p>
+ </em>/</p>
 <p>body {
     margin: 0;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Links
-   ========================================================================== */</p>
-<p>/**
- * Address <code class="codehilite">outline</code> inconsistency between Chrome and other browsers.
- */</p>
+   ========================================================================== </em>/</p>
+<p>/*<em>
+ * Address <code>outline</code> inconsistency between Chrome and other browsers.
+ </em>/</p>
 <p>a:focus {
     outline: thin dotted;
 }</p>
-<p>/**
+<p>/*<em>
  * Improve readability when focused and also mouse hovered in all browsers.
- */</p>
+ </em>/</p>
 <p>a:active,
 a:hover {
     outline: 0;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Typography
-   ========================================================================== */</p>
-<p>/**
+   ========================================================================== </em>/</p>
+<p>/*<em>
  * Address font sizes and margins set differently in IE 6/7.
- * Address font sizes within <code class="codehilite">section</code> and <code class="codehilite">article</code> in Firefox 4+, Safari 5,
+ * Address font sizes within <code>section</code> and <code>article</code> in Firefox 4+, Safari 5,
  * and Chrome.
- */</p>
+ </em>/</p>
 <p>h1 {
     font-size: 2em;
     margin: 0.67em 0;
@@ -406,15 +404,15 @@ a:hover {
     font-size: 0.67em;
     margin: 2.33em 0;
 }</p>
-<p>/**
- * Address styling not present in IE &#8542;/9, Safari 5, and Chrome.
- */</p>
+<p>/*<em>
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ </em>/</p>
 <p>abbr[title] {
     border-bottom: 1px dotted;
 }</p>
-<p>/**
- * Address style set to <code class="codehilite">bolder</code> in Firefox 3+, Safari &#8536;, and Chrome.
- */</p>
+<p>/*<em>
+ * Address style set to <code>bolder</code> in Firefox 3+, Safari 4/5, and Chrome.
+ </em>/</p>
 <p>b,
 strong {
     font-weight: bold;
@@ -422,38 +420,38 @@ strong {
 <p>blockquote {
     margin: 1em 40px;
 }</p>
-<p>/**
+<p>/*<em>
  * Address styling not present in Safari 5 and Chrome.
- */</p>
+ </em>/</p>
 <p>dfn {
     font-style: italic;
 }</p>
-<p>/**
+<p>/*<em>
  * Address differences between Firefox and other browsers.
  * Known issue: no IE 6/7 normalization.
- */</p>
+ </em>/</p>
 <p>hr {
     -moz-box-sizing: content-box;
     box-sizing: content-box;
     height: 0;
 }</p>
-<p>/**
- * Address styling not present in IE 6/&#8542;/9.
- */</p>
+<p>/*<em>
+ * Address styling not present in IE 6/7/8/9.
+ </em>/</p>
 <p>mark {
     background: #ff0;
     color: #000;
 }</p>
-<p>/**
+<p>/*<em>
  * Address margins set differently in IE 6/7.
- */</p>
+ </em>/</p>
 <p>p,
 pre {
     margin: 1em 0;
 }</p>
-<p>/**
- * Correct font family set oddly in IE 6, Safari &#8536;, and Chrome.
- */</p>
+<p>/*<em>
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ </em>/</p>
 <p>code,
 kbd,
 pre,
@@ -462,37 +460,37 @@ samp {
     _font-family: 'courier new', monospace;
     font-size: 1em;
 }</p>
-<p>/**
+<p>/*<em>
  * Improve readability of pre-formatted text in all browsers.
- */</p>
+ </em>/</p>
 <p>pre {
     white-space: pre;
     white-space: pre-wrap;
     word-wrap: break-word;
 }</p>
-<p>/**
+<p>/*<em>
  * Address CSS quotes not supported in IE 6/7.
- */</p>
+ </em>/</p>
 <p>q {
     quotes: none;
 }</p>
-<p>/**
- * Address <code class="codehilite">quotes</code> property not supported in Safari 4.
- */</p>
+<p>/*<em>
+ * Address <code>quotes</code> property not supported in Safari 4.
+ </em>/</p>
 <p>q:before,
 q:after {
     content: '';
     content: none;
 }</p>
-<p>/**
+<p>/*<em>
  * Address inconsistent and variable font size in all browsers.
- */</p>
+ </em>/</p>
 <p>small {
     font-size: 80%;
 }</p>
-<p>/**
- * Prevent <code class="codehilite">sub</code> and <code class="codehilite">sup</code> affecting <code class="codehilite">line-height</code> in all browsers.
- */</p>
+<p>/*<em>
+ * Prevent <code>sub</code> and <code>sup</code> affecting <code>line-height</code> in all browsers.
+ </em>/</p>
 <p>sub,
 sup {
     font-size: 75%;
@@ -506,12 +504,12 @@ sup {
 <p>sub {
     bottom: -0.25em;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Lists
-   ========================================================================== */</p>
-<p>/**
+   ========================================================================== </em>/</p>
+<p>/*<em>
  * Address margins set differently in IE 6/7.
- */</p>
+ </em>/</p>
 <p>dl,
 menu,
 ol,
@@ -521,187 +519,187 @@ ul {
 <p>dd {
     margin: 0 0 0 40px;
 }</p>
-<p>/**
+<p>/*<em>
  * Address paddings set differently in IE 6/7.
- */</p>
+ </em>/</p>
 <p>menu,
 ol,
 ul {
     padding: 0 0 0 40px;
 }</p>
-<p>/**
+<p>/*<em>
  * Correct list images handled incorrectly in IE 7.
- */</p>
+ </em>/</p>
 <p>nav ul,
 nav ol {
     list-style: none;
     list-style-image: none;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Embedded content
-   ========================================================================== */</p>
-<p>/**
- * 1. Remove border when inside <code class="codehilite">a</code> element in IE 6/&#8542;/9 and Firefox 3.
+   ========================================================================== </em>/</p>
+<p>/*<em>
+ * 1. Remove border when inside <code>a</code> element in IE 6/7/8/9 and Firefox 3.
  * 2. Improve image quality when scaled in IE 7.
- */</p>
+ </em>/</p>
 <p>img {
-    border: 0; /* 1 <em>/
-    -ms-interpolation-mode: bicubic; /</em> 2 */
+    border: 0; /<em> 1 </em>/
+    -ms-interpolation-mode: bicubic; /<em> 2 </em>/
 }</p>
-<p>/**
+<p>/*<em>
  * Correct overflow displayed oddly in IE 9.
- */</p>
+ </em>/</p>
 <p>svg:not(:root) {
     overflow: hidden;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Figures
-   ========================================================================== */</p>
-<p>/**
- * Address margin not present in IE 6/&#8542;/9, Safari 5, and Opera 11.
- */</p>
+   ========================================================================== </em>/</p>
+<p>/*<em>
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ </em>/</p>
 <p>figure {
     margin: 0;
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Forms
-   ========================================================================== */</p>
-<p>/**
+   ========================================================================== </em>/</p>
+<p>/*<em>
  * Correct margin displayed oddly in IE 6/7.
- */</p>
+ </em>/</p>
 <p>form {
     margin: 0;
 }</p>
-<p>/**
+<p>/*<em>
  * Define consistent border, margin, and padding.
- */</p>
+ </em>/</p>
 <p>fieldset {
     border: 1px solid #c0c0c0;
     margin: 0 2px;
     padding: 0.35em 0.625em 0.75em;
 }</p>
-<p>/**
- * 1. Correct color not being inherited in IE 6/&#8542;/9.
+<p>/*<em>
+ * 1. Correct color not being inherited in IE 6/7/8/9.
  * 2. Correct text not wrapping in Firefox 3.
  * 3. Correct alignment displayed oddly in IE 6/7.
- */</p>
+ </em>/</p>
 <p>legend {
-    border: 0; /* 1 <em>/
+    border: 0; /<em> 1 </em>/
     padding: 0;
-    white-space: normal; /</em> 2 <em>/
-    *margin-left: -7px; /</em> 3 */
+    white-space: normal; /<em> 2 </em>/
+    <em>margin-left: -7px; /</em> 3 */
 }</p>
-<p>/**
+<p>/*<em>
  * 1. Correct font size not being inherited in all browsers.
  * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
  *    and Chrome.
  * 3. Improve appearance and consistency in all browsers.
- */</p>
+ </em>/</p>
 <p>button,
 input,
 select,
 textarea {
-    font-size: 100%; /* 1 <em>/
-    margin: 0; /</em> 2 <em>/
-    vertical-align: baseline; /</em> 3 <em>/
-    *vertical-align: middle; /</em> 3 */
+    font-size: 100%; /<em> 1 </em>/
+    margin: 0; /<em> 2 </em>/
+    vertical-align: baseline; /<em> 3 </em>/
+    <em>vertical-align: middle; /</em> 3 */
 }</p>
-<p>/**
- * Address Firefox 3+ setting <code class="codehilite">line-height</code> on <code class="codehilite">input</code> using <code class="codehilite"><span class="sx">!important</span></code> in
+<p>/*<em>
+ * Address Firefox 3+ setting <code>line-height</code> on <code>input</code> using <code>!important</code> in
  * the UA stylesheet.
- */</p>
+ </em>/</p>
 <p>button,
 input {
     line-height: normal;
 }</p>
-<p>/**
- * Address inconsistent <code class="codehilite">text-transform</code> inheritance for <code class="codehilite">button</code> and <code class="codehilite">select</code>.
- * All other form control elements do not inherit <code class="codehilite">text-transform</code> values.
- * Correct <code class="codehilite">button</code> style inheritance in Chrome, Safari 5+, and IE 6+.
- * Correct <code class="codehilite">select</code> style inheritance in Firefox 4+ and Opera.
- */</p>
+<p>/*<em>
+ * Address inconsistent <code>text-transform</code> inheritance for <code>button</code> and <code>select</code>.
+ * All other form control elements do not inherit <code>text-transform</code> values.
+ * Correct <code>button</code> style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct <code>select</code> style inheritance in Firefox 4+ and Opera.
+ </em>/</p>
 <p>button,
 select {
     text-transform: none;
 }</p>
-<p>/**
- * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native <code class="codehilite">audio</code>
- *    and <code class="codehilite">video</code> controls.
- * 2. Correct inability to style clickable <code class="codehilite">input</code> types in iOS.
+<p>/<em><em>
+ * 1. Avoid the WebKit bug in Android 4.0.</em> where (2) destroys native <code>audio</code>
+ *    and <code>video</code> controls.
+ * 2. Correct inability to style clickable <code>input</code> types in iOS.
  * 3. Improve usability and consistency of cursor style between image-type
- *    <code class="codehilite">input</code> and others.
+ *    <code>input</code> and others.
  * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
  *    Known issue: inner spacing remains in IE 6.
- */</p>
+ </em>/</p>
 <p>button,
-html input[type="button"], /* 1 <em>/
+html input[type="button"], /<em> 1 </em>/
 input[type="reset"],
 input[type="submit"] {
-    -webkit-appearance: button; /</em> 2 <em>/
-    cursor: pointer; /</em> 3 <em>/
-    *overflow: visible;  /</em> 4 */
+    -webkit-appearance: button; /<em> 2 </em>/
+    cursor: pointer; /<em> 3 </em>/
+    <em>overflow: visible;  /</em> 4 */
 }</p>
-<p>/**
+<p>/*<em>
  * Re-set default cursor for disabled elements.
- */</p>
+ </em>/</p>
 <p>button[disabled],
 html input[disabled] {
     cursor: default;
 }</p>
-<p>/**
+<p>/*<em>
  * 1. Address box sizing set to content-box in IE 8/9.
  * 2. Remove excess padding in IE 8/9.
  * 3. Remove excess padding in IE 7.
  *    Known issue: excess padding remains in IE 6.
- */</p>
+ </em>/</p>
 <p>input[type="checkbox"],
 input[type="radio"] {
-    box-sizing: border-box; /* 1 <em>/
-    padding: 0; /</em> 2 <em>/
-    *height: 13px; /</em> 3 <em>/
-    *width: 13px; /</em> 3 */
+    box-sizing: border-box; /<em> 1 </em>/
+    padding: 0; /<em> 2 </em>/
+    <em>height: 13px; /</em> 3 <em>/
+    </em>width: 13px; /<em> 3 </em>/
 }</p>
-<p>/**
- * 1. Address <code class="codehilite">appearance</code> set to <code class="codehilite">searchfield</code> in Safari 5 and Chrome.
- * 2. Address <code class="codehilite">box-sizing</code> set to <code class="codehilite">border-box</code> in Safari 5 and Chrome
- *    (include <code class="codehilite">-moz</code> to future-proof).
- */</p>
+<p>/*<em>
+ * 1. Address <code>appearance</code> set to <code>searchfield</code> in Safari 5 and Chrome.
+ * 2. Address <code>box-sizing</code> set to <code>border-box</code> in Safari 5 and Chrome
+ *    (include <code>-moz</code> to future-proof).
+ </em>/</p>
 <p>input[type="search"] {
-    -webkit-appearance: textfield; /* 1 <em>/
+    -webkit-appearance: textfield; /<em> 1 </em>/
     -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box; /</em> 2 */
+    -webkit-box-sizing: content-box; /<em> 2 </em>/
     box-sizing: content-box;
 }</p>
-<p>/**
+<p>/*<em>
  * Remove inner padding and search cancel button in Safari 5 and Chrome
  * on OS X.
- */</p>
+ </em>/</p>
 <p>input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-decoration {
     -webkit-appearance: none;
 }</p>
-<p>/**
+<p>/*<em>
  * Remove inner padding and border in Firefox 3+.
- */</p>
+ </em>/</p>
 <p>button::-moz-focus-inner,
 input::-moz-focus-inner {
     border: 0;
     padding: 0;
 }</p>
-<p>/**
- * 1. Remove default vertical scrollbar in IE 6/&#8542;/9.
+<p>/*<em>
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
  * 2. Improve readability and alignment in all browsers.
- */</p>
+ </em>/</p>
 <p>textarea {
-    overflow: auto; /* 1 <em>/
-    vertical-align: top; /</em> 2 */
+    overflow: auto; /<em> 1 </em>/
+    vertical-align: top; /<em> 2 </em>/
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Tables
-   ========================================================================== */</p>
-<p>/**
+   ========================================================================== </em>/</p>
+<p>/*<em>
  * Remove most spacing between table cells.
- */</p>
+ </em>/</p>
 <p>table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -810,58 +808,52 @@ input::-moz-focus-inner {
 <p>.codehilite {
     margin: 0 30px 10px 30px;
   }</p>
-<div class="codehilite"><pre><span></span><span class="na">.codehilite</span> <span class="no">pre</span> <span class="err">{</span>
-  <span class="nl">margin:</span> <span class="err">0</span><span class="c">;</span>
-<span class="err">}</span>
-<span class="na">.codehilite</span> <span class="no">.err</span> <span class="err">{</span> <span class="no">background</span><span class="p">:</span> <span class="c">#ff3300; color: #fff !important; }</span>
-</pre></div>
-
-
+<pre><code>.codehilite pre {
+  margin: 0;
+}
+.codehilite .err { background: #ff3300; color: #fff !important; }
+</code></pre>
 <p>table#module-list {
     font-size: 110%;
   }</p>
-<div class="codehilite"><pre><span></span><span class="nt">table</span><span class="p">#</span><span class="nn">module-list</span> <span class="nt">tr</span> <span class="nt">td</span><span class="p">:</span><span class="nd">first-child</span> <span class="p">{</span>
-  <span class="k">padding-right</span><span class="p">:</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">white-space</span><span class="p">:</span> <span class="kc">nowrap</span><span class="p">;</span>
-<span class="p">}</span>
+<pre><code>table#module-list tr td:first-child {
+  padding-right: 10px;
+  white-space: nowrap;
+}
 
-<span class="nt">table</span><span class="p">#</span><span class="nn">module-list</span> <span class="nt">td</span> <span class="p">{</span>
-  <span class="k">vertical-align</span><span class="p">:</span> <span class="kc">top</span><span class="p">;</span>
-  <span class="k">padding-bottom</span><span class="p">:</span> <span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
+table#module-list td {
+  vertical-align: top;
+  padding-bottom: 8px;
+}
 
-  <span class="nt">table</span><span class="p">#</span><span class="nn">module-list</span> <span class="nt">td</span> <span class="nt">p</span> <span class="p">{</span>
-    <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">7</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-</pre></div>
-
-
+  table#module-list td p {
+    margin: 0 0 7px 0;
+  }
+</code></pre>
 <p>.def {
     display: table;
   }</p>
-<div class="codehilite"><pre><span></span><span class="na">.def</span> <span class="no">p</span> <span class="err">{</span>
-  <span class="nl">display:</span> <span class="nf">table-cell</span><span class="c">;</span>
-  <span class="no">vertical-align</span><span class="p">:</span> <span class="no">top</span><span class="c">;</span>
-  <span class="no">text-align</span><span class="p">:</span> <span class="no">left</span><span class="c">;</span>
-<span class="err">}</span>
+<pre><code>.def p {
+  display: table-cell;
+  vertical-align: top;
+  text-align: left;
+}
 
-<span class="na">.def</span> <span class="no">p</span><span class="p">:</span><span class="no">first-child</span> <span class="err">{</span>
-  <span class="nl">white-space:</span> <span class="nf">nowrap</span><span class="c">;</span>
-<span class="err">}</span>
+.def p:first-child {
+  white-space: nowrap;
+}
 
-<span class="na">.def</span> <span class="no">p</span><span class="p">:</span><span class="no">last-child</span> <span class="err">{</span>
-  <span class="nl">width:</span> <span class="err">100%</span><span class="c">;</span>
-<span class="err">}</span>
-</pre></div>
-
-
+.def p:last-child {
+  width: 100%;
+}
+</code></pre>
 <p>#index {
     list-style-type: none;
     margin: 0;
     padding: 0;
   }
     ul#index .class_name {
-      /* font-size: 110%; */
+      /<em> font-size: 110%; </em>/
       font-weight: bold;
     }
     #index ul {
@@ -870,85 +862,83 @@ input::-moz-focus-inner {
 <p>.item {
     margin: 0 0 15px 0;
   }</p>
-<div class="codehilite"><pre><span></span><span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">class</span> <span class="p">{</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">25</span><span class="kt">px</span> <span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
+<pre><code>.item .class {
+  margin: 0 0 25px 30px;
+}
 
-  <span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">class</span> <span class="nt">ul</span><span class="p">.</span><span class="nc">class_list</span> <span class="p">{</span>
-    <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">20</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
+  .item .class ul.class_list {
+    margin: 0 0 20px 0;
+  }
 
-<span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">name</span> <span class="p">{</span>
-  <span class="k">background</span><span class="p">:</span> <span class="mh">#fafafa</span><span class="p">;</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="k">font-weight</span><span class="p">:</span> <span class="kc">bold</span><span class="p">;</span>
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">5</span><span class="kt">px</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">border-radius</span><span class="p">:</span> <span class="mi">3</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">display</span><span class="p">:</span> <span class="kc">inline-block</span><span class="p">;</span>
-  <span class="k">min-width</span><span class="p">:</span> <span class="mi">40</span><span class="kt">%</span><span class="p">;</span>
-<span class="p">}</span>
-  <span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">name</span><span class="p">:</span><span class="nd">hover</span> <span class="p">{</span>
-    <span class="k">background</span><span class="p">:</span> <span class="mh">#f6f6f6</span><span class="p">;</span>
-  <span class="p">}</span>
+.item .name {
+  background: #fafafa;
+  margin: 0;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 3px;
+  display: inline-block;
+  min-width: 40%;
+}
+  .item .name:hover {
+    background: #f6f6f6;
+  }
 
-<span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">empty_desc</span> <span class="p">{</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">5</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+.item .empty_desc {
+  margin: 0 0 5px 0;
+  padding: 0;
+}
 
-<span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">inheritance</span> <span class="p">{</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">3</span><span class="kt">px</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
+.item .inheritance {
+  margin: 3px 0 0 30px;
+}
 
-<span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">inherited</span> <span class="p">{</span>
-  <span class="k">color</span><span class="p">:</span> <span class="mh">#666</span><span class="p">;</span>
-<span class="p">}</span>
+.item .inherited {
+  color: #666;
+}
 
-<span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">desc</span> <span class="p">{</span>
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+.item .desc {
+  padding: 0 8px;
+  margin: 0;
+}
 
-  <span class="p">.</span><span class="nc">item</span> <span class="p">.</span><span class="nc">desc</span> <span class="nt">p</span> <span class="p">{</span>
-    <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">10</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
+  .item .desc p {
+    margin: 0 0 10px 0;
+  }
 
-<span class="p">.</span><span class="nc">source_cont</span> <span class="p">{</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
+.source_cont {
+  margin: 0;
+  padding: 0;
+}
 
-<span class="p">.</span><span class="nc">source_link</span> <span class="nt">a</span> <span class="p">{</span>
-  <span class="k">background</span><span class="p">:</span> <span class="mh">#ffc300</span><span class="p">;</span>
-  <span class="k">font-weight</span><span class="p">:</span> <span class="mi">400</span><span class="p">;</span>
-  <span class="k">font-size</span><span class="p">:</span> <span class="mf">.75</span><span class="kt">em</span><span class="p">;</span>
-  <span class="k">text-transform</span><span class="p">:</span> <span class="kc">uppercase</span><span class="p">;</span>
-  <span class="k">color</span><span class="p">:</span> <span class="mh">#fff</span><span class="p">;</span>
-  <span class="k">text-shadow</span><span class="p">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="mi">1</span><span class="kt">px</span> <span class="mi">0</span> <span class="mh">#f4b700</span><span class="p">;</span>
+.source_link a {
+  background: #ffc300;
+  font-weight: 400;
+  font-size: .75em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 1px 1px 0 #f4b700;
 
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">3</span><span class="kt">px</span> <span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">border-radius</span><span class="p">:</span> <span class="mi">2</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">transition</span><span class="p">:</span> <span class="k">background</span> <span class="mf">.3</span><span class="kt">s</span> <span class="kc">ease-in-out</span><span class="p">;</span>
-<span class="p">}</span>
-  <span class="p">.</span><span class="nc">source_link</span> <span class="nt">a</span><span class="p">:</span><span class="nd">hover</span> <span class="p">{</span>
-    <span class="k">background</span><span class="p">:</span> <span class="mh">#FF7200</span><span class="p">;</span>
-    <span class="k">text-shadow</span><span class="p">:</span> <span class="kc">none</span><span class="p">;</span>
-    <span class="k">transition</span><span class="p">:</span> <span class="k">background</span> <span class="mf">.3</span><span class="kt">s</span> <span class="kc">ease-in-out</span><span class="p">;</span>
-  <span class="p">}</span>
+  padding: 3px 8px;
+  border-radius: 2px;
+  transition: background .3s ease-in-out;
+}
+  .source_link a:hover {
+    background: #FF7200;
+    text-shadow: none;
+    transition: background .3s ease-in-out;
+  }
 
-<span class="p">.</span><span class="nc">source</span> <span class="p">{</span>
-  <span class="k">display</span><span class="p">:</span> <span class="kc">none</span><span class="p">;</span>
-  <span class="k">max-height</span><span class="p">:</span> <span class="mi">600</span><span class="kt">px</span><span class="p">;</span>
-  <span class="k">overflow-y</span><span class="p">:</span> <span class="kc">scroll</span><span class="p">;</span>
-  <span class="k">margin-bottom</span><span class="p">:</span> <span class="mi">15</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
+.source {
+  display: none;
+  max-height: 600px;
+  overflow-y: scroll;
+  margin-bottom: 15px;
+}
 
-  <span class="p">.</span><span class="nc">source</span> <span class="p">.</span><span class="nc">codehilite</span> <span class="p">{</span>
-    <span class="k">margin</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-</pre></div>
-
-
+  .source .codehilite {
+    margin: 0;
+  }
+</code></pre>
 <p>.desc h1, .desc h2, .desc h3 {
     font-size: 100% !important;
   }
@@ -976,195 +966,191 @@ input::-moz-focus-inner {
       width: auto;
       padding: 30px;
     }</p>
-<div class="codehilite"><pre><span></span><span class="p">#</span><span class="nn">index</span> <span class="nt">ul</span> <span class="p">{</span>
-  <span class="k">padding</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="k">margin-bottom</span><span class="p">:</span> <span class="mi">15</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="p">#</span><span class="nn">index</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="p">{</span>
-  <span class="k">display</span><span class="p">:</span> <span class="kc">inline-block</span><span class="p">;</span>
-  <span class="k">margin-right</span><span class="p">:</span> <span class="mi">30</span><span class="kt">px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="p">#</span><span class="nn">footer</span> <span class="p">{</span>
-  <span class="k">text-align</span><span class="p">:</span> <span class="kc">left</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="p">#</span><span class="nn">footer</span> <span class="nt">p</span> <span class="p">{</span>
-  <span class="k">display</span><span class="p">:</span> <span class="kc">block</span><span class="p">;</span>
-  <span class="k">margin</span><span class="p">:</span> <span class="kc">inherit</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
-
+<pre><code>#index ul {
+  padding: 0;
+  margin-bottom: 15px;
+}
+#index ul li {
+  display: inline-block;
+  margin-right: 30px;
+}
+#footer {
+  text-align: left;
+}
+#footer p {
+  display: block;
+  margin: inherit;
+}
+</code></pre>
 <p>}</p>
-<p>/*****************************/</p>
+<p>/<strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong><strong><em>*</em></strong>*/</p>
 </style>
 
 <p><style type="text/css">
   .codehilite .hll { background-color: #ffffcc }
 .codehilite  { background: #f8f8f8; }
-.codehilite .c { color: #408080; font-style: italic } /* Comment <em>/
-.codehilite .err { border: 1px solid #FF0000 } /</em> Error <em>/
-.codehilite .k { color: #008000; font-weight: bold } /</em> Keyword <em>/
-.codehilite .o { color: #666666 } /</em> Operator <em>/
-.codehilite .ch { color: #408080; font-style: italic } /</em> Comment.Hashbang <em>/
-.codehilite .cm { color: #408080; font-style: italic } /</em> Comment.Multiline <em>/
-.codehilite .cp { color: #BC7A00 } /</em> Comment.Preproc <em>/
-.codehilite .cpf { color: #408080; font-style: italic } /</em> Comment.PreprocFile <em>/
-.codehilite .c1 { color: #408080; font-style: italic } /</em> Comment.Single <em>/
-.codehilite .cs { color: #408080; font-style: italic } /</em> Comment.Special <em>/
-.codehilite .gd { color: #A00000 } /</em> Generic.Deleted <em>/
-.codehilite .ge { font-style: italic } /</em> Generic.Emph <em>/
-.codehilite .gr { color: #FF0000 } /</em> Generic.Error <em>/
-.codehilite .gh { color: #000080; font-weight: bold } /</em> Generic.Heading <em>/
-.codehilite .gi { color: #00A000 } /</em> Generic.Inserted <em>/
-.codehilite .go { color: #888888 } /</em> Generic.Output <em>/
-.codehilite .gp { color: #000080; font-weight: bold } /</em> Generic.Prompt <em>/
-.codehilite .gs { font-weight: bold } /</em> Generic.Strong <em>/
-.codehilite .gu { color: #800080; font-weight: bold } /</em> Generic.Subheading <em>/
-.codehilite .gt { color: #0044DD } /</em> Generic.Traceback <em>/
-.codehilite .kc { color: #008000; font-weight: bold } /</em> Keyword.Constant <em>/
-.codehilite .kd { color: #008000; font-weight: bold } /</em> Keyword.Declaration <em>/
-.codehilite .kn { color: #008000; font-weight: bold } /</em> Keyword.Namespace <em>/
-.codehilite .kp { color: #008000 } /</em> Keyword.Pseudo <em>/
-.codehilite .kr { color: #008000; font-weight: bold } /</em> Keyword.Reserved <em>/
-.codehilite .kt { color: #B00040 } /</em> Keyword.Type <em>/
-.codehilite .m { color: #666666 } /</em> Literal.Number <em>/
-.codehilite .s { color: #BA2121 } /</em> Literal.String <em>/
-.codehilite .na { color: #7D9029 } /</em> Name.Attribute <em>/
-.codehilite .nb { color: #008000 } /</em> Name.Builtin <em>/
-.codehilite .nc { color: #0000FF; font-weight: bold } /</em> Name.Class <em>/
-.codehilite .no { color: #880000 } /</em> Name.Constant <em>/
-.codehilite .nd { color: #AA22FF } /</em> Name.Decorator <em>/
-.codehilite .ni { color: #999999; font-weight: bold } /</em> Name.Entity <em>/
-.codehilite .ne { color: #D2413A; font-weight: bold } /</em> Name.Exception <em>/
-.codehilite .nf { color: #0000FF } /</em> Name.Function <em>/
-.codehilite .nl { color: #A0A000 } /</em> Name.Label <em>/
-.codehilite .nn { color: #0000FF; font-weight: bold } /</em> Name.Namespace <em>/
-.codehilite .nt { color: #008000; font-weight: bold } /</em> Name.Tag <em>/
-.codehilite .nv { color: #19177C } /</em> Name.Variable <em>/
-.codehilite .ow { color: #AA22FF; font-weight: bold } /</em> Operator.Word <em>/
-.codehilite .w { color: #bbbbbb } /</em> Text.Whitespace <em>/
-.codehilite .mb { color: #666666 } /</em> Literal.Number.Bin <em>/
-.codehilite .mf { color: #666666 } /</em> Literal.Number.Float <em>/
-.codehilite .mh { color: #666666 } /</em> Literal.Number.Hex <em>/
-.codehilite .mi { color: #666666 } /</em> Literal.Number.Integer <em>/
-.codehilite .mo { color: #666666 } /</em> Literal.Number.Oct <em>/
-.codehilite .sa { color: #BA2121 } /</em> Literal.String.Affix <em>/
-.codehilite .sb { color: #BA2121 } /</em> Literal.String.Backtick <em>/
-.codehilite .sc { color: #BA2121 } /</em> Literal.String.Char <em>/
-.codehilite .dl { color: #BA2121 } /</em> Literal.String.Delimiter <em>/
-.codehilite .sd { color: #BA2121; font-style: italic } /</em> Literal.String.Doc <em>/
-.codehilite .s2 { color: #BA2121 } /</em> Literal.String.Double <em>/
-.codehilite .se { color: #BB6622; font-weight: bold } /</em> Literal.String.Escape <em>/
-.codehilite .sh { color: #BA2121 } /</em> Literal.String.Heredoc <em>/
-.codehilite .si { color: #BB6688; font-weight: bold } /</em> Literal.String.Interpol <em>/
-.codehilite .sx { color: #008000 } /</em> Literal.String.Other <em>/
-.codehilite .sr { color: #BB6688 } /</em> Literal.String.Regex <em>/
-.codehilite .s1 { color: #BA2121 } /</em> Literal.String.Single <em>/
-.codehilite .ss { color: #19177C } /</em> Literal.String.Symbol <em>/
-.codehilite .bp { color: #008000 } /</em> Name.Builtin.Pseudo <em>/
-.codehilite .fm { color: #0000FF } /</em> Name.Function.Magic <em>/
-.codehilite .vc { color: #19177C } /</em> Name.Variable.Class <em>/
-.codehilite .vg { color: #19177C } /</em> Name.Variable.Global <em>/
-.codehilite .vi { color: #19177C } /</em> Name.Variable.Instance <em>/
-.codehilite .vm { color: #19177C } /</em> Name.Variable.Magic <em>/
-.codehilite .il { color: #666666 } /</em> Literal.Number.Integer.Long */
+.codehilite .c { color: #408080; font-style: italic } /<em> Comment </em>/
+.codehilite .err { border: 1px solid #FF0000 } /<em> Error </em>/
+.codehilite .k { color: #008000; font-weight: bold } /<em> Keyword </em>/
+.codehilite .o { color: #666666 } /<em> Operator </em>/
+.codehilite .ch { color: #408080; font-style: italic } /<em> Comment.Hashbang </em>/
+.codehilite .cm { color: #408080; font-style: italic } /<em> Comment.Multiline </em>/
+.codehilite .cp { color: #BC7A00 } /<em> Comment.Preproc </em>/
+.codehilite .cpf { color: #408080; font-style: italic } /<em> Comment.PreprocFile </em>/
+.codehilite .c1 { color: #408080; font-style: italic } /<em> Comment.Single </em>/
+.codehilite .cs { color: #408080; font-style: italic } /<em> Comment.Special </em>/
+.codehilite .gd { color: #A00000 } /<em> Generic.Deleted </em>/
+.codehilite .ge { font-style: italic } /<em> Generic.Emph </em>/
+.codehilite .gr { color: #FF0000 } /<em> Generic.Error </em>/
+.codehilite .gh { color: #000080; font-weight: bold } /<em> Generic.Heading </em>/
+.codehilite .gi { color: #00A000 } /<em> Generic.Inserted </em>/
+.codehilite .go { color: #888888 } /<em> Generic.Output </em>/
+.codehilite .gp { color: #000080; font-weight: bold } /<em> Generic.Prompt </em>/
+.codehilite .gs { font-weight: bold } /<em> Generic.Strong </em>/
+.codehilite .gu { color: #800080; font-weight: bold } /<em> Generic.Subheading </em>/
+.codehilite .gt { color: #0044DD } /<em> Generic.Traceback </em>/
+.codehilite .kc { color: #008000; font-weight: bold } /<em> Keyword.Constant </em>/
+.codehilite .kd { color: #008000; font-weight: bold } /<em> Keyword.Declaration </em>/
+.codehilite .kn { color: #008000; font-weight: bold } /<em> Keyword.Namespace </em>/
+.codehilite .kp { color: #008000 } /<em> Keyword.Pseudo </em>/
+.codehilite .kr { color: #008000; font-weight: bold } /<em> Keyword.Reserved </em>/
+.codehilite .kt { color: #B00040 } /<em> Keyword.Type </em>/
+.codehilite .m { color: #666666 } /<em> Literal.Number </em>/
+.codehilite .s { color: #BA2121 } /<em> Literal.String </em>/
+.codehilite .na { color: #7D9029 } /<em> Name.Attribute </em>/
+.codehilite .nb { color: #008000 } /<em> Name.Builtin </em>/
+.codehilite .nc { color: #0000FF; font-weight: bold } /<em> Name.Class </em>/
+.codehilite .no { color: #880000 } /<em> Name.Constant </em>/
+.codehilite .nd { color: #AA22FF } /<em> Name.Decorator </em>/
+.codehilite .ni { color: #999999; font-weight: bold } /<em> Name.Entity </em>/
+.codehilite .ne { color: #D2413A; font-weight: bold } /<em> Name.Exception </em>/
+.codehilite .nf { color: #0000FF } /<em> Name.Function </em>/
+.codehilite .nl { color: #A0A000 } /<em> Name.Label </em>/
+.codehilite .nn { color: #0000FF; font-weight: bold } /<em> Name.Namespace </em>/
+.codehilite .nt { color: #008000; font-weight: bold } /<em> Name.Tag </em>/
+.codehilite .nv { color: #19177C } /<em> Name.Variable </em>/
+.codehilite .ow { color: #AA22FF; font-weight: bold } /<em> Operator.Word </em>/
+.codehilite .w { color: #bbbbbb } /<em> Text.Whitespace </em>/
+.codehilite .mb { color: #666666 } /<em> Literal.Number.Bin </em>/
+.codehilite .mf { color: #666666 } /<em> Literal.Number.Float </em>/
+.codehilite .mh { color: #666666 } /<em> Literal.Number.Hex </em>/
+.codehilite .mi { color: #666666 } /<em> Literal.Number.Integer </em>/
+.codehilite .mo { color: #666666 } /<em> Literal.Number.Oct </em>/
+.codehilite .sa { color: #BA2121 } /<em> Literal.String.Affix </em>/
+.codehilite .sb { color: #BA2121 } /<em> Literal.String.Backtick </em>/
+.codehilite .sc { color: #BA2121 } /<em> Literal.String.Char </em>/
+.codehilite .dl { color: #BA2121 } /<em> Literal.String.Delimiter </em>/
+.codehilite .sd { color: #BA2121; font-style: italic } /<em> Literal.String.Doc </em>/
+.codehilite .s2 { color: #BA2121 } /<em> Literal.String.Double </em>/
+.codehilite .se { color: #BB6622; font-weight: bold } /<em> Literal.String.Escape </em>/
+.codehilite .sh { color: #BA2121 } /<em> Literal.String.Heredoc </em>/
+.codehilite .si { color: #BB6688; font-weight: bold } /<em> Literal.String.Interpol </em>/
+.codehilite .sx { color: #008000 } /<em> Literal.String.Other </em>/
+.codehilite .sr { color: #BB6688 } /<em> Literal.String.Regex </em>/
+.codehilite .s1 { color: #BA2121 } /<em> Literal.String.Single </em>/
+.codehilite .ss { color: #19177C } /<em> Literal.String.Symbol </em>/
+.codehilite .bp { color: #008000 } /<em> Name.Builtin.Pseudo </em>/
+.codehilite .fm { color: #0000FF } /<em> Name.Function.Magic </em>/
+.codehilite .vc { color: #19177C } /<em> Name.Variable.Class </em>/
+.codehilite .vg { color: #19177C } /<em> Name.Variable.Global </em>/
+.codehilite .vi { color: #19177C } /<em> Name.Variable.Instance </em>/
+.codehilite .vm { color: #19177C } /<em> Name.Variable.Magic </em>/
+.codehilite .il { color: #666666 } /<em> Literal.Number.Integer.Long </em>/
   </style></p>
 <style type="text/css">
 
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.
    Modify as content requires.
-   ========================================================================== */</p>
+   ========================================================================== </em>/</p>
 <p>@media only screen and (min-width: 35em) {
-    /* Style adjustments for viewports that meet the condition */
+    /<em> Style adjustments for viewports that meet the condition </em>/
 }</p>
 <p>@media print,
        (-o-min-device-pixel-ratio: 5/4),
        (-webkit-min-device-pixel-ratio: 1.25),
        (min-resolution: 120dpi) {
-    /* Style adjustments for high resolution devices */
+    /<em> Style adjustments for high resolution devices </em>/
 }</p>
-<p>/* ==========================================================================
+<p>/<em> ==========================================================================
    Print styles.
    Inlined to avoid required HTTP connection: h5bp.com/r
-   ========================================================================== */</p>
+   ========================================================================== </em>/</p>
 <p>@media print {
     * {
         background: transparent !important;
-        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        color: #000 !important; /<em> Black prints faster: h5bp.com/s </em>/
         box-shadow: none !important;
         text-shadow: none !important;
     }</p>
-<div class="codehilite"><pre><span></span><span class="nt">a</span><span class="o">,</span>
-<span class="nt">a</span><span class="p">:</span><span class="nd">visited</span> <span class="p">{</span>
-    <span class="k">text-decoration</span><span class="p">:</span> <span class="kc">underline</span><span class="p">;</span>
-<span class="p">}</span>
+<pre><code>a,
+a:visited {
+    text-decoration: underline;
+}
 
-<span class="nt">a</span><span class="cp">[</span><span class="nx">href</span><span class="cp">]</span><span class="p">:</span><span class="nd">after</span> <span class="p">{</span>
-    <span class="k">content</span><span class="p">:</span> <span class="s2">&quot; (&quot;</span> <span class="nb">attr</span><span class="p">(</span><span class="n">href</span><span class="p">)</span> <span class="s2">&quot;)&quot;</span><span class="p">;</span>
-<span class="p">}</span>
+a[href]:after {
+    content: " (" attr(href) ")";
+}
 
-<span class="nt">abbr</span><span class="cp">[</span><span class="nx">title</span><span class="cp">]</span><span class="p">:</span><span class="nd">after</span> <span class="p">{</span>
-    <span class="k">content</span><span class="p">:</span> <span class="s2">&quot; (&quot;</span> <span class="nb">attr</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="s2">&quot;)&quot;</span><span class="p">;</span>
-<span class="p">}</span>
+abbr[title]:after {
+    content: " (" attr(title) ")";
+}
 
-<span class="c">/*</span>
-<span class="c"> * Don&#39;t show links for images, or javascript/internal links</span>
-<span class="c"> */</span>
+/*
+ * Don't show links for images, or javascript/internal links
+ */
 
-<span class="p">.</span><span class="nc">ir</span> <span class="nt">a</span><span class="p">:</span><span class="nd">after</span><span class="o">,</span>
-<span class="nt">a</span><span class="cp">[</span><span class="nx">href</span><span class="p">^</span><span class="o">=</span><span class="s2">&quot;javascript:&quot;</span><span class="cp">]</span><span class="p">:</span><span class="nd">after</span><span class="o">,</span>
-<span class="nt">a</span><span class="cp">[</span><span class="nx">href</span><span class="p">^</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="cp">]</span><span class="p">:</span><span class="nd">after</span> <span class="p">{</span>
-    <span class="k">content</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
-<span class="p">}</span>
+.ir a:after,
+a[href^="javascript:"]:after,
+a[href^="#"]:after {
+    content: "";
+}
 
-<span class="nt">pre</span><span class="o">,</span>
-<span class="nt">blockquote</span> <span class="p">{</span>
-    <span class="k">border</span><span class="p">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="kc">solid</span> <span class="mh">#999</span><span class="p">;</span>
-    <span class="k">page-break-inside</span><span class="p">:</span> <span class="kc">avoid</span><span class="p">;</span>
-<span class="p">}</span>
+pre,
+blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+}
 
-<span class="nt">thead</span> <span class="p">{</span>
-    <span class="k">display</span><span class="p">:</span> <span class="kc">table-header-group</span><span class="p">;</span> <span class="c">/* h5bp.com/t */</span>
-<span class="p">}</span>
+thead {
+    display: table-header-group; /* h5bp.com/t */
+}
 
-<span class="nt">tr</span><span class="o">,</span>
-<span class="nt">img</span> <span class="p">{</span>
-    <span class="k">page-break-inside</span><span class="p">:</span> <span class="kc">avoid</span><span class="p">;</span>
-<span class="p">}</span>
+tr,
+img {
+    page-break-inside: avoid;
+}
 
-<span class="nt">img</span> <span class="p">{</span>
-    <span class="k">max-width</span><span class="p">:</span> <span class="mi">100</span><span class="kt">%</span> <span class="cp">!important</span><span class="p">;</span>
-<span class="p">}</span>
+img {
+    max-width: 100% !important;
+}
 
-<span class="p">@</span><span class="k">page</span> <span class="p">{</span>
-    <span class="nt">margin</span><span class="o">:</span> <span class="nt">0</span><span class="p">.</span><span class="nc">5cm</span><span class="o">;</span>
-<span class="p">}</span>
+@page {
+    margin: 0.5cm;
+}
 
-<span class="nt">p</span><span class="o">,</span>
-<span class="nt">h2</span><span class="o">,</span>
-<span class="nt">h3</span> <span class="p">{</span>
-    <span class="k">orphans</span><span class="p">:</span> <span class="mi">3</span><span class="p">;</span>
-    <span class="k">widows</span><span class="p">:</span> <span class="mi">3</span><span class="p">;</span>
-<span class="p">}</span>
+p,
+h2,
+h3 {
+    orphans: 3;
+    widows: 3;
+}
 
-<span class="nt">h2</span><span class="o">,</span>
-<span class="nt">h3</span> <span class="p">{</span>
-    <span class="k">page-break-after</span><span class="p">:</span> <span class="kc">avoid</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></div>
-
-
+h2,
+h3 {
+    page-break-after: avoid;
+}
+</code></pre>
 <p>}</p>
 </style>
 
 <p><script type="text/javascript">
-  function toggle(id, <span>\(link) {
-    <span>\(node = document.getElementById(id);
-    if (!\)</span>node)
+  function toggle(id, $link) {
+    $node = document.getElementById(id);
+    if (!$node)
     return;
-    if (!\)</span>node.style.display || $node.style.display == 'none') {
+    if (!$node.style.display || $node.style.display == 'none') {
     $node.style.display = 'block';
     $link.innerHTML = 'Hide source &nequiv;';
     } else {
