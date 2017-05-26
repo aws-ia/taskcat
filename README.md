@@ -7,13 +7,19 @@
 Please report bugs here https://github.com/aws-quickstart/taskcat/issues
  
 ## What is taskcat? 
-taskcat is a python Class that helps deploy your cloudformation templates in multiple regions. You can use taskcat by importing the module and creating a taskcat object. 
+TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.
+ 
+TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
+templates across AWS Regions
 
-## Setting up Test Cases 
-* Step 1 Define your test in the config.yml
-* Step 2 Build a json input file for your cloudformation template.
+## Files you’ll need
+**config.yml** - This file contains the test cases
+**JSON input** - This file contains the imputs that you want to pass to AWS CloudFormation template that is being tested
 
-### Step 1 Creating a config.ymal
+* Step 1 Building your configuration file 
+* Step 2 Building your JSON input file.
+
+#### Step 1 Creating a config.ymal
 You can generate a sample config.ymal by running `taskcat -ey`
 The followup's command will create a sample config.yml
 ```
@@ -34,32 +40,33 @@ Open the config.yml file with and editor and update the filenames to match your 
     tests:
       # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
       senario-1:
-        parameter_input: sample-cloudformation-input.json
         regions:
           - us-west-1
           - us-east-1
-        template_file: sample-cloudformation-project-withvpc.template
+        template_file: sample-cloudformation-project-novpc.template
+        parameter_input: sample-cloudformation-input-novpc.json
       # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs
           senario-all-regions:
-        parameter_input: sample-cloudformation-input.jsonon
+        parameter_input: sample-cloudformation-input-withvpc.json
         template_file: sample-cloudformation-project-withvpc.template
 
 #### Example of project directory structure
     sample-cloudformation-project/
     ├── LICENSE.txt
     ├── README.md
-    ├── ci
-    │   └── config.yml <- This the config file that will hold all the test definitions 
-    │   └──  sample-cloudformation-input.json <-  This file contain input that will pass in during stack creation (See auto parms for more info)
-        ├── scripts
-        │   └── userdata.sh <- If you have userdata scripts you can load then in the scripts directory
-        ├── submodules  <- If you have git submodules you can load them in the submodules directory
-        │   └── quickstart-aws-vpc
-        │       └── templates
-        │           └── aws-vpc.template
-        └── templates
-            ├── sample-cloudformation-project-novpc.template 
-            └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the worklo    ad 
+    └── ci
+       ├── config.yml <- This the config file that will hold all the test definitions 
+       ├──  sample-cloudformation-input-novpc.json <-  This file contain input that will pass in during stack creation [vpc version] (See auto parms for more info)
+       ├──  sample-cloudformation-input-withvpc.json <-  This file contain input that will pass in during stack creation [no-vpc version](See auto parms for more info)
+       ├── scripts
+       │   └── userdata.sh <- If you have userdata scripts you can load then in the scripts directory
+       ├── submodules  <- If you have git submodules you can load them in the submodules directory
+       │   └── quickstart-aws-vpc
+       │       └── templates
+       │           └── aws-vpc.template
+       └── templates
+           ├── sample-cloudformation-project-novpc.template 
+           └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the worklo    ad 
 
 
 ### Step 2 Building a json input file
@@ -144,32 +151,31 @@ Value that matches the following pattern will be replaced
 > Generates: us-east-1a, us-east-2b
 > (if the region is us-east-1)
 
-## Installing taskcat
+## Installing TaskCat
 
-### Installing taskcat (Option 1)
+### Installing TaskCat (Option 1)
 > Prerequisites: Python 3.5+ and pip
-
-    curl -s https://github.com/aws-quickstart/taskcat/blob/master/installer/pip/pip3-install-master| python -E
-
-### Installing taskcat via docker (Option 2) 
+```
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
+```
+### Installing TaskCat via docker (Option 2) 
 > Prerequisites: docker
-
-    curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
-
+```
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
+```
 > Note: (If you do not have root privileges taskcat will install in the current directory)
 
-### Run taskcat
+### Running TaskCat
 
 If you have AWS credentials sourced 
-    
+```
      taskcat -c sample-cloudformation-project/ci/config.yml
-
-
+```
 If you need to pass ACCESS and SECRET keys
-
-    taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
-
+```
+taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+```
 If you want to use a different account or profile
-
-    taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
-
+```
+taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+```

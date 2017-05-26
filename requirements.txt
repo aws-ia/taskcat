@@ -1,5 +1,3 @@
-yaml
-yaml
 boto3>=1.4.3
 pyfiglet==0.7.5
 PyYAML==3.11

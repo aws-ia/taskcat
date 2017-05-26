@@ -1,5 +1,0 @@
-boto3
-pyfiglet
-pyyaml
-tabulate
-yattag

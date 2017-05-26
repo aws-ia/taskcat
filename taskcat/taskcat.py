@@ -972,7 +972,7 @@ class TaskCat(object):
 
     def deep_cleanup(self, testdata_list):
         """
-        This function deletes the AWS resources which couldn't be deleted
+        This function deletes the AWS resources which were not deleted
         by deleting CloudFormation stacks.
 
         :param testdata_list: List of TestData objects

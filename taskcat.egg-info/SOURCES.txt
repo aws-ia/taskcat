@@ -1,9 +1,0 @@
-setup.cfg
-setup.py
-taskcat/__init__.py
-taskcat/taskcat.py
-taskcat.egg-info/PKG-INFO
-taskcat.egg-info/SOURCES.txt
-taskcat.egg-info/dependency_links.txt
-taskcat.egg-info/requires.txt
-taskcat.egg-info/top_level.txt

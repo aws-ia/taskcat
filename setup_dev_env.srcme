@@ -1,5 +1,0 @@
-# source this file to point to local taskcat module
-# Useage source setup_dev_env.srcme
-
-export PYTHONPATH=`pwd`/taskcat
-echo "PYTHONPATH set to => $PYTHONPATH"
