@@ -7,7 +7,7 @@ FROM centos:latest
 MAINTAINER "Tony Vattathil" tonynv@amazon.com
 
 # Version
-LABEL version=1.70
+LABEL version=1.71
 
 # Operating Systems
 LABEL container-os: centos

@@ -39,11 +39,13 @@ import yattag
 from botocore.client import Config
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
+from pkg_resources import get_distribution
 
-from .sweeper import Sweeper
+from taskcat.sweeper import Sweeper
 
 # Version Tag
-version = '0.1.75'
+__version__ = get_distribution('taskcat').version
+version=__version__
 debug = ''
 error = ''
 check = ''

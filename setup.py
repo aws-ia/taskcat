@@ -7,7 +7,7 @@ setup(
     author='Tony Vattathil, Santiago Cardenas, Shivansh Singh',
     author_email='tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com',
     url='https://aws-quickstart.github.io/taskcat/',
-    version='0.1.75',
+    version='0.1.76',
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
     classifiers=[
@@ -22,6 +22,6 @@ setup(
 
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 
-    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag'],
+    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'pkg_resources'],
 
 )
