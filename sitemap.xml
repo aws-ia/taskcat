@@ -3,7 +3,7 @@
 
     
     <url>
-     <loc>http://taskcat.io/</loc>
+     <loc>http://aws-quickstart.github.io/taskcat//</loc>
      <lastmod>2017-05-26</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -11,7 +11,7 @@
 
     
     <url>
-     <loc>http://taskcat.io/pip/taskcat.m/</loc>
+     <loc>http://aws-quickstart.github.io/taskcat//pip/taskcat.m/</loc>
      <lastmod>2017-05-26</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -19,7 +19,7 @@
 
     
     <url>
-     <loc>http://taskcat.io/pip/sweeper.m/</loc>
+     <loc>http://aws-quickstart.github.io/taskcat//pip/sweeper.m/</loc>
      <lastmod>2017-05-26</lastmod>
      <changefreq>daily</changefreq>
     </url>
