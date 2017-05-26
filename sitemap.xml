@@ -11,7 +11,15 @@
 
     
     <url>
-     <loc>http://taskcat.io/pip/taskcat/</loc>
+     <loc>http://taskcat.io/pip/taskcat.m/</loc>
+     <lastmod>2017-05-26</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://taskcat.io/pip/sweeper.m/</loc>
      <lastmod>2017-05-26</lastmod>
      <changefreq>daily</changefreq>
     </url>
