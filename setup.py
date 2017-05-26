@@ -1,4 +1,25 @@
 from setuptools import setup
+import re
+import os
+import requests
+def get_pip_version(pkginfo_url):
+    pkginfo = requests.get(pkginfo_url).text
+    for record in pkginfo.split('\n'):
+        if  record.startswith('Version'):
+            current_version = str(record).split(':',1)
+            return (current_version[1]).strip()
+
+
+if os.path.isfile('branch_master'):
+   print ("master branch")
+   current__version = get_pip_version('https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+else:
+   print ("develop branch")
+   current__version = get_pip_version('https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+
+new_version =re.sub('\d$', lambda x: str(int(x.group(0)) + 1), current__version)
+
+exit()
 
 setup(
     name='taskcat',
@@ -7,7 +28,7 @@ setup(
     author='Tony Vattathil, Santiago Cardenas, Shivansh Singh',
     author_email='tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com',
     url='https://aws-quickstart.github.io/taskcat/',
-    version='0.1.76',
+    version=new_version,
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
     classifiers=[
@@ -22,6 +43,6 @@ setup(
 
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 
-    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'pkg_resources'],
+    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'pkg_resources']
 
 )
