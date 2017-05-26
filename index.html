@@ -278,11 +278,32 @@ This program requires python3 </p>
 <h3 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h3>
 <p>You can generate a sample config.ymal by running <code class="codehilite">taskcat -ey</code>
 The followup's command will create a sample config.yml
-<div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
 </pre></div>
+</td></tr></table>
 Open the config.yml file with and editor and update the filenames to match your need. </p>
 <h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><span class="n">global</span><span class="o">:</span>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="n">global</span><span class="o">:</span>
   <span class="n">owner</span><span class="o">:</span> <span class="n">owner</span><span class="err">@</span><span class="n">company</span><span class="o">.</span><span class="na">com</span>
   <span class="n">project</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span> <span class="o">&lt;-</span> <span class="n">Must</span> <span class="n">match</span> <span class="n">the</span> <span class="n">root</span> <span class="n">directory</span> <span class="n">of</span> <span class="n">project</span> <span class="o">(</span><span class="n">usually</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">git</span> <span class="n">repo</span><span class="o">)</span>
   <span class="err">#</span><span class="n">s3bucket</span><span class="o">:</span> <span class="n">projectx</span><span class="o">-</span><span class="n">templates</span> <span class="o">&lt;-</span> <span class="o">(</span><span class="n">Optional</span><span class="o">)</span> <span class="n">Only</span> <span class="n">needed</span> <span class="k">if</span> <span class="n">you</span> <span class="n">want</span> <span class="n">to</span> <span class="n">use</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">bucket</span> 
@@ -304,10 +325,24 @@ Open the config.yml file with and editor and update the filenames to match your 
     <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">jsonon</span>
     <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
 </pre></div>
-
+</td></tr></table>
 
 <h4 id="example-of-project-directory-structure">Example of project directory structure<a class="headerlink" href="#example-of-project-directory-structure" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">/</span>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">/</span>
 ├── LICENSE.txt
 ├── README.md
 ├── ci
@@ -323,7 +358,7 @@ Open the config.yml file with and editor and update the filenames to match your 
         ├── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>novpc.template 
         └── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>withvpc.template <span class="o">&lt;-</span> Second version on template that will create a vpc with the worklo    ad
 </pre></div>
-
+</td></tr></table>
 
 <h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file<a class="headerlink" href="#step-2-building-a-json-input-file" title="Permanent link">&para;</a></h3>
 <p>The example below shows an input file for a stack that requires four parameters <code class="codehilite">KeyPair</code>,<code class="codehilite">InstanceType</code>, <code class="codehilite">AvailablityZones</code> and <code class="codehilite">Password</code></p>
@@ -332,7 +367,24 @@ Open the config.yml file with and editor and update the filenames to match your 
 <p>The following json will evaluate</p>
 </blockquote>
 <h4 id="from">From:<a class="headerlink" href="#from" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span>[
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[
     {
     &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
     &quot;ParameterValue&quot;: &quot;mykey&quot;
@@ -351,10 +403,27 @@ Open the config.yml file with and editor and update the filenames to match your 
     }, 
 ]
 </pre></div>
-
+</td></tr></table>
 
 <h4 id="to">To:<a class="headerlink" href="#to" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span>[
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[
     {
     &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
     &quot;ParameterValue&quot;: &quot;mykey&quot;
@@ -373,7 +442,7 @@ Open the config.yml file with and editor and update the filenames to match your 
     }, 
 ]
 </pre></div>
-
+</td></tr></table>
 
 <h4 id="more-information-on-auto-generated-stack-inputs">More information on Auto-generated stack inputs<a class="headerlink" href="#more-information-on-auto-generated-stack-inputs" title="Permanent link">&para;</a></h4>
 <h3 id="passwords">(Passwords)<a class="headerlink" href="#passwords" title="Permanent link">&para;</a></h3>
@@ -413,35 +482,36 @@ Generates: us-east-1a, us-east-2b
 <blockquote>
 <p>Prerequisites: Python 3.5+ and pip</p>
 </blockquote>
-<div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
 </pre></div>
-
+</td></tr></table>
 
 <h3 id="installing-taskcat-via-docker-option-2">Installing taskcat via docker (Option 2)<a class="headerlink" href="#installing-taskcat-via-docker-option-2" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: docker</p>
 </blockquote>
-<div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 </pre></div>
-
+</td></tr></table>
 
 <blockquote>
 <p>Note: (If you do not have root privileges taskcat will install in the current directory)</p>
 </blockquote>
 <h3 id="run-taskcat">Run taskcat<a class="headerlink" href="#run-taskcat" title="Permanent link">&para;</a></h3>
 <p>If you have AWS credentials sourced </p>
-<div class="codehilite"><pre><span></span> taskcat -c sample-cloudformation-project/ci/config.yml
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span> taskcat -c sample-cloudformation-project/ci/config.yml
 </pre></div>
-
+</td></tr></table>
 
 <p>If you need to pass ACCESS and SECRET keys</p>
-<div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
-
+</td></tr></table>
 
 <p>If you want to use a different account or profile</p>
-<div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
 </pre></div>
+</td></tr></table>
                 
                   
                 
