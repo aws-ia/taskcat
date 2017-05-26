@@ -156,7 +156,7 @@ Value that matches the following pattern will be replaced
 ### Installing TaskCat (Option 1)
 > Prerequisites: Python 3.5+ and pip
 ```
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
+curl -s curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
 ```
 ### Installing TaskCat via docker (Option 2) 
 > Prerequisites: docker
