@@ -1,20 +1,20 @@
 
-# taskcat
+# TaskCat
 > version = '0.1.76'
 > This program requires python3 
 
 # Currently in beta release
 Please report bugs here https://github.com/aws-quickstart/taskcat/issues
  
-## What is taskcat? 
+## What is TaskCat? 
 TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.
  
 TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
 templates across AWS Regions
 
 ## Files you’ll need
-**config.yml** - This file contains the test cases
-**JSON input** - This file contains the imputs that you want to pass to AWS CloudFormation template that is being tested
+* **config.yml** - This file contains the test cases
+* **JSON input** - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested
 
 * Step 1 Building your configuration file 
 * Step 2 Building your JSON input file.
@@ -39,14 +39,14 @@ Open the config.yml file with and editor and update the filenames to match your 
         - us-west-2
     tests:
       # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
-      senario-1:
+      scenario-1:
         regions:
           - us-west-1
           - us-east-1
         template_file: sample-cloudformation-project-novpc.template
         parameter_input: sample-cloudformation-input-novpc.json
       # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs
-          senario-all-regions:
+          scenario-all-regions:
         parameter_input: sample-cloudformation-input-withvpc.json
         template_file: sample-cloudformation-project-withvpc.template
 
@@ -66,7 +66,7 @@ Open the config.yml file with and editor and update the filenames to match your 
        │           └── aws-vpc.template
        └── templates
            ├── sample-cloudformation-project-novpc.template 
-           └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the worklo    ad 
+           └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload 
 
 
 ### Step 2 Building a json input file
@@ -127,11 +127,11 @@ Value that matches the following pattern will be replaced
  * Parameters must start with $[
  * Parameters must end with ]
  * genpass in invoked when _genpass_X is found
- * X is lengeth of the string
+ * X is length of the string
 
 (Optionally - you can specify the type of password by adding A or S)
 
- * A aplha-numeric passwords
+ * A alpha-numeric passwords
  * S passwords with special characters
 
 > Example: $[taskcat_genpass_8A]
@@ -139,7 +139,7 @@ Value that matches the following pattern will be replaced
 > Example: $[taskcat_genpass_8S]
 > Generates: mA5@cB5!
 
-### (Availablity Zones)
+### (Availability Zones)
 Value that matches the following pattern will be replaced
 
 * Parameters must start with $[
@@ -154,7 +154,7 @@ Value that matches the following pattern will be replaced
 ## Installing TaskCat
 
 ### Installing TaskCat (Option 1)
-> Prerequisites: Python 3.5+ and pip
+> Prerequisites: Python 3.5+ and pip3
 ```
 curl -s curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
 ```
@@ -169,7 +169,7 @@ curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installe
 
 If you have AWS credentials sourced 
 ```
-     taskcat -c sample-cloudformation-project/ci/config.yml
+taskcat -c sample-cloudformation-project/ci/config.yml
 ```
 If you need to pass ACCESS and SECRET keys
 ```
