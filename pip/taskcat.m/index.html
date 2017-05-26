@@ -361,242 +361,242 @@
     :<span class="kt">return</span><span class="o">:</span>
 
 <span class="nx">deep_cleanup</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">)</span>
-    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">deletes</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">resources</span> <span class="nx">which</span> <span class="nx">couldn</span><span class="s1">&#39;t be deleted</span>
-<span class="s1">    by deleting CloudFormation stacks.</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">deletes</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">resources</span> <span class="nx">which</span> <span class="nx">were</span> <span class="nx">not</span> <span class="nx">deleted</span>
+    <span class="nx">by</span> <span class="nx">deleting</span> <span class="nx">CloudFormation</span> <span class="nx">stacks.</span>
 
-<span class="s1">    :param testdata_list: List of TestData objects</span>
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
 
-<span class="s1">define_tests(self, yamlc, test)</span>
-<span class="s1">    This function reads the given test config yaml object and defines</span>
-<span class="s1">    the tests as per the given config object.</span>
+<span class="nx">define_tests</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">yamlc</span><span class="p">,</span> <span class="nx">test</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">reads</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">test</span> <span class="nx">config</span> <span class="nx">yaml</span> <span class="nx">object</span> <span class="nx">and</span> <span class="nx">defines</span>
+    <span class="nx">the</span> <span class="nx">tests</span> <span class="kr">as</span> <span class="nx">per</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">config</span> <span class="nx">object.</span>
 
-<span class="s1">    :param yamlc: TaskCat config yaml object</span>
-<span class="s1">    :param test: Test scenarios</span>
+    :<span class="kt">param</span> <span class="nx">yamlc</span>: <span class="kt">TaskCat</span> <span class="nx">config</span> <span class="nx">yaml</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">test</span>: <span class="kt">Test</span> <span class="nx">scenarios</span>
 
-<span class="s1">genpassword(self, pass_length, pass_type)</span>
-<span class="s1">    Returns a password of given length and type.</span>
+<span class="nx">genpassword</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">pass_length</span><span class="p">,</span> <span class="nx">pass_type</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">password</span> <span class="nx">of</span> <span class="nx">given</span> <span class="nx">length</span> <span class="nx">and</span> <span class="nx">type.</span>
 
-<span class="s1">    :param pass_length: Length of the desired password</span>
-<span class="s1">    :param pass_type: Type of the desired password - String only OR Alphanumeric</span>
-<span class="s1">        * A = AlphaNumeric, Example &#39;</span><span class="nx">vGceIP8EHC</span><span class="s1">&#39;</span>
-<span class="s1">    :return: Password of given length and type</span>
+    :<span class="kt">param</span> <span class="nx">pass_length</span>: <span class="kt">Length</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">desired</span> <span class="nx">password</span>
+    :<span class="kt">param</span> <span class="nx">pass_type</span>: <span class="kt">Type</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">desired</span> <span class="nx">password</span> <span class="o">-</span> <span class="nb">String</span> <span class="nx">only</span> <span class="nx">OR</span> <span class="nx">Alphanumeric</span>
+        <span class="o">*</span> <span class="nx">A</span> <span class="o">=</span> <span class="nx">AlphaNumeric</span><span class="p">,</span> <span class="nx">Example</span> <span class="s1">&#39;vGceIP8EHC&#39;</span>
+    <span class="o">:</span><span class="k">return</span><span class="o">:</span> <span class="nx">Password</span> <span class="nx">of</span> <span class="nx">given</span> <span class="nx">length</span> <span class="nx">and</span> <span class="nx">type</span>
 
-<span class="s1">genreport(self, testdata_list, dashboard_filename)</span>
-<span class="s1">    This function generates the test report.</span>
+<span class="nx">genreport</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">dashboard_filename</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">generates</span> <span class="nx">the</span> <span class="nx">test</span> <span class="nx">report.</span>
 
-<span class="s1">    :param testdata_list: List of TestData objects</span>
-<span class="s1">    :param dashboard_filename: Report file name</span>
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
+    :<span class="kt">param</span> <span class="nx">dashboard_filename</span>: <span class="kt">Report</span> <span class="nx">file</span> <span class="nx">name</span>
 
-<span class="s1">get_all_resources(self, stackids, region)</span>
-<span class="s1">    Given a list of stackids, function returns the list of dictionary items, where each</span>
-<span class="s1">    item consist of stackId and the resources associated with that stack.</span>
+<span class="nx">get_all_resources</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stackids</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
+    <span class="nx">Given</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">stackids</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">dictionary</span> <span class="nx">items</span><span class="p">,</span> <span class="nx">where</span> <span class="nx">each</span>
+    <span class="nx">item</span> <span class="nx">consist</span> <span class="nx">of</span> <span class="nx">stackId</span> <span class="nx">and</span> <span class="nx">the</span> <span class="nx">resources</span> <span class="nx">associated</span> <span class="kd">with</span> <span class="nx">that</span> <span class="nx">stack.</span>
 
-<span class="s1">    :param stackids: List of Stack Ids</span>
-<span class="s1">    :param region: AWS region</span>
-<span class="s1">    :return: A list of dictionary object in the following format</span>
-<span class="s1">            [</span>
-<span class="s1">                {</span>
-<span class="s1">                    &#39;</span><span class="nx">stackId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
-<span class="s1">                    &#39;</span><span class="nx">resources</span><span class="s1">&#39;: [</span>
-<span class="s1">                        {</span>
-<span class="s1">                           &#39;</span><span class="nx">logicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
-<span class="s1">                           &#39;</span><span class="nx">physicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
-<span class="s1">                           &#39;</span><span class="nx">resourceType</span><span class="s1">&#39;: &#39;</span><span class="nb">String</span><span class="s1">&#39;</span>
-<span class="s1">                        },</span>
-<span class="s1">                    ]</span>
-<span class="s1">                },</span>
-<span class="s1">            ]</span>
+    :<span class="kt">param</span> <span class="nx">stackids</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">Stack</span> <span class="nx">Ids</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">AWS</span> <span class="nx">region</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">A</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">dictionary</span> <span class="nx">object</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">following</span> <span class="nx">format</span>
+            <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;stackId&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;resources&#39;</span><span class="o">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                           <span class="s1">&#39;logicalId&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;physicalId&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;resourceType&#39;</span><span class="o">:</span> <span class="s1">&#39;String&#39;</span>
+                        <span class="p">},</span>
+                    <span class="p">]</span>
+                <span class="p">},</span>
+            <span class="p">]</span>
 
-<span class="s1">get_available_azs(region, count)</span>
-<span class="s1">    Returns a list of availability zones in a given region.</span>
+<span class="nx">get_available_azs</span><span class="p">(</span><span class="nx">region</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region.</span>
 
-<span class="s1">    :param region: Region for the availability zones</span>
-<span class="s1">    :param count: Minimum number of availability zones needed</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="k">for</span> <span class="nx">the</span> <span class="nx">availability</span> <span class="nx">zones</span>
+    :<span class="kt">param</span> <span class="nx">count</span>: <span class="kt">Minimum</span> <span class="kt">number</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="nx">needed</span>
 
-<span class="s1">    :return: List of availability zones in a given region</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region</span>
 
-<span class="s1">get_capabilities(self)</span>
+<span class="nx">get_capabilities</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_cfnlogs(stackname, region)</span>
-<span class="s1">    This function returns the event logs of the given stack in a specific format.</span>
-<span class="s1">    :param stackname: Name of the stack</span>
-<span class="s1">    :param region: Region stack belongs to</span>
-<span class="s1">    :return: Event logs of the stack</span>
+<span class="nx">get_cfnlogs</span><span class="p">(</span><span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">specific</span> <span class="nx">format.</span>
+    :<span class="kt">param</span> <span class="nx">stackname</span>: <span class="kt">Name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="nx">stack</span> <span class="nx">belongs</span> <span class="nx">to</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
 
-<span class="s1">get_config(self)</span>
+<span class="nx">get_config</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_default_region(self)</span>
+<span class="nx">get_default_region</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_docleanup(self)</span>
+<span class="nx">get_docleanup</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_global_region(self, yamlcfg)</span>
-<span class="s1">    Returns a list of regions defined under global region in the yml config file.</span>
+<span class="nx">get_global_region</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">yamlcfg</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">regions</span> <span class="nx">defined</span> <span class="nx">under</span> <span class="nx">global</span> <span class="nx">region</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">yml</span> <span class="nx">config</span> <span class="nx">file.</span>
 
-<span class="s1">    :param yamlcfg: Content of the yml config file</span>
-<span class="s1">    :return: List of regions</span>
+    :<span class="kt">param</span> <span class="nx">yamlcfg</span>: <span class="kt">Content</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">yml</span> <span class="nx">config</span> <span class="nx">file</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">regions</span>
 
-<span class="s1">get_parameter_file(self)</span>
+<span class="nx">get_parameter_file</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_parameter_path(self)</span>
+<span class="nx">get_parameter_path</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_password(self)</span>
+<span class="nx">get_password</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_project(self)</span>
+<span class="nx">get_project</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_resources(self, stackname, region, include_stacks=False)</span>
-<span class="s1">    Given a stackname, and region function returns the list of dictionary items, where each item</span>
-<span class="s1">    consist of logicalId, physicalId and resourceType of the aws resource associated</span>
-<span class="s1">    with the stack.</span>
+<span class="nx">get_resources</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">,</span> <span class="nx">include_stacks</span><span class="o">=</span><span class="nx">False</span><span class="p">)</span>
+    <span class="nx">Given</span> <span class="nx">a</span> <span class="nx">stackname</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">region</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">dictionary</span> <span class="nx">items</span><span class="p">,</span> <span class="nx">where</span> <span class="nx">each</span> <span class="nx">item</span>
+    <span class="nx">consist</span> <span class="nx">of</span> <span class="nx">logicalId</span><span class="p">,</span> <span class="nx">physicalId</span> <span class="nx">and</span> <span class="nx">resourceType</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">aws</span> <span class="nx">resource</span> <span class="nx">associated</span>
+    <span class="kd">with</span> <span class="nx">the</span> <span class="nx">stack.</span>
 
-<span class="s1">    :param include_stacks: </span>
-<span class="s1">    :param stackname: CloudFormation stack name</span>
-<span class="s1">    :param region: AWS region</span>
-<span class="s1">    :return: List of objects in the following format</span>
-<span class="s1">         [</span>
-<span class="s1">             {</span>
-<span class="s1">                 &#39;</span><span class="nx">logicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
-<span class="s1">                 &#39;</span><span class="nx">physicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
-<span class="s1">                 &#39;</span><span class="nx">resourceType</span><span class="s1">&#39;: &#39;</span><span class="nb">String</span><span class="s1">&#39;</span>
-<span class="s1">             },</span>
-<span class="s1">         ]</span>
+    :<span class="kt">param</span> <span class="nx">include_stacks</span><span class="o">:</span> 
+    <span class="o">:</span><span class="nx">param</span> <span class="nx">stackname</span>: <span class="kt">CloudFormation</span> <span class="nx">stack</span> <span class="nx">name</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">AWS</span> <span class="nx">region</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">objects</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">following</span> <span class="nx">format</span>
+         <span class="p">[</span>
+             <span class="p">{</span>
+                 <span class="s1">&#39;logicalId&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;physicalId&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;resourceType&#39;</span><span class="o">:</span> <span class="s1">&#39;String&#39;</span>
+             <span class="p">},</span>
+         <span class="p">]</span>
 
-<span class="s1">get_resources_helper(self, stackname, region, l_resources, include_stacks)</span>
-<span class="s1">    This is a helper function of get_resources function. Check get_resources function for details.</span>
+<span class="nx">get_resources_helper</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">,</span> <span class="nx">l_resources</span><span class="p">,</span> <span class="nx">include_stacks</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="nx">is</span> <span class="nx">a</span> <span class="nx">helper</span> <span class="kd">function</span> <span class="nx">of</span> <span class="nx">get_resources</span> <span class="kd">function</span><span class="p">.</span> <span class="nx">Check</span> <span class="nx">get_resources</span> <span class="kd">function</span> <span class="k">for</span> <span class="nx">details</span><span class="p">.</span>
 
-<span class="s1">get_s3_url(self, key)</span>
-<span class="s1">    Returns S3 url of a given object.</span>
+<span class="nx">get_s3_url</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">S3</span> <span class="nx">url</span> <span class="nx">of</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">object.</span>
 
-<span class="s1">    :param key: Name of the object whose S3 url is being returned</span>
-<span class="s1">    :return: S3 url of the given key</span>
+    :<span class="kt">param</span> <span class="nx">key</span>: <span class="kt">Name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">object</span> <span class="nx">whose</span> <span class="nx">S3</span> <span class="nx">url</span> <span class="nx">is</span> <span class="nx">being</span> <span class="nx">returned</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">S3</span> <span class="nx">url</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">key</span>
 
-<span class="s1">get_s3bucket(self)</span>
+<span class="nx">get_s3bucket</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_s3contents(url)</span>
+<span class="nx">get_s3contents</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
 
-<span class="s1">get_stackstatus(self, testdata_list, speed)</span>
-<span class="s1">    Given a list of TestData objects, this function checks the stack status</span>
-<span class="s1">    of each CloudFormation stack and updates the corresponding TestData object</span>
-<span class="s1">    with the status.</span>
+<span class="nx">get_stackstatus</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">speed</span><span class="p">)</span>
+    <span class="nx">Given</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span><span class="p">,</span> <span class="k">this</span> <span class="kd">function</span> <span class="nx">checks</span> <span class="nx">the</span> <span class="nx">stack</span> <span class="nx">status</span>
+    <span class="nx">of</span> <span class="nx">each</span> <span class="nx">CloudFormation</span> <span class="nx">stack</span> <span class="nx">and</span> <span class="nx">updates</span> <span class="nx">the</span> <span class="nx">corresponding</span> <span class="nx">TestData</span> <span class="nx">object</span>
+    <span class="kd">with</span> <span class="nx">the</span> <span class="nx">status.</span>
 
-<span class="s1">    :param testdata_list: List of TestData object</span>
-<span class="s1">    :param speed: Interval (in seconds) in which the status has to be checked in loop</span>
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">speed</span>: <span class="kt">Interval</span> <span class="p">(</span><span class="k">in</span> <span class="nx">seconds</span><span class="p">)</span> <span class="k">in</span> <span class="nx">which</span> <span class="nx">the</span> <span class="nx">status</span> <span class="nx">has</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">checked</span> <span class="k">in</span> <span class="nx">loop</span>
 
-<span class="s1">get_template_file(self)</span>
+<span class="nx">get_template_file</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_template_path(self)</span>
+<span class="nx">get_template_path</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">get_test_region(self)</span>
+<span class="nx">get_test_region</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="s1">if_stackexists(self, stackname, region)</span>
-<span class="s1">    This function checks if a stack exist with the given stack name.</span>
-<span class="s1">    Returns &quot;yes&quot; if exist, otherwise &quot;no&quot;.</span>
+<span class="nx">if_stackexists</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">checks</span> <span class="k">if</span> <span class="nx">a</span> <span class="nx">stack</span> <span class="nx">exist</span> <span class="kd">with</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="nx">name</span><span class="p">.</span>
+    <span class="nx">Returns</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="nx">exist</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="s2">&quot;no&quot;</span><span class="p">.</span>
 
-<span class="s1">    :param stackname: Stack name</span>
-<span class="s1">    :param region: AWS region</span>
+    <span class="o">:</span><span class="nx">param</span> <span class="nx">stackname</span>: <span class="kt">Stack</span> <span class="nx">name</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">AWS</span> <span class="nx">region</span>
 
-<span class="s1">    :return: &quot;yes&quot; if stack exist, otherwise &quot;no&quot;</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="nx">stack</span> <span class="nx">exist</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="s2">&quot;no&quot;</span>
 
-<span class="s1">parse_stack_info(self, stack_name)</span>
-<span class="s1">    Returns a dictionary object containing the region and stack name.</span>
+<span class="nx">parse_stack_info</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stack_name</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">dictionary</span> <span class="nx">object</span> <span class="nx">containing</span> <span class="nx">the</span> <span class="nx">region</span> <span class="nx">and</span> <span class="nx">stack</span> <span class="nx">name.</span>
 
-<span class="s1">    :param stack_name: Full stack name arn</span>
-<span class="s1">    :return: Dictionary object containing the region and stack name</span>
+    :<span class="kt">param</span> <span class="nx">stack_name</span>: <span class="kt">Full</span> <span class="nx">stack</span> <span class="nx">name</span> <span class="nx">arn</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Dictionary</span> <span class="nx">object</span> <span class="nx">containing</span> <span class="nx">the</span> <span class="nx">region</span> <span class="nx">and</span> <span class="nx">stack</span> <span class="nx">name</span>
 
-<span class="s1">regxfind(re_object, data_line)</span>
-<span class="s1">    Returns the matching string.</span>
+<span class="nx">regxfind</span><span class="p">(</span><span class="nx">re_object</span><span class="p">,</span> <span class="nx">data_line</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">the</span> <span class="nx">matching</span> <span class="kt">string</span><span class="p">.</span>
 
-<span class="s1">    :param re_object: Regex object</span>
-<span class="s1">    :param data_line: String to be searched</span>
+    <span class="o">:</span><span class="nx">param</span> <span class="nx">re_object</span>: <span class="kt">Regex</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">data_line</span>: <span class="kt">String</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">searched</span>
 
-<span class="s1">    :return: Matching String if found, otherwise return &#39;</span><span class="nx">Not</span><span class="o">-</span><span class="nx">found</span><span class="s1">&#39;</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Matching</span> <span class="nb">String</span> <span class="k">if</span> <span class="nx">found</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="k">return</span> <span class="s1">&#39;Not-found&#39;</span>
 
-<span class="s1">set_capabilities(self, ability)</span>
+<span class="nx">set_capabilities</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">ability</span><span class="p">)</span>
 
-<span class="s1">set_config(self, config_yml)</span>
+<span class="nx">set_config</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">config_yml</span><span class="p">)</span>
 
-<span class="s1">set_default_region(self, region)</span>
+<span class="nx">set_default_region</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
 
-<span class="s1">set_docleanup(self, cleanup_value)</span>
+<span class="nx">set_docleanup</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">cleanup_value</span><span class="p">)</span>
 
-<span class="s1">set_parameter_file(self, parameter)</span>
+<span class="nx">set_parameter_file</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">parameter</span><span class="p">)</span>
 
-<span class="s1">set_parameter_path(self, parameter)</span>
+<span class="nx">set_parameter_path</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">parameter</span><span class="p">)</span>
 
-<span class="s1">set_password(self, password)</span>
+<span class="nx">set_password</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">password</span><span class="p">)</span>
 
-<span class="s1">set_project(self, project)</span>
+<span class="nx">set_project</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">project</span><span class="p">)</span>
 
-<span class="s1">set_s3bucket(self, bucket)</span>
+<span class="nx">set_s3bucket</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">bucket</span><span class="p">)</span>
 
-<span class="s1">set_template_file(self, template)</span>
+<span class="nx">set_template_file</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">template</span><span class="p">)</span>
 
-<span class="s1">set_template_path(self, template)</span>
+<span class="nx">set_template_path</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">template</span><span class="p">)</span>
 
-<span class="s1">set_test_region(self, region_list)</span>
+<span class="nx">set_test_region</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">region_list</span><span class="p">)</span>
 
-<span class="s1">stackcheck(self, stack_id)</span>
-<span class="s1">    Given the stack id, this function returns the status of the stack as</span>
-<span class="s1">    a list with stack name, region, and status as list items, in the respective</span>
-<span class="s1">    order.</span>
+<span class="nx">stackcheck</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stack_id</span><span class="p">)</span>
+    <span class="nx">Given</span> <span class="nx">the</span> <span class="nx">stack</span> <span class="nx">id</span><span class="p">,</span> <span class="k">this</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">status</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span> <span class="kr">as</span>
+    <span class="nx">a</span> <span class="nx">list</span> <span class="kd">with</span> <span class="nx">stack</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">region</span><span class="p">,</span> <span class="nx">and</span> <span class="nx">status</span> <span class="kr">as</span> <span class="nx">list</span> <span class="nx">items</span><span class="p">,</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">respective</span>
+    <span class="nx">order.</span>
 
-<span class="s1">    :param stack_id: CloudFormation stack id</span>
+    :<span class="kt">param</span> <span class="nx">stack_id</span>: <span class="kt">CloudFormation</span> <span class="nx">stack</span> <span class="nx">id</span>
 
-<span class="s1">    :return: List containing the stack name, region and stack status in the</span>
-<span class="s1">        respective order.</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">containing</span> <span class="nx">the</span> <span class="nx">stack</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">region</span> <span class="nx">and</span> <span class="nx">stack</span> <span class="nx">status</span> <span class="k">in</span> <span class="nx">the</span>
+        <span class="nx">respective</span> <span class="nx">order</span><span class="p">.</span>
 
-<span class="s1">stackcreate(self, taskcat_cfg, test_list, sprefix)</span>
-<span class="s1">    This function creates CloudFormation stack for the given tests.</span>
+<span class="nx">stackcreate</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">taskcat_cfg</span><span class="p">,</span> <span class="nx">test_list</span><span class="p">,</span> <span class="nx">sprefix</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">creates</span> <span class="nx">CloudFormation</span> <span class="nx">stack</span> <span class="k">for</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">tests.</span>
 
-<span class="s1">    :param taskcat_cfg: TaskCat config as yaml object</span>
-<span class="s1">    :param test_list: List of tests</span>
-<span class="s1">    :param sprefix: Special prefix as string. Purpose of this param is to use it for tagging</span>
-<span class="s1">        the stack.</span>
+    :<span class="kt">param</span> <span class="nx">taskcat_cfg</span>: <span class="kt">TaskCat</span> <span class="nx">config</span> <span class="kr">as</span> <span class="nx">yaml</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">test_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">tests</span>
+    :<span class="kt">param</span> <span class="nx">sprefix</span>: <span class="kt">Special</span> <span class="nx">prefix</span> <span class="kr">as</span> <span class="kt">string</span><span class="p">.</span> <span class="nx">Purpose</span> <span class="nx">of</span> <span class="k">this</span> <span class="nx">param</span> <span class="nx">is</span> <span class="nx">to</span> <span class="nx">use</span> <span class="nx">it</span> <span class="k">for</span> <span class="nx">tagging</span>
+        <span class="nx">the</span> <span class="nx">stack.</span>
 
-<span class="s1">    :return: List of TestData objects</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
 
-<span class="s1">stackdelete(self, testdata_list)</span>
-<span class="s1">    This function deletes the CloudFormation stacks of the given tests.</span>
+<span class="nx">stackdelete</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">deletes</span> <span class="nx">the</span> <span class="nx">CloudFormation</span> <span class="nx">stacks</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">tests.</span>
 
-<span class="s1">    :param testdata_list: List of TestData objects</span>
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
 
-<span class="s1">stage_in_s3(self, taskcat_cfg)</span>
-<span class="s1">    Upload templates and other artifacts to s3.</span>
+<span class="nx">stage_in_s3</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">taskcat_cfg</span><span class="p">)</span>
+    <span class="nx">Upload</span> <span class="nx">templates</span> <span class="nx">and</span> <span class="nx">other</span> <span class="nx">artifacts</span> <span class="nx">to</span> <span class="nx">s3</span><span class="p">.</span>
 
-<span class="s1">    This function creates the s3 bucket with name provided in the config yml file. If</span>
-<span class="s1">    no bucket name provided, it creates the s3 bucket using project name provided in</span>
-<span class="s1">    config yml file. And uploads the templates and other artifacts to the s3 bucket.</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">creates</span> <span class="nx">the</span> <span class="nx">s3</span> <span class="nx">bucket</span> <span class="kd">with</span> <span class="nx">name</span> <span class="nx">provided</span> <span class="k">in</span> <span class="nx">the</span> <span class="nx">config</span> <span class="nx">yml</span> <span class="nx">file</span><span class="p">.</span> <span class="nx">If</span>
+    <span class="nx">no</span> <span class="nx">bucket</span> <span class="nx">name</span> <span class="nx">provided</span><span class="p">,</span> <span class="nx">it</span> <span class="nx">creates</span> <span class="nx">the</span> <span class="nx">s3</span> <span class="nx">bucket</span> <span class="nx">using</span> <span class="nx">project</span> <span class="nx">name</span> <span class="nx">provided</span> <span class="k">in</span>
+    <span class="nx">config</span> <span class="nx">yml</span> <span class="nx">file</span><span class="p">.</span> <span class="nx">And</span> <span class="nx">uploads</span> <span class="nx">the</span> <span class="nx">templates</span> <span class="nx">and</span> <span class="nx">other</span> <span class="nx">artifacts</span> <span class="nx">to</span> <span class="nx">the</span> <span class="nx">s3</span> <span class="nx">bucket.</span>
 
-<span class="s1">    :param taskcat_cfg: Taskcat configuration provided in yml file</span>
+    :<span class="kt">param</span> <span class="nx">taskcat_cfg</span>: <span class="kt">Taskcat</span> <span class="nx">configuration</span> <span class="nx">provided</span> <span class="k">in</span> <span class="nx">yml</span> <span class="nx">file</span>
 
-<span class="s1">validate_json(self, jsonin)</span>
-<span class="s1">    This function validates the given JSON.</span>
+<span class="nx">validate_json</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">jsonin</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">validates</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">JSON.</span>
 
-<span class="s1">    :param jsonin: Json object to be validated</span>
+    :<span class="kt">param</span> <span class="nx">jsonin</span>: <span class="kt">Json</span> <span class="nx">object</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">validated</span>
 
-<span class="s1">    :return: TRUE if given Json is valid, FALSE otherwise.</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">TRUE</span> <span class="k">if</span> <span class="nx">given</span> <span class="nx">Json</span> <span class="nx">is</span> <span class="nx">valid</span><span class="p">,</span> <span class="nx">FALSE</span> <span class="nx">otherwise</span><span class="p">.</span>
 
-<span class="s1">validate_parameters(self, taskcat_cfg, test_list)</span>
-<span class="s1">    This function validates the parameters file of the CloudFormation template.</span>
+<span class="nx">validate_parameters</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">taskcat_cfg</span><span class="p">,</span> <span class="nx">test_list</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">validates</span> <span class="nx">the</span> <span class="nx">parameters</span> <span class="nx">file</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">CloudFormation</span> <span class="nx">template.</span>
 
-<span class="s1">    :param taskcat_cfg: TaskCat config yaml object</span>
-<span class="s1">    :param test_list: List of tests</span>
+    :<span class="kt">param</span> <span class="nx">taskcat_cfg</span>: <span class="kt">TaskCat</span> <span class="nx">config</span> <span class="nx">yaml</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">test_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">tests</span>
 
-<span class="s1">    :return: TRUE if the parameters file is valid, else FALSE</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">TRUE</span> <span class="k">if</span> <span class="nx">the</span> <span class="nx">parameters</span> <span class="nx">file</span> <span class="nx">is</span> <span class="nx">valid</span><span class="p">,</span> <span class="k">else</span> <span class="nx">FALSE</span>
 
-<span class="s1">validate_template(self, taskcat_cfg, test_list)</span>
-<span class="s1">    Returns TRUE if all the template files are valid, otherwise FALSE.</span>
+<span class="nx">validate_template</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">taskcat_cfg</span><span class="p">,</span> <span class="nx">test_list</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">TRUE</span> <span class="k">if</span> <span class="nx">all</span> <span class="nx">the</span> <span class="nx">template</span> <span class="nx">files</span> <span class="nx">are</span> <span class="nx">valid</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="nx">FALSE.</span>
 
-<span class="s1">    :param taskcat_cfg: TaskCat config object</span>
-<span class="s1">    :param test_list: List of tests</span>
+    :<span class="kt">param</span> <span class="nx">taskcat_cfg</span>: <span class="kt">TaskCat</span> <span class="nx">config</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">test_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">tests</span>
 
-<span class="s1">    :return: TRUE if templates are valid, else FALSE</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">TRUE</span> <span class="k">if</span> <span class="nx">templates</span> <span class="nx">are</span> <span class="nx">valid</span><span class="p">,</span> <span class="k">else</span> <span class="nx">FALSE</span>
 
-<span class="s1">validate_yaml(self, yaml_file)</span>
-<span class="s1">    This function validates the given yaml file.</span>
+<span class="nx">validate_yaml</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">yaml_file</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">validates</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">yaml</span> <span class="nx">file.</span>
 
-<span class="s1">    :param yaml_file: Yaml file name</span>
+    :<span class="kt">param</span> <span class="nx">yaml_file</span>: <span class="kt">Yaml</span> <span class="nx">file</span> <span class="nx">name</span>
 
-<span class="s1">welcome(self, prog_name=&#39;</span><span class="nx">taskcat</span><span class="p">.</span><span class="nx">io</span><span class="err">&#39;</span><span class="p">)</span>
+<span class="nx">welcome</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">prog_name</span><span class="o">=</span><span class="s1">&#39;taskcat.io&#39;</span><span class="p">)</span>
 
 <span class="nx">write_logs</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stack_id</span><span class="p">,</span> <span class="nx">logpath</span><span class="p">)</span>
     <span class="nx">This</span> <span class="kd">function</span> <span class="nx">writes</span> <span class="nx">the</span> <span class="nx">event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="nx">and</span> <span class="nx">all</span> <span class="nx">the</span> <span class="nx">child</span> <span class="nx">stacks</span> <span class="nx">to</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">file.</span>
