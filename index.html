@@ -284,46 +284,46 @@ The followup's command will create a sample config.yml</p>
 
 <p>Open the config.yml file with and editor and update the filenames to match your need. </p>
 <h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span>global:
-  owner: owner@company.com
-  project: sample-cloudformation-project &lt;- Must match the root directory of project (usually the name of git repo)
-  #s3bucket: projectx-templates &lt;- (Optional) Only needed if you want to use a specific bucket 
-  regions:
-    - us-east-1
-    - us-east-2
-    - us-west-1
-    - us-west-2
-tests:
-  # The following test will test in both us-west-1 and us-east-1 using sample-cloudformation-input.json as inputs
-  senario-1:
-    parameter_input: sample-cloudformation-input.json
-    regions:
-      - us-west-1
-      - us-east-1
-    template_file: sample-cloudformation-project-withvpc.template
-  # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs
-      senario-all-regions:
-    parameter_input: sample-cloudformation-input.jsonon
-    template_file: sample-cloudformation-project-withvpc.template
+<div class="codehilite"><pre><span></span><span class="n">global</span><span class="o">:</span>
+  <span class="n">owner</span><span class="o">:</span> <span class="n">owner</span><span class="err">@</span><span class="n">company</span><span class="o">.</span><span class="na">com</span>
+  <span class="n">project</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span> <span class="o">&lt;-</span> <span class="n">Must</span> <span class="n">match</span> <span class="n">the</span> <span class="n">root</span> <span class="n">directory</span> <span class="n">of</span> <span class="n">project</span> <span class="o">(</span><span class="n">usually</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">git</span> <span class="n">repo</span><span class="o">)</span>
+  <span class="err">#</span><span class="n">s3bucket</span><span class="o">:</span> <span class="n">projectx</span><span class="o">-</span><span class="n">templates</span> <span class="o">&lt;-</span> <span class="o">(</span><span class="n">Optional</span><span class="o">)</span> <span class="n">Only</span> <span class="n">needed</span> <span class="k">if</span> <span class="n">you</span> <span class="n">want</span> <span class="n">to</span> <span class="n">use</span> <span class="n">a</span> <span class="n">specific</span> <span class="n">bucket</span> 
+  <span class="n">regions</span><span class="o">:</span>
+    <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span>
+    <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">2</span>
+    <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span>
+    <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">2</span>
+<span class="n">tests</span><span class="o">:</span>
+  <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span> <span class="n">and</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
+  <span class="n">senario</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span>
+    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span>
+    <span class="n">regions</span><span class="o">:</span>
+      <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span>
+      <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
+  <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">all</span> <span class="mi">4</span> <span class="n">region</span> <span class="n">defined</span> <span class="k">in</span> <span class="n">the</span> <span class="n">global</span> <span class="n">region</span> <span class="n">section</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
+      <span class="n">senario</span><span class="o">-</span><span class="n">all</span><span class="o">-</span><span class="n">regions</span><span class="o">:</span>
+    <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">jsonon</span>
+    <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
 </pre></div>
 
 
 <h4 id="example-of-project-directory-structure">Example of project directory structure<a class="headerlink" href="#example-of-project-directory-structure" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span>sample-cloudformation-project/
+<div class="codehilite"><pre><span></span><span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">/</span>
 ├── LICENSE.txt
 ├── README.md
 ├── ci
-│   └── config.yml &lt;- This the config file that will hold all the test definitions 
-│   └──  sample-cloudformation-input.json &lt;-  This file contain input that will pass in during stack creation (See auto parms for more info)
+│   └── config.yml <span class="o">&lt;-</span> This the config file that will hold all the test definitions 
+│   └──  <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>input.json <span class="o">&lt;-</span>  This file contain input that will pass <span class="kr">in</span> during stack creation <span class="p">(</span>See auto parms <span class="kr">for</span> more info<span class="p">)</span>
     ├── scripts
-    │   └── userdata.sh &lt;- If you have userdata scripts you can load then in the scripts directory
-    ├── submodules  &lt;- If you have git submodules you can load them in the submodules directory
-    │   └── quickstart-aws-vpc
+    │   └── userdata.sh <span class="o">&lt;-</span> If you have userdata scripts you can load then <span class="kr">in</span> the scripts directory
+    ├── submodules  <span class="o">&lt;-</span> If you have git submodules you can load them <span class="kr">in</span> the submodules directory
+    │   └── quickstart<span class="o">-</span>aws<span class="o">-</span>vpc
     │       └── templates
-    │           └── aws-vpc.template
+    │           └── aws<span class="o">-</span>vpc.template
     └── templates
-        ├── sample-cloudformation-project-novpc.template 
-        └── sample-cloudformation-project-withvpc.template &lt;- Second version on template that will create a vpc with the worklo    ad
+        ├── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>novpc.template 
+        └── <span class="kp">sample</span><span class="o">-</span>cloudformation<span class="o">-</span>project<span class="o">-</span>withvpc.template <span class="o">&lt;-</span> Second version on template that will create a vpc with the worklo    ad
 </pre></div>
 
 

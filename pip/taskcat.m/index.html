@@ -319,318 +319,318 @@
     ------------------
     taskcat.TaskCat
     builtins.object</p>
-<div class="codehilite"><pre><span></span>Static methods
---------------
-__init__(self, nametag=&#39;[taskcat]&#39;)
-    Initialize self.  See help(type(self)) for accurate signature.
+<div class="codehilite"><pre><span></span><span class="nx">Static</span> <span class="nx">methods</span>
+<span class="o">--------------</span>
+<span class="nx">__init__</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">nametag</span><span class="o">=</span><span class="s1">&#39;[taskcat]&#39;</span><span class="p">)</span>
+    <span class="nx">Initialize</span> <span class="nx">self</span><span class="p">.</span>  <span class="nx">See</span> <span class="nx">help</span><span class="p">(</span><span class="nx">type</span><span class="p">(</span><span class="nx">self</span><span class="p">))</span> <span class="k">for</span> <span class="nx">accurate</span> <span class="nx">signature</span><span class="p">.</span>
 
-aws_api_init(self, args)
-    This function reads the AWS credentials from various sources to ensure
-    that the client has right credentials defined to successfully run
-    TaskCat against an AWS account.
+<span class="nx">aws_api_init</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">reads</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">credentials</span> <span class="nx">from</span> <span class="nx">various</span> <span class="nx">sources</span> <span class="nx">to</span> <span class="nx">ensure</span>
+    <span class="nx">that</span> <span class="nx">the</span> <span class="nx">client</span> <span class="nx">has</span> <span class="nx">right</span> <span class="nx">credentials</span> <span class="nx">defined</span> <span class="nx">to</span> <span class="nx">successfully</span> <span class="nx">run</span>
+    <span class="nx">TaskCat</span> <span class="nx">against</span> <span class="nx">an</span> <span class="nx">AWS</span> <span class="nx">account.</span>
 
-    :param args: Command line arguments for AWS credentials. It could be
-        either profile name, access key and secret key or none.
+    :<span class="kt">param</span> <span class="nx">args</span>: <span class="kt">Command</span> <span class="nx">line</span> <span class="nx">arguments</span> <span class="k">for</span> <span class="nx">AWS</span> <span class="nx">credentials</span><span class="p">.</span> <span class="nx">It</span> <span class="nx">could</span> <span class="nx">be</span>
+        <span class="nx">either</span> <span class="nx">profile</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">access</span> <span class="nx">key</span> <span class="nx">and</span> <span class="nx">secret</span> <span class="nx">key</span> <span class="nx">or</span> <span class="nx">none</span><span class="p">.</span>
 
-cleanup(self, testdata_list, speed)
-    This function deletes the CloudFormation stacks of the given tests.
+<span class="nx">cleanup</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">speed</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">deletes</span> <span class="nx">the</span> <span class="nx">CloudFormation</span> <span class="nx">stacks</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">tests.</span>
 
-    :param testdata_list: List of TestData objects
-    :param speed: Interval (in seconds) in which the status has to be checked
-        while deleting the stacks.
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
+    :<span class="kt">param</span> <span class="nx">speed</span>: <span class="kt">Interval</span> <span class="p">(</span><span class="k">in</span> <span class="nx">seconds</span><span class="p">)</span> <span class="k">in</span> <span class="nx">which</span> <span class="nx">the</span> <span class="nx">status</span> <span class="nx">has</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">checked</span>
+        <span class="k">while</span> <span class="nx">deleting</span> <span class="nx">the</span> <span class="nx">stacks</span><span class="p">.</span>
 
-collect_resources(self, testdata_list, logpath)
-    This function collects the AWS resources information created by the
-    CloudFormation stack for generating the report.
+<span class="nx">collect_resources</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">logpath</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">collects</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">resources</span> <span class="nx">information</span> <span class="nx">created</span> <span class="nx">by</span> <span class="nx">the</span>
+    <span class="nx">CloudFormation</span> <span class="nx">stack</span> <span class="k">for</span> <span class="nx">generating</span> <span class="nx">the</span> <span class="nx">report.</span>
 
-    :param testdata_list: List of TestData object
-    :param logpath: Log file path
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">logpath</span>: <span class="kt">Log</span> <span class="nx">file</span> <span class="nx">path</span>
 
-createcfnlogs(self, testdata_list, logpath)
-    This function creates the CloudFormation log files.
+<span class="nx">createcfnlogs</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">logpath</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">creates</span> <span class="nx">the</span> <span class="nx">CloudFormation</span> <span class="nx">log</span> <span class="nx">files.</span>
 
-    :param testdata_list: List of TestData objects
-    :param logpath: Log file path
-    :return:
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
+    :<span class="kt">param</span> <span class="nx">logpath</span>: <span class="kt">Log</span> <span class="nx">file</span> <span class="nx">path</span>
+    :<span class="kt">return</span><span class="o">:</span>
 
-createreport(self, testdata_list, filename)
-    This function creates the test report.
+<span class="nx">createreport</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">filename</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">creates</span> <span class="nx">the</span> <span class="nx">test</span> <span class="nx">report.</span>
 
-    :param testdata_list: List of TestData objects
-    :param filename: Report file name
-    :return:
+    :<span class="kt">param</span> <span class="nx">testdata_list</span>: <span class="kt">List</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span>
+    :<span class="kt">param</span> <span class="nx">filename</span>: <span class="kt">Report</span> <span class="nx">file</span> <span class="nx">name</span>
+    :<span class="kt">return</span><span class="o">:</span>
 
-deep_cleanup(self, testdata_list)
-    This function deletes the AWS resources which couldn&#39;t be deleted
-    by deleting CloudFormation stacks.
+<span class="nx">deep_cleanup</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">deletes</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">resources</span> <span class="nx">which</span> <span class="nx">couldn</span><span class="s1">&#39;t be deleted</span>
+<span class="s1">    by deleting CloudFormation stacks.</span>
 
-    :param testdata_list: List of TestData objects
+<span class="s1">    :param testdata_list: List of TestData objects</span>
 
-define_tests(self, yamlc, test)
-    This function reads the given test config yaml object and defines
-    the tests as per the given config object.
+<span class="s1">define_tests(self, yamlc, test)</span>
+<span class="s1">    This function reads the given test config yaml object and defines</span>
+<span class="s1">    the tests as per the given config object.</span>
 
-    :param yamlc: TaskCat config yaml object
-    :param test: Test scenarios
+<span class="s1">    :param yamlc: TaskCat config yaml object</span>
+<span class="s1">    :param test: Test scenarios</span>
 
-genpassword(self, pass_length, pass_type)
-    Returns a password of given length and type.
+<span class="s1">genpassword(self, pass_length, pass_type)</span>
+<span class="s1">    Returns a password of given length and type.</span>
 
-    :param pass_length: Length of the desired password
-    :param pass_type: Type of the desired password - String only OR Alphanumeric
-        * A = AlphaNumeric, Example &#39;vGceIP8EHC&#39;
-    :return: Password of given length and type
+<span class="s1">    :param pass_length: Length of the desired password</span>
+<span class="s1">    :param pass_type: Type of the desired password - String only OR Alphanumeric</span>
+<span class="s1">        * A = AlphaNumeric, Example &#39;</span><span class="nx">vGceIP8EHC</span><span class="s1">&#39;</span>
+<span class="s1">    :return: Password of given length and type</span>
 
-genreport(self, testdata_list, dashboard_filename)
-    This function generates the test report.
+<span class="s1">genreport(self, testdata_list, dashboard_filename)</span>
+<span class="s1">    This function generates the test report.</span>
 
-    :param testdata_list: List of TestData objects
-    :param dashboard_filename: Report file name
+<span class="s1">    :param testdata_list: List of TestData objects</span>
+<span class="s1">    :param dashboard_filename: Report file name</span>
 
-get_all_resources(self, stackids, region)
-    Given a list of stackids, function returns the list of dictionary items, where each
-    item consist of stackId and the resources associated with that stack.
+<span class="s1">get_all_resources(self, stackids, region)</span>
+<span class="s1">    Given a list of stackids, function returns the list of dictionary items, where each</span>
+<span class="s1">    item consist of stackId and the resources associated with that stack.</span>
 
-    :param stackids: List of Stack Ids
-    :param region: AWS region
-    :return: A list of dictionary object in the following format
-            [
-                {
-                    &#39;stackId&#39;: &#39;string&#39;,
-                    &#39;resources&#39;: [
-                        {
-                           &#39;logicalId&#39;: &#39;string&#39;,
-                           &#39;physicalId&#39;: &#39;string&#39;,
-                           &#39;resourceType&#39;: &#39;String&#39;
-                        },
-                    ]
-                },
-            ]
+<span class="s1">    :param stackids: List of Stack Ids</span>
+<span class="s1">    :param region: AWS region</span>
+<span class="s1">    :return: A list of dictionary object in the following format</span>
+<span class="s1">            [</span>
+<span class="s1">                {</span>
+<span class="s1">                    &#39;</span><span class="nx">stackId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
+<span class="s1">                    &#39;</span><span class="nx">resources</span><span class="s1">&#39;: [</span>
+<span class="s1">                        {</span>
+<span class="s1">                           &#39;</span><span class="nx">logicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
+<span class="s1">                           &#39;</span><span class="nx">physicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
+<span class="s1">                           &#39;</span><span class="nx">resourceType</span><span class="s1">&#39;: &#39;</span><span class="nb">String</span><span class="s1">&#39;</span>
+<span class="s1">                        },</span>
+<span class="s1">                    ]</span>
+<span class="s1">                },</span>
+<span class="s1">            ]</span>
 
-get_available_azs(region, count)
-    Returns a list of availability zones in a given region.
+<span class="s1">get_available_azs(region, count)</span>
+<span class="s1">    Returns a list of availability zones in a given region.</span>
 
-    :param region: Region for the availability zones
-    :param count: Minimum number of availability zones needed
+<span class="s1">    :param region: Region for the availability zones</span>
+<span class="s1">    :param count: Minimum number of availability zones needed</span>
 
-    :return: List of availability zones in a given region
+<span class="s1">    :return: List of availability zones in a given region</span>
 
-get_capabilities(self)
+<span class="s1">get_capabilities(self)</span>
 
-get_cfnlogs(stackname, region)
-    This function returns the event logs of the given stack in a specific format.
-    :param stackname: Name of the stack
-    :param region: Region stack belongs to
-    :return: Event logs of the stack
+<span class="s1">get_cfnlogs(stackname, region)</span>
+<span class="s1">    This function returns the event logs of the given stack in a specific format.</span>
+<span class="s1">    :param stackname: Name of the stack</span>
+<span class="s1">    :param region: Region stack belongs to</span>
+<span class="s1">    :return: Event logs of the stack</span>
 
-get_config(self)
+<span class="s1">get_config(self)</span>
 
-get_default_region(self)
+<span class="s1">get_default_region(self)</span>
 
-get_docleanup(self)
+<span class="s1">get_docleanup(self)</span>
 
-get_global_region(self, yamlcfg)
-    Returns a list of regions defined under global region in the yml config file.
+<span class="s1">get_global_region(self, yamlcfg)</span>
+<span class="s1">    Returns a list of regions defined under global region in the yml config file.</span>
 
-    :param yamlcfg: Content of the yml config file
-    :return: List of regions
+<span class="s1">    :param yamlcfg: Content of the yml config file</span>
+<span class="s1">    :return: List of regions</span>
 
-get_parameter_file(self)
+<span class="s1">get_parameter_file(self)</span>
 
-get_parameter_path(self)
+<span class="s1">get_parameter_path(self)</span>
 
-get_password(self)
+<span class="s1">get_password(self)</span>
 
-get_project(self)
+<span class="s1">get_project(self)</span>
 
-get_resources(self, stackname, region, include_stacks=False)
-    Given a stackname, and region function returns the list of dictionary items, where each item
-    consist of logicalId, physicalId and resourceType of the aws resource associated
-    with the stack.
+<span class="s1">get_resources(self, stackname, region, include_stacks=False)</span>
+<span class="s1">    Given a stackname, and region function returns the list of dictionary items, where each item</span>
+<span class="s1">    consist of logicalId, physicalId and resourceType of the aws resource associated</span>
+<span class="s1">    with the stack.</span>
 
-    :param include_stacks: 
-    :param stackname: CloudFormation stack name
-    :param region: AWS region
-    :return: List of objects in the following format
-         [
-             {
-                 &#39;logicalId&#39;: &#39;string&#39;,
-                 &#39;physicalId&#39;: &#39;string&#39;,
-                 &#39;resourceType&#39;: &#39;String&#39;
-             },
-         ]
+<span class="s1">    :param include_stacks: </span>
+<span class="s1">    :param stackname: CloudFormation stack name</span>
+<span class="s1">    :param region: AWS region</span>
+<span class="s1">    :return: List of objects in the following format</span>
+<span class="s1">         [</span>
+<span class="s1">             {</span>
+<span class="s1">                 &#39;</span><span class="nx">logicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
+<span class="s1">                 &#39;</span><span class="nx">physicalId</span><span class="s1">&#39;: &#39;</span><span class="kt">string</span><span class="s1">&#39;,</span>
+<span class="s1">                 &#39;</span><span class="nx">resourceType</span><span class="s1">&#39;: &#39;</span><span class="nb">String</span><span class="s1">&#39;</span>
+<span class="s1">             },</span>
+<span class="s1">         ]</span>
 
-get_resources_helper(self, stackname, region, l_resources, include_stacks)
-    This is a helper function of get_resources function. Check get_resources function for details.
+<span class="s1">get_resources_helper(self, stackname, region, l_resources, include_stacks)</span>
+<span class="s1">    This is a helper function of get_resources function. Check get_resources function for details.</span>
 
-get_s3_url(self, key)
-    Returns S3 url of a given object.
+<span class="s1">get_s3_url(self, key)</span>
+<span class="s1">    Returns S3 url of a given object.</span>
 
-    :param key: Name of the object whose S3 url is being returned
-    :return: S3 url of the given key
+<span class="s1">    :param key: Name of the object whose S3 url is being returned</span>
+<span class="s1">    :return: S3 url of the given key</span>
 
-get_s3bucket(self)
+<span class="s1">get_s3bucket(self)</span>
 
-get_s3contents(url)
+<span class="s1">get_s3contents(url)</span>
 
-get_stackstatus(self, testdata_list, speed)
-    Given a list of TestData objects, this function checks the stack status
-    of each CloudFormation stack and updates the corresponding TestData object
-    with the status.
+<span class="s1">get_stackstatus(self, testdata_list, speed)</span>
+<span class="s1">    Given a list of TestData objects, this function checks the stack status</span>
+<span class="s1">    of each CloudFormation stack and updates the corresponding TestData object</span>
+<span class="s1">    with the status.</span>
 
-    :param testdata_list: List of TestData object
-    :param speed: Interval (in seconds) in which the status has to be checked in loop
+<span class="s1">    :param testdata_list: List of TestData object</span>
+<span class="s1">    :param speed: Interval (in seconds) in which the status has to be checked in loop</span>
 
-get_template_file(self)
+<span class="s1">get_template_file(self)</span>
 
-get_template_path(self)
+<span class="s1">get_template_path(self)</span>
 
-get_test_region(self)
+<span class="s1">get_test_region(self)</span>
 
-if_stackexists(self, stackname, region)
-    This function checks if a stack exist with the given stack name.
-    Returns &quot;yes&quot; if exist, otherwise &quot;no&quot;.
+<span class="s1">if_stackexists(self, stackname, region)</span>
+<span class="s1">    This function checks if a stack exist with the given stack name.</span>
+<span class="s1">    Returns &quot;yes&quot; if exist, otherwise &quot;no&quot;.</span>
 
-    :param stackname: Stack name
-    :param region: AWS region
+<span class="s1">    :param stackname: Stack name</span>
+<span class="s1">    :param region: AWS region</span>
 
-    :return: &quot;yes&quot; if stack exist, otherwise &quot;no&quot;
+<span class="s1">    :return: &quot;yes&quot; if stack exist, otherwise &quot;no&quot;</span>
 
-parse_stack_info(self, stack_name)
-    Returns a dictionary object containing the region and stack name.
+<span class="s1">parse_stack_info(self, stack_name)</span>
+<span class="s1">    Returns a dictionary object containing the region and stack name.</span>
 
-    :param stack_name: Full stack name arn
-    :return: Dictionary object containing the region and stack name
+<span class="s1">    :param stack_name: Full stack name arn</span>
+<span class="s1">    :return: Dictionary object containing the region and stack name</span>
 
-regxfind(re_object, data_line)
-    Returns the matching string.
+<span class="s1">regxfind(re_object, data_line)</span>
+<span class="s1">    Returns the matching string.</span>
 
-    :param re_object: Regex object
-    :param data_line: String to be searched
+<span class="s1">    :param re_object: Regex object</span>
+<span class="s1">    :param data_line: String to be searched</span>
 
-    :return: Matching String if found, otherwise return &#39;Not-found&#39;
+<span class="s1">    :return: Matching String if found, otherwise return &#39;</span><span class="nx">Not</span><span class="o">-</span><span class="nx">found</span><span class="s1">&#39;</span>
 
-set_capabilities(self, ability)
+<span class="s1">set_capabilities(self, ability)</span>
 
-set_config(self, config_yml)
+<span class="s1">set_config(self, config_yml)</span>
 
-set_default_region(self, region)
+<span class="s1">set_default_region(self, region)</span>
 
-set_docleanup(self, cleanup_value)
+<span class="s1">set_docleanup(self, cleanup_value)</span>
 
-set_parameter_file(self, parameter)
+<span class="s1">set_parameter_file(self, parameter)</span>
 
-set_parameter_path(self, parameter)
+<span class="s1">set_parameter_path(self, parameter)</span>
 
-set_password(self, password)
+<span class="s1">set_password(self, password)</span>
 
-set_project(self, project)
+<span class="s1">set_project(self, project)</span>
 
-set_s3bucket(self, bucket)
+<span class="s1">set_s3bucket(self, bucket)</span>
 
-set_template_file(self, template)
+<span class="s1">set_template_file(self, template)</span>
 
-set_template_path(self, template)
+<span class="s1">set_template_path(self, template)</span>
 
-set_test_region(self, region_list)
+<span class="s1">set_test_region(self, region_list)</span>
 
-stackcheck(self, stack_id)
-    Given the stack id, this function returns the status of the stack as
-    a list with stack name, region, and status as list items, in the respective
-    order.
+<span class="s1">stackcheck(self, stack_id)</span>
+<span class="s1">    Given the stack id, this function returns the status of the stack as</span>
+<span class="s1">    a list with stack name, region, and status as list items, in the respective</span>
+<span class="s1">    order.</span>
 
-    :param stack_id: CloudFormation stack id
+<span class="s1">    :param stack_id: CloudFormation stack id</span>
 
-    :return: List containing the stack name, region and stack status in the
-        respective order.
+<span class="s1">    :return: List containing the stack name, region and stack status in the</span>
+<span class="s1">        respective order.</span>
 
-stackcreate(self, taskcat_cfg, test_list, sprefix)
-    This function creates CloudFormation stack for the given tests.
+<span class="s1">stackcreate(self, taskcat_cfg, test_list, sprefix)</span>
+<span class="s1">    This function creates CloudFormation stack for the given tests.</span>
 
-    :param taskcat_cfg: TaskCat config as yaml object
-    :param test_list: List of tests
-    :param sprefix: Special prefix as string. Purpose of this param is to use it for tagging
-        the stack.
+<span class="s1">    :param taskcat_cfg: TaskCat config as yaml object</span>
+<span class="s1">    :param test_list: List of tests</span>
+<span class="s1">    :param sprefix: Special prefix as string. Purpose of this param is to use it for tagging</span>
+<span class="s1">        the stack.</span>
 
-    :return: List of TestData objects
+<span class="s1">    :return: List of TestData objects</span>
 
-stackdelete(self, testdata_list)
-    This function deletes the CloudFormation stacks of the given tests.
+<span class="s1">stackdelete(self, testdata_list)</span>
+<span class="s1">    This function deletes the CloudFormation stacks of the given tests.</span>
 
-    :param testdata_list: List of TestData objects
+<span class="s1">    :param testdata_list: List of TestData objects</span>
 
-stage_in_s3(self, taskcat_cfg)
-    Upload templates and other artifacts to s3.
+<span class="s1">stage_in_s3(self, taskcat_cfg)</span>
+<span class="s1">    Upload templates and other artifacts to s3.</span>
 
-    This function creates the s3 bucket with name provided in the config yml file. If
-    no bucket name provided, it creates the s3 bucket using project name provided in
-    config yml file. And uploads the templates and other artifacts to the s3 bucket.
+<span class="s1">    This function creates the s3 bucket with name provided in the config yml file. If</span>
+<span class="s1">    no bucket name provided, it creates the s3 bucket using project name provided in</span>
+<span class="s1">    config yml file. And uploads the templates and other artifacts to the s3 bucket.</span>
 
-    :param taskcat_cfg: Taskcat configuration provided in yml file
+<span class="s1">    :param taskcat_cfg: Taskcat configuration provided in yml file</span>
 
-validate_json(self, jsonin)
-    This function validates the given JSON.
+<span class="s1">validate_json(self, jsonin)</span>
+<span class="s1">    This function validates the given JSON.</span>
 
-    :param jsonin: Json object to be validated
+<span class="s1">    :param jsonin: Json object to be validated</span>
 
-    :return: TRUE if given Json is valid, FALSE otherwise.
+<span class="s1">    :return: TRUE if given Json is valid, FALSE otherwise.</span>
 
-validate_parameters(self, taskcat_cfg, test_list)
-    This function validates the parameters file of the CloudFormation template.
+<span class="s1">validate_parameters(self, taskcat_cfg, test_list)</span>
+<span class="s1">    This function validates the parameters file of the CloudFormation template.</span>
 
-    :param taskcat_cfg: TaskCat config yaml object
-    :param test_list: List of tests
+<span class="s1">    :param taskcat_cfg: TaskCat config yaml object</span>
+<span class="s1">    :param test_list: List of tests</span>
 
-    :return: TRUE if the parameters file is valid, else FALSE
+<span class="s1">    :return: TRUE if the parameters file is valid, else FALSE</span>
 
-validate_template(self, taskcat_cfg, test_list)
-    Returns TRUE if all the template files are valid, otherwise FALSE.
+<span class="s1">validate_template(self, taskcat_cfg, test_list)</span>
+<span class="s1">    Returns TRUE if all the template files are valid, otherwise FALSE.</span>
 
-    :param taskcat_cfg: TaskCat config object
-    :param test_list: List of tests
+<span class="s1">    :param taskcat_cfg: TaskCat config object</span>
+<span class="s1">    :param test_list: List of tests</span>
 
-    :return: TRUE if templates are valid, else FALSE
+<span class="s1">    :return: TRUE if templates are valid, else FALSE</span>
 
-validate_yaml(self, yaml_file)
-    This function validates the given yaml file.
+<span class="s1">validate_yaml(self, yaml_file)</span>
+<span class="s1">    This function validates the given yaml file.</span>
 
-    :param yaml_file: Yaml file name
+<span class="s1">    :param yaml_file: Yaml file name</span>
 
-welcome(self, prog_name=&#39;taskcat.io&#39;)
+<span class="s1">welcome(self, prog_name=&#39;</span><span class="nx">taskcat</span><span class="p">.</span><span class="nx">io</span><span class="err">&#39;</span><span class="p">)</span>
 
-write_logs(self, stack_id, logpath)
-    This function writes the event logs of the given stack and all the child stacks to a given file.
-    :param stack_id: Stack Id
-    :param logpath: Log file path
-    :return:
+<span class="nx">write_logs</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">stack_id</span><span class="p">,</span> <span class="nx">logpath</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">writes</span> <span class="nx">the</span> <span class="nx">event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="nx">and</span> <span class="nx">all</span> <span class="nx">the</span> <span class="nx">child</span> <span class="nx">stacks</span> <span class="nx">to</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">file.</span>
+    :<span class="kt">param</span> <span class="nx">stack_id</span>: <span class="kt">Stack</span> <span class="nx">Id</span>
+    :<span class="kt">param</span> <span class="nx">logpath</span>: <span class="kt">Log</span> <span class="nx">file</span> <span class="nx">path</span>
+    :<span class="kt">return</span><span class="o">:</span>
 
-Instance variables
-------------------
-banner
+<span class="nx">Instance</span> <span class="nx">variables</span>
+<span class="o">------------------</span>
+<span class="nx">banner</span>
 
-capabilities
+<span class="nx">capabilities</span>
 
-config
+<span class="nx">config</span>
 
-defult_region
+<span class="nx">defult_region</span>
 
-interface
+<span class="kr">interface</span>
 
-nametag
+<span class="nx">nametag</span>
 
-parameter_path
+<span class="nx">parameter_path</span>
 
-project
+<span class="nx">project</span>
 
-run_cleanup
+<span class="nx">run_cleanup</span>
 
-s3bucket
+<span class="nx">s3bucket</span>
 
-template_path
+<span class="nx">template_path</span>
 
-test_region
+<span class="nx">test_region</span>
 
-verbose
+<span class="nx">verbose</span>
 </pre></div>
                 
                   
