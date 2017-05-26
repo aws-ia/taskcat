@@ -347,9 +347,9 @@ video {
    Base
    ========================================================================== </em>/</p>
 <p>/*<em>
- * 1. Prevent system color scheme&rsquo;s background color being used in Firefox, IE,
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
  *    and Opera.
- * 2. Prevent system color scheme&rsquo;s text color being used in Firefox, IE, and
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
  *    Opera.
  * 3. Correct text resizing oddly in IE 6/7 when body <code>font-size</code> is set using
  *    <code>em</code> units.
@@ -481,7 +481,7 @@ kbd,
 pre,
 samp {
     font-family: monospace, serif;
-    _font-family: &lsquo;courier new&rsquo;, monospace;
+    _font-family: 'courier new', monospace;
     font-size: 1em;
 }</p>
 <p>/*<em>
@@ -503,7 +503,7 @@ samp {
  </em>/</p>
 <p>q:before,
 q:after {
-    content: &lsquo;&rsquo;;
+    content: '';
     content: none;
 }</p>
 <p>/*<em>
@@ -656,9 +656,9 @@ select {
  *    Known issue: inner spacing remains in IE 6.
  </em>/</p>
 <p>button,
-html input[type=&rdquo;button&rdquo;], /<em> 1 </em>/
-input[type=&rdquo;reset&rdquo;],
-input[type=&rdquo;submit&rdquo;] {
+html input[type="button"], /<em> 1 </em>/
+input[type="reset"],
+input[type="submit"] {
     -webkit-appearance: button; /<em> 2 </em>/
     cursor: pointer; /<em> 3 </em>/
     <em>overflow: visible;  /</em> 4 */
@@ -676,8 +676,8 @@ html input[disabled] {
  * 3. Remove excess padding in IE 7.
  *    Known issue: excess padding remains in IE 6.
  </em>/</p>
-<p>input[type=&rdquo;checkbox&rdquo;],
-input[type=&rdquo;radio&rdquo;] {
+<p>input[type="checkbox"],
+input[type="radio"] {
     box-sizing: border-box; /<em> 1 </em>/
     padding: 0; /<em> 2 </em>/
     <em>height: 13px; /</em> 3 <em>/
@@ -688,7 +688,7 @@ input[type=&rdquo;radio&rdquo;] {
  * 2. Address <code>box-sizing</code> set to <code>border-box</code> in Safari 5 and Chrome
  *    (include <code>-moz</code> to future-proof).
  </em>/</p>
-<p>input[type=&rdquo;search&rdquo;] {
+<p>input[type="search"] {
     -webkit-appearance: textfield; /<em> 1 </em>/
     -moz-box-sizing: content-box;
     -webkit-box-sizing: content-box; /<em> 2 </em>/
@@ -698,8 +698,8 @@ input[type=&rdquo;radio&rdquo;] {
  * Remove inner padding and search cancel button in Safari 5 and Chrome
  * on OS X.
  </em>/</p>
-<p>input[type=&rdquo;search&rdquo;]::-webkit-search-cancel-button,
-input[type=&rdquo;search&rdquo;]::-webkit-search-decoration {
+<p>input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
     -webkit-appearance: none;
 }</p>
 <p>/*<em>
@@ -739,7 +739,7 @@ input::-moz-focus-inner {
   }
   body {
     background: #fff;
-    font-family: &ldquo;Source Sans Pro&rdquo;, &ldquo;Helvetica Neueue&rdquo;, Helvetica, sans;
+    font-family: "Source Sans Pro", "Helvetica Neueue", Helvetica, sans;
     font-weight: 300;
     font-size: 16px;
     line-height: 1.6em;
@@ -808,7 +808,7 @@ input::-moz-focus-inner {
     transition: color .3s ease-in-out;
   }</p>
 <p>pre, code, .mono, .name {
-    font-family: &ldquo;Ubuntu Mono&rdquo;, &ldquo;Cousine&rdquo;, &ldquo;DejaVu Sans Mono&rdquo;, monospace;
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
   }</p>
 <p>.title .name {
     font-weight: bold;
@@ -1085,7 +1085,7 @@ table#module-list td {
 
 <p>/<em> ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
-   These examples override the primary (&lsquo;mobile first&rsquo;) styles.
+   These examples override the primary ('mobile first') styles.
    Modify as content requires.
    ========================================================================== </em>/</p>
 <p>@media only screen and (min-width: 35em) {
@@ -1174,12 +1174,12 @@ h3 {
     $node = document.getElementById(id);
     if (!$node)
     return;
-    if (!$node.style.display || $node.style.display == &lsquo;none&rsquo;) {
-    $node.style.display = &lsquo;block&rsquo;;
-    $link.innerHTML = &lsquo;Hide source &nequiv;&lsquo;;
+    if (!$node.style.display || $node.style.display == 'none') {
+    $node.style.display = 'block';
+    $link.innerHTML = 'Hide source &nequiv;';
     } else {
-    $node.style.display = &lsquo;none&rsquo;;
-    $link.innerHTML = &lsquo;Show source &equiv;&lsquo;;
+    $node.style.display = 'none';
+    $link.innerHTML = 'Show source &equiv;';
     }
   }
   </script>
