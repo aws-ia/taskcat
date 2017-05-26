@@ -318,7 +318,7 @@
     Ancestors (in MRO)
     ------------------
     taskcat.TaskCat
-    builtins.object</p>
+    <strong>builtin</strong>.object</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
   3
@@ -630,10 +630,64 @@
 309
 310
 311
-312</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nx">Static</span> <span class="nx">methods</span>
+312
+313</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="nx">Static</span> <span class="nx">methods</span>
 <span class="o">--------------</span>
+<span class="nx">get_available_azs</span><span class="p">(</span><span class="nx">region</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region.</span>
+
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="k">for</span> <span class="nx">the</span> <span class="nx">availability</span> <span class="nx">zones</span>
+    :<span class="kt">param</span> <span class="nx">count</span>: <span class="kt">Minimum</span> <span class="kt">number</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="nx">needed</span>
+
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region</span>
+
+<span class="nx">get_cfnlogs</span><span class="p">(</span><span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
+    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">specific</span> <span class="nx">format.</span>
+    :<span class="kt">param</span> <span class="nx">stackname</span>: <span class="kt">Name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
+    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="nx">stack</span> <span class="nx">belongs</span> <span class="nx">to</span>
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
+
+<span class="nx">get_s3contents</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
+
+<span class="nx">regxfind</span><span class="p">(</span><span class="nx">re_object</span><span class="p">,</span> <span class="nx">data_line</span><span class="p">)</span>
+    <span class="nx">Returns</span> <span class="nx">the</span> <span class="nx">matching</span> <span class="kt">string</span><span class="p">.</span>
+
+    <span class="o">:</span><span class="nx">param</span> <span class="nx">re_object</span>: <span class="kt">Regex</span> <span class="nx">object</span>
+    :<span class="kt">param</span> <span class="nx">data_line</span>: <span class="kt">String</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">searched</span>
+
+    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Matching</span> <span class="nb">String</span> <span class="k">if</span> <span class="nx">found</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="k">return</span> <span class="s1">&#39;Not-found&#39;</span>
+
+<span class="nx">Instance</span> <span class="nx">variables</span>
+<span class="o">------------------</span>
+<span class="nx">banner</span>
+
+<span class="nx">capabilities</span>
+
+<span class="nx">config</span>
+
+<span class="nx">defult_region</span>
+
+<span class="kr">interface</span>
+
+<span class="nx">nametag</span>
+
+<span class="nx">parameter_path</span>
+
+<span class="nx">project</span>
+
+<span class="nx">run_cleanup</span>
+
+<span class="nx">s3bucket</span>
+
+<span class="nx">template_path</span>
+
+<span class="nx">test_region</span>
+
+<span class="nx">verbose</span>
+
+<span class="nx">Methods</span>
+<span class="o">-------</span>
 <span class="nx">__init__</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">nametag</span><span class="o">=</span><span class="s1">&#39;[taskcat]&#39;</span><span class="p">)</span>
-    <span class="nx">Initialize</span> <span class="nx">self</span><span class="p">.</span>  <span class="nx">See</span> <span class="nx">help</span><span class="p">(</span><span class="nx">type</span><span class="p">(</span><span class="nx">self</span><span class="p">))</span> <span class="k">for</span> <span class="nx">accurate</span> <span class="nx">signature</span><span class="p">.</span>
 
 <span class="nx">aws_api_init</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">args</span><span class="p">)</span>
     <span class="nx">This</span> <span class="kd">function</span> <span class="nx">reads</span> <span class="nx">the</span> <span class="nx">AWS</span> <span class="nx">credentials</span> <span class="nx">from</span> <span class="nx">various</span> <span class="nx">sources</span> <span class="nx">to</span> <span class="nx">ensure</span>
@@ -718,21 +772,7 @@
                 <span class="p">},</span>
             <span class="p">]</span>
 
-<span class="nx">get_available_azs</span><span class="p">(</span><span class="nx">region</span><span class="p">,</span> <span class="nx">count</span><span class="p">)</span>
-    <span class="nx">Returns</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region.</span>
-
-    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="k">for</span> <span class="nx">the</span> <span class="nx">availability</span> <span class="nx">zones</span>
-    :<span class="kt">param</span> <span class="nx">count</span>: <span class="kt">Minimum</span> <span class="kt">number</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="nx">needed</span>
-
-    :<span class="kt">return</span><span class="o">:</span> <span class="nx">List</span> <span class="nx">of</span> <span class="nx">availability</span> <span class="nx">zones</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">given</span> <span class="nx">region</span>
-
 <span class="nx">get_capabilities</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
-
-<span class="nx">get_cfnlogs</span><span class="p">(</span><span class="nx">stackname</span><span class="p">,</span> <span class="nx">region</span><span class="p">)</span>
-    <span class="nx">This</span> <span class="kd">function</span> <span class="nx">returns</span> <span class="nx">the</span> <span class="nx">event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">given</span> <span class="nx">stack</span> <span class="k">in</span> <span class="nx">a</span> <span class="nx">specific</span> <span class="nx">format.</span>
-    :<span class="kt">param</span> <span class="nx">stackname</span>: <span class="kt">Name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
-    :<span class="kt">param</span> <span class="nx">region</span>: <span class="kt">Region</span> <span class="nx">stack</span> <span class="nx">belongs</span> <span class="nx">to</span>
-    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Event</span> <span class="nx">logs</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">stack</span>
 
 <span class="nx">get_config</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
@@ -782,8 +822,6 @@
 
 <span class="nx">get_s3bucket</span><span class="p">(</span><span class="nx">self</span><span class="p">)</span>
 
-<span class="nx">get_s3contents</span><span class="p">(</span><span class="nx">url</span><span class="p">)</span>
-
 <span class="nx">get_stackstatus</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">testdata_list</span><span class="p">,</span> <span class="nx">speed</span><span class="p">)</span>
     <span class="nx">Given</span> <span class="nx">a</span> <span class="nx">list</span> <span class="nx">of</span> <span class="nx">TestData</span> <span class="nx">objects</span><span class="p">,</span> <span class="k">this</span> <span class="kd">function</span> <span class="nx">checks</span> <span class="nx">the</span> <span class="nx">stack</span> <span class="nx">status</span>
     <span class="nx">of</span> <span class="nx">each</span> <span class="nx">CloudFormation</span> <span class="nx">stack</span> <span class="nx">and</span> <span class="nx">updates</span> <span class="nx">the</span> <span class="nx">corresponding</span> <span class="nx">TestData</span> <span class="nx">object</span>
@@ -812,14 +850,6 @@
 
     :<span class="kt">param</span> <span class="nx">stack_name</span>: <span class="kt">Full</span> <span class="nx">stack</span> <span class="nx">name</span> <span class="nx">arn</span>
     :<span class="kt">return</span><span class="o">:</span> <span class="nx">Dictionary</span> <span class="nx">object</span> <span class="nx">containing</span> <span class="nx">the</span> <span class="nx">region</span> <span class="nx">and</span> <span class="nx">stack</span> <span class="nx">name</span>
-
-<span class="nx">regxfind</span><span class="p">(</span><span class="nx">re_object</span><span class="p">,</span> <span class="nx">data_line</span><span class="p">)</span>
-    <span class="nx">Returns</span> <span class="nx">the</span> <span class="nx">matching</span> <span class="kt">string</span><span class="p">.</span>
-
-    <span class="o">:</span><span class="nx">param</span> <span class="nx">re_object</span>: <span class="kt">Regex</span> <span class="nx">object</span>
-    :<span class="kt">param</span> <span class="nx">data_line</span>: <span class="kt">String</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">searched</span>
-
-    :<span class="kt">return</span><span class="o">:</span> <span class="nx">Matching</span> <span class="nb">String</span> <span class="k">if</span> <span class="nx">found</span><span class="p">,</span> <span class="nx">otherwise</span> <span class="k">return</span> <span class="s1">&#39;Not-found&#39;</span>
 
 <span class="nx">set_capabilities</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">ability</span><span class="p">)</span>
 
@@ -914,34 +944,6 @@
     :<span class="kt">param</span> <span class="nx">stack_id</span>: <span class="kt">Stack</span> <span class="nx">Id</span>
     :<span class="kt">param</span> <span class="nx">logpath</span>: <span class="kt">Log</span> <span class="nx">file</span> <span class="nx">path</span>
     :<span class="kt">return</span><span class="o">:</span>
-
-<span class="nx">Instance</span> <span class="nx">variables</span>
-<span class="o">------------------</span>
-<span class="nx">banner</span>
-
-<span class="nx">capabilities</span>
-
-<span class="nx">config</span>
-
-<span class="nx">defult_region</span>
-
-<span class="kr">interface</span>
-
-<span class="nx">nametag</span>
-
-<span class="nx">parameter_path</span>
-
-<span class="nx">project</span>
-
-<span class="nx">run_cleanup</span>
-
-<span class="nx">s3bucket</span>
-
-<span class="nx">template_path</span>
-
-<span class="nx">test_region</span>
-
-<span class="nx">verbose</span>
 </pre></div>
 </td></tr></table>
                 
