@@ -41,7 +41,7 @@ from botocore.vendored import requests
 from botocore.exceptions import ClientError
 from pkg_resources import get_distribution
 
-from taskcat.sweeper import Sweeper
+from .sweeper import Sweeper
 
 # Version Tag
 __version__ = get_distribution('taskcat').version
