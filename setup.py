@@ -11,15 +11,11 @@ def get_pip_version(pkginfo_url):
 
 
 if os.path.isfile('branch_master'):
-   print ("master branch")
-   current__version = get_pip_version('https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+   current_version = get_pip_version('https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
 else:
-   print ("develop branch")
-   current__version = get_pip_version('https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+   current_version = get_pip_version('https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
 
-new_version =re.sub('\d$', lambda x: str(int(x.group(0)) + 1), current__version)
-
-exit()
+new_version =re.sub('\d$', lambda x: str(int(x.group(0)) + 1), current_version)
 
 setup(
     name='taskcat',
