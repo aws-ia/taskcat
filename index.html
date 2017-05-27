@@ -261,22 +261,26 @@
                   <a href="https://github.com/aws-quickstart/taskcat/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="taskcat">taskcat<a class="headerlink" href="#taskcat" title="Permanent link">&para;</a></h1>
+                <h1 id="taskcat">TaskCat<a class="headerlink" href="#taskcat" title="Permanent link">&para;</a></h1>
 <blockquote>
 <p>version = '0.1.76'
 This program requires python3 </p>
 </blockquote>
 <h1 id="currently-in-beta-release">Currently in beta release<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
 <p>Please report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues">https://github.com/aws-quickstart/taskcat/issues</a></p>
-<h2 id="what-is-taskcat">What is taskcat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
+<h2 id="what-is-taskcat">What is TaskCat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
 <p>TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.</p>
 <p>TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
 templates across AWS Regions</p>
 <h2 id="files-youll-need">Files you’ll need<a class="headerlink" href="#files-youll-need" title="Permanent link">&para;</a></h2>
-<p><strong>config.yml</strong> - This file contains the test cases
-<strong>JSON input</strong> - This file contains the imputs that you want to pass to AWS CloudFormation template that is being tested</p>
 <ul>
-<li>Step 1 Building your configuration file </li>
+<li><strong>config.yml</strong> - This file contains the test cases</li>
+<li>
+<p><strong>JSON input</strong> - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested</p>
+</li>
+<li>
+<p>Step 1 Building your configuration file </p>
+</li>
 <li>Step 2 Building your JSON input file.</li>
 </ul>
 <h4 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h4>
@@ -318,14 +322,14 @@ Open the config.yml file with and editor and update the filenames to match your 
     <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">2</span>
 <span class="n">tests</span><span class="o">:</span>
   <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span> <span class="n">and</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
-  <span class="n">senario</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span>
+  <span class="n">scenario</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span>
     <span class="n">regions</span><span class="o">:</span>
       <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">west</span><span class="o">-</span><span class="mi">1</span>
       <span class="o">-</span> <span class="n">us</span><span class="o">-</span><span class="n">east</span><span class="o">-</span><span class="mi">1</span>
     <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">novpc</span><span class="o">.</span><span class="na">template</span>
     <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="o">.</span><span class="na">json</span>
   <span class="err">#</span> <span class="n">The</span> <span class="n">following</span> <span class="n">test</span> <span class="n">will</span> <span class="n">test</span> <span class="k">in</span> <span class="n">both</span> <span class="n">all</span> <span class="mi">4</span> <span class="n">region</span> <span class="n">defined</span> <span class="k">in</span> <span class="n">the</span> <span class="n">global</span> <span class="n">region</span> <span class="n">section</span> <span class="n">using</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">.</span><span class="na">json</span> <span class="k">as</span> <span class="n">inputs</span>
-      <span class="n">senario</span><span class="o">-</span><span class="n">all</span><span class="o">-</span><span class="n">regions</span><span class="o">:</span>
+      <span class="n">scenario</span><span class="o">-</span><span class="n">all</span><span class="o">-</span><span class="n">regions</span><span class="o">:</span>
     <span class="n">parameter_input</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">json</span>
     <span class="n">template_file</span><span class="o">:</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="o">.</span><span class="na">template</span>
 </pre></div>
@@ -362,7 +366,7 @@ Open the config.yml file with and editor and update the filenames to match your 
    <span class="err">│  </span>         <span class="err">└──</span> <span class="n">aws</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">template</span>
    <span class="err">└──</span> <span class="n">templates</span>
        <span class="err">├──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">template</span> 
-       <span class="err">└──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">template</span> <span class="o">&lt;-</span> <span class="n">Second</span> <span class="n">version</span> <span class="n">on</span> <span class="n">template</span> <span class="n">that</span> <span class="n">will</span> <span class="n">create</span> <span class="n">a</span> <span class="n">vpc</span> <span class="n">with</span> <span class="n">the</span> <span class="n">worklo</span>    <span class="n">ad</span>
+       <span class="err">└──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">template</span> <span class="o">&lt;-</span> <span class="n">Second</span> <span class="n">version</span> <span class="n">on</span> <span class="n">template</span> <span class="n">that</span> <span class="n">will</span> <span class="n">create</span> <span class="n">a</span> <span class="n">vpc</span> <span class="n">with</span> <span class="n">the</span> <span class="n">workload</span>
 </pre></div>
 </td></tr></table>
 
@@ -457,11 +461,11 @@ Open the config.yml file with and editor and update the filenames to match your 
 <li>Parameters must start with $[</li>
 <li>Parameters must end with ]</li>
 <li>genpass in invoked when _genpass_X is found</li>
-<li>X is lengeth of the string</li>
+<li>X is length of the string</li>
 </ul>
 <p>(Optionally - you can specify the type of password by adding A or S)</p>
 <ul>
-<li>A aplha-numeric passwords</li>
+<li>A alpha-numeric passwords</li>
 <li>S passwords with special characters</li>
 </ul>
 <blockquote>
@@ -470,7 +474,7 @@ Generates: <code class="codehilite">tI8zN3iX8</code>
 Example: $[taskcat_genpass_8S]
 Generates: mA5@cB5!</p>
 </blockquote>
-<h3 id="availablity-zones">(Availablity Zones)<a class="headerlink" href="#availablity-zones" title="Permanent link">&para;</a></h3>
+<h3 id="availability-zones">(Availability Zones)<a class="headerlink" href="#availability-zones" title="Permanent link">&para;</a></h3>
 <p>Value that matches the following pattern will be replaced</p>
 <ul>
 <li>Parameters must start with $[</li>
@@ -486,8 +490,8 @@ Generates: us-east-1a, us-east-2b
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
 <h3 id="installing-taskcat-option-1">Installing TaskCat (Option 1)<a class="headerlink" href="#installing-taskcat-option-1" title="Permanent link">&para;</a></h3>
 <blockquote>
-<p>Prerequisites: Python 3.5+ and pip
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| python -E
+<p>Prerequisites: Python 3.5+ and pip3
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
 </pre></div>
 </td></tr></table></p>
 </blockquote>
@@ -501,7 +505,7 @@ Note: (If you do not have root privileges taskcat will install in the current di
 </blockquote>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
 <p>If you have AWS credentials sourced 
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>     taskcat -c sample-cloudformation-project/ci/config.yml
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml
 </pre></div>
 </td></tr></table>
 If you need to pass ACCESS and SECRET keys
