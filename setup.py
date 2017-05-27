@@ -39,6 +39,6 @@ setup(
 
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
 
-    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'pkg_resources']
+    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag']
 
 )
