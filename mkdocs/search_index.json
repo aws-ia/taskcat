@@ -107,7 +107,7 @@
         }, 
         {
             "location": "/pip/sweeper.m/", 
-            "text": "Module sweeper\n\n\nClasses\n\n\nSweeper \n    Ancestors (in MRO)\n    ------------------\n    sweeper.Sweeper\n    \nbuiltin\n.object\n\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\nInstance variables\n\n\n------------------\n\nsession\n\n\nMethods\n\n\n-------\n\n__init__(self, session)\n\ndelete_all(self, stack_list)", 
+            "text": "Module sweeper\n\n\nClasses\n\n\nSweeper \n    Ancestors (in MRO)\n    ------------------\n    sweeper.Sweeper\n    builtins.object\n\n\n 1\n 2\n 3\n 4\n 5\n 6\n 7\n 8\n 9\n10\nStatic methods\n\n\n--------------\n\n__init__(self, session)\n    Initialize self.  See help(type(self)) for accurate signature.\n\ndelete_all(self, stack_list)\n\n\nInstance variables\n\n\n------------------\n\nsession", 
             "title": "Sub Module (taskcat.sweeper)"
         }, 
         {
@@ -117,7 +117,7 @@
         }, 
         {
             "location": "/pip/sweeper.m/#classes", 
-            "text": "Sweeper \n    Ancestors (in MRO)\n    ------------------\n    sweeper.Sweeper\n     builtin .object  1\n2\n3\n4\n5\n6\n7\n8\n9 Instance variables  ------------------ \nsession Methods  ------- \n__init__(self, session)\n\ndelete_all(self, stack_list)", 
+            "text": "Sweeper \n    Ancestors (in MRO)\n    ------------------\n    sweeper.Sweeper\n    builtins.object   1\n 2\n 3\n 4\n 5\n 6\n 7\n 8\n 9\n10 Static methods  -------------- \n__init__(self, session)\n    Initialize self.  See help(type(self)) for accurate signature.\n\ndelete_all(self, stack_list) Instance variables  ------------------ \nsession", 
             "title": "Classes"
         }
     ]
