@@ -1,6 +1,6 @@
 
 # TaskCat
-> version = '0.1.76'
+> version = '2017.0528.220651'
 > This program requires python3 
 
 # Currently in beta release
@@ -156,7 +156,7 @@ Value that matches the following pattern will be replaced
 ### Installing TaskCat (Option 1)
 > Prerequisites: Python 3.5+ and pip3
 ```
-curl -s curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
 ```
 ### Installing TaskCat via docker (Option 2) 
 > Prerequisites: docker
