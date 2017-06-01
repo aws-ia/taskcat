@@ -213,20 +213,8 @@
 
 
   <li class="md-nav__item">
-    <a href="pip/taskcat.m/" title="Pip Module (taskcat)" class="md-nav__link">
-      Pip Module (taskcat)
-    </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="pip/sweeper.m/" title="Sub Module (taskcat.sweeper)" class="md-nav__link">
-      Sub Module (taskcat.sweeper)
+    <a href="module/" title="Module (taskcat)" class="md-nav__link">
+      Module (taskcat)
     </a>
   </li>
 
@@ -262,12 +250,12 @@
                 
                 
                 <h1 id="taskcat">TaskCat<a class="headerlink" href="#taskcat" title="Permanent link">&para;</a></h1>
+<p>version = '2017.0528.220651'</p>
 <blockquote>
-<p>version = '2017.0528.220651'
-This program requires python3 </p>
+<p>This program requires python3 </p>
 </blockquote>
-<h1 id="currently-in-beta-release">Currently in beta release<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
-<p>Please report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues">https://github.com/aws-quickstart/taskcat/issues</a></p>
+<h1 id="currently-in-beta-release">Currently in (beta release)<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
+<p>Report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues>[Open Issues]</a></p>
 <h2 id="what-is-taskcat">What is TaskCat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
 <p>TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.</p>
 <p>TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
@@ -355,15 +343,15 @@ Open the config.yml file with and editor and update the filenames to match your 
 <span class="err">├──</span> <span class="n">LICENSE</span><span class="p">.</span><span class="n">txt</span>
 <span class="err">├──</span> <span class="n">README</span><span class="p">.</span><span class="n">md</span>
 <span class="err">└──</span> <span class="n">ci</span>
-<span class="err">  </span> <span class="err">├──</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="o">&lt;-</span> <span class="n">This</span> <span class="n">the</span> <span class="n">config</span> <span class="n">file</span> <span class="n">that</span> <span class="n">will</span> <span class="n">hold</span> <span class="n">all</span> <span class="n">the</span> <span class="n">test</span> <span class="n">definitions</span> 
-<span class="err">  </span> <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">vpc</span> <span class="n">version</span><span class="p">]</span> <span class="p">(</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
-<span class="err">  </span> <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">no</span><span class="o">-</span><span class="n">vpc</span> <span class="n">version</span><span class="p">](</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
+   <span class="err">├──</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="o">&lt;-</span> <span class="n">This</span> <span class="n">the</span> <span class="n">config</span> <span class="n">file</span> <span class="n">that</span> <span class="n">will</span> <span class="n">hold</span> <span class="n">all</span> <span class="n">the</span> <span class="n">test</span> <span class="n">definitions</span> 
+   <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">vpc</span> <span class="n">version</span><span class="p">]</span> <span class="p">(</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
+   <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">no</span><span class="o">-</span><span class="n">vpc</span> <span class="n">version</span><span class="p">](</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
    <span class="err">├──</span> <span class="n">scripts</span>
-   <span class="err">│  </span> <span class="err">└──</span> <span class="n">userdata</span><span class="p">.</span><span class="n">sh</span> <span class="o">&lt;-</span> <span class="n">If</span> <span class="n">you</span> <span class="n">have</span> <span class="n">userdata</span> <span class="n">scripts</span> <span class="n">you</span> <span class="n">can</span> <span class="n">load</span> <span class="n">then</span> <span class="k">in</span> <span class="n">the</span> <span class="n">scripts</span> <span class="n">directory</span>
+   <span class="err">│</span>   <span class="err">└──</span> <span class="n">userdata</span><span class="p">.</span><span class="n">sh</span> <span class="o">&lt;-</span> <span class="n">If</span> <span class="n">you</span> <span class="n">have</span> <span class="n">userdata</span> <span class="n">scripts</span> <span class="n">you</span> <span class="n">can</span> <span class="n">load</span> <span class="n">then</span> <span class="k">in</span> <span class="n">the</span> <span class="n">scripts</span> <span class="n">directory</span>
    <span class="err">├──</span> <span class="n">submodules</span>  <span class="o">&lt;-</span> <span class="n">If</span> <span class="n">you</span> <span class="n">have</span> <span class="n">git</span> <span class="n">submodules</span> <span class="n">you</span> <span class="n">can</span> <span class="n">load</span> <span class="n">them</span> <span class="k">in</span> <span class="n">the</span> <span class="n">submodules</span> <span class="n">directory</span>
-   <span class="err">│  </span> <span class="err">└──</span> <span class="n">quickstart</span><span class="o">-</span><span class="n">aws</span><span class="o">-</span><span class="n">vpc</span>
-   <span class="err">│  </span>     <span class="err">└──</span> <span class="n">templates</span>
-   <span class="err">│  </span>         <span class="err">└──</span> <span class="n">aws</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">template</span>
+   <span class="err">│</span>   <span class="err">└──</span> <span class="n">quickstart</span><span class="o">-</span><span class="n">aws</span><span class="o">-</span><span class="n">vpc</span>
+   <span class="err">│</span>       <span class="err">└──</span> <span class="n">templates</span>
+   <span class="err">│</span>           <span class="err">└──</span> <span class="n">aws</span><span class="o">-</span><span class="n">vpc</span><span class="p">.</span><span class="n">template</span>
    <span class="err">└──</span> <span class="n">templates</span>
        <span class="err">├──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">template</span> 
        <span class="err">└──</span> <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">project</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">template</span> <span class="o">&lt;-</span> <span class="n">Second</span> <span class="n">version</span> <span class="n">on</span> <span class="n">template</span> <span class="n">that</span> <span class="n">will</span> <span class="n">create</span> <span class="n">a</span> <span class="n">vpc</span> <span class="n">with</span> <span class="n">the</span> <span class="n">workload</span>
@@ -535,13 +523,13 @@ If you want to use a different account or profile
       <nav class="md-footer-nav__inner md-grid">
         
         
-          <a href="pip/taskcat.m/" title="Pip Module (taskcat)" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="module/" title="Module (taskcat)" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Pip Module (taskcat)
+                Module (taskcat)
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
