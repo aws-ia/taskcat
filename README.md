@@ -1,10 +1,16 @@
-
 # TaskCat
-> version = '2017.0528.220651'
 > This program requires python3 
 
-# Currently in beta release
-Please report bugs here https://github.com/aws-quickstart/taskcat/issues
+# Currently in (beta release)
+
+Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
+
+#Python Module documentation
+
+Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/taskcat.m.html" target="_top">[taskcat.Taskcat]</a>
+
+Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/sweeper.m.html" target="_parent">[taskcat.Sweeper]</a>
+
  
 ## What is TaskCat? 
 TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.
