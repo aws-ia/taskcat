@@ -4,7 +4,23 @@
     
     <url>
      <loc>http://aws-quickstart.github.io/taskcat//</loc>
-     <lastmod>2017-06-01</lastmod>
+     <lastmod>2017-06-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://aws-quickstart.github.io/taskcat//pip/taskcat.m/</loc>
+     <lastmod>2017-06-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>http://aws-quickstart.github.io/taskcat//pip/sweeper.m/</loc>
+     <lastmod>2017-06-14</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
