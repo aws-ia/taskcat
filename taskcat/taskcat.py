@@ -44,8 +44,12 @@ from pkg_resources import get_distribution
 from .sweeper import Sweeper
 
 # Version Tag
-__version__ = get_distribution('taskcat').version
-version=__version__
+try:
+    __version__ = get_distribution('taskcat').version
+except:
+    __version__ = "[local] no pip module installed (dev-mode)"
+
+version = __version__
 debug = ''
 error = ''
 check = ''
@@ -496,7 +500,8 @@ class TaskCat(object):
                             '\n\t\tType',
                             resource.get('ResourceType')
                         ))
-                    # if resource is a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
+                    # if resource is a stack and has a physical resource id
+                    # (NOTE: physical id will be missing if stack creation is failed)
                     if resource.get(
                             'ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
                         if include_stacks:
@@ -509,7 +514,8 @@ class TaskCat(object):
                         region = stackdata['region']
                         self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources,
                                                   include_stacks)
-                    # else if resource is not a stack and has a physical resource id (NOTE: physical id will be missing if stack creation is failed)
+                    # else if resource is not a stack and has a physical resource id
+                    # (NOTE: physical id will be missing if stack creation is failed)
                     elif resource.get(
                             'ResourceType') != 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
                         d = {'logicalId': resource.get('LogicalResourceId'),
