@@ -46,8 +46,8 @@ from .sweeper import Sweeper
 # Version Tag
 try:
     __version__ = get_distribution('taskcat').version
-except:
-    __version__ = "[local] no pip module installed (dev-mode)"
+except Exception:
+    __version__ = "[using local source] no pip module installed"
 
 version = __version__
 debug = ''
