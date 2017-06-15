@@ -705,6 +705,11 @@ class TaskCat(object):
                     # Example: $[taskcat_genpass_8S]
                     # Generates: mA5@cB5!
 
+                    # Auto generated bucket value
+                    # Example: $[taskcat_autobucket]
+                    # Generates: <evaluates to auto generated bucket name>
+                    # or
+
                     # (Availablity Zones)
                     # Value that matches the following pattern will be replaced
                     # - Parameters must start with $[
@@ -730,12 +735,24 @@ class TaskCat(object):
                             genpass_re = re.compile(
                                 '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
 
+                            # Determines if autobucket value was requested
+                            autobucket_re = re.compile(
+                                '\$\[taskcat_autobucket]$')
+
                             # Determines if _genaz has been requested
                             genaz_re = re.compile('\$\[\w+_genaz_\d]')
 
                             # Determines if s3 replacement was requested
                             gets3replace = re.compile('\$\[\w+_url_.+]$')
                             geturl_re = re.compile('(?<=._url_)(.+)(?=]$)')
+
+                            if autobucket_re.search(param_value):
+                                url = self.regxfind(autobucket_re, param_value)
+                                param_value = self.get_s3bucket()
+                                if self.verbose:
+                                    print("Setting vaule to {}".format(url))
+                                    print(param_value)
+                                parmdict['ParameterValue'] = param_value
 
                             if gets3replace.search(param_value):
                                 url = self.regxfind(geturl_re, param_value)
@@ -1669,6 +1686,9 @@ class TaskCat(object):
     Generates: tI8zN3iX8 
     Optionally: $[taskcat_genpass_8S]
     Generates: mA5@cB5!
+    
+    Example: $[taskcat_autobucket]
+    Generates: <evaluates to auto generated bucket name>
     
     For more info see: http://taskcat.io
 
