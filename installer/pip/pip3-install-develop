@@ -21,20 +21,20 @@ Or use: unsupported python 2 installer (pip2-install)\
 	")
 
 osinfo = platform.uname()
-print("[INITALIZING taskcat Installer!!]")
+print("[INITALIZING taskcat dev Installer!!]")
 
 # noinspection PyPep8
 linux_install = '''
 INSTALL_DIR='/usr/local/bin'
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py -o taskcat.run
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/taskcat_test.py -o taskcat.run
 chmod 755 taskcat.run
-pip3 install --extra-index-url https://testpypi.python.org/pypi taskcat  --upgrade
-sudo mv taskcat.run ${INSTALL_DIR}/taskcat
+pip3 install -i https://testpypi.python.org/pypi taskcat --upgrade
+sudo mv taskcat.run ${INSTALL_DIR}/taskcat-develop
 if [ -f taskcat.run ];then
-	mv taskcat.run taskcat
+	mv taskcat.run taskcat-develop
 	echo "taskcat is installed in $(pwd)"
 	echo "!taskcat needs to be added to your path!!!! "
-	echo "!please manally finish installing by coping ./taskcat to your path"
+	echo "!please manally finish installing by coping ./taskcat-develop to your path"
 	exit 1
 fi
 
@@ -42,7 +42,7 @@ fi
 	echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
 	echo
 	echo '\n\t[taskcat] Tip: To uninstall run: ' 
-	echo "\t[1] sudo rm ${INSTALL_DIR}/taskcat"
+	echo "\t[1] sudo rm ${INSTALL_DIR}/taskcat-develop"
 	echo "\t[2] sudo pip3 uninstall taskcat"
 	echo "\t[i] Answer 'y' to prompt"
 '''
