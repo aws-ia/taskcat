@@ -182,6 +182,7 @@ class TaskCat(object):
         self.parameter_path = None
         self.defult_region = "us-east-1"
         self._template_file = None
+        self._template_type = None
         self._parameter_file = None
         self._parameter_path = None
         self._termsize = 110
@@ -227,6 +228,12 @@ class TaskCat(object):
 
     def set_template_file(self, template):
         self._template_file = template
+
+    def get_template_type(self):
+        return self._template_type
+
+    def set_template_type(self, template_type):
+        self._template_type = template_type
 
     def set_parameter_file(self, parameter):
         self._parameter_file = parameter
@@ -576,6 +583,7 @@ class TaskCat(object):
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
                 cfn = boto3.client('cloudformation', self.get_default_region())
+
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 print(P + "Validated [%s]" % self.get_template_file())
@@ -776,7 +784,8 @@ class TaskCat(object):
                         print(D + "TemplateURL=%s" % self.get_template_path())
                         print(D + "Capabilities=%s" % self.get_capabilities())
                         print(D + "Parameters:")
-                        print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
+                        if self.get_template_type() == 'json':
+                            print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
 
                     stackdata = cfn.create_stack(
                         StackName=stackname,
@@ -805,21 +814,44 @@ class TaskCat(object):
                     rst_color))
         return testdata_list
 
-    def validate_json(self, jsonin):
+    def check_json(self, jsonin, quite=None):
         """
         This function validates the given JSON.
 
         :param jsonin: Json object to be validated
+        :param quite: Optional value, if set True suppress verbose ouput
 
         :return: TRUE if given Json is valid, FALSE otherwise.
         """
         try:
             parms = json.loads(jsonin)
             if self.verbose:
-                print(json.dumps(parms, indent=11, separators=(',', ': ')))
+                if not quite:
+                    print(json.dumps(parms, indent=11, separators=(',', ': ')))
         except ValueError as e:
             print(E + str(e))
             return False
+        return True
+
+    def check_yaml(self, yamlin, quite=None):
+        """
+        This function validates the given YAML.
+
+        :param yamlin: yaml object to be validated
+        :param quite: Optional value, if set True suppress verbose ouput
+
+        :return: TRUE if given yaml is valid, FALSE otherwise.
+        """
+        # Disabled yaml validation short cuts are not supported by default constructor
+        # @TODO Create ymal validator
+        #try:
+        #    parms = yaml.load(yamlin)
+        #    if self.verbose:
+        #        if not quite:
+        #            print(json.dumps(parms, indent=4, separators=(',', ': ')))
+        #except ValueError as e:
+        #    print(E + str(e))
+        #    return False
         return True
 
     def validate_parameters(self, taskcat_cfg, test_list):
@@ -838,7 +870,7 @@ class TaskCat(object):
                 print(D + "parameter_path = %s" % self.get_parameter_path())
 
             inputparms = requests.get(self.get_parameter_path()).text
-            jsonstatus = self.validate_json(inputparms)
+            jsonstatus = self.check_json(inputparms)
 
             if self.verbose:
                 print(D + "jsonstatus = %s" % jsonstatus)
@@ -1086,7 +1118,7 @@ class TaskCat(object):
                         self.set_docleanup(False)
                 else:
                     # By default do cleanup unless self.run_cleanup
-                    # was overwridden (set to False) by -n flag
+                    # was overridden (set to False) by -n flag
                     if not self.run_cleanup:
                         if self.verbose:
                             print(D + "cleanup set by cli flag {0}".format(self.run_cleanup))
@@ -1120,13 +1152,28 @@ class TaskCat(object):
                     print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
                     quit()
 
+                # Detect template type
+                cfntemplate = requests.get(self.get_s3_url(self.get_template_file())).text
+                if self.check_json(cfntemplate, quite=True):
+                    self.set_template_type('json')
+                elif self.check_yaml(cfntemplate, quite=True):
+                    self.set_template_type('yaml')
+                elif not self.get_template_type():
+                    sys.exit(1)
+
                 print('\n')
                 if self.verbose:
                     print(I + "|Acquiring tests assets for .......[%s]" % test)
-                    print(D + "|S3 Bucket  => [%s]" % self.get_s3bucket())
-                    print(D + "|Project    => [%s]" % self.get_project())
-                    print(D + "|Template   => [%s]" % self.get_template_path())
-                    print(D + "|Parameter  => [%s]" % self.get_parameter_path())
+                    print(D + "|S3 Bucket     => [%s]" % self.get_s3bucket())
+                    print(D + "|Project       => [%s]" % self.get_project())
+                    print(D + "|Template      => [%s]" % self.get_template_path())
+                    print(D + "|Parameter     => [%s]" % self.get_parameter_path())
+                    print(D + "|TemplateType  => [%s]" % self.get_template_type())
+
+                if self.get_template_type() == 'json':
+                    if not self.check_json(cfntemplate, quite=True):
+                        sys.exit(E + 'Json template did not pass strict checks!!')
+
                 if 'regions' in yamlc['tests'][test]:
                     if yamlc['tests'][test]['regions'] is not None:
                         r = yamlc['tests'][test]['regions']
