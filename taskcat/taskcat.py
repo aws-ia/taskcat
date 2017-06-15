@@ -186,6 +186,7 @@ class TaskCat(object):
         self._parameter_file = None
         self._parameter_path = None
         self._termsize = 110
+        self._strict_syntax_json = True
         self._banner = ""
         self._report = False
         self._use_global = False
@@ -222,6 +223,12 @@ class TaskCat(object):
 
     def get_config(self):
         return self.config
+
+    def get_strict_syntax_json(self):
+        return self._strict_syntax_json
+
+    def set_strict_syntax_json(self, value):
+        self._strict_syntax_json = value
 
     def get_template_file(self):
         return self._template_file
@@ -814,46 +821,6 @@ class TaskCat(object):
                     rst_color))
         return testdata_list
 
-    def check_json(self, jsonin, quite=None):
-        """
-        This function validates the given JSON.
-
-        :param jsonin: Json object to be validated
-        :param quite: Optional value, if set True suppress verbose ouput
-
-        :return: TRUE if given Json is valid, FALSE otherwise.
-        """
-        try:
-            parms = json.loads(jsonin)
-            if self.verbose:
-                if not quite:
-                    print(json.dumps(parms, indent=11, separators=(',', ': ')))
-        except ValueError as e:
-            print(E + str(e))
-            return False
-        return True
-
-    def check_yaml(self, yamlin, quite=None):
-        """
-        This function validates the given YAML.
-
-        :param yamlin: yaml object to be validated
-        :param quite: Optional value, if set True suppress verbose ouput
-
-        :return: TRUE if given yaml is valid, FALSE otherwise.
-        """
-        # Disabled yaml validation short cuts are not supported by default constructor
-        # @TODO Create ymal validator
-        #try:
-        #    parms = yaml.load(yamlin)
-        #    if self.verbose:
-        #        if not quite:
-        #            print(json.dumps(parms, indent=4, separators=(',', ': ')))
-        #except ValueError as e:
-        #    print(E + str(e))
-        #    return False
-        return True
-
     def validate_parameters(self, taskcat_cfg, test_list):
         """
         This function validates the parameters file of the CloudFormation template.
@@ -1154,14 +1121,17 @@ class TaskCat(object):
 
                 # Detect template type
                 cfntemplate = requests.get(self.get_s3_url(self.get_template_file())).text
-                if self.check_json(cfntemplate, quite=True):
-                    self.set_template_type('json')
-                elif self.check_yaml(cfntemplate, quite=True):
-                    self.set_template_type('yaml')
-                elif not self.get_template_type():
-                    sys.exit(1)
 
-                print('\n')
+                if self.check_json(cfntemplate, quite=True, strict=False):
+                    self.set_template_type('json')
+                    # Enforce strict json syntax
+                    if self._strict_syntax_json:
+                        self.check_json(cfntemplate, quite=True, strict=True)
+                else:
+                    self.set_template_type(None)
+                    self.check_yaml(cfntemplate, quite=True, strict=False)
+                    self.set_template_type('yaml')
+
                 if self.verbose:
                     print(I + "|Acquiring tests assets for .......[%s]" % test)
                     print(D + "|S3 Bucket     => [%s]" % self.get_s3bucket())
@@ -1169,10 +1139,6 @@ class TaskCat(object):
                     print(D + "|Template      => [%s]" % self.get_template_path())
                     print(D + "|Parameter     => [%s]" % self.get_parameter_path())
                     print(D + "|TemplateType  => [%s]" % self.get_template_type())
-
-                if self.get_template_type() == 'json':
-                    if not self.check_json(cfntemplate, quite=True):
-                        sys.exit(E + 'Json template did not pass strict checks!!')
 
                 if 'regions' in yamlc['tests'][test]:
                     if yamlc['tests'][test]['regions'] is not None:
@@ -1191,6 +1157,50 @@ class TaskCat(object):
                             print("\t\t\t - [%s]" % list_o)
                 print(P + "(Completed) acquisition of [%s]" % test)
                 print('\n')
+
+    def check_json(self, jsonin, quite=None, strict=None):
+        """
+        This function validates the given JSON.
+
+        :param jsonin: Json object to be validated
+        :param quite: Optional value, if set True suppress verbose output
+        :param strict: Optional value, Display errors and exit
+
+        :return: TRUE if given Json is valid, FALSE otherwise.
+        """
+        try:
+            parms = json.loads(jsonin)
+            if self.verbose:
+                if not quite:
+                    print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
+        except ValueError as e:
+            if strict:
+                print(E + str(e))
+                sys.exit(1)
+            return False
+        return True
+
+    def check_yaml(self, yamlin, quite=None, strict=None):
+        """
+        This function validates the given YAML.
+
+        :param yamlin: Yaml object to be validated
+        :param quite: Optional value, if set True suppress verbose output
+        :param strict: Optional value, Display errors and exit
+
+        :return: TRUE if given yaml is valid, FALSE otherwise.
+        """
+        try:
+            parms = yaml.load(yamlin)
+            if self.verbose:
+                if not quite:
+                    print(yaml.dump(parms))
+        except yaml.YAMLError as e:
+            if strict:
+                print(E + str(e))
+                sys.exit(1)
+            return False
+        return True
 
     # Set AWS Credentials
     def aws_api_init(self, args):
