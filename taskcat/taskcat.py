@@ -1791,7 +1791,7 @@ class TaskCat(object):
             if 'dev' not in version:
                 current_version = get_pip_version(
                     'https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
-                if version is current_version:
+                if version in current_version:
                     print("version %s" % version)
                 else:
                     _print_upgrade_msg(current_version)
@@ -1799,7 +1799,7 @@ class TaskCat(object):
             else:
                 current_version = get_pip_version(
                     'https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
-                if version is current_version:
+                if version in current_version:
                     print("version %s" % version)
                 else:
                     _print_upgrade_msg(current_version)
