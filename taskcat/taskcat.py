@@ -1774,14 +1774,15 @@ class TaskCat(object):
 
         return args
 
-    def checkforupdate(self):
-        current_version = None
+    @staticmethod
+    def checkforupdate():
 
-        def _print_upgrade_msg(current_version):
+        def _print_upgrade_msg(newversion):
             print("version %s" % version)
             print('\n')
-            print("{} A newer version of {} is available ({})".format(I, 'taskcat', current_version))
-            print('{} To upgrade pip version    {}[ pip install --upgrade ]{}'.format(
+            print("{} A newer version of {} is available ({})".format(
+                I, 'taskcat', newversion))
+            print('{} To upgrade pip version    {}[ pip install --upgrade taskcat]{}'.format(
                 I, hightlight, rst_color))
             print('{} To upgrade docker version {}[ docker pull taskcat/taskcat ]{}'.format(
                 I, hightlight, rst_color))
