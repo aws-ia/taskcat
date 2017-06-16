@@ -44,10 +44,16 @@ from pkg_resources import get_distribution
 from .sweeper import Sweeper
 
 # Version Tag
+''' 
+:param _run_mode: A value of 1 indicated taskcat is sourced from pip 
+ A value of 0 indicates development mode taskcat is loading from local source
+'''
 try:
     __version__ = get_distribution('taskcat').version
+    _run_mode = 1
 except Exception:
-    __version__ = "[using local source] no pip module installed"
+    __version__ = "[local source] no pip module installed"
+    _run_mode = 0
 
 version = __version__
 debug = ''
@@ -107,19 +113,29 @@ tests:
 # --Begin
 sys_yml = 'sys_config.yml'
 
-
 # --End
 # --------------------------------System variables
+'''
+Given the url to PypI package info url returns the current live version
+'''
 
 
-def buildmap(start_location, mapstring):
+def get_pip_version(pkginfo_url):
+    pkginfo = requests.get(pkginfo_url).text
+    for record in pkginfo.split('\n'):
+        if record.startswith('Version'):
+            current_version = str(record).split(':', 1)
+            return (current_version[1]).strip()
+
+
+def buildmap(start_location, map_string):
     """
     Given a start location and a string value, this function returns a list of
     file paths containing the given string value, down in the directory
     structure from the start location.
 
     :param start_location: directory from where to start looking for the file
-    :param mapstring: value to match in the file path
+    :param map_string: value to match in the file path
     :return:
         list of file paths containing the given value.
     """
@@ -127,7 +143,7 @@ def buildmap(start_location, mapstring):
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
         for fs_file in filelist:
             fs_path_to_file = (os.path.join(fs_path, fs_file))
-            if mapstring in fs_path_to_file and '.git' not in fs_path_to_file:
+            if map_string in fs_path_to_file and '.git' not in fs_path_to_file:
                 fs_map.append(fs_path_to_file)
     return fs_map
 
@@ -325,7 +341,7 @@ class TaskCat(object):
             # Name of example project = [projectx]
             # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
             Hint: if taskcat.py is not in your path specify the full path to taskcat.py
-            
+
             # Example of expected directory/project structure
             projectx
             ├── LICENSE.txt
@@ -344,7 +360,7 @@ class TaskCat(object):
                 - us-east-1
                 - us-west-1
                 - us-west-2
-             
+
             tests:
               projectx-test:
                 template_file: projectx.template
@@ -474,7 +490,7 @@ class TaskCat(object):
         consist of logicalId, physicalId and resourceType of the aws resource associated
         with the stack.
 
-        :param include_stacks: 
+        :param include_stacks:
         :param stackname: CloudFormation stack name
         :param region: AWS region
         :return: List of objects in the following format
@@ -1585,7 +1601,7 @@ class TaskCat(object):
         This function writes the event logs of the given stack and all the child stacks to a given file.
         :param stack_id: Stack Id
         :param logpath: Log file path
-        :return: 
+        :return:
         """
         stackinfo = self.parse_stack_info(str(stack_id))
         stackname = str(stackinfo['stack_name'])
@@ -1666,30 +1682,30 @@ class TaskCat(object):
     def interface(self):
         parser = argparse.ArgumentParser(
             description="""Multi-Region CloudFormation Deployment Tool)
-            
+
     [Auto-generated stack inputs] 
     Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
     Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
         - Parameters value in json input file must start with \'$[\' end with \']\'
-    
+
     Example:[ {
         "ParameterKey": "AvailabilityZones",
         "ParameterValue": "$[taskcat_genaz_2]"
     } ]
     Generates: us-east-1a, us-east-2b
-    
+
     Example:[ {
         "ParameterKey": "AppPassword",
         "ParameterValue": "$[taskcat_genpass_8]"
     } ]
-    
+
     Generates: tI8zN3iX8 
     Optionally: $[taskcat_genpass_8S]
     Generates: mA5@cB5!
-    
+
     Example: $[taskcat_autobucket]
     Generates: <evaluates to auto generated bucket name>
-    
+
     For more info see: http://taskcat.io
 
         """,
@@ -1758,11 +1774,43 @@ class TaskCat(object):
 
         return args
 
+    def checkforupdate(self):
+        current_version = None
+
+        def _print_upgrade_msg(current_version):
+            print("version %s" % version)
+            print('\n')
+            print("{} A newer version of {} is available ({})".format(I, 'taskcat', current_version))
+            print('{} To upgrade pip version    {}[ pip install --upgrade ]{}'.format(
+                I, hightlight, rst_color))
+            print('{} To upgrade docker version {}[ docker pull taskcat/taskcat ]{}'.format(
+                I, hightlight, rst_color))
+            print('\n')
+
+        if _run_mode > 0:
+            if 'dev' not in version:
+                current_version = get_pip_version(
+                    'https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+                if version is current_version:
+                    print("version %s" % version)
+                else:
+                    _print_upgrade_msg(current_version)
+
+            else:
+                current_version = get_pip_version(
+                    'https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+                if version is current_version:
+                    print("version %s" % version)
+                else:
+                    _print_upgrade_msg(current_version)
+        else:
+            print(I + "using %s (development mode) \n" % version)
+
     def welcome(self, prog_name='taskcat.io'):
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
         print("{0}".format(banner.renderText(prog_name), '\n'))
-        print("version %s" % version)
+        self.checkforupdate()
 
 
 def get_cfn_stack_events(stackname, region):
