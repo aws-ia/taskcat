@@ -49,7 +49,7 @@ from .sweeper import Sweeper
  A value of 0 indicates development mode taskcat is loading from local source
 '''
 try:
-    __version__ = get_distribution('taskcat').version
+    __version__ = get_distribution('taskcat').version.replace('.0','.')
     _run_mode = 1
 except Exception:
     __version__ = "[local source] no pip module installed"
