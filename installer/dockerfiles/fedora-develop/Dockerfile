@@ -15,6 +15,7 @@ LABEL container-os: fedora
 # Run as root
 USER root
 
+RUN dnf install git -y
 # Install taskcat (develop)
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 install boto3 pyfiglet pyyaml tabulate yattag

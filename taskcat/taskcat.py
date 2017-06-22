@@ -49,7 +49,7 @@ from .sweeper import Sweeper
  A value of 0 indicates development mode taskcat is loading from local source
 '''
 try:
-    __version__ = get_distribution('taskcat').version.replace('.0','.')
+    __version__ = get_distribution('taskcat').version.replace('.0', '.')
     _run_mode = 1
 except Exception:
     __version__ = "[local source] no pip module installed"
@@ -188,6 +188,7 @@ class TaskCat(object):
     def __init__(self, nametag='[taskcat]'):
         self.nametag = '{1}{0}{2}'.format(nametag, name_color, rst_color)
         self.project = None
+        self.owner = None
         self.banner = None
         self.capabilities = []
         self.verbose = False
@@ -201,6 +202,8 @@ class TaskCat(object):
         self._template_type = None
         self._parameter_file = None
         self._parameter_path = None
+        self.ddb_table = None
+        self._enable_dynamodb = False
         self._termsize = 110
         self._strict_syntax_json = True
         self._banner = ""
@@ -217,6 +220,12 @@ class TaskCat(object):
 
     def get_project(self):
         return self.project
+
+    def set_owner(self, owner):
+        self.owner = owner
+
+    def get_owner(self):
+        return self.owner
 
     def set_capabilities(self, ability):
         self.capabilities.append(ability)
@@ -281,6 +290,12 @@ class TaskCat(object):
 
     def get_password(self):
         return self._password
+
+    def set_dynamodb_table(self, ddb_table):
+        self.ddb_table = ddb_table
+
+    def get_dynamodb_table(self):
+        return self.ddbtable
 
     def set_default_region(self, region):
         self.defult_region = region
@@ -693,7 +708,7 @@ class TaskCat(object):
             testdata.set_test_name(test)
             print("{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(I, header, test, rst_color))
             sname = str(sig)
-            stackname = sname + '-' + sprefix + '-' + test + '-' + jobid[:4]
+            stackname = sname + '-' + sprefix + '-' + test + '-' + jobid[:8]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
@@ -950,6 +965,61 @@ class TaskCat(object):
             test_info.append(0)
         return test_info
 
+    def db_initproject(self, table_name):
+        """
+        :param table_name: Creates table if it does not exist. Waits for the table to become available
+        :return: DynamoDB object
+        """
+        dynamodb = boto3.resource('dynamodb', region_name=self.get_default_region())
+        try:
+            table = dynamodb.create_table(
+                TableName=table_name,
+                KeySchema=[
+                    {
+                        'AttributeName': 'job-name',
+                        'KeyType': 'HASH'
+                    }
+                ],
+                AttributeDefinitions=[
+                    {
+                        'AttributeName': 'job-name',
+                        'AttributeType': 'S'
+                    }
+
+                ],
+                ProvisionedThroughput={
+                    'ReadCapacityUnits': 5,
+                    'WriteCapacityUnits': 5,
+                }
+            )
+            print('Creating new [{}]'.format(table_name))
+            table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+            return table
+
+        except Exception as notable:
+            if notable:
+                print('Adding to existing [{}]'.format(table_name))
+                table = dynamodb.Table(table_name)
+                table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+                return table
+
+    def db_item(self, table, time_stamp, region, job_name, log_group, owner, job_status):
+
+        table.put_item(
+            Item={
+                'job-name': job_name,
+                'last-run': time_stamp,
+                'region': region,
+                'owner': owner,
+                'test-history': log_group,
+                'job-status': job_status,
+                'test-outputs': jobid[:8],
+            }
+        )
+
+    def enable_dynamodb_reporting(self, enable):
+        self._enable_dynamodb = enable
+
     def get_stackstatus(self, testdata_list, speed):
         """
         Given a list of TestData objects, this function checks the stack status
@@ -971,17 +1041,33 @@ class TaskCat(object):
                 'CLOUDFORMATION STACK NAME',
                 rst_color))
 
+
+            time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             for test in testdata_list:
                 for stack in test.get_test_stacks():
                     stackquery = self.stackcheck(str(stack['StackId']))
                     current_active_tests = stackquery[
                                                3] + current_active_tests
-                    print(I + "{3}{0} {1} [{2}]{4}".format(
+                    logs = (I + "{3}{0} {1} [{2}]{4}".format(
                         stackquery[1].ljust(15),
                         stackquery[2].ljust(25),
                         stackquery[0],
                         hightlight,
                         rst_color))
+                    print(logs)
+                    if self._enable_dynamodb:
+                        table = self.db_initproject(self.get_project())
+                        # Do not update when in cleanup start (preserves previous status)
+                        skip_status =['DELETE_IN_PROGRESS', 'STACK_DELETED']
+                        if stackquery[2] not in skip_status:
+                            self.db_item(table,
+                                         time_stamp,
+                                         stackquery[1],
+                                         test.get_test_name(),
+                                         'log group stub',
+                                         self.get_owner(),
+                                         stackquery[2])
+
                     stack['status'] = stackquery[2]
                     active_tests = current_active_tests
                     time.sleep(speed)
@@ -1102,6 +1188,7 @@ class TaskCat(object):
                 t = yamlc['tests'][test]['template_file']
                 p = yamlc['tests'][test]['parameter_input']
                 n = yamlc['global']['qsname']
+                o = yamlc['global']['owner']
                 b = self.get_s3bucket()
 
                 # Checks if cleanup flag is set
@@ -1131,6 +1218,7 @@ class TaskCat(object):
                 # Load test setting
                 self.set_s3bucket(b)
                 self.set_project(n)
+                self.set_owner(o)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
                 self.set_template_path(
