@@ -267,6 +267,7 @@
 </blockquote>
 <h1 id="currently-in-beta-release">Currently in (beta release)<a class="headerlink" href="#currently-in-beta-release" title="Permanent link">&para;</a></h1>
 <p>Please Report bugs here <a href="https://github.com/aws-quickstart/taskcat/issues">Issues</a></p>
+<p>For helpful information see <a href="FAQ.md">Frequently Asked Questions</a></p>
 <h1 id="python-module-documentation">Python Module documentation<a class="headerlink" href="#python-module-documentation" title="Permanent link">&para;</a></h1>
 <p>Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/taskcat.m.html" target="_top">[taskcat.Taskcat]</a></p>
 <p>Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/sweeper.m.html" target="_parent">[taskcat.Sweeper]</a></p>
@@ -285,13 +286,10 @@ templates across AWS Regions</p>
 </li>
 <li>Step 2 Building your JSON input file.</li>
 </ul>
-<h4 id="step-1-creating-a-configymal">Step 1 Creating a config.ymal<a class="headerlink" href="#step-1-creating-a-configymal" title="Permanent link">&para;</a></h4>
-<p>You can generate a sample config.ymal by running <code class="codehilite">taskcat -ey</code>
-The followup's command will create a sample config.yml
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>./taskcat -ey | egrep -v &#39;#|^$&#39;  &gt;config.yml
-</pre></div>
-</td></tr></table>
-Open the config.yml file with and editor and update the filenames to match your need. </p>
+<h4 id="step-1-creating-a-configyml">Step 1 Creating a config.yml<a class="headerlink" href="#step-1-creating-a-configyml" title="Permanent link">&para;</a></h4>
+<p>Open the config.yml file with and editor and update the filenames to match your need. </p>
+<p>example here:
+<a href="./examples/sample-taskcat-project/ci/taskcat.yml">config.yml</a></p>
 <h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -490,14 +488,7 @@ Generates: us-east-1a, us-east-2b
 (if the region is us-east-1)</p>
 </blockquote>
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
-<h3 id="installing-taskcat-option-1">Installing TaskCat (Option 1)<a class="headerlink" href="#installing-taskcat-option-1" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>Prerequisites: Python 3.5+ and pip3
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
-</pre></div>
-</td></tr></table></p>
-</blockquote>
-<h3 id="installing-taskcat-via-docker-option-2">Installing TaskCat via docker (Option 2)<a class="headerlink" href="#installing-taskcat-via-docker-option-2" title="Permanent link">&para;</a></h3>
+<h3 id="installing-taskcat-docker-install-is-recommended">Installing TaskCat (Docker install is recommended)<a class="headerlink" href="#installing-taskcat-docker-install-is-recommended" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: docker
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
@@ -505,17 +496,24 @@ Generates: us-east-1a, us-east-2b
 </td></tr></table>
 Note: (If you do not have root privileges taskcat will install in the current directory)</p>
 </blockquote>
+<h3 id="installing-via-pip">Installing via pip<a class="headerlink" href="#installing-via-pip" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Prerequisites: Python 3.5+ and pip3
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
+</pre></div>
+</td></tr></table></p>
+</blockquote>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
-<p>If you have AWS credentials sourced 
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml
+<p>If you have AWS credentials sourced (or default boto profile is available)
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
 </pre></div>
 </td></tr></table>
 If you need to pass ACCESS and SECRET keys
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
 </td></tr></table>
 If you want to use a different account or profile
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 </pre></div>
 </td></tr></table></p>
                 
