@@ -4,6 +4,7 @@
 # Currently in (beta release)
 
 Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
+
 [Frequently Asked Questions](FAQ.md)
 
 #Python Module documentation
