@@ -7,7 +7,7 @@ Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issue
 
 [Frequently Asked Questions](FAQ.md)
 
-#Python Module documentation
+# Python Module documentation
 
 Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/taskcat.m.html" target="_top">[taskcat.Taskcat]</a>
 
