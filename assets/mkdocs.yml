@@ -29,8 +29,7 @@ google_analytics:
 
 pages:
 - Home: index.md
-- Pip Module (taskcat): pip/taskcat.m.md
-- Sub Module (taskcat.sweeper): pip/sweeper.m.md
+- FAQ: FAQ.md
 
 markdown_extensions:
   - markdown.extensions.admonition
