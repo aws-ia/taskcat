@@ -1767,8 +1767,9 @@ class TaskCat(object):
             '--config_yml',
             type=str,
             help=" (Config File Required!) \n "
-                 "example here: https://raw.githubusercontent.com/aws-quickstart/taskcat"
-                 "/master/examples/sample-taskcat-project/ci/taskcat.yml")
+                 "example here: https://raw.githubusercontent.com/aws-quickstart/"
+                 "taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml"
+        )
         parser.add_argument(
             '-P',
             '--boto_profile',

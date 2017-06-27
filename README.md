@@ -5,7 +5,7 @@
 
 Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
 
-[Frequently Asked Questions](FAQ.md)
+For helpful information see [Frequently Asked Questions](FAQ.md)
 
 # Python Module documentation
 
@@ -27,7 +27,7 @@ templates across AWS Regions
 * Step 1 Building your configuration file 
 * Step 2 Building your JSON input file.
 
-#### Step 1 Creating a config.ymal
+#### Step 1 Creating a config.yml
 Open the config.yml file with and editor and update the filenames to match your need. 
 
 example here:
@@ -159,29 +159,30 @@ Value that matches the following pattern will be replaced
 
 ## Installing TaskCat
 
-### Installing TaskCat (Option 1)
-> Prerequisites: Python 3.5+ and pip3
-```
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
-```
-### Installing TaskCat via docker (Option 2) 
+### Installing TaskCat (Docker install is recommended)
 > Prerequisites: docker
 ```
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 ```
 > Note: (If you do not have root privileges taskcat will install in the current directory)
 
+### Installing via pip 
+> Prerequisites: Python 3.5+ and pip3
+```
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
+```
+
 ### Running TaskCat
 
-If you have AWS credentials sourced 
+If you have AWS credentials sourced (or default boto profile is available)
 ```
-taskcat -c sample-cloudformation-project/ci/config.yml
+taskcat -c sample-taskcat-project/ci/config.yml
 ```
 If you need to pass ACCESS and SECRET keys
 ```
-taskcat -c sample-cloudformation-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 ```
 If you want to use a different account or profile
 ```
-taskcat -c sample-cloudformation-project/ci/config.yml -P boto-profile-name
+taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ```
