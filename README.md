@@ -4,6 +4,7 @@
 # Currently in (beta release)
 
 Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
+[Frequently Asked Questions](FAQ.md)
 
 #Python Module documentation
 
@@ -26,12 +27,10 @@ templates across AWS Regions
 * Step 2 Building your JSON input file.
 
 #### Step 1 Creating a config.ymal
-You can generate a sample config.ymal by running `taskcat -ey`
-The followup's command will create a sample config.yml
-```
-./taskcat -ey | egrep -v '#|^$'  >config.yml
-```
 Open the config.yml file with and editor and update the filenames to match your need. 
+
+example here:
+[config.yml](examples/sample-taskcat-project/ci/taskcat.yml)
 
 #### Example of config.yml 
     global:

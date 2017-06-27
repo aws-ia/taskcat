@@ -78,43 +78,6 @@ P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
 F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
-# Example config.yml
-# --Begin
-yaml_cfg = '''
-global:
-  notification: true
-  owner: avattathil@gmail.com
-  project: projectx
-  reporting: true
-  regions:
-    - us-east-1
-    - us-west-1
-    - us-west-2
-  report_email-to-owner: true
-  report_publish-to-s3: true
-  report_s3bucket: taskcat-reports
-  s3bucket: projectx-templates
-tests:
-  projectx-scenario-1:
-    parameter_input: projectx-scenario-1.json
-    regions:
-      - us-west-1
-      - us-east-1
-    template_file: projectx.template
-  projetx-mainscenarioo-all-regions:
-    parameter_input: projectx-scenario-all-regions.json
-    template_file: projectx.template
-'''
-# --End
-# Example config.yml
-
-# Not implemented
-# ------------------------------- System variables
-# --Begin
-sys_yml = 'sys_config.yml'
-
-# --End
-# --------------------------------System variables
 '''
 Given the url to PypI package info url returns the current live version
 '''
@@ -1041,7 +1004,6 @@ class TaskCat(object):
                 'CLOUDFORMATION STACK NAME',
                 rst_color))
 
-
             time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             for test in testdata_list:
                 for stack in test.get_test_stacks():
@@ -1058,7 +1020,7 @@ class TaskCat(object):
                     if self._enable_dynamodb:
                         table = self.db_initproject(self.get_project())
                         # Do not update when in cleanup start (preserves previous status)
-                        skip_status =['DELETE_IN_PROGRESS', 'STACK_DELETED']
+                        skip_status = ['DELETE_IN_PROGRESS', 'STACK_DELETED']
                         if stackquery[2] not in skip_status:
                             self.db_item(table,
                                          time_stamp,
@@ -1804,7 +1766,9 @@ class TaskCat(object):
             '-c',
             '--config_yml',
             type=str,
-            help="(Required!) [config.yml] pass '-ey' for example")
+            help=" (Config File Required!) \n "
+                 "example here: https://raw.githubusercontent.com/aws-quickstart/taskcat"
+                 "/master/examples/sample-taskcat-project/ci/taskcat.yml")
         parser.add_argument(
             '-P',
             '--boto_profile',
@@ -1819,12 +1783,7 @@ class TaskCat(object):
             '-S',
             '--aws_secret_key',
             type=str,
-            help="AWS Secrect Key")
-        parser.add_argument(
-            '-ey',
-            '--example_yaml',
-            action='store_true',
-            help="Print out example yaml")
+            help="AWS Secret Key")
         parser.add_argument(
             '-n',
             '--no_cleanup',
@@ -1840,11 +1799,6 @@ class TaskCat(object):
 
         if len(sys.argv) == 1:
             print(parser.print_help())
-            sys.exit(0)
-
-        if args.example_yaml:
-            print("#An example: config.yml file to be used with %s " % __name__)
-            print(yaml_cfg)
             sys.exit(0)
 
         if args.verbose:
