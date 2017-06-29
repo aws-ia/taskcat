@@ -17,6 +17,10 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
     ],
+    scripts=[
+        'scripts/taskcat'
+    ],
+    zip_safe=False,
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag']
 )
