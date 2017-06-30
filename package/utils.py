@@ -8,7 +8,20 @@ from time import sleep
 
 class ClientFactory(object):
 
-    """Manages creating and caching boto3 clients"""
+    """Manages creating and caching boto3 clients, helpful when creating lots of
+clients in different regions or functions.
+
+Example usage:
+
+import ClientFactory
+
+class MyClass(object):
+    def __init__(self):
+        self._boto_client.ClientFactory()
+    def my_function(self):
+        s3_client = self._boto_client.get('s3', region='us-west-2')
+        return s3_client.list_buckets()
+    """
 
     def __init__(self, logger=None):
         """Sets up the cache dict, a locking mechanism and the logging object
