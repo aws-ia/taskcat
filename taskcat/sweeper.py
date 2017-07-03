@@ -4,7 +4,6 @@
 # Shivansh Singh sshvans@amazon.com
 
 from __future__ import print_function
-from __future__ import absolute_import
 import botocore
 from botocore.exceptions import ClientError
 import logging
