@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # authors:
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
 # Shivansh Singh sshvans@amazon.com,
@@ -9,7 +9,6 @@
 """
 
 from __future__ import print_function
-from __future__ import absolute_import
 from taskcat import TaskCat
 import yaml
 
@@ -29,13 +28,13 @@ def main():
     # Optional: Enables verbose output by default (DEBUG ON)
     tcat_instance.verbose = True
 # --Begin
-# Check for valid yaml and required keys in config
+# Check for valid ymal and required keys in config
     if args.config_yml is not None:
         print("[TASKCAT ] :Reading Config form: {0}".format(args.config_yml))
 
         test_list = tcat_instance.validate_yaml(args.config_yml)
 
-# Load yaml into local taskcat config
+# Load ymal into local taskcat config
         with open(tcat_instance.get_config(), 'r') as cfg:
             taskcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()

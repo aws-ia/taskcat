@@ -18,7 +18,8 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     scripts=[
-        'scripts/taskcat'
+        'scripts/taskcat',
+        'scripts/taskcat_taas'
     ],
     zip_safe=False,
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
