@@ -9,13 +9,12 @@
 """
 
 from __future__ import print_function
-from __future__ import absolute_import
-from taskcat import TaskCat
+import taskcat
 import yaml
 
 
 def main():
-    tcat_instance = TaskCat()
+    tcat_instance = taskcat.TaskCat()
     tcat_instance.welcome('taskcat')
     # Initalize cli interface
     # @TODO Add RestFull Interface
@@ -44,7 +43,7 @@ def main():
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
         testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
-        # Tracks test results in DynamoDb (only used for ETS)
+        # Tracks test results in DynamoDb (only used for TaaS)
         tcat_instance.enable_dynamodb_reporting(True)
         tcat_instance.get_stackstatus(testdata, 5)
         tcat_instance.createreport(testdata, 'index.html')

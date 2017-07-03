@@ -17,7 +17,7 @@ def main():
     tcat_instance = taskcat.TaskCat()
     tcat_instance.welcome('taskcat')
     # Initalize cli interface
-    # :TODO Add RestFull Interface
+    # @TODO Add RestFull Interface
     args = tcat_instance.interface
 
     # Get configuration from command line arg (-c)
@@ -43,6 +43,8 @@ def main():
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
         testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
+        # Tracks test results in DynamoDb (only used for TaaS)
+        tcat_instance.enable_dynamodb_reporting(True)
         tcat_instance.get_stackstatus(testdata, 5)
         tcat_instance.createreport(testdata, 'index.html')
         tcat_instance.cleanup(testdata, 5)

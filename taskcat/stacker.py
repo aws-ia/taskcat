@@ -4,6 +4,7 @@
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
 # Shivansh Singh sshvans@amazon.com,
 # Santiago Cardenas sancard@amazon.com,
+# Jay McConnell jmmccon@amazon.com,
 #
 # repo: https://github.com/aws-quickstart/taskcat
 # docs: https://aws-quickstart.github.io/taskcat/
@@ -15,7 +16,6 @@
 # - Email test results to owner of project
 
 # --imports --
-from __future__ import absolute_import
 from __future__ import print_function
 
 import argparse
@@ -29,19 +29,19 @@ import sys
 import textwrap
 import time
 import uuid
-from argparse import RawTextHelpFormatter
-
 import boto3
 import pyfiglet
 import tabulate
 import yaml
 import yattag
-from botocore.client import Config
+import logging
+from argparse import RawTextHelpFormatter
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
 from pkg_resources import get_distribution
 
-from .sweeper import Sweeper
+from .reaper import Reaper
+from .utils import ClientFactory
 
 # Version Tag
 ''' 
@@ -78,9 +78,14 @@ P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
 F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
+
 '''
 Given the url to PypI package info url returns the current live version
 '''
+
+# create logger
+logger = logging.getLogger('taskcat')
+logger.setLevel(logging.DEBUG)
 
 
 def get_pip_version(pkginfo_url):
@@ -174,6 +179,7 @@ class TaskCat(object):
         self._use_global = False
         self._password = None
         self.run_cleanup = True
+        self._boto_client = ClientFactory(logger=logger)
 
     # SETTERS AND GETTERS
     # ===================
@@ -372,8 +378,7 @@ class TaskCat(object):
 
         print('\n')
 
-    @staticmethod
-    def get_available_azs(region, count):
+    def get_available_azs(self, region, count):
         """
         Returns a list of availability zones in a given region.
 
@@ -384,7 +389,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = boto3.client('ec2', region_name=region)
+        ec2_client = self._boto_client.get('ec2', region=region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -398,8 +403,7 @@ class TaskCat(object):
             azs = ','.join(available_azs[:count])
             return azs
 
-    @staticmethod
-    def get_s3contents(url):
+    def get_s3contents(self, url):
         payload = requests.get(url)
         return payload.text
 
@@ -411,12 +415,10 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        client = boto3.client('s3', config=Config(signature_version='s3v4'))
-
-        bucket_location = client.get_bucket_location(
+        s3_client = self._boto_client.get('s3', self.get_default_region())
+        bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
-        result = client.list_objects(Bucket=self.get_s3bucket(),
-                                     Prefix=self.get_project())
+        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
         contents = result.get('Contents')
         for s3obj in contents:
             for metadata in s3obj.items():
@@ -492,12 +494,10 @@ class TaskCat(object):
         """
         if stackname != 'None':
             try:
-                cfn = boto3.client(
-                    'cloudformation', region)
-                result = cfn.describe_stack_resources(
-                    StackName=stackname)
-                stackresources = result.get('StackResources')
-                for resource in stackresources:
+                cfn = self._boto_client.get('cloudformation', region)
+                result = cfn.describe_stack_resources(StackName=stackname)
+                stack_resources = result.get('StackResources')
+                for resource in stack_resources:
                     if self.verbose:
                         print(D + "Resources: for {}".format(stackname))
                         print(D + "{0} = {1}, {2} = {3}, {4} = {5}".format(
@@ -583,7 +583,7 @@ class TaskCat(object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = boto3.client('cloudformation', self.get_default_region())
+                cfn = self._boto_client.get('cloudformation', self.get_default_region())
 
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
@@ -676,7 +676,7 @@ class TaskCat(object):
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
-                    cfn = boto3.client('cloudformation', region)
+                    cfn = self._boto_client.get('cloudformation', region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
                     # gentype = None
@@ -908,7 +908,7 @@ class TaskCat(object):
         stack_name = stackdata['stack_name']
         test_info = []
 
-        cfn = boto3.client('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region)
         # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -967,7 +967,7 @@ class TaskCat(object):
                 return table
 
     def db_item(self, table, time_stamp, region, job_name, log_group, owner, job_status):
-
+        # :TODO add jobid getter and setter
         table.put_item(
             Item={
                 'job-name': job_name,
@@ -1079,7 +1079,7 @@ class TaskCat(object):
                 str(failed_stack_ids[0]))
             region = stackdata['region']
             session = boto3.session.Session(region_name=region)
-            s = Sweeper(session)
+            s = Reaper(session)
             failed_stacks = self.get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:
@@ -1110,7 +1110,7 @@ class TaskCat(object):
                     str(stack['StackId']))
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
-                cfn = boto3.client('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region)
                 cfn.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
@@ -1124,7 +1124,7 @@ class TaskCat(object):
         :return: "yes" if stack exist, otherwise "no"
         """
         exists = None
-        cfn = boto3.client('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region)
         try:
             cfn.describe_stacks(StackName=stackname)
             exists = "yes"

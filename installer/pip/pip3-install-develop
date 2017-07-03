@@ -26,7 +26,7 @@ print("[INITALIZING taskcat dev Installer!!]")
 # noinspection PyPep8
 linux_install = '''
 INSTALL_DIR='/usr/local/bin'
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/taskcat_test.py -o taskcat.run
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/scripts/taskcat -o taskcat.run
 chmod 755 taskcat.run
 pip3 install -i https://testpypi.python.org/pypi taskcat --upgrade
 sudo mv taskcat.run ${INSTALL_DIR}/taskcat-develop
