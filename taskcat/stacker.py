@@ -4,6 +4,7 @@
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
 # Shivansh Singh sshvans@amazon.com,
 # Santiago Cardenas sancard@amazon.com,
+# Jay McConnell jmmccon@amazon.com,
 #
 # repo: https://github.com/aws-quickstart/taskcat
 # docs: https://aws-quickstart.github.io/taskcat/
@@ -35,7 +36,6 @@ import yaml
 import yattag
 import logging
 from argparse import RawTextHelpFormatter
-from botocore.client import Config
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
 from pkg_resources import get_distribution
@@ -389,7 +389,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = self._boto_client.get('ec2', region_name=region)
+        ec2_client = self._boto_client.get('ec2', region=region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -415,13 +415,10 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self._boto_client.get('s3', region='us-east-1')
-
-
+        s3_client = self._boto_client.get('s3', self.get_default_region())
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
-        result = s3_client.list_objects(Bucket=self.get_s3bucket(),
-                                     Prefix=self.get_project())
+        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
         contents = result.get('Contents')
         for s3obj in contents:
             for metadata in s3obj.items():
@@ -808,7 +805,6 @@ class TaskCat(object):
                         if self.get_template_type() == 'json':
                             print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
 
-
                     stackdata = cfn.create_stack(
                         StackName=stackname,
                         DisableRollback=True,
@@ -971,7 +967,7 @@ class TaskCat(object):
                 return table
 
     def db_item(self, table, time_stamp, region, job_name, log_group, owner, job_status):
-
+        # :TODO add jobid getter and setter
         table.put_item(
             Item={
                 'job-name': job_name,
