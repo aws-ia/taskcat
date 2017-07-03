@@ -9,15 +9,15 @@
 """
 
 from __future__ import print_function
-from taskcat import TaskCat
+import taskcat
 import yaml
 
 
 def main():
-    tcat_instance = TaskCat()
+    tcat_instance = taskcat.TaskCat()
     tcat_instance.welcome('taskcat')
     # Initalize cli interface
-    # @TODO Add RestFull Interface
+    # :TODO Add RestFull Interface
     args = tcat_instance.interface
 
     # Get configuration from command line arg (-c)

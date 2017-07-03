@@ -40,7 +40,7 @@ from botocore.vendored import requests
 from botocore.exceptions import ClientError
 from pkg_resources import get_distribution
 
-from .sweeper import Sweeper
+from .reaper import Reaper
 
 # Version Tag
 ''' 
@@ -1078,7 +1078,7 @@ class TaskCat(object):
                 str(failed_stack_ids[0]))
             region = stackdata['region']
             session = boto3.session.Session(region_name=region)
-            s = Sweeper(session)
+            s = Reaper(session)
             failed_stacks = self.get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:

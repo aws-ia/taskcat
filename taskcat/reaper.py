@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 # authors:
 # Shivansh Singh sshvans@amazon.com
-
+# Santiago Cardenas sancard@amazon.com
 from __future__ import print_function
 import botocore
 from botocore.exceptions import ClientError
@@ -29,7 +29,7 @@ F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
 # create logger
-logger = logging.getLogger('Sweeper')
+logger = logging.getLogger('Reaper')
 logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
@@ -46,12 +46,12 @@ ch.setFormatter(formatter)
 # add ch to logger
 logger.addHandler(ch)
 
-# Sweeper class provide functions to delete the AWS resources as per the
+# Reaper class provide functions to delete the AWS resources as per the
 # defined rules.
 
 
 # noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
-class Sweeper(object):
+class Reaper(object):
 
     # Given an s3 bucket name, this function deletes all the versions of the bucket
     # Param:
