@@ -25,7 +25,7 @@ if [[ -d $HOME/.aws ]]; then
 	echo "docker run -it --rm -v ${HOME}/.aws:/root/.aws -v \$(pwd):/mnt taskcat/taskcat-develop taskcat \$@" >>taskcat-develop.docker
 else  
 	echo "echo [development image]" >taskcat-develop.docker
-	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat-develop \$@" >> taskcat-develop.docker
+	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat-develop taskcat \$@" >> taskcat-develop.docker
 
 fi
 
