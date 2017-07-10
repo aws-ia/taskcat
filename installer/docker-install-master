@@ -18,7 +18,7 @@ print("[INITALIZING taskcat Installer!!]")
 linux_install = '''
 INSTALL_DIR='/usr/local/bin'
 
-if [[ -d $HOME/.aws ]]; then 
+if [ -d $HOME/.aws ]; then 
  	echo "[INFO] : Found boto profile)"
  	echo "[INFO] : Boto profile will map to container during execution"
 	echo "echo \"[dockerize]\"" >taskcat.docker
@@ -29,7 +29,7 @@ else
 
 fi
 
-if [[ $(id -u) -eq 0  ]] ;
+if [ $(id -u) -eq 0  ] ;
 then 
         docker pull taskcat/taskcat
         sudo mv taskcat.docker ${INSTALL_DIR}/taskcat
