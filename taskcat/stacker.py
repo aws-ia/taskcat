@@ -78,7 +78,6 @@ P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
 F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
-
 '''
 Given the url to PypI package info url returns the current live version
 '''
@@ -175,10 +174,14 @@ class TaskCat(object):
         self._termsize = 110
         self._strict_syntax_json = True
         self._banner = ""
+        self._auth_mode = None
         self._report = False
         self._use_global = False
         self._password = None
         self.run_cleanup = True
+        self._aws_access_key = None
+        self._aws_secret_key = None
+        self._boto_profile = None
         self._boto_client = ClientFactory(logger=logger)
 
     # SETTERS AND GETTERS
@@ -389,7 +392,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = self._boto_client.get('ec2', region=region)
+        ec2_client = self.get_client('ec2', region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -415,7 +418,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self._boto_client.get('s3', self.get_default_region())
+        s3_client = self.get_client('s3', self.get_default_region())
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
@@ -494,7 +497,7 @@ class TaskCat(object):
         """
         if stackname != 'None':
             try:
-                cfn = self._boto_client.get('cloudformation', region)
+                cfn = self.get_client('cloudformation', region)
                 result = cfn.describe_stack_resources(StackName=stackname)
                 stack_resources = result.get('StackResources')
                 for resource in stack_resources:
@@ -583,7 +586,7 @@ class TaskCat(object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = self._boto_client.get('cloudformation', self.get_default_region())
+                cfn = self.get_client('cloudformation', self.get_default_region())
 
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
@@ -676,7 +679,7 @@ class TaskCat(object):
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
-                    cfn = self._boto_client.get('cloudformation', region)
+                    cfn = self.get_client('cloudformation', region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
                     # gentype = None
@@ -908,7 +911,7 @@ class TaskCat(object):
         stack_name = stackdata['stack_name']
         test_info = []
 
-        cfn = self._boto_client.get('cloudformation', region)
+        cfn = self.get_client('cloudformation', region)
         # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -1110,7 +1113,7 @@ class TaskCat(object):
                     str(stack['StackId']))
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
-                cfn = self._boto_client.get('cloudformation', region)
+                cfn = self.get_client('cloudformation', region)
                 cfn.delete_stack(StackName=stack_name)
 
     def if_stackexists(self, stackname, region):
@@ -1124,7 +1127,7 @@ class TaskCat(object):
         :return: "yes" if stack exist, otherwise "no"
         """
         exists = None
-        cfn = self._boto_client.get('cloudformation', region)
+        cfn = self.get_client('cloudformation', region)
         try:
             cfn.describe_stacks(StackName=stackname)
             exists = "yes"
@@ -1285,6 +1288,22 @@ class TaskCat(object):
             return False
         return True
 
+    def get_client(self, service_type, client_region):
+        if self._auth_mode is 'keys':
+            boto3.setup_default_session(
+                aws_access_key_id=self._aws_access_key,
+                aws_secret_access_key=self._aws_secret_key)
+            boto_client = boto3.client(service_type, client_region)
+            return boto_client
+        elif self._auth_mode is 'profile':
+            boto3.setup_default_session(profile_name=self._boto_profile)
+            boto_client = self._boto_client.get(service_type, client_region)
+            return boto_client
+        else:
+            boto_client = self._boto_client.get(service_type, client_region)
+            return boto_client
+
+
     # Set AWS Credentials
     def aws_api_init(self, args):
         """
@@ -1298,7 +1317,9 @@ class TaskCat(object):
         """
         print('\n')
         if args.boto_profile:
+            self._auth_mode = 'profile'
             boto3.setup_default_session(profile_name=args.boto_profile)
+            self._boto_profile = args.boto_profile
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
@@ -1310,6 +1331,9 @@ class TaskCat(object):
                     print(D + str(e))
                 sys.exit(1)
         elif args.aws_access_key and args.aws_secret_key:
+            self._auth_mode = 'keys'
+            self._aws_access_key = args.aws_access_key
+            self._aws_secret_key = args.aws_secret_key
             boto3.setup_default_session(
                 aws_access_key_id=args.aws_access_key,
                 aws_secret_access_key=args.aws_secret_key)
@@ -1317,23 +1341,21 @@ class TaskCat(object):
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [role] ")
+                print(self.nametag + " :Authenticated via: \t [access-keys] ")
             except Exception as e:
                 print(E + "Credential Error - Please check you keys!")
                 if self.verbose:
                     print(D + str(e))
                 sys.exit(1)
         else:
-            boto3.setup_default_session(
-                aws_access_key_id=args.aws_access_key,
-                aws_secret_access_key=args.aws_secret_key)
+            self._auth_mode = 'role'
             try:
                 sts_client = boto3.client('sts')
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [role] ")
             except Exception as e:
-                print(E + "Credential Error - Cannot assume role!")
+                print(E + "Credential Error - Please check your boto environment variable !")
                 if self.verbose:
                     print(D + str(e))
                 sys.exit(1)
@@ -1415,7 +1437,7 @@ class TaskCat(object):
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            cfn = boto3.client('cloudformation', region)
+            cfn = self.get_client('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
             rstatus = None
             status_css = None
@@ -1594,8 +1616,7 @@ class TaskCat(object):
                         separators=(',', ': '))))
                 file.close()
 
-    @staticmethod
-    def get_cfnlogs(stackname, region):
+    def get_cfnlogs(self, stackname, region):
         """
         This function returns the event logs of the given stack in a specific format.
         :param stackname: Name of the stack
@@ -1605,7 +1626,7 @@ class TaskCat(object):
 
         print(I + "Collecting logs for " + stackname + "\"\n")
         # Collect stack_events
-        stack_events = get_cfn_stack_events(stackname, region)
+        stack_events = get_cfn_stack_events(self, stackname, region)
         # Uncomment line for debug
         # pprint.pprint (stack_events)
         events = []
@@ -1857,14 +1878,14 @@ class TaskCat(object):
         self.checkforupdate()
 
 
-def get_cfn_stack_events(stackname, region):
+def get_cfn_stack_events(self, stackname, region):
     """
     Given a stack name and the region, this function returns the event logs of the given stack, as list.
     :param stackname: Name of the stack
     :param region: Region stack belongs to
     :return: Event logs of the stack
     """
-    cfn_client = boto3.client('cloudformation', region)
+    cfn_client = self.get_client('cloudformation', region)
     stack_events = []
     try:
         response = cfn_client.describe_stack_events(StackName=stackname)
