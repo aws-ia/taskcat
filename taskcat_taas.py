@@ -30,7 +30,6 @@ def main():
 # --Begin
 # Check for valid ymal and required keys in config
     if args.config_yml is not None:
-        print("[TASKCAT ] :Reading Config form: {0}".format(args.config_yml))
 
         test_list = tcat_instance.validate_yaml(args.config_yml)
 
