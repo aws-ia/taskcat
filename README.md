@@ -63,7 +63,7 @@ example here:
     ├── ci
     │   ├── config.yml <- This the config file that will hold all the test definitions 
     │   ├──  sample-cloudformation-input-novpc.json <-  This file contain input that will pass in during stack creation [vpc version] (See auto parms for more info)
-    │   ├──  sample-cloudformation-input-withvpc.json <-  This file contain input that will pass in during stack creation [no-vpc version](See auto parms for more info)
+    │   └──  sample-cloudformation-input-withvpc.json <-  This file contain input that will pass in during stack creation [no-vpc version](See auto parms for more info)
     ├── scripts
     │   └── userdata.sh <- If you have userdata scripts you can load then in the scripts directory
     ├── submodules  <- If you have git submodules you can load them in the submodules directory
