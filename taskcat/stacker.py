@@ -44,8 +44,8 @@ from .reaper import Reaper
 from .utils import ClientFactory
 
 # Version Tag
-''' 
-:param _run_mode: A value of 1 indicated taskcat is sourced from pip 
+'''
+:param _run_mode: A value of 1 indicated taskcat is sourced from pip
  A value of 0 indicates development mode taskcat is loading from local source
 '''
 try:
@@ -1116,27 +1116,23 @@ class TaskCat(object):
                 cfn = self.get_client('cloudformation', region)
                 cfn.delete_stack(StackName=stack_name)
 
-    def if_stackexists(self, stackname, region):
+    def stack_exists(self, stackname, region):
         """
-        This function checks if a stack exist with the given stack name.
-        Returns "yes" if exist, otherwise "no".
+        This function checks if a stack exist with the given stack name or id.
+        Returns True if exist, otherwise False.
 
-        :param stackname: Stack name
+        :param stackname: Stack name/id
         :param region: AWS region
 
-        :return: "yes" if stack exist, otherwise "no"
+        :return: True if stack exist, otherwise False
         """
         exists = None
         cfn = self.get_client('cloudformation', region)
         try:
             cfn.describe_stacks(StackName=stackname)
-            exists = "yes"
+            return True
         except Exception as e:
-            if self.verbose:
-                print(D + str(e))
-                exists = "no"
-        print(I + "Successfully Deleted[%s]" % stackname)
-        return exists
+            return False
 
     def define_tests(self, yamlc, test):
         """
@@ -1754,8 +1750,8 @@ class TaskCat(object):
         parser = argparse.ArgumentParser(
             description="""Multi-Region CloudFormation Deployment Tool)
 
-    [Auto-generated stack inputs] 
-    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
+    [Auto-generated stack inputs]
+    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>]
     Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
         - Parameters value in json input file must start with \'$[\' end with \']\'
 
@@ -1770,7 +1766,7 @@ class TaskCat(object):
         "ParameterValue": "$[taskcat_genpass_8]"
     } ]
 
-    Generates: tI8zN3iX8 
+    Generates: tI8zN3iX8
     Optionally: $[taskcat_genpass_8S]
     Generates: mA5@cB5!
 
