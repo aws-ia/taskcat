@@ -44,8 +44,8 @@ from .reaper import Reaper
 from .utils import ClientFactory
 
 # Version Tag
-''' 
-:param _run_mode: A value of 1 indicated taskcat is sourced from pip 
+'''
+:param _run_mode: A value of 1 indicated taskcat is sourced from pip
  A value of 0 indicates development mode taskcat is loading from local source
 '''
 try:
@@ -392,7 +392,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = self.get_client('ec2', region)
+        ec2_client = self._boto_client.get('ec2', region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -418,7 +418,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self.get_client('s3', self.get_default_region())
+        s3_client = self._boto_client.get('s3', self.get_default_region())
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
@@ -497,7 +497,7 @@ class TaskCat(object):
         """
         if stackname != 'None':
             try:
-                cfn = self.get_client('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region)
                 result = cfn.describe_stack_resources(StackName=stackname)
                 stack_resources = result.get('StackResources')
                 for resource in stack_resources:
@@ -586,7 +586,7 @@ class TaskCat(object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = self.get_client('cloudformation', self.get_default_region())
+                cfn = self._boto_client.get('cloudformation', self.get_default_region())
 
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
@@ -679,7 +679,7 @@ class TaskCat(object):
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
-                    cfn = self.get_client('cloudformation', region)
+                    cfn = self._boto_client.get('cloudformation', region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
                     # gentype = None
@@ -911,7 +911,7 @@ class TaskCat(object):
         stack_name = stackdata['stack_name']
         test_info = []
 
-        cfn = self.get_client('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region)
         # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -1113,30 +1113,26 @@ class TaskCat(object):
                     str(stack['StackId']))
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
-                cfn = self.get_client('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region)
                 cfn.delete_stack(StackName=stack_name)
 
-    def if_stackexists(self, stackname, region):
+    def stack_exists(self, stackname, region):
         """
-        This function checks if a stack exist with the given stack name.
-        Returns "yes" if exist, otherwise "no".
+        This function checks if a stack exist with the given stack name or id.
+        Returns True if exist, otherwise False.
 
-        :param stackname: Stack name
+        :param stackname: Stack name/id
         :param region: AWS region
 
-        :return: "yes" if stack exist, otherwise "no"
+        :return: True if stack exist, otherwise False
         """
         exists = None
-        cfn = self.get_client('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region)
         try:
             cfn.describe_stacks(StackName=stackname)
-            exists = "yes"
+            return True
         except Exception as e:
-            if self.verbose:
-                print(D + str(e))
-                exists = "no"
-        print(I + "Successfully Deleted[%s]" % stackname)
-        return exists
+            return False
 
     def define_tests(self, yamlc, test):
         """
@@ -1288,24 +1284,10 @@ class TaskCat(object):
             return False
         return True
 
-    def get_client(self, service_type, client_region):
-        if self._auth_mode is 'keys':
-            boto3.setup_default_session(
-                aws_access_key_id=self._aws_access_key,
-                aws_secret_access_key=self._aws_secret_key)
-            boto_client = boto3.client(service_type, client_region)
-            return boto_client
-        elif self._auth_mode is 'profile':
-            boto3.setup_default_session(profile_name=self._boto_profile)
-            boto_client = self._boto_client.get(service_type, client_region)
-            return boto_client
-        else:
-            boto_client = self._boto_client.get(service_type, client_region)
-            return boto_client
-
-
     # Set AWS Credentials
-    def aws_api_init(self, args):
+    def aws_api_init(self, auth_mode='role', aws_access_key_id=None,
+                     aws_secret_access_key=None, aws_session_token=None,
+                     profile_name=None):
         """
         This function reads the AWS credentials from various sources to ensure
         that the client has right credentials defined to successfully run
@@ -1316,49 +1298,29 @@ class TaskCat(object):
 
         """
         print('\n')
-        if args.boto_profile:
-            self._auth_mode = 'profile'
-            boto3.setup_default_session(profile_name=args.boto_profile)
-            self._boto_profile = args.boto_profile
-            try:
-                sts_client = boto3.client('sts')
-                account = sts_client.get_caller_identity().get('Account')
-                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [boto-profile] ")
-            except Exception as e:
-                print(E + "Credential Error - Please check you profile!")
-                if self.verbose:
-                    print(D + str(e))
-                sys.exit(1)
-        elif args.aws_access_key and args.aws_secret_key:
-            self._auth_mode = 'keys'
-            self._aws_access_key = args.aws_access_key
-            self._aws_secret_key = args.aws_secret_key
-            boto3.setup_default_session(
-                aws_access_key_id=args.aws_access_key,
-                aws_secret_access_key=args.aws_secret_key)
-            try:
-                sts_client = boto3.client('sts')
-                account = sts_client.get_caller_identity().get('Account')
-                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [access-keys] ")
-            except Exception as e:
-                print(E + "Credential Error - Please check you keys!")
-                if self.verbose:
-                    print(D + str(e))
-                sys.exit(1)
-        else:
-            self._auth_mode = 'role'
-            try:
-                sts_client = boto3.client('sts')
-                account = sts_client.get_caller_identity().get('Account')
-                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [role] ")
-            except Exception as e:
-                print(E + "Credential Error - Please check your boto environment variable !")
-                if self.verbose:
-                    print(D + str(e))
-                sys.exit(1)
+        self._auth_mode = auth_mode
+        self._aws_access_key_id = aws_access_key_id
+        self._aws_secret_access_key = aws_secret_access_key
+        self._aws_session_token = aws_session_token
+        self._profile_name = profile_name
+        self._boto_client = ClientFactory(
+            logger=logger,
+            auth_mode=auth_mode,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+            profile_name=profile_name
+        )
+        try:
+            sts_client = self._boto_client.get('sts')
+            account = sts_client.get_caller_identity().get('Account')
+            print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+            print(self.nametag + " :Authenticated via: \t [%s] " % auth_mode)
+        except Exception as e:
+            print(E + " Credential Error - Please check your %s!" % auth_mode)
+            if self.verbose:
+                print(D + str(e))
+            sys.exit(1)
 
     def validate_yaml(self, yaml_file):
         """
@@ -1437,7 +1399,7 @@ class TaskCat(object):
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            cfn = self.get_client('cloudformation', region)
+            cfn = self._boto_client.get('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
             rstatus = None
             status_css = None
@@ -1754,8 +1716,8 @@ class TaskCat(object):
         parser = argparse.ArgumentParser(
             description="""Multi-Region CloudFormation Deployment Tool)
 
-    [Auto-generated stack inputs] 
-    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
+    [Auto-generated stack inputs]
+    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>]
     Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
         - Parameters value in json input file must start with \'$[\' end with \']\'
 
@@ -1770,7 +1732,7 @@ class TaskCat(object):
         "ParameterValue": "$[taskcat_genpass_8]"
     } ]
 
-    Generates: tI8zN3iX8 
+    Generates: tI8zN3iX8
     Optionally: $[taskcat_genpass_8S]
     Generates: mA5@cB5!
 
@@ -1885,7 +1847,7 @@ def get_cfn_stack_events(self, stackname, region):
     :param region: Region stack belongs to
     :return: Event logs of the stack
     """
-    cfn_client = self.get_client('cloudformation', region)
+    cfn_client = self._boto_client.get('cloudformation', region)
     stack_events = []
     try:
         response = cfn_client.describe_stack_events(StackName=stackname)
