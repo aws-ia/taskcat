@@ -27,7 +27,7 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, logger=None, loglevel='error', botolevel='error', auth_mode=None,
+    def __init__(self, logger=None, loglevel='error', botolevel='error', auth_mode='role',
                  aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None,
                  profile_name=None):
         """Sets up the cache dict, a locking mechanism and the logging object
@@ -67,8 +67,8 @@ class ClientFactory(object):
             if not profile_name:
                 raise ValueError('auth_mode "profile" requires "profile_name" to be set')
             os.environ["AWS_PROFILE"] = profile_name
-        elif auth_mode:
-            raise ValueError('auth_mode only supports "keys" or "profile" modes, you specified "%s"' % auth_mode)
+        elif auth_mode != 'role':
+            raise ValueError('auth_mode only supports "keys", "profile" or "role" modes, you specified "%s"' % auth_mode)
         return
 
     def get(self, service, region=None, role='default_role', access_key=None, secret_key=None,
