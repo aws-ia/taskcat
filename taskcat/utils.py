@@ -24,13 +24,19 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, logger=None, loglevel='error', botolevel='error'):
+    def __init__(self, logger=None, loglevel='error', botolevel='error', auth_mode=None,
+                 aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None,
+                 profile_name=None):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
             logger (obj): a logging instance
         """
-
+        self._auth_mode = auth_mode
+        self._aws_access_key_id = aws_access_key_id
+        self._aws_secret_access_key = aws_secret_access_key
+        self._aws_session_token = aws_session_token
+        self._profile_name = profile_name
         self._clients = {"default_role": {}}
         self._lock = Lock()
         if not logger:
@@ -44,8 +50,22 @@ class ClientFactory(object):
             logging.getLogger('s3transfer').setLevel(botolevel)
             if len(mainlogger.handlers) == 0:
                 mainlogger.addHandler(logging.StreamHandler())
+            self.logger = mainlogger
         else:
             self.logger = logger
+        if auth_mode is 'keys':
+            if not aws_access_key_id or not aws_secret_access_key:
+                raise ValueError('auth_mode "keys" requires at least "aws_access_key_id" and "aws_secret_access_key" to be set')
+            os.environ["AWS_ACCESS_KEY_ID"] = aws_access_key_id
+            os.environ["AWS_SECRET_ACCESS_KEY"] = aws_secret_access_key
+            if aws_session_token:
+                os.environ["AWS_SESSION_TOKEN"] = aws_session_token
+        elif auth_mode is 'profile':
+            if not profile_name:
+                raise ValueError('auth_mode "profile" requires "profile_name" to be set')
+            os.environ["AWS_PROFILE"] = profile_name
+        elif auth_mode:
+            raise ValueError('auth_mode only supports "keys" or "profile" modes, you specified "%s"' % auth_mode)
         return
 
     def get(self, service, region=None, role='default_role', access_key=None, secret_key=None,
@@ -116,7 +136,9 @@ class ClientFactory(object):
                     else:
                         session = boto3.session.Session(region_name=region)
                 return session
-            except Exception:
+            except Exception as e:
+                if "could not be found" in e.message:
+                    raise
                 self.logger.debug("failed to create session", exc_info=1)
                 retry += 1
                 if retry >= max_retries:
