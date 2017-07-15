@@ -1285,8 +1285,8 @@ class TaskCat(object):
         return True
 
     # Set AWS Credentials
-    def aws_api_init(self, auth_mode='role', aws_access_key_id=None,
-                     aws_secret_access_key=None, aws_session_token=None,
+    def aws_api_init(self, auth_mode='role', aws_access_key=None,
+                     aws_secret_key=None, aws_session_token=None,
                      profile_name=None):
         """
         This function reads the AWS credentials from various sources to ensure
@@ -1299,15 +1299,15 @@ class TaskCat(object):
         """
         print('\n')
         self._auth_mode = auth_mode
-        self._aws_access_key_id = aws_access_key_id
-        self._aws_secret_access_key = aws_secret_access_key
+        self._aws_access_key = aws_access_key
+        self._aws_secret_key = aws_secret_key
         self._aws_session_token = aws_session_token
         self._profile_name = profile_name
         self._boto_client = ClientFactory(
             logger=logger,
             auth_mode=auth_mode,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key,
             aws_session_token=aws_session_token,
             profile_name=profile_name
         )
