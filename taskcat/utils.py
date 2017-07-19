@@ -356,7 +356,7 @@ class Logger(object):
         self.log.critical(self._format(message), **kwargs)
 
 
-class YAMLHandler(object):
+class CFNYAMLHandler(object):
 
     """Handles the loading and dumping of CloudFormation YAML templates.
 
@@ -369,12 +369,12 @@ class YAMLHandler(object):
             # init MyClass
             return
         def my_load_yaml_function(self, template_file):
-            template_data = utils.YAMLHandler.ordered_safe_load(open(template_file, 'rU'), object_pairs_hook=OrderedDict))
+            template_data = utils.CFNYAMLHandler.ordered_safe_load(open(template_file, 'rU'), object_pairs_hook=OrderedDict))
             return template_data
         def my_dump_yaml_function(self, template_data, output_file):
-            utils.YAMLHandler.validate_output_dir(output_file)
+            utils.CFNYAMLHandler.validate_output_dir(output_file)
             with open(output_file, 'wb') as updated_template:
-                updated_template.write(utils.YAMLHandler.ordered_safe_dump(template_data, indent=2, allow_unicode=True, default_flow_style=False, explicit_start=True, explicit_end=True))
+                updated_template.write(utils.CFNYAMLHandler.ordered_safe_dump(template_data, indent=2, allow_unicode=True, default_flow_style=False, explicit_start=True, explicit_end=True))
             updated_template.close()
     """
 
