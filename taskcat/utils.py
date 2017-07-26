@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import boto3
 import botocore
 import json
@@ -5,6 +7,7 @@ import logging
 import os
 from threading import Lock
 from time import sleep
+import sys
 import yaml
 import re
 from collections import OrderedDict
@@ -477,11 +480,12 @@ class CFNYAMLHandler(object):
             directory = os.path.split(directory)[0]
         if not os.path.isdir(directory):
             # TODO: FIX LOG LINE
-            # if args.verbose >= 2:
-            #     print "[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory)
+            print("[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory))
+            # logger.info("[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory))
             os.makedirs(directory)
         elif not os.access(directory, os.W_OK):
             pass
             # TODO: FIX LOG LINE AND EXITING. REMOVE PASS ABOVE.
-            # print "[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory)
-            #exit(1)
+            print("[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory))
+            # logger.error("[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory))
+            sys.exit(1)
