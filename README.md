@@ -31,7 +31,7 @@ templates across AWS Regions
 Open the config.yml file with and editor and update the filenames to match your need. 
 
 example here:
-[config.yml](examples/sample-taskcat-project/ci/taskcat.yml)
+[config.yml](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml)
 
 #### Example of config.yml 
     global:
@@ -82,47 +82,57 @@ Note: you can auto generate values at runtime using special tokens (see example 
 
 #### From:
 
-    [
-        {
-    	"ParameterKey": "KeyPair",
-    	"ParameterValue": "mykey"
-        }, 
-        {
-    	"ParameterKey": "InstanceType",
-    	"ParameterValue": "t2.small"
-        }
-        {
-        "ParameterKey": "AvailablityZones",
-        "ParameterValue": "$[taskcat_genaz_2]" 
-        }, 
-        {
-        "ParameterKey": "Password",
-        "ParameterValue": "$[taskcat_genpass_8A]"
-        }, 
-    ]
-
+```
+[{
+    "ParameterKey": "KeyPair",
+    "ParameterValue": "mykey"
+}, {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t2.small"
+}, {
+    "ParameterKey": "AvailablityZones",
+    "ParameterValue": "$[taskcat_genaz_2]"
+}, {
+    "ParameterKey": "RandomString",
+    "ParameterValue": "$[taskcat_random-string]"
+}, {
+    "ParameterKey": "RandomNumbers",
+    "ParameterValue": "$[taskcat_random-numbers]"
+}, {
+    "ParameterKey": "GenerateUUID",
+    "ParameterValue": "$[taskcat_genuuid]"
+}, {
+    "ParameterKey": "Password",
+    "ParameterValue": "$[taskcat_genpass_8A]"
+}]
+```
 
 #### To:
 
-    [
-        {
-        "ParameterKey": "KeyPair",
-        "ParameterValue": "mykey"
-        }, 
-        {
-        "ParameterKey": "InstanceType",
-        "ParameterValue": "t2.small"
-        }
-        {
-        "ParameterKey": "AvailablityZones",
-        "ParameterValue": "us-east-1a, us-east1b" 
-        }, 
-        {
-        "ParameterKey": "Password",
-        "ParameterValue": "tI8zN3iX8"
-        }, 
-    ]
-
+```
+[{
+    "ParameterKey": "KeyPair",
+    "ParameterValue": "mykey"
+}, {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t2.small"
+} {
+    "ParameterKey": "AvailablityZones",
+    "ParameterValue": "us-east-1a, us-east1b"
+}, {
+    "ParameterKey": "RandomString",
+    "ParameterValue": "yysuawpwubvotiqgwjcu"
+}, {
+    "ParameterKey": "RandomNumbers",
+    "ParameterValue": "56188163597280820763"
+}, {
+    "ParameterKey": "GenerateUUID",
+    "ParameterValue": "1c2e3483-2c99-45bb-801d-8af68a3b907b"
+}, {
+    "ParameterKey": "Password",
+    "ParameterValue": "tI8zN3iX8"
+}]
+```
 
 #### More information on Auto-generated stack inputs
 
@@ -156,6 +166,21 @@ Value that matches the following pattern will be replaced
 > Generates: us-east-1a, us-east-2b
 > (if the region is us-east-1)
 
+### (Auto generated s3 bucket )
+> Example: $[taskcat_autobucket]
+> Generates: <evaluates to auto generated bucket name>
+
+### (Generate UUID String)
+> Example: $[taskcat_genuuid]
+> Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+
+### (Generate Random String)
+> Example: $[taskcat_random-string]
+> Generates: yysuawpwubvotiqgwjcu
+
+> Example: $[taskcat_random-numbers]
+> Generates: 56188163597280820763
+
 ## Installing TaskCat
 
 ### Installing TaskCat (Docker install is recommended)
@@ -185,3 +210,4 @@ If you want to use a different account or profile
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ```
+
