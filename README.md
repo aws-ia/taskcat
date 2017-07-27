@@ -83,44 +83,44 @@ Note: you can auto generate values at runtime using special tokens (see example 
 #### From:
 
     [
-        {
-    	"ParameterKey": "KeyPair",
-    	"ParameterValue": "mykey"
-        }, 
-        {
-    	"ParameterKey": "InstanceType",
-    	"ParameterValue": "t2.small"
-        }
-        {
+      {
+    	  "ParameterKey": "KeyPair",
+    	  "ParameterValue": "mykey"
+      }, 
+      {
+    	  "ParameterKey": "InstanceType",
+    	  "ParameterValue": "t2.small"
+      },
+      {
         "ParameterKey": "AvailablityZones",
         "ParameterValue": "$[taskcat_genaz_2]" 
-        }, 
-        {
+      }, 
+      {
         "ParameterKey": "Password",
         "ParameterValue": "$[taskcat_genpass_8A]"
-        }, 
+      } 
     ]
 
 
 #### To:
 
     [
-        {
+      {
         "ParameterKey": "KeyPair",
         "ParameterValue": "mykey"
-        }, 
-        {
+      }, 
+      {
         "ParameterKey": "InstanceType",
         "ParameterValue": "t2.small"
-        }
-        {
+      },
+      {
         "ParameterKey": "AvailablityZones",
         "ParameterValue": "us-east-1a, us-east1b" 
-        }, 
-        {
+      }, 
+      {
         "ParameterKey": "Password",
         "ParameterValue": "tI8zN3iX8"
-        }, 
+      }
     ]
 
 
