@@ -277,7 +277,7 @@ templates across AWS Regions</p>
 <h4 id="step-1-creating-a-configyml">Step 1 Creating a config.yml<a class="headerlink" href="#step-1-creating-a-configyml" title="Permanent link">&para;</a></h4>
 <p>Open the config.yml file with and editor and update the filenames to match your need. </p>
 <p>example here:
-<a href="./examples/sample-taskcat-project/ci/taskcat.yml">config.yml</a></p>
+<a href="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml">config.yml</a></p>
 <h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -382,24 +382,32 @@ templates across AWS Regions</p>
 15
 16
 17
-18</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[
-  {
-      &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
-      &quot;ParameterValue&quot;: &quot;mykey&quot;
-  }, 
-  {
-      &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
-      &quot;ParameterValue&quot;: &quot;t2.small&quot;
-  },
-  {
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
+    &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
+    &quot;ParameterValue&quot;: &quot;mykey&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
+    &quot;ParameterValue&quot;: &quot;t2.small&quot;
+}, {
     &quot;ParameterKey&quot;: &quot;AvailablityZones&quot;,
-    &quot;ParameterValue&quot;: &quot;$[taskcat_genaz_2]&quot; 
-  }, 
-  {
+    &quot;ParameterValue&quot;: &quot;$[taskcat_genaz_2]&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;RandomString&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_random-string]&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;RandomNumbers&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_random-numbers]&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;GenerateUUID&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_genuuid]&quot;
+}, {
     &quot;ParameterKey&quot;: &quot;Password&quot;,
     &quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;
-  } 
-]
+}]
 </pre></div>
 </td></tr></table>
 
@@ -421,24 +429,32 @@ templates across AWS Regions</p>
 15
 16
 17
-18</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[
-  {
+18
+19
+20
+21
+22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
     &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
     &quot;ParameterValue&quot;: &quot;mykey&quot;
-  }, 
-  {
+}, {
     &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
     &quot;ParameterValue&quot;: &quot;t2.small&quot;
-  },
-  {
+} {
     &quot;ParameterKey&quot;: &quot;AvailablityZones&quot;,
-    &quot;ParameterValue&quot;: &quot;us-east-1a, us-east1b&quot; 
-  }, 
-  {
+    &quot;ParameterValue&quot;: &quot;us-east-1a, us-east1b&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;RandomString&quot;,
+    &quot;ParameterValue&quot;: &quot;yysuawpwubvotiqgwjcu&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;RandomNumbers&quot;,
+    &quot;ParameterValue&quot;: &quot;56188163597280820763&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;GenerateUUID&quot;,
+    &quot;ParameterValue&quot;: &quot;1c2e3483-2c99-45bb-801d-8af68a3b907b&quot;
+}, {
     &quot;ParameterKey&quot;: &quot;Password&quot;,
     &quot;ParameterValue&quot;: &quot;tI8zN3iX8&quot;
-  }
-]
+}]
 </pre></div>
 </td></tr></table>
 
@@ -474,6 +490,23 @@ Generates: mA5@cB5!</p>
 <p>Example: $[taskcat_genaz_2]<br />
 Generates: us-east-1a, us-east-2b
 (if the region is us-east-1)</p>
+</blockquote>
+<h3 id="auto-generated-s3-bucket">(Auto generated s3 bucket )<a class="headerlink" href="#auto-generated-s3-bucket" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Example: $[taskcat_autobucket]
+Generates: <evaluates to auto generated bucket name></p>
+</blockquote>
+<h3 id="generate-uuid-string">(Generate UUID String)<a class="headerlink" href="#generate-uuid-string" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Example: $[taskcat_genuuid]
+Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b</p>
+</blockquote>
+<h3 id="generate-random-string">(Generate Random String)<a class="headerlink" href="#generate-random-string" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Example: $[taskcat_random-string]
+Generates: yysuawpwubvotiqgwjcu</p>
+<p>Example: $[taskcat_random-numbers]
+Generates: 56188163597280820763</p>
 </blockquote>
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
 <h3 id="installing-taskcat-docker-install-is-recommended">Installing TaskCat (Docker install is recommended)<a class="headerlink" href="#installing-taskcat-docker-install-is-recommended" title="Permanent link">&para;</a></h3>
