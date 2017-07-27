@@ -666,6 +666,32 @@ class TaskCat(object):
         return ''.join(password)
 
 
+    def generate_random(self, gtype, length):
+        random_string = []
+        numbers = "1234567890"
+        lowercase = "abcdefghijklmnopqrstuvwxyz"
+        if gtype == 'alpha':
+            print(D + "Random String => {0}".format('alpha'))
+
+
+            while len(random_string) < length:
+                random_string.append(random.choice(lowercase))
+
+        # Generates password string with:
+        # lowercase,uppercase, numbers and special chars
+        elif gtype == 'number':
+            print(D + "Random String => {0}".format('numeric'))
+            while len(random_string) < length:
+                random_string.append(random.choice(numbers))
+
+        return ''.join(random_string)
+
+    def generate_uuid(self, uuid_type):
+        if uuid_type is 'A':
+            return str(uuid.uuid4())
+        else:
+            return str(uuid.uuid4())
+
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
         This function creates CloudFormation stack for the given tests.
@@ -718,6 +744,17 @@ class TaskCat(object):
                     # Generates: <evaluates to auto generated bucket name>
                     # or
 
+                    # Generate UUID String
+                    # Example: $[taskcat_genuuid]
+                    # Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+
+                    # Generate Random String
+                    # Example: $[taskcat_random-string]
+                    # Generates: yysuawpwubvotiqgwjcu
+                    # or
+                    # Example: $[taskcat_random-numbers]
+                    # Generates: 56188163597280820763
+
                     # (Availability Zones)
                     # Value that matches the following pattern will be replaced
                     # - Parameters must start with $[
@@ -727,7 +764,6 @@ class TaskCat(object):
                     #   the stack is attempting to launch
                     # Example: $[taskcat_genaz_2] (if the region is us-east-2)
                     # Generates: us-east-1a, us-east-2b
-
 
                     for parmdict in s_parms:
                         for _ in parmdict:
@@ -744,15 +780,53 @@ class TaskCat(object):
                             genpass_re = re.compile(
                                 '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
 
+                            # Determines if autobucket value was requested
+                            gen_string_re = re.compile(
+                                '\$\[taskcat_random-string]$')
+
+                            # Determines if random string  value was requested
+                            gen_numbers_re = re.compile(
+                                '\$\[taskcat_random-numbers]$')
+
                             # Determines if random number value was requested
                             autobucket_re = re.compile(
                                 '\$\[taskcat_autobucket]$')
                             # Determines if _genaz has been requested
                             genaz_re = re.compile('\$\[\w+_genaz_\d]')
 
+                            # Determines if _genaz has been requested
+                            genuuid_re = re.compile('\$\[\w+_gen[gu]uid]')
+
                             # Determines if s3 replacement was requested
                             gets3replace = re.compile('\$\[\w+_url_.+]$')
                             geturl_re = re.compile('(?<=._url_)(.+)(?=]$)')
+
+                            if gen_string_re.search(param_value):
+                                random_string = self.regxfind(gen_string_re, param_value)
+                                param_value = self.generate_random('alpha', 20)
+
+                                if self.verbose:
+                                    print("Generating random string for {}".format(random_string))
+                                    print(param_value)
+                                parmdict['ParameterValue'] = param_value
+
+                            if gen_numbers_re.search(param_value):
+                                random_numbers = self.regxfind(gen_numbers_re, param_value)
+                                param_value = self.generate_random('number', 20)
+
+                                if self.verbose:
+                                    print("Generating numeric string for {}".format(random_numbers))
+                                    print(param_value)
+                                parmdict['ParameterValue'] = param_value
+
+                            if genuuid_re.search(param_value):
+                                uuid_string = self.regxfind(genuuid_re, param_value)
+                                param_value = self.generate_uuid('A')
+
+                                if self.verbose:
+                                    print("Generating random uuid string for {}".format(uuid_string))
+                                    print(param_value)
+                                parmdict['ParameterValue'] = param_value
 
                             if autobucket_re.search(param_value):
                                 url = self.regxfind(autobucket_re, param_value)
