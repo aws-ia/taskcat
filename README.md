@@ -210,4 +210,3 @@ If you want to use a different account or profile
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ```
-
