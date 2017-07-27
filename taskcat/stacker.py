@@ -332,16 +332,17 @@ class TaskCat(object):
             template_file: projectx.template
             parameter_input: projectx-input.json
             '''
-        # TODO Remove after alchemist is implemennted
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+        self.set_project(taskcat_cfg['global']['qsname'])
+
+        # TODO Remove after alchemist is implemennted
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
-            self.set_project(taskcat_cfg['global']['qsname'])
             auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region() == 'us-east-1':
-                print('{} Creating bucket {} in {}'.format(I, auto_bucket, self.get_default_region()))
+                print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
 
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
@@ -349,7 +350,7 @@ class TaskCat(object):
                     self.set_s3bucket(auto_bucket)
 
             else:
-                print('{} Creating bucket {} in {}'.format(I, auto_bucket, self.get_default_region()))
+                print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read',
                                                    Bucket=auto_bucket,
                                                    CreateBucketConfiguration={
@@ -450,7 +451,7 @@ class TaskCat(object):
                                 return o_url
                             else:
                                 amzns3 = 's3.amazonaws.com'
-                                o_url = "https://{0}/{1}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
+                                o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
                                 return o_url
 
     def get_global_region(self, yamlcfg):
@@ -645,7 +646,7 @@ class TaskCat(object):
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == 'S':
-            print(D + "Pass type => ('specialchars')")
+            print(D + "Pass type => {0}".format('specialchars'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -656,13 +657,14 @@ class TaskCat(object):
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            print(D + "Pass type => default ('alpha-numeric')")
+            print(D + "Pass type => default {0}".format('alpha-numeric'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
         return ''.join(password)
+
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
@@ -700,10 +702,10 @@ class TaskCat(object):
                     # - Parameters must start with $[
                     # - Parameters must end with ]
                     # - genpass in invoked when _genpass_X is found
-                    # - X is lengeth of the string
+                    # - X is length of the string
                     # Example: $[taskcat_genpass_8]
                     # Optionally - you can specify the type of password by adding
-                    # - A aplha-numeric passwords
+                    # - A alpha-numeric passwords
                     # - S passwords with special characters
                     # Example: $[taskcat_genpass_8A]
                     # Generates: tI8zN3iX8
@@ -716,7 +718,7 @@ class TaskCat(object):
                     # Generates: <evaluates to auto generated bucket name>
                     # or
 
-                    # (Availablity Zones)
+                    # (Availability Zones)
                     # Value that matches the following pattern will be replaced
                     # - Parameters must start with $[
                     # - Parameters must end with ]
@@ -725,6 +727,7 @@ class TaskCat(object):
                     #   the stack is attempting to launch
                     # Example: $[taskcat_genaz_2] (if the region is us-east-2)
                     # Generates: us-east-1a, us-east-2b
+
 
                     for parmdict in s_parms:
                         for _ in parmdict:
@@ -741,10 +744,9 @@ class TaskCat(object):
                             genpass_re = re.compile(
                                 '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
 
-                            # Determines if autobucket value was requested
+                            # Determines if random number value was requested
                             autobucket_re = re.compile(
                                 '\$\[taskcat_autobucket]$')
-
                             # Determines if _genaz has been requested
                             genaz_re = re.compile('\$\[\w+_genaz_\d]')
 
@@ -756,7 +758,7 @@ class TaskCat(object):
                                 url = self.regxfind(autobucket_re, param_value)
                                 param_value = self.get_s3bucket()
                                 if self.verbose:
-                                    print("Setting vaule to {}".format(url))
+                                    print("Setting value to {}".format(url))
                                     print(param_value)
                                 parmdict['ParameterValue'] = param_value
 
@@ -776,7 +778,7 @@ class TaskCat(object):
                                     gentype_re, param_value)
                                 if not gentype:
                                     # Set default password type
-                                    # A vaule of D will generate a simple alpha
+                                    # A value of D will generate a simple alpha
                                     # aumeric password
                                     gentype = 'D'
 
@@ -1626,7 +1628,7 @@ class TaskCat(object):
         :param logpath: Log file path
         :return:
         """
-        print(I + "(Collecting CloudFormation Logs)")
+        print("{}Collecting CloudFormation Logs".format(I))
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
