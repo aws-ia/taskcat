@@ -303,60 +303,72 @@ class TaskCat(object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
-        print('\n')
-        print("{} |CONTENTS OF  S3 BUCKET{}".format(self.nametag, header, rst_color))
+        example1 = '''
+        # Name of example project = [projectx]
+        # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
+        Hint: if taskcat.py is not in your path specify the full path to taskcat.py
 
-        project = taskcat_cfg['global']['qsname']
+        # Example of expected directory/project structure
+        projectx
+        ├── LICENSE.txt
+        ├── ci
+        │   ├── taskcat.yml         # TaskCat Configuration file
+        │   ├── projectx-input.json # Inputs to pass during stackcreation
+        ├── scripts
+        │   └── project-userdata.sh # Any scripts that is part of this project
+        └── templates
+            └── projectx.template
 
-        s3 = boto3.resource('s3')
+        # Contents of taskcat.yml
+        global:
+          qsname: projectx
+          regions:
+            - us-east-1
+            - us-west-1
+            - us-west-2
+
+        tests:
+          projectx-test:
+            template_file: projectx.template
+            parameter_input: projectx-input.json
+            '''
+
+
+        # TODO Remove after alchemist is implemennted
+        s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         if 's3bucket' in taskcat_cfg['global'].keys():
-            bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-            print(I + "Staging Bucket => " + bucket.name)
-            self.set_s3bucket(bucket.name)
+            self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
+            print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
-            auto_bucket = 'taskcat-' + project + "-" + jobid[:8]
-            print(I + "Staging Bucket => " + auto_bucket)
-            s3.create_bucket(Bucket=auto_bucket)
-            bucket = s3.Bucket(auto_bucket)
-            self.set_s3bucket(bucket.name)
+            self.set_project(taskcat_cfg['global']['qsname'])
+            auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
+            if self.get_default_region() == 'us-east-1':
+                print ('Creating bucket {} in {}'.format(auto_bucket, self.get_default_region()))
+                response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
 
-        self.set_project(project)
-        if os.path.isdir(project):
-            fsmap = buildmap('.', project)
+                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
+                    print(I + "Staging Bucket => [%s]"  % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+
+            else:
+                print ('Creating bucket {} in {}'.format(auto_bucket, self.get_default_region()))
+                response = s3_client.create_bucket(ACL='public-read',
+                                                   Bucket=auto_bucket,
+                                                   CreateBucketConfiguration={'LocationConstraint': self.get_default_region()})
+
+                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
+                    print(I + "Staging Bucket => [%s]" % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+
+        # TODO Remove after alchemist is implemennted
+
+        if os.path.isdir(self.get_project()):
+            fsmap = buildmap('.', self.get_project())
         else:
-            example1 = '''
-            # Name of example project = [projectx]
-            # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
-            Hint: if taskcat.py is not in your path specify the full path to taskcat.py
-
-            # Example of expected directory/project structure
-            projectx
-            ├── LICENSE.txt
-            ├── ci
-            │   ├── taskcat.yml         # TaskCat Configuration file
-            │   ├── projectx-input.json # Inputs to pass during stackcreation
-            ├── scripts
-            │   └── project-userdata.sh # Any scripts that is part of this project
-            └── templates
-                └── projectx.template
-
-            # Contents of taskcat.yml
-            global:
-              qsname: projectx
-              regions:
-                - us-east-1
-                - us-west-1
-                - us-west-2
-
-            tests:
-              projectx-test:
-                template_file: projectx.template
-                parameter_input: projectx-input.json
-                '''
 
             print('''\t\t Hint: The name specfied as value of qsname ({})
-                    must match the root directory of your project'''.format(project))
-            print("{0}!Cannot find directory [{1}] in {2}".format(E, project, os.getcwd()))
+                    must match the root directory of your project'''.format(self.get_project()))
+            print("{0}!Cannot find directory [{1}] in {2}".format(E, self.get_project(), os.getcwd()))
             print("\n\t    Example:{}".format(example1, '\n'))
             print(I + "Please cd to where you project is located")
             sys.exit(1)
@@ -364,20 +376,18 @@ class TaskCat(object):
         for filename in fsmap:
             try:
                 upload = re.sub('^./', '', filename)
-                bucket.Acl().put(ACL='public-read')
-                bucket.upload_file(filename,
-                                   upload,
-                                   ExtraArgs={'ACL': 'public-read'})
+                s3_client.upload_file(filename, self.get_s3bucket(), upload ,ExtraArgs={'ACL': 'public-read'})
             except Exception as e:
-                print("Cannot Upload to bucket => %s" % bucket.name)
+                print("Cannot Upload to bucket => %s" % self.get_s3bucket())
                 print(E + "Check that you bucketname is correct")
                 if self.verbose:
                     print(D + str(e))
                 sys.exit(1)
 
-        for obj in bucket.objects.all():
-            o = str('{0}/{1}'.format(self.get_s3bucket(), obj.key))
-            print(o)
+        responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
+        for s3keys in  responses.get('Contents'):
+            print ("{}/{}".format(self.get_s3bucket(),s3keys.get('Key')))
+        print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
 
@@ -392,7 +402,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = self._boto_client.get('ec2', region)
+        ec2_client = self._boto_client.get('ec2', region=region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -418,7 +428,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self._boto_client.get('s3', self.get_default_region())
+        s3_client = self._boto_client.get('s3', region=self.get_default_region())
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
@@ -497,7 +507,7 @@ class TaskCat(object):
         """
         if stackname != 'None':
             try:
-                cfn = self._boto_client.get('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region=region)
                 result = cfn.describe_stack_resources(StackName=stackname)
                 stack_resources = result.get('StackResources')
                 for resource in stack_resources:
@@ -586,7 +596,7 @@ class TaskCat(object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = self._boto_client.get('cloudformation', self.get_default_region())
+                cfn = self._boto_client.get('cloudformation', region=self.get_default_region())
 
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
@@ -679,7 +689,7 @@ class TaskCat(object):
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
-                    cfn = self._boto_client.get('cloudformation', region)
+                    cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
                     # gentype = None
@@ -911,7 +921,7 @@ class TaskCat(object):
         stack_name = stackdata['stack_name']
         test_info = []
 
-        cfn = self._boto_client.get('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region=region)
         # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -1113,7 +1123,7 @@ class TaskCat(object):
                     str(stack['StackId']))
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
-                cfn = self._boto_client.get('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region=region)
                 cfn.delete_stack(StackName=stack_name)
 
     def stack_exists(self, stackname, region):
@@ -1127,7 +1137,7 @@ class TaskCat(object):
         :return: True if stack exist, otherwise False
         """
         exists = None
-        cfn = self._boto_client.get('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region=region)
         try:
             cfn.describe_stacks(StackName=stackname)
             return True
@@ -1285,42 +1295,63 @@ class TaskCat(object):
         return True
 
     # Set AWS Credentials
-    def aws_api_init(self, auth_mode='role', aws_access_key=None,
-                     aws_secret_key=None, aws_session_token=None,
-                     profile_name=None):
+    # Set AWS Credentials
+    def aws_api_init(self, args):
         """
         This function reads the AWS credentials from various sources to ensure
         that the client has right credentials defined to successfully run
         TaskCat against an AWS account.
-
         :param args: Command line arguments for AWS credentials. It could be
             either profile name, access key and secret key or none.
-
         """
         print('\n')
-        self._auth_mode = auth_mode
-        self._aws_access_key = aws_access_key
-        self._aws_secret_key = aws_secret_key
-        self._aws_session_token = aws_session_token
-        self._profile_name = profile_name
-        self._boto_client = ClientFactory(
-            logger=logger,
-            auth_mode=auth_mode,
-            aws_access_key_id=aws_access_key,
-            aws_secret_access_key=aws_secret_key,
-            aws_session_token=aws_session_token,
-            profile_name=profile_name
-        )
-        try:
-            sts_client = self._boto_client.get('sts')
-            account = sts_client.get_caller_identity().get('Account')
-            print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-            print(self.nametag + " :Authenticated via: \t [%s] " % auth_mode)
-        except Exception as e:
-            print(E + " Credential Error - Please check your %s!" % auth_mode)
-            if self.verbose:
-                print(D + str(e))
-            sys.exit(1)
+        if args.boto_profile:
+            self._auth_mode = 'profile'
+            self._boto_profile = args.boto_profile
+            try:
+                sts_client = self._boto_client.get('sts',
+                                                   profile_name=self._boto_profile,
+                                                   region=self.get_default_region())
+                account = sts_client.get_caller_identity().get('Account')
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except Exception as e:
+                print(E + "Credential Error - Please check you profile!")
+                if self.verbose:
+                    print(D + str(e))
+                sys.exit(1)
+        elif args.aws_access_key and args.aws_secret_key:
+            self._auth_mode = 'keys'
+            self._aws_access_key = args.aws_access_key
+            self._aws_secret_key = args.aws_secret_key
+
+            try:
+
+                sts_client = self._boto_client.get('sts',
+                                                   aws_access_key_id=self._aws_access_key,
+                                                   aws_secret_access_key=self._aws_secret_key,
+                                                   region=self.get_default_region())
+                account = sts_client.get_caller_identity().get('Account')
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except Exception as e:
+                print(E + "Credential Error - Please check you keys!")
+                if self.verbose:
+                    print(D + str(e))
+                sys.exit(1)
+        else:
+            self._auth_mode = 'environment'
+            try:
+                sts_client = self._boto_client.get('sts',
+                                                   region=self.get_default_region())
+                account = sts_client.get_caller_identity().get('Account')
+                print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except Exception as e:
+                print(E + "Credential Error - Please check your boto environment variable !")
+                if self.verbose:
+                    print(D + str(e))
+                sys.exit(1)
 
     def validate_yaml(self, yaml_file):
         """
