@@ -20,7 +20,7 @@ RUN dnf install git -y
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 install taskcat --upgrade
 
-ADD https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat_test.py /usr/local/bin/taskcat
+ADD https://raw.githubusercontent.com/aws-quickstart/taskcat/master/taskcat.py /usr/local/bin/taskcat
 
 # Set the work directory
 WORKDIR /mnt
