@@ -1,6 +1,6 @@
 [
   {
     "ParameterKey": "Param1",
-    "ParameterValue": "$[taskcat_random-numbers]"
+    "ParameterValue": "$[taskcat_genuuid]"
   } 
 ]

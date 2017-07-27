@@ -303,35 +303,6 @@ class TaskCat(object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
-        example1 = '''
-        # Name of example project = [projectx]
-        # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
-        Hint: if taskcat.py is not in your path specify the full path to taskcat.py
-
-        # Example of expected directory/project structure
-        projectx
-        ├── LICENSE.txt
-        ├── ci
-        │   ├── taskcat.yml         # TaskCat Configuration file
-        │   ├── projectx-input.json # Inputs to pass during stackcreation
-        ├── scripts
-        │   └── project-userdata.sh # Any scripts that is part of this project
-        └── templates
-            └── projectx.template
-
-        # Contents of taskcat.yml
-        global:
-          qsname: projectx
-          regions:
-            - us-east-1
-            - us-west-1
-            - us-west-2
-
-        tests:
-          projectx-test:
-            template_file: projectx.template
-            parameter_input: projectx-input.json
-            '''
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         self.set_project(taskcat_cfg['global']['qsname'])
 
@@ -369,7 +340,6 @@ class TaskCat(object):
             print('''\t\t Hint: The name specfied as value of qsname ({})
                     must match the root directory of your project'''.format(self.get_project()))
             print("{0}!Cannot find directory [{1}] in {2}".format(E, self.get_project(), os.getcwd()))
-            print("\n\t    Example:{}".format(example1, '\n'))
             print(I + "Please cd to where you project is located")
             sys.exit(1)
 
@@ -386,7 +356,7 @@ class TaskCat(object):
 
         responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
         for s3keys in responses.get('Contents'):
-            print("{}/{}".format(self.get_s3bucket(), s3keys.get('Key')))
+            print("{}[S3: -> ]{} s3://{}/{}".format(white, rst_color, self.get_s3bucket(), s3keys.get('Key')))
         print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
@@ -665,14 +635,12 @@ class TaskCat(object):
 
         return ''.join(password)
 
-
     def generate_random(self, gtype, length):
         random_string = []
         numbers = "1234567890"
         lowercase = "abcdefghijklmnopqrstuvwxyz"
         if gtype == 'alpha':
             print(D + "Random String => {0}".format('alpha'))
-
 
             while len(random_string) < length:
                 random_string.append(random.choice(lowercase))
@@ -739,16 +707,15 @@ class TaskCat(object):
                     # Example: $[taskcat_genpass_8S]
                     # Generates: mA5@cB5!
 
-                    # Auto generated bucket value
+                    # (Auto generated s3 bucket )
                     # Example: $[taskcat_autobucket]
                     # Generates: <evaluates to auto generated bucket name>
-                    # or
 
-                    # Generate UUID String
+                    # (Generate UUID String)
                     # Example: $[taskcat_genuuid]
                     # Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
 
-                    # Generate Random String
+                    # (Generate Random String)
                     # Example: $[taskcat_random-string]
                     # Generates: yysuawpwubvotiqgwjcu
                     # or
@@ -806,8 +773,7 @@ class TaskCat(object):
                                 param_value = self.generate_random('alpha', 20)
 
                                 if self.verbose:
-                                    print("Generating random string for {}".format(random_string))
-                                    print(param_value)
+                                    print("{}Generating random string for {}".format(D, random_string))
                                 parmdict['ParameterValue'] = param_value
 
                             if gen_numbers_re.search(param_value):
@@ -815,8 +781,7 @@ class TaskCat(object):
                                 param_value = self.generate_random('number', 20)
 
                                 if self.verbose:
-                                    print("Generating numeric string for {}".format(random_numbers))
-                                    print(param_value)
+                                    print("{}Generating numeric string for {}".format(D, random_numbers))
                                 parmdict['ParameterValue'] = param_value
 
                             if genuuid_re.search(param_value):
@@ -824,24 +789,21 @@ class TaskCat(object):
                                 param_value = self.generate_uuid('A')
 
                                 if self.verbose:
-                                    print("Generating random uuid string for {}".format(uuid_string))
-                                    print(param_value)
+                                    print("{}Generating random uuid string for {}".format(D, uuid_string))
                                 parmdict['ParameterValue'] = param_value
 
                             if autobucket_re.search(param_value):
-                                url = self.regxfind(autobucket_re, param_value)
+                                bkt = self.regxfind(autobucket_re, param_value)
                                 param_value = self.get_s3bucket()
                                 if self.verbose:
-                                    print("Setting value to {}".format(url))
-                                    print(param_value)
+                                    print("{}Setting value to {}".format(D, bkt))
                                 parmdict['ParameterValue'] = param_value
 
                             if gets3replace.search(param_value):
                                 url = self.regxfind(geturl_re, param_value)
                                 param_value = self.get_s3contents(url)
                                 if self.verbose:
-                                    print("Raw content of url {}".format(url))
-                                    print(param_value)
+                                    print("{}Raw content of url {}".format(D, url))
                                 parmdict['ParameterValue'] = param_value
 
                             # Autogenerated value to password input in runtime
@@ -853,7 +815,7 @@ class TaskCat(object):
                                 if not gentype:
                                     # Set default password type
                                     # A value of D will generate a simple alpha
-                                    # aumeric password
+                                    # aplha numeric password
                                     gentype = 'D'
 
                                 if passlen:
@@ -1802,33 +1764,9 @@ class TaskCat(object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description="""Multi-Region CloudFormation Deployment Tool)
-
-    [Auto-generated stack inputs]
-    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>]
-    Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
-        - Parameters value in json input file must start with \'$[\' end with \']\'
-
-    Example:[ {
-        "ParameterKey": "AvailabilityZones",
-        "ParameterValue": "$[taskcat_genaz_2]"
-    } ]
-    Generates: us-east-1a, us-east-2b
-
-    Example:[ {
-        "ParameterKey": "AppPassword",
-        "ParameterValue": "$[taskcat_genpass_8]"
-    } ]
-
-    Generates: tI8zN3iX8
-    Optionally: $[taskcat_genpass_8S]
-    Generates: mA5@cB5!
-
-    Example: $[taskcat_autobucket]
-    Generates: <evaluates to auto generated bucket name>
-
-    For more info see: http://taskcat.io
-
+            description="""
+            Multi-Region CloudFormation Test Deployment Tool)
+            For more info see: http://taskcat.io
         """,
             prog='taskcat',
             prefix_chars='-',
