@@ -44,8 +44,8 @@ from .reaper import Reaper
 from .utils import ClientFactory
 
 # Version Tag
-''' 
-:param _run_mode: A value of 1 indicated taskcat is sourced from pip 
+'''
+:param _run_mode: A value of 1 indicated taskcat is sourced from pip
  A value of 0 indicates development mode taskcat is loading from local source
 '''
 try:
@@ -303,81 +303,61 @@ class TaskCat(object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
-        print('\n')
-        print("{} |CONTENTS OF  S3 BUCKET{}".format(self.nametag, header, rst_color))
+        s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+        self.set_project(taskcat_cfg['global']['qsname'])
 
-        project = taskcat_cfg['global']['qsname']
-
-        s3 = boto3.resource('s3')
+        # TODO Remove after alchemist is implemennted
         if 's3bucket' in taskcat_cfg['global'].keys():
-            bucket = s3.Bucket(taskcat_cfg['global']['s3bucket'])
-            print(I + "Staging Bucket => " + bucket.name)
-            self.set_s3bucket(bucket.name)
+            self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
+            print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
-            auto_bucket = 'taskcat-' + project + "-" + jobid[:8]
-            print(I + "Staging Bucket => " + auto_bucket)
-            s3.create_bucket(Bucket=auto_bucket)
-            bucket = s3.Bucket(auto_bucket)
-            self.set_s3bucket(bucket.name)
+            auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
+            if self.get_default_region() == 'us-east-1':
+                print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
+                response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
 
-        self.set_project(project)
-        if os.path.isdir(project):
-            fsmap = buildmap('.', project)
+                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
+                    print(I + "Staging Bucket => [%s]" % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+
+            else:
+                print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
+                response = s3_client.create_bucket(ACL='public-read',
+                                                   Bucket=auto_bucket,
+                                                   CreateBucketConfiguration={
+                                                       'LocationConstraint': self.get_default_region()})
+
+                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
+                    print(I + "Staging Bucket => [%s]" % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+
+        # TODO Remove after alchemist is implemennted
+
+        if os.path.isdir(self.get_project()):
+            fsmap = buildmap('.', self.get_project())
         else:
-            example1 = '''
-            # Name of example project = [projectx]
-            # Command issued to run taskcat = taskcat.py -c projectx/ci/config.yml
-            Hint: if taskcat.py is not in your path specify the full path to taskcat.py
-
-            # Example of expected directory/project structure
-            projectx
-            ├── LICENSE.txt
-            ├── ci
-            │   ├── taskcat.yml         # TaskCat Configuration file
-            │   ├── projectx-input.json # Inputs to pass during stackcreation
-            ├── scripts
-            │   └── project-userdata.sh # Any scripts that is part of this project
-            └── templates
-                └── projectx.template
-
-            # Contents of taskcat.yml
-            global:
-              qsname: projectx
-              regions:
-                - us-east-1
-                - us-west-1
-                - us-west-2
-
-            tests:
-              projectx-test:
-                template_file: projectx.template
-                parameter_input: projectx-input.json
-                '''
 
             print('''\t\t Hint: The name specfied as value of qsname ({})
-                    must match the root directory of your project'''.format(project))
-            print("{0}!Cannot find directory [{1}] in {2}".format(E, project, os.getcwd()))
-            print("\n\t    Example:{}".format(example1, '\n'))
+                    must match the root directory of your project'''.format(self.get_project()))
+            print("{0}!Cannot find directory [{1}] in {2}".format(E, self.get_project(), os.getcwd()))
             print(I + "Please cd to where you project is located")
             sys.exit(1)
 
         for filename in fsmap:
             try:
                 upload = re.sub('^./', '', filename)
-                bucket.Acl().put(ACL='public-read')
-                bucket.upload_file(filename,
-                                   upload,
-                                   ExtraArgs={'ACL': 'public-read'})
+                s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
             except Exception as e:
-                print("Cannot Upload to bucket => %s" % bucket.name)
+                print("Cannot Upload to bucket => %s" % self.get_s3bucket())
                 print(E + "Check that you bucketname is correct")
                 if self.verbose:
                     print(D + str(e))
                 sys.exit(1)
 
-        for obj in bucket.objects.all():
-            o = str('{0}/{1}'.format(self.get_s3bucket(), obj.key))
-            print(o)
+        responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
+        for s3keys in responses.get('Contents'):
+            print("{}[S3: -> ]{} s3://{}/{}".format(white, rst_color, self.get_s3bucket(), s3keys.get('Key')))
+        print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
 
@@ -392,7 +372,7 @@ class TaskCat(object):
 
         """
         available_azs = []
-        ec2_client = self.get_client('ec2', region)
+        ec2_client = self._boto_client.get('ec2', region=region)
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{'Name': 'state', 'Values': ['available']}])
 
@@ -418,7 +398,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self.get_client('s3', self.get_default_region())
+        s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
@@ -441,7 +421,7 @@ class TaskCat(object):
                                 return o_url
                             else:
                                 amzns3 = 's3.amazonaws.com'
-                                o_url = "https://{0}/{1}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
+                                o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
                                 return o_url
 
     def get_global_region(self, yamlcfg):
@@ -497,7 +477,7 @@ class TaskCat(object):
         """
         if stackname != 'None':
             try:
-                cfn = self.get_client('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region=region)
                 result = cfn.describe_stack_resources(StackName=stackname)
                 stack_resources = result.get('StackResources')
                 for resource in stack_resources:
@@ -586,7 +566,7 @@ class TaskCat(object):
             try:
                 if self.verbose:
                     print(D + "Default region [%s]" % self.get_default_region())
-                cfn = self.get_client('cloudformation', self.get_default_region())
+                cfn = self._boto_client.get('cloudformation', region=self.get_default_region())
 
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
@@ -636,7 +616,7 @@ class TaskCat(object):
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == 'S':
-            print(D + "Pass type => ('specialchars')")
+            print(D + "Pass type => {0}".format('specialchars'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -647,13 +627,38 @@ class TaskCat(object):
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            print(D + "Pass type => default ('alpha-numeric')")
+            print(D + "Pass type => default {0}".format('alpha-numeric'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
         return ''.join(password)
+
+    def generate_random(self, gtype, length):
+        random_string = []
+        numbers = "1234567890"
+        lowercase = "abcdefghijklmnopqrstuvwxyz"
+        if gtype == 'alpha':
+            print(D + "Random String => {0}".format('alpha'))
+
+            while len(random_string) < length:
+                random_string.append(random.choice(lowercase))
+
+        # Generates password string with:
+        # lowercase,uppercase, numbers and special chars
+        elif gtype == 'number':
+            print(D + "Random String => {0}".format('numeric'))
+            while len(random_string) < length:
+                random_string.append(random.choice(numbers))
+
+        return ''.join(random_string)
+
+    def generate_uuid(self, uuid_type):
+        if uuid_type is 'A':
+            return str(uuid.uuid4())
+        else:
+            return str(uuid.uuid4())
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
@@ -679,7 +684,7 @@ class TaskCat(object):
             for region in self.get_test_region():
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
-                    cfn = self.get_client('cloudformation', region)
+                    cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
                     # gentype = None
@@ -691,10 +696,10 @@ class TaskCat(object):
                     # - Parameters must start with $[
                     # - Parameters must end with ]
                     # - genpass in invoked when _genpass_X is found
-                    # - X is lengeth of the string
+                    # - X is length of the string
                     # Example: $[taskcat_genpass_8]
                     # Optionally - you can specify the type of password by adding
-                    # - A aplha-numeric passwords
+                    # - A alpha-numeric passwords
                     # - S passwords with special characters
                     # Example: $[taskcat_genpass_8A]
                     # Generates: tI8zN3iX8
@@ -702,12 +707,22 @@ class TaskCat(object):
                     # Example: $[taskcat_genpass_8S]
                     # Generates: mA5@cB5!
 
-                    # Auto generated bucket value
+                    # (Auto generated s3 bucket )
                     # Example: $[taskcat_autobucket]
                     # Generates: <evaluates to auto generated bucket name>
-                    # or
 
-                    # (Availablity Zones)
+                    # (Generate UUID String)
+                    # Example: $[taskcat_genuuid]
+                    # Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+
+                    # (Generate Random String)
+                    # Example: $[taskcat_random-string]
+                    # Generates: yysuawpwubvotiqgwjcu
+                    # or
+                    # Example: $[taskcat_random-numbers]
+                    # Generates: 56188163597280820763
+
+                    # (Availability Zones)
                     # Value that matches the following pattern will be replaced
                     # - Parameters must start with $[
                     # - Parameters must end with ]
@@ -733,30 +748,62 @@ class TaskCat(object):
                                 '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
 
                             # Determines if autobucket value was requested
+                            gen_string_re = re.compile(
+                                '\$\[taskcat_random-string]$')
+
+                            # Determines if random string  value was requested
+                            gen_numbers_re = re.compile(
+                                '\$\[taskcat_random-numbers]$')
+
+                            # Determines if random number value was requested
                             autobucket_re = re.compile(
                                 '\$\[taskcat_autobucket]$')
-
                             # Determines if _genaz has been requested
                             genaz_re = re.compile('\$\[\w+_genaz_\d]')
+
+                            # Determines if _genaz has been requested
+                            genuuid_re = re.compile('\$\[\w+_gen[gu]uid]')
 
                             # Determines if s3 replacement was requested
                             gets3replace = re.compile('\$\[\w+_url_.+]$')
                             geturl_re = re.compile('(?<=._url_)(.+)(?=]$)')
 
+                            if gen_string_re.search(param_value):
+                                random_string = self.regxfind(gen_string_re, param_value)
+                                param_value = self.generate_random('alpha', 20)
+
+                                if self.verbose:
+                                    print("{}Generating random string for {}".format(D, random_string))
+                                parmdict['ParameterValue'] = param_value
+
+                            if gen_numbers_re.search(param_value):
+                                random_numbers = self.regxfind(gen_numbers_re, param_value)
+                                param_value = self.generate_random('number', 20)
+
+                                if self.verbose:
+                                    print("{}Generating numeric string for {}".format(D, random_numbers))
+                                parmdict['ParameterValue'] = param_value
+
+                            if genuuid_re.search(param_value):
+                                uuid_string = self.regxfind(genuuid_re, param_value)
+                                param_value = self.generate_uuid('A')
+
+                                if self.verbose:
+                                    print("{}Generating random uuid string for {}".format(D, uuid_string))
+                                parmdict['ParameterValue'] = param_value
+
                             if autobucket_re.search(param_value):
-                                url = self.regxfind(autobucket_re, param_value)
+                                bkt = self.regxfind(autobucket_re, param_value)
                                 param_value = self.get_s3bucket()
                                 if self.verbose:
-                                    print("Setting vaule to {}".format(url))
-                                    print(param_value)
+                                    print("{}Setting value to {}".format(D, bkt))
                                 parmdict['ParameterValue'] = param_value
 
                             if gets3replace.search(param_value):
                                 url = self.regxfind(geturl_re, param_value)
                                 param_value = self.get_s3contents(url)
                                 if self.verbose:
-                                    print("Raw content of url {}".format(url))
-                                    print(param_value)
+                                    print("{}Raw content of url {}".format(D, url))
                                 parmdict['ParameterValue'] = param_value
 
                             # Autogenerated value to password input in runtime
@@ -767,8 +814,8 @@ class TaskCat(object):
                                     gentype_re, param_value)
                                 if not gentype:
                                     # Set default password type
-                                    # A vaule of D will generate a simple alpha
-                                    # aumeric password
+                                    # A value of D will generate a simple alpha
+                                    # aplha numeric password
                                     gentype = 'D'
 
                                 if passlen:
@@ -911,7 +958,7 @@ class TaskCat(object):
         stack_name = stackdata['stack_name']
         test_info = []
 
-        cfn = self.get_client('cloudformation', region)
+        cfn = self._boto_client.get('cloudformation', region=region)
         # noinspection PyBroadException
         try:
             test_query = (cfn.describe_stacks(StackName=stack_name))
@@ -1113,30 +1160,8 @@ class TaskCat(object):
                     str(stack['StackId']))
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
-                cfn = self.get_client('cloudformation', region)
+                cfn = self._boto_client.get('cloudformation', region=region)
                 cfn.delete_stack(StackName=stack_name)
-
-    def if_stackexists(self, stackname, region):
-        """
-        This function checks if a stack exist with the given stack name.
-        Returns "yes" if exist, otherwise "no".
-
-        :param stackname: Stack name
-        :param region: AWS region
-
-        :return: "yes" if stack exist, otherwise "no"
-        """
-        exists = None
-        cfn = self.get_client('cloudformation', region)
-        try:
-            cfn.describe_stacks(StackName=stackname)
-            exists = "yes"
-        except Exception as e:
-            if self.verbose:
-                print(D + str(e))
-                exists = "no"
-        print(I + "Successfully Deleted[%s]" % stackname)
-        return exists
 
     def define_tests(self, yamlc, test):
         """
@@ -1288,43 +1313,27 @@ class TaskCat(object):
             return False
         return True
 
-    def get_client(self, service_type, client_region):
-        if self._auth_mode is 'keys':
-            boto3.setup_default_session(
-                aws_access_key_id=self._aws_access_key,
-                aws_secret_access_key=self._aws_secret_key)
-            boto_client = boto3.client(service_type, client_region)
-            return boto_client
-        elif self._auth_mode is 'profile':
-            boto3.setup_default_session(profile_name=self._boto_profile)
-            boto_client = self._boto_client.get(service_type, client_region)
-            return boto_client
-        else:
-            boto_client = self._boto_client.get(service_type, client_region)
-            return boto_client
-
-
+    # Set AWS Credentials
     # Set AWS Credentials
     def aws_api_init(self, args):
         """
         This function reads the AWS credentials from various sources to ensure
         that the client has right credentials defined to successfully run
         TaskCat against an AWS account.
-
         :param args: Command line arguments for AWS credentials. It could be
             either profile name, access key and secret key or none.
-
         """
         print('\n')
         if args.boto_profile:
             self._auth_mode = 'profile'
-            boto3.setup_default_session(profile_name=args.boto_profile)
             self._boto_profile = args.boto_profile
             try:
-                sts_client = boto3.client('sts')
+                sts_client = self._boto_client.get('sts',
+                                                   profile_name=self._boto_profile,
+                                                   region=self.get_default_region())
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [boto-profile] ")
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
             except Exception as e:
                 print(E + "Credential Error - Please check you profile!")
                 if self.verbose:
@@ -1334,26 +1343,29 @@ class TaskCat(object):
             self._auth_mode = 'keys'
             self._aws_access_key = args.aws_access_key
             self._aws_secret_key = args.aws_secret_key
-            boto3.setup_default_session(
-                aws_access_key_id=args.aws_access_key,
-                aws_secret_access_key=args.aws_secret_key)
+
             try:
-                sts_client = boto3.client('sts')
+
+                sts_client = self._boto_client.get('sts',
+                                                   aws_access_key_id=self._aws_access_key,
+                                                   aws_secret_access_key=self._aws_secret_key,
+                                                   region=self.get_default_region())
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [access-keys] ")
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
             except Exception as e:
                 print(E + "Credential Error - Please check you keys!")
                 if self.verbose:
                     print(D + str(e))
                 sys.exit(1)
         else:
-            self._auth_mode = 'role'
+            self._auth_mode = 'environment'
             try:
-                sts_client = boto3.client('sts')
+                sts_client = self._boto_client.get('sts',
+                                                   region=self.get_default_region())
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
-                print(self.nametag + " :Authenticated via: \t [role] ")
+                print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
             except Exception as e:
                 print(E + "Credential Error - Please check your boto environment variable !")
                 if self.verbose:
@@ -1437,7 +1449,7 @@ class TaskCat(object):
         def get_teststate(stackname, region):
             # Add try catch and return MANUALLY_DELETED
             # Add css test-orange
-            cfn = self.get_client('cloudformation', region)
+            cfn = self._boto_client.get('cloudformation', region)
             test_query = cfn.describe_stacks(StackName=stackname)
             rstatus = None
             status_css = None
@@ -1652,7 +1664,7 @@ class TaskCat(object):
         :param logpath: Log file path
         :return:
         """
-        print(I + "(Collecting CloudFormation Logs)")
+        print("{}Collecting CloudFormation Logs".format(I))
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = self.parse_stack_info(str(stack['StackId']))
@@ -1752,33 +1764,9 @@ class TaskCat(object):
     @property
     def interface(self):
         parser = argparse.ArgumentParser(
-            description="""Multi-Region CloudFormation Deployment Tool)
-
-    [Auto-generated stack inputs] 
-    Auto-select available az\'s at runtime based test region defined $[_genazX] $[_genaz<number of az\'s>] 
-    Generate password during runtime $[_genpass_XX]  $[_genpass_<length>_<type>]
-        - Parameters value in json input file must start with \'$[\' end with \']\'
-
-    Example:[ {
-        "ParameterKey": "AvailabilityZones",
-        "ParameterValue": "$[taskcat_genaz_2]"
-    } ]
-    Generates: us-east-1a, us-east-2b
-
-    Example:[ {
-        "ParameterKey": "AppPassword",
-        "ParameterValue": "$[taskcat_genpass_8]"
-    } ]
-
-    Generates: tI8zN3iX8 
-    Optionally: $[taskcat_genpass_8S]
-    Generates: mA5@cB5!
-
-    Example: $[taskcat_autobucket]
-    Generates: <evaluates to auto generated bucket name>
-
-    For more info see: http://taskcat.io
-
+            description="""
+            Multi-Region CloudFormation Test Deployment Tool)
+            For more info see: http://taskcat.io
         """,
             prog='taskcat',
             prefix_chars='-',
@@ -1885,7 +1873,7 @@ def get_cfn_stack_events(self, stackname, region):
     :param region: Region stack belongs to
     :return: Event logs of the stack
     """
-    cfn_client = self.get_client('cloudformation', region)
+    cfn_client = self._boto_client.get('cloudformation', region)
     stack_events = []
     try:
         response = cfn_client.describe_stack_events(StackName=stackname)

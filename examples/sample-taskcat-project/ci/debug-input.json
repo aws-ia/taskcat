@@ -1,6 +1,6 @@
 [
   {
     "ParameterKey": "Param1",
-    "ParameterValue": "$[taskcat_autobucket]"
+    "ParameterValue": "$[taskcat_genuuid]"
   } 
 ]

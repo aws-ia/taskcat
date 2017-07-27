@@ -46,13 +46,13 @@ ch.setFormatter(formatter)
 # add ch to logger
 logger.addHandler(ch)
 
+
 # Reaper class provide functions to delete the AWS resources as per the
 # defined rules.
 
 
 # noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
 class Reaper(object):
-
     # Given an s3 bucket name, this function deletes all the versions of the bucket
     # Param:
     #   bucket_name - Name of the bucket to delete
@@ -162,6 +162,3 @@ class Reaper(object):
 
     def __init__(self, session):
         self.session = session
-
-
-
