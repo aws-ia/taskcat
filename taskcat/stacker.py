@@ -332,8 +332,6 @@ class TaskCat(object):
             template_file: projectx.template
             parameter_input: projectx-input.json
             '''
-
-
         # TODO Remove after alchemist is implemennted
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         if 's3bucket' in taskcat_cfg['global'].keys():
@@ -343,18 +341,19 @@ class TaskCat(object):
             self.set_project(taskcat_cfg['global']['qsname'])
             auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region() == 'us-east-1':
-                print ('Creating bucket {} in {}'.format(auto_bucket, self.get_default_region()))
+                print('{} Creating bucket {} in {}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
 
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                    print(I + "Staging Bucket => [%s]"  % auto_bucket)
+                    print(I + "Staging Bucket => [%s]" % auto_bucket)
                     self.set_s3bucket(auto_bucket)
 
             else:
-                print ('Creating bucket {} in {}'.format(auto_bucket, self.get_default_region()))
+                print('{} Creating bucket {} in {}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read',
                                                    Bucket=auto_bucket,
-                                                   CreateBucketConfiguration={'LocationConstraint': self.get_default_region()})
+                                                   CreateBucketConfiguration={
+                                                       'LocationConstraint': self.get_default_region()})
 
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
@@ -376,7 +375,7 @@ class TaskCat(object):
         for filename in fsmap:
             try:
                 upload = re.sub('^./', '', filename)
-                s3_client.upload_file(filename, self.get_s3bucket(), upload ,ExtraArgs={'ACL': 'public-read'})
+                s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
             except Exception as e:
                 print("Cannot Upload to bucket => %s" % self.get_s3bucket())
                 print(E + "Check that you bucketname is correct")
@@ -385,8 +384,8 @@ class TaskCat(object):
                 sys.exit(1)
 
         responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
-        for s3keys in  responses.get('Contents'):
-            print ("{}/{}".format(self.get_s3bucket(),s3keys.get('Key')))
+        for s3keys in responses.get('Contents'):
+            print("{}/{}".format(self.get_s3bucket(), s3keys.get('Key')))
         print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
@@ -428,7 +427,7 @@ class TaskCat(object):
         :return: S3 url of the given key
 
         """
-        s3_client = self._boto_client.get('s3', region=self.get_default_region())
+        s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
@@ -1125,24 +1124,6 @@ class TaskCat(object):
                 stack_name = stackdata['stack_name']
                 cfn = self._boto_client.get('cloudformation', region=region)
                 cfn.delete_stack(StackName=stack_name)
-
-    def stack_exists(self, stackname, region):
-        """
-        This function checks if a stack exist with the given stack name or id.
-        Returns True if exist, otherwise False.
-
-        :param stackname: Stack name/id
-        :param region: AWS region
-
-        :return: True if stack exist, otherwise False
-        """
-        exists = None
-        cfn = self._boto_client.get('cloudformation', region=region)
-        try:
-            cfn.describe_stacks(StackName=stackname)
-            return True
-        except Exception as e:
-            return False
 
     def define_tests(self, yamlc, test):
         """

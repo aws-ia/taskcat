@@ -1,4 +1,3 @@
-
 """
 taskcat python module
 """

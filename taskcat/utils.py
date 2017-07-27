@@ -14,7 +14,6 @@ from collections import OrderedDict
 
 
 class ClientFactory(object):
-
     """Manages creating and caching boto3 clients, helpful when creating lots of
     clients in different regions or functions.
 
@@ -75,8 +74,10 @@ class ClientFactory(object):
         if (aws_access_key_id and not aws_secret_access_key) or (not aws_access_key_id and aws_secret_access_key):
             raise ValueError('"aws_access_key_id" and "aws_secret_access_key" must both be set')
         elif profile_name and (aws_access_key_id or aws_secret_access_key or aws_session_token):
-            raise ValueError('"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token')
-        self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name]
+            raise ValueError(
+                '"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token')
+        self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token,
+                                                      profile_name]
 
     def get(self, service, region=None, credential_set='default', aws_access_key_id=None,
             aws_secret_access_key=None, aws_session_token=None, s3v4=False, profile_name=None):
@@ -98,10 +99,12 @@ class ClientFactory(object):
             class: boto3 client
         """
         if not aws_access_key_id and not profile_name:
-            self.logger.debug("no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set)
+            self.logger.debug(
+                "no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set)
             if credential_set not in self._credential_sets.keys():
                 raise KeyError('credential set %s does not exist' % credential_set)
-            aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[credential_set]
+            aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[
+                credential_set]
         if not region:
             self.logger.debug("Region not set explicitly, getting default region")
             region = os.environ['AWS_DEFAULT_REGION']
@@ -175,7 +178,7 @@ class ClientFactory(object):
                 retry += 1
                 if retry >= max_retries:
                     raise
-                sleep(5*(retry**2))
+                sleep(5 * (retry ** 2))
 
     def _create_client(self, credential_set, region, service, s3v4):
         """creates (or fetches from cache) a boto3 client object
@@ -205,7 +208,7 @@ class ClientFactory(object):
                 retry += 1
                 if retry >= max_retries:
                     raise
-                sleep(5*(retry**2))
+                sleep(5 * (retry ** 2))
 
     def get_available_regions(self, service):
         """fetches available regions for a service
@@ -226,7 +229,6 @@ class ClientFactory(object):
 
 
 class Logger(object):
-
     """Wrapper for a logging object that logs in json"""
 
     def __init__(self, request_id=None, log_format='json', loglevel='warning', botolevel='critical'):
@@ -360,7 +362,6 @@ class Logger(object):
 
 
 class CFNYAMLHandler(object):
-
     """Handles the loading and dumping of CloudFormation YAML templates.
 
     Example usage:
@@ -437,7 +438,8 @@ class CFNYAMLHandler(object):
             return OrderedDict([(tag_suffix, constructor(node))])
 
         OrderedSafeLoader.add_constructor(u'tag:yaml.org,2002:int', _construct_int_without_octals)
-        OrderedSafeLoader.add_implicit_resolver(u'tag:yaml.org,2002:int', re.compile(u'^[-+]?[0-9][0-9_]*$'), list(u'-+0123456789'))
+        OrderedSafeLoader.add_implicit_resolver(u'tag:yaml.org,2002:int', re.compile(u'^[-+]?[0-9][0-9_]*$'),
+                                                list(u'-+0123456789'))
         OrderedSafeLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
         OrderedSafeLoader.add_multi_constructor('!', _construct_cfn_tag)
 
