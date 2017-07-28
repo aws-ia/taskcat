@@ -480,47 +480,27 @@ class CFNAlchemist(object):
         if args.aws_profile:
             self._auth_mode = 'profile'
             self._aws_profile = args.aws_profile
-            try:
-                sts_client = self._boto_client.get(
-                    'sts',
-                    profile_name=self._aws_profile,
-                    region=self.get_default_region()
-                )
-            except Exception as e:
-                logger.error("Credential Error - Please check you profile!")
-                if self._verbose:
-                    logger.debug(str(e))
-                sys.exit(1)
         elif args.aws_access_key_id and args.aws_secret_access_key:
             self._auth_mode = 'keys'
             self._aws_access_key_id = args.aws_access_key_id
             self._aws_secret_access_key = args.aws_secret_access_key
-            try:
-
-                sts_client = self._boto_client.get(
-                    'sts',
-                    aws_access_key_id=self._aws_access_key_id,
-                    aws_secret_access_key=self._aws_secret_access_key,
-                    region=self.get_default_region()
-                )
-            except Exception as e:
-                logger.error("Credential Error - Please check you keys!")
-                if self._verbose:
-                    logger.debug(str(e))
-                sys.exit(1)
         else:
             self._auth_mode = 'environment'
-            try:
-                sts_client = self._boto_client.get(
-                    'sts',
-                    region=self.get_default_region()
-                )
-            except Exception as e:
-                logger.error("Credential Error - Please check your boto environment variable !")
-                if self._verbose:
-                    logger.debug(str(e))
-                sys.exit(1)
-        account = sts_client.get_caller_identity().get('Account')
+        try:
+            sts_client = self._boto_client.get(
+                'sts',
+                credential_set='alchemist',
+                aws_access_key_id=self._aws_access_key_id,
+                aws_secret_access_key=self._aws_secret_access_key,
+                profile_name=self._aws_profile,
+                region=self.get_default_region()
+            )
+            account = sts_client.get_caller_identity().get('Account')
+        except Exception as e:
+            logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
+            if self._verbose:
+                logger.debug(str(e))
+            sys.exit(1)
         print(" :AWS AccountNumber: \t [%s]" % account)
         print(" :Authenticated via: \t [%s]" % self._auth_mode)
 
