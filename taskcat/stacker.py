@@ -1274,7 +1274,7 @@ class TaskCat(object):
         This function validates the given JSON.
 
         :param jsonin: Json object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quite: Optional value, if set True suppress _verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given Json is valid, FALSE otherwise.
@@ -1296,7 +1296,7 @@ class TaskCat(object):
         This function validates the given YAML.
 
         :param yamlin: Yaml object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quite: Optional value, if set True suppress _verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given yaml is valid, FALSE otherwise.
@@ -1801,7 +1801,7 @@ class TaskCat(object):
             help="Sets cleanup to false (Does not teardown stacks)")
         parser.add_argument(
             '-v',
-            '--verbose',
+            '--_verbose',
             action='store_true',
             help="Enables verbosity")
 
