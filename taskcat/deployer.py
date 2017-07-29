@@ -34,11 +34,12 @@ class CFNAlchemist(object):
         # Constants
         self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq']
         self._TEMPLATE_EXT = ['.template', '.json']
-        self._GIT_EXT = ['.git', '.gitmodules']
+        self._GIT_EXT = ['.git', '.gitmodules', '.gitignore', '.gitattributes']
+        self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
         self._prod_bucket_name = 'quickstart-reference'
 
         # properties with setters/getters
-        self._verbose = False
+        self._debug = False
         self._dry_run = False
 
         self._input_path = None
@@ -59,9 +60,9 @@ class CFNAlchemist(object):
         return
 
     def initialize(self, args):
-        if args.verbose >= 1:
-            self.logger.debug("Setting _verbose to True")
-            self.set_verbose(True)
+        if args.debug:
+            self.logger.debug("Setting _debug to True")
+            self.set_debug(True)
             self.logger.setLevel(logging.DEBUG)
             self.ch.setLevel(logging.DEBUG)
         if args.dry_run:
@@ -73,10 +74,6 @@ class CFNAlchemist(object):
         self.set_target_bucket_name(args.target_bucket_name)
         self.logger.debug("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
         self.set_target_key_prefix(args.target_key_prefix)
-        #if args.output_directory is None:
-        #    self.logger.debug("Setting _output_directory to '{}'".format(args.input_path))
-        #    self.set_output_directory(args.input_path)
-        #else:
         if args.output_directory is not None:
             self.logger.debug("Setting _output_directory to '{}'".format(args.output_directory))
             self.set_output_directory(args.output_directory)
@@ -96,11 +93,11 @@ class CFNAlchemist(object):
     def _get_excluded_key_prefixes(self):
         return self._excluded_prefixes
 
-    def set_verbose(self, verbose):
-        self._verbose = verbose
+    def set_debug(self, verbose):
+        self._debug = verbose
 
-    def get_verbose(self):
-        return self._verbose
+    def get_debug(self):
+        return self._debug
 
     def set_dry_run(self, dry_run):
         self._dry_run = dry_run
@@ -121,7 +118,7 @@ class CFNAlchemist(object):
         return self._target_bucket_name
 
     def set_target_key_prefix(self, target_key_prefix):
-        self._target_key_prefix = target_key_prefix
+        self._target_key_prefix = target_key_prefix.strip('/') + '/'
         self._set_excluded_key_prefixes()
 
     def get_target_key_prefix(self):
@@ -172,7 +169,7 @@ class CFNAlchemist(object):
         self.logger.info("Gathering remote S3 bucket keys {}*".format(self._target_key_prefix))
         remote_key_dict = {}
         for obj in upload_bucket.objects.filter(Prefix='{}'.format(self._target_key_prefix)):
-            if '/latest/doc/' not in obj.key:
+            if any(x not in obj.key for x in self._get_excluded_key_prefixes()):
                 remote_key_dict[obj.key] = obj
         self.logger.debug(remote_key_dict.keys())
 
@@ -244,13 +241,13 @@ class CFNAlchemist(object):
         # Validate output
         if self._output_directory is not None:
             if os.path.isdir(self._output_directory):
+                # We come here if the file is a directory or does not exist
                 CFNYAMLHandler.validate_output_dir(self._output_directory)
             else:
-                pass
-                # TODO: THROW ERROR AND EXIT
+                self.logger.error("The location provided [{}] is not a directory.".format(self._output_directory))
+                sys.exit(1)
 
         self.logger.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
-        # replacement_bucket_name = self._target_bucket_name # should probably just use self.bucket_name
         self.logger.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
 
         # Rewrite files
@@ -342,10 +339,9 @@ class CFNAlchemist(object):
                 for _current_file in files:
                     if not _current_file.endswith(tuple(self._GIT_EXT)):
                         _file_list.append(os.path.join(root, _current_file))
-                if '.git' in dirs:
-                    dirs.remove('.git')
-                if 'ci' in dirs:
-                    dirs.remove('ci')
+                for directory in self._EXCLUDED_DIRS:
+                    if directory in dirs:
+                        dirs.remove(directory)
         else:
             self.logger.error("Directory/File is non-existent. Aborting.")
             sys.exit(1)
@@ -440,7 +436,7 @@ class CFNAlchemist(object):
             account = sts_client.get_caller_identity().get('Account')
         except Exception as e:
             self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
-            if self._verbose:
+            if self._debug:
                 self.logger.debug(str(e))
             sys.exit(1)
         self.logger.info("AWS AccountNumber: \t [%s]" % account)
@@ -451,89 +447,87 @@ class CFNAlchemist(object):
         # Creating Parser
         parser = argparse.ArgumentParser(
             prog="alchemist",
-            description="AWS CloudFormation rewriter and deployer for AWS Quick Starts"
+            description="AWS Quick Start rewriter and uploader of assets."
         )
         parser.add_argument(
             "input_path",
             type=str,
-            help="Specify the path of template file(s)"
+            help="the input path of assets to rewrite and/or upload."
         )
         parser.add_argument(
             "target_bucket_name",
             type=str,
-            help="Specify target S3 bucket name for rewrite and/or upload"
+            help="target S3 bucket name for rewrite and/or upload."
         )
         parser.add_argument(
             "-t",
             "--target-key-prefix",
             type=str,
-            help="Specify target S3 key prefix to use"
+            help="target S3 key prefix to use. This is required when uploading."
         )
         parser.add_argument(
             "-o",
             "--output-directory",
             type=str,
-            help="Specify custom output directory path. If no path is specified, will overwrite current file(s)"
+            help="custom output directory path. If no path is specified, will overwrite current file(s)."
         )
         parser.add_argument(
             "-b",
             "--basic-rewrite",
             action='store_true',
-            help="Specify to perform a basic rewrite vs. walking the document"
+            help="specify to perform a basic rewrite vs. walking the document."
         )
         actions = parser.add_mutually_exclusive_group(required=True)
         actions.add_argument(
             "-u",
             "--upload-only",
             action='store_true',
-            help="Specify to only upload to S3 (no rewrite)"
+            help="specify to only upload to S3 (no rewrite)."
         )
         actions.add_argument(
             "-r",
             "--rewrite-only",
             action='store_true',
-            help="Specify to only rewrite (no upload)"
+            help="specify to only rewrite (no upload)."
         )
         actions.add_argument(
             "-ru",
             "--rewrite-and-upload",
             action='store_true',
-            help="Specify to rewrite and upload to S3"
+            help="specify to rewrite and upload to S3."
         )
         parser.add_argument(
             "--convert-key-prefix-to-slashes",
             action='store_true',
-            help="Specify to convert a quickstart-key-prefix/ to quickstart/key/prefix/latest/"
+            help="specify to convert a quickstart-some-repo/ key prefix to a some/repo/latest/ key prefix."
         )
         parser.add_argument(
             "-p",
             "--aws-profile",
             type=str,
-            help="Use existing AWS credentials profile"
+            help="use existing AWS credentials profile."
         )
         parser.add_argument(
             "-a",
             "--aws-access-key-id",
             type=str,
-            help="AWS Access Key ID"
+            help="AWS access key ID."
         )
         parser.add_argument(
             "-s",
             "--aws-secret-access-key",
             type=str,
-            help="Secret Access Key ID"
+            help="AWS secret access key."
         )
         parser.add_argument(
-            "-v",
-            "--verbose",
-            action='count',
-            help="Verbose mode. Can be supplied multiple times to increase verbosity"
+            "--debug",
+            action='store_true',
+            help="specify to enable debug mode logging."
         )
         parser.add_argument(
-            "-d",
             "--dry-run",
             action='store_true',
-            help="Specify to simulate the upload actions to learn what would happen"
+            help="specify to simulate the rewrite and upload actions to learn what would happen."
         )
 
         args = parser.parse_args()
