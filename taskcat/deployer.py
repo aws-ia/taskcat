@@ -17,6 +17,9 @@ from .utils import CFNYAMLHandler
 
 
 class CFNAlchemist(object):
+    OBJECT_REWRITE_MODE = 10
+    BASIC_REWRITE_MODE = 20
+
     def __init__(self):
         # create logger
         self.logger = logging.getLogger('alchemist')
@@ -46,7 +49,7 @@ class CFNAlchemist(object):
         self._target_bucket_name = None
         self._target_key_prefix = None
         self._output_directory = None
-        self._rewrite_type = 'object'
+        self._rewrite_mode = self.OBJECT_REWRITE_MODE
         self._default_region = 'us-east-1'
         self._excluded_prefixes = None
 
@@ -79,7 +82,7 @@ class CFNAlchemist(object):
             self.set_output_directory(args.output_directory)
         if args.basic_rewrite:
             self.logger.debug("Setting _rewrite_type to '{}'".format('basic'))
-            self.set_rewrite_type('basic')
+            self.set_rewrite_type(self.BASIC_REWRITE_MODE)
 
     def _set_excluded_key_prefixes(self):
         self._excluded_prefixes = [
@@ -131,10 +134,10 @@ class CFNAlchemist(object):
         return self._output_directory
 
     def set_rewrite_type(self, rewrite_type):
-        self._rewrite_type = rewrite_type
+        self._rewrite_mode = rewrite_type
 
     def get_rewrite_type(self):
-        return self._rewrite_type
+        return self._rewrite_mode
 
     def set_default_region(self, region):
         self._default_region = region
@@ -228,11 +231,6 @@ class CFNAlchemist(object):
                     remote_key_dict[_key].delete()
 
     def rewrite_only(self):
-        if self._rewrite_type == 'basic':
-            basic_rewrite = True
-        else:
-            basic_rewrite = False
-
         # Create file list and recurse if args._input_path is directory
         file_list = self._get_file_list(self._input_path)
         self.logger.info("Files to be worked on:")
@@ -268,9 +266,10 @@ class CFNAlchemist(object):
                 # copy only if it's a new location for the output
                 if current_file is not output_file:
                     shutil.copyfile(current_file, output_file)
-            elif not basic_rewrite and current_file.endswith(tuple(self._TEMPLATE_EXT)) and os.path.dirname(current_file).endswith('/templates'):
+            elif self._rewrite_mode != self.BASIC_REWRITE_MODE \
+                    and current_file.endswith(tuple(self._TEMPLATE_EXT)) \
+                    and os.path.dirname(current_file).endswith('/templates'):
                 self.logger.info("Opening file [{}]".format(current_file))
-
                 with open(current_file, 'rU') as template:
                     template_raw_data = template.read()
                     template.close()
