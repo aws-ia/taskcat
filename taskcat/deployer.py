@@ -60,28 +60,28 @@ class CFNAlchemist(object):
 
     def initialize(self, args):
         if args.verbose >= 1:
-            self.logger.info("Setting _verbose to True")
+            self.logger.debug("Setting _verbose to True")
             self.set_verbose(True)
             self.logger.setLevel(logging.DEBUG)
             self.ch.setLevel(logging.DEBUG)
         if args.dry_run:
-            self.logger.info("Setting _dry_run to True")
+            self.logger.debug("Setting _dry_run to True")
             self.set_dry_run(True)
-        self.logger.info("Setting _input_path to '{}'".format(args.input_path))
+        self.logger.debug("Setting _input_path to '{}'".format(args.input_path))
         self.set_input_path(args.input_path)
-        self.logger.info("Setting _target_bucket_name to '{}'".format(args.target_bucket_name))
+        self.logger.debug("Setting _target_bucket_name to '{}'".format(args.target_bucket_name))
         self.set_target_bucket_name(args.target_bucket_name)
-        self.logger.info("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
+        self.logger.debug("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
         self.set_target_key_prefix(args.target_key_prefix)
         #if args.output_directory is None:
-        #    self.logger.info("Setting _output_directory to '{}'".format(args.input_path))
+        #    self.logger.debug("Setting _output_directory to '{}'".format(args.input_path))
         #    self.set_output_directory(args.input_path)
         #else:
         if args.output_directory is not None:
-            self.logger.info("Setting _output_directory to '{}'".format(args.output_directory))
+            self.logger.debug("Setting _output_directory to '{}'".format(args.output_directory))
             self.set_output_directory(args.output_directory)
         if args.basic_rewrite:
-            self.logger.info("Setting _rewrite_type to '{}'".format('basic'))
+            self.logger.debug("Setting _rewrite_type to '{}'".format('basic'))
             self.set_rewrite_type('basic')
 
     def _set_excluded_key_prefixes(self):
@@ -146,7 +146,7 @@ class CFNAlchemist(object):
         return self._default_region
 
     def upload_only(self):
-        # TODO: FIGURE OUT CREDS DETAILS
+        # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS
         '''
         # Use a profile
         if args.profile:
@@ -177,6 +177,10 @@ class CFNAlchemist(object):
         self.logger.debug(remote_key_dict.keys())
 
         # Gather file list
+        # NOTE: We only use the output directory if it's been set (that is, a rewrite was expected to have happened to
+        #       an output directory. We ensure that is not the case when parsing the args, but care must be taken
+        #       when initializing all the properties of this class. If it's only an upload that's meant to happen
+        #       without a previous rewrite, then output directory should never be set.
         self.logger.info("Gathering local keys {}*".format(self._target_key_prefix))
         file_list = self._get_file_list(self._output_directory if self._output_directory else self._input_path)
 
@@ -227,57 +231,48 @@ class CFNAlchemist(object):
                     remote_key_dict[_key].delete()
 
     def rewrite_only(self):
-        if rewrite_type == 'basic':
+        if self._rewrite_type == 'basic':
             basic_rewrite = True
         else:
             basic_rewrite = False
 
         # Create file list and recurse if args._input_path is directory
         file_list = self._get_file_list(self._input_path)
-        # TODO:
-        # if args._verbose >= 1:
-        #     print "[INFO]: Files to be worked on:"
-        #     print file_list
+        self.logger.info("Files to be worked on:")
+        self.logger.info(file_list)
 
         # Validate output
-        if output_directory:
-            if os.path.isdir(output_directory):
-                CFNYAMLHandler.validate_output_dir(output_directory)
+        if self._output_directory is not None:
+            if os.path.isdir(self._output_directory):
+                CFNYAMLHandler.validate_output_dir(self._output_directory)
             else:
                 pass
                 # TODO: THROW ERROR AND EXIT
 
-        # TODO:
-        # if args._verbose >= 1:
-        #     print "[INFO]: Production S3 bucket name that we are looking for [{}]".format(prod_bucket_name)
+        self.logger.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
         # replacement_bucket_name = self._target_bucket_name # should probably just use self.bucket_name
-        # TODO:
-        # if args._verbose >= 1:
-        #     print "[INFO]: Replacement S3 bucket name that we are rewriting with [{}]".format(replacement_bucket_name)
+        self.logger.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
 
         # Rewrite files
         for current_file in file_list:
             # Determine output file
-            if output_directory:
+            if self._output_directory:
                 if len(file_list) == 1:
-                    output_file = os.path.join(output_directory, os.path.basename(current_file))
+                    output_file = os.path.join(self._output_directory, os.path.basename(current_file))
                 else:
-                    output_file = os.path.join(output_directory, current_file.replace(self._input_path, '', 1).lstrip('\/'))
+                    output_file = os.path.join(self._output_directory, current_file.replace(self._input_path, '', 1).lstrip('\/'))
             else:
                 output_file = current_file
 
             # Load current file
             if current_file.endswith(tuple(self._UNSUPPORTED_EXT)):
-                # TODO:
-                # print "[WARNING]: [{}] File type not supported. Skipping but copying.".format(current_file)
+                self.logger.warning("[{}] File type not supported. Skipping but copying.".format(current_file))
                 CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
                 # copy only if it's a new location for the output
                 if current_file is not output_file:
                     shutil.copyfile(current_file, output_file)
             elif not basic_rewrite and current_file.endswith(tuple(self._TEMPLATE_EXT)) and os.path.dirname(current_file).endswith('/templates'):
-                # TODO:
-                # if args._verbose >= 1:
-                #     print "[INFO]: Opening file [{}]".format(current_file)
+                self.logger.info("Opening file [{}]".format(current_file))
 
                 with open(current_file, 'rU') as template:
                     template_raw_data = template.read()
@@ -285,15 +280,11 @@ class CFNAlchemist(object):
                 template_raw_data = template_raw_data.strip()
 
                 if template_raw_data[0] in ['{', '['] and template_raw_data[-1] in ['}', ']']:
-                    # TODO:
-                    # if args._verbose >= 1:
-                    #     print '[INFO]: Detected JSON. Loading file.'
+                    self.logger.info('Detected JSON. Loading file.')
                     FILE_FORMAT = 'JSON'
                     template_data = json.load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
                 else:
-                    # TODO:
-                    # if args._verbose >= 1:
-                    #     print '[INFO]: Detected YAML. Loading file.'
+                    self.logger.info('Detected YAML. Loading file.')
                     FILE_FORMAT = 'YAML'
                     template_data = CFNYAMLHandler.ordered_safe_load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
 
@@ -302,20 +293,16 @@ class CFNAlchemist(object):
                     # This was only added in case we need to examine only parts of the template
                     if type(template_data) in [OrderedDict, dict]:
                         for node_key in template_data.keys():
-                            # TODO:
-                            # if args._verbose >= 1:
-                            #     print "[INFO]: Working on node [{}]".format(node_key)
+                            self.logger.debug("Working on node [{}]".format(node_key))
                             self._recurse_nodes(template_data[node_key])
                     elif type(template_data) is list:
                         self._recurse_nodes(template_data)
                     else:
-                        print("[WARNING]: [{0}] Unsupported {1} structure. Skipping.".format(current_file, FILE_FORMAT))
+                        self.logger.warning("[{0}] Unsupported {1} structure. Skipping.".format(current_file, FILE_FORMAT))
                         continue
 
                     # Write modified template
-                    # TODO:
-                    # if args._verbose >= 1:
-                    #     print "[INFO]: Writing file [{}]".format(output_file)
+                    self.logger.info("Writing file [{}]".format(output_file))
                     CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
                     with open(output_file, 'wb') as updated_template:
                         if FILE_FORMAT == 'JSON':
@@ -325,13 +312,10 @@ class CFNAlchemist(object):
                                 CFNYAMLHandler.ordered_safe_dump(template_data, indent=2, allow_unicode=True, default_flow_style=False, explicit_start=True, explicit_end=True))
                     updated_template.close()
                 else:
-                    # TODO:
-                    # print "[WARNING]: [{}] Unsupported file format. Skipping.".format(current_file)
+                    self.logger.warning("[{}] Unsupported file format. Skipping.".format(current_file))
                     continue
             else:
-                # TODO:
-                # if args._verbose >= 1:
-                #     print "[INFO]: Opening file [{}]".format(current_file)
+                self.logger.info("Opening file [{}]".format(current_file))
                 with open(current_file, 'rU') as f:
                     file_data = f.readlines()
 
@@ -339,17 +323,15 @@ class CFNAlchemist(object):
                     file_data[index] = self._string_rewriter(line, self._target_bucket_name)
 
                 # Write modified file
-                # TODO:
-                # if args._verbose >= 1:
-                #     print "[INFO]: Writing file [{}]".format(output_file)
+                self.logger.info("Writing file [{}]".format(output_file))
                 CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
                 with open(output_file, 'wb') as updated_file:
                     updated_file.writelines(file_data)
                 updated_file.close()
 
     def rewrite_and_upload(self):
-        self.rewrite_only(rewrite_type, output_directory, dry_run)
-        self.upload_only(location, dry_run)
+        self.rewrite_only()
+        self.upload_only()
 
     def _get_file_list(self, input_path):
         _file_list = []
@@ -365,31 +347,25 @@ class CFNAlchemist(object):
                 if 'ci' in dirs:
                     dirs.remove('ci')
         else:
-            pass
-            # TODO:
-            # print "[ERROR]: Directory/File is non-existent. Aborting."
-            # exit(1)
+            self.logger.error("Directory/File is non-existent. Aborting.")
+            sys.exit(1)
         return _file_list
 
     def _string_rewriter(self, current_string, replacement_bucket_name):
         if self._prod_bucket_name in current_string:
             # If the path is s3/http/https
             if any(x in current_string for x in ['s3:', 'http:', 'https:']):
-                if self.key_prefix in current_string:
-                    # TODO:
-                    # if args._verbose >= 1:
-                    #     print "[INFO]: Rewriting [{}]".format(current_string.rstrip('\n\r'))
+                # Make sure that it's part of the target key prefix (that is, part of this repo)
+                if self._target_key_prefix in current_string:
+                    self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
                     return current_string.replace(self._prod_bucket_name, replacement_bucket_name)
+                # If it's not then, it's a reference that should not be touched
                 else:
-                    # TODO:
-                    # if args._verbose >= 1:
-                    #     print "[INFO]: NOT rewriting [{}] because it's not part of this repo".format(current_string.rstrip('\n\r'))
+                    self.logger.info("NOT rewriting [{}] because it's not part of this repo".format(current_string.rstrip('\n\r')))
                     return current_string
             # Else just replace the bucket name
             else:
-                # TODO:
-                # if args._verbose >= 1:
-                #     print "[INFO]: Rewriting [{}]".format(current_string.rstrip('\n\r'))
+                self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
                 return current_string.replace(self._prod_bucket_name, replacement_bucket_name)
         else:
             return current_string
@@ -397,60 +373,40 @@ class CFNAlchemist(object):
     def _recurse_nodes(self, current_node):
         if type(current_node) in [OrderedDict, dict]:
             for key in current_node.keys():
-                # TODO: FIX LOG LINE
-                # if args._verbose >= 3:
-                #     print "[INFO]: Key: "
-                #     print key
-                #     print "[INFO]: Type: "
-                #     print type(current_node[key])
-                #     print "[INFO]: Value: "
-                #     print current_node[key]
+                self.logger.debug("Key: ")
+                self.logger.debug(key)
+                self.logger.debug("Type: ")
+                self.logger.debug(type(current_node[key]))
+                self.logger.debug("Value: ")
+                self.logger.debug(current_node[key])
                 current_node[key] = self._recurse_nodes(current_node[key])
         elif type(current_node) is list:
             for _index, item in enumerate(current_node):
-                # TODO: FIX LOG LINE
-                # if args._verbose >= 3:
-                #     print "[INFO]: Type: "
-                #     print type(item)
-                #     print "[INFO]: Value: "
-                #     print item
+                self.logger.debug("Type: ")
+                self.logger.debug(type(item))
+                self.logger.debug("Value: ")
+                self.logger.debug(item)
                 current_node[_index] = self._recurse_nodes(item)
             return current_node
         elif type(current_node) in [unicode, str]:
             return self._string_rewriter(current_node, self._target_bucket_name)
         elif type(current_node) is bool:
-            pass
-            # TODO: FIX LOG LINE. REMOVE PASS ABOVE
-            # if args._verbose >= 3:
-            #     print "[INFO]: Not much we can do with booleans. Skipping."
+            self.logger.debug("Not much we can do with booleans. Skipping.")
         elif type(current_node) in [int, long, float]:
-            pass
-            # TODO: FIX LOG LINE. REMOVE PASS ABOVE
-            # if args._verbose >= 3:
-            #     print "[INFO]: Not much we can do with numbers. Skipping."
+            self.logger.debug("Not much we can do with numbers. Skipping.")
         elif type(current_node) in [datetime.date, datetime.time, datetime.datetime, datetime.timedelta]:
-            pass
-            # TODO: FIX LOG LINE. REMOVE PASS ABOVE
-            # if args._verbose >= 3:
-            #     print "[INFO]: Not much we can do with datetime. Skipping."
+            self.logger.debug("Not much we can do with datetime. Skipping.")
         elif type(current_node) is None:
-            pass
-            # TODO: FIX LOG LINE. REMOVE PASS ABOVE
-            # if args._verbose >= 3:
-            #     print "[INFO]: Not much we can do with nulls. Skipping."
+            self.logger.debug("Not much we can do with nulls. Skipping.")
         else:
-            pass
-            # TODO: FIX LOG LINE AND EXITING. REMOVE PASS ABOVE.
-            # print "[ERROR]: Unsupported type."
-            # print "[ERROR]: Failing Type: "
-            # print type(current_node)
-            # print "[ERROR]: Failing Value: "
-            # print current_node
-            # exit(1)
+            self.logger.error("Unsupported type.")
+            self.logger.error("Failing Type: ")
+            self.logger.error(type(current_node))
+            self.logger.error("Failing Value: ")
+            self.logger.error(current_node)
+            sys.exit(1)
 
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 3:
-        #     print "PARSED!"
+        self.logger.debug("PARSED!")
 
         return current_node
 
@@ -487,8 +443,8 @@ class CFNAlchemist(object):
             if self._verbose:
                 self.logger.debug(str(e))
             sys.exit(1)
-        print(" :AWS AccountNumber: \t [%s]" % account)
-        print(" :Authenticated via: \t [%s]" % self._auth_mode)
+        self.logger.info("AWS AccountNumber: \t [%s]" % account)
+        self.logger.info("Authenticated via: \t [%s]" % self._auth_mode)
 
     @staticmethod
     def interface():
@@ -585,6 +541,9 @@ class CFNAlchemist(object):
         if args.aws_profile is not None:
             if not (args.aws_secret_access_key is None and args.aws_access_key_id is None):
                 parser.error("Cannot use -p/--aws-profile with -a/--aws-access-key-id or -s/--aws-secret-access-key")
+
+        if args.upload_only and args.output_directory:
+            parser.error("Upload only mode does not use an output directory")
 
         if args.upload_only or args.rewrite_and_upload:
             if args.target_key_prefix is None:

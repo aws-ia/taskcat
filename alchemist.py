@@ -15,10 +15,10 @@ cfn_alchemist.aws_api_init(args)
 
 if args.upload_only:
     cfn_alchemist.upload_only()
-#elif args.rewrite_only:
-#    cfn_alchemist.rewrite_only()
-#elif args.rewrite_and_upload:
-#    cfn_alchemist.rewrite_and_upload()
+elif args.rewrite_only:
+    cfn_alchemist.rewrite_only()
+elif args.rewrite_and_upload:
+    cfn_alchemist.rewrite_and_upload()
 else:
     print("[ERROR]: No action specified. Aborting.")
     sys.exit(1)
