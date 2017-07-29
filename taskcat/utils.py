@@ -227,6 +227,22 @@ class ClientFactory(object):
         session = boto3.session.Session()
         return session.get_available_regions(service)
 
+    def get_session(self, credential_set, region=None):
+        """fetches existing session for credential set in a region
+
+        Args:
+            credential_set (str): name of credential set from a previously created client
+            region (str): region name, defaults to current region
+
+        Returns:
+            list: aws region name strings
+        """
+        if not region:
+            self.logger.debug("Region not set explicitly, getting default region")
+            region = os.environ['AWS_DEFAULT_REGION']
+
+        return self._clients[credential_set][region]['session']
+
 
 class Logger(object):
     """Wrapper for a logging object that logs in json"""

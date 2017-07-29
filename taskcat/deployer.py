@@ -15,32 +15,27 @@ from collections import OrderedDict
 from .utils import ClientFactory
 from .utils import CFNYAMLHandler
 
-# create logger
-logger = logging.getLogger('cfnalchemist')
-logger.setLevel(logging.DEBUG)
-
-# create console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-# create formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# add formatter to ch
-ch.setFormatter(formatter)
-
-# add ch to logger
-logger.addHandler(ch)
-
 
 class CFNAlchemist(object):
     def __init__(self):
+        # create logger
+        self.logger = logging.getLogger('alchemist')
+        self.logger.setLevel(logging.INFO)
+        # create console handler and set level to debug
+        self.ch = logging.StreamHandler()
+        self.ch.setLevel(logging.INFO)
+        # create formatter
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # add formatter to ch
+        self.ch.setFormatter(self.formatter)
+        # add ch to logger
+        self.logger.addHandler(self.ch)
+
         # Constants
         self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq']
         self._TEMPLATE_EXT = ['.template', '.json']
         self._GIT_EXT = ['.git', '.gitmodules']
         self._prod_bucket_name = 'quickstart-reference'
-        self._boto_client = ClientFactory(logger=logger)
 
         # properties with setters/getters
         self._verbose = False
@@ -52,8 +47,10 @@ class CFNAlchemist(object):
         self._output_directory = None
         self._rewrite_type = 'object'
         self._default_region = 'us-east-1'
+        self._excluded_prefixes = None
 
         # other properties
+        self._boto_clients = ClientFactory(logger=self.logger)
         self._auth_mode = None
         self._aws_profile = None
         self._aws_access_key_id = None
@@ -63,26 +60,41 @@ class CFNAlchemist(object):
 
     def initialize(self, args):
         if args.verbose >= 1:
-            logger.info("Setting _verbose to True")
+            self.logger.info("Setting _verbose to True")
             self.set_verbose(True)
+            self.logger.setLevel(logging.DEBUG)
+            self.ch.setLevel(logging.DEBUG)
         if args.dry_run:
-            logger.info("Setting _dry_run to True")
+            self.logger.info("Setting _dry_run to True")
             self.set_dry_run(True)
-        logger.info("Setting _input_path to '{}'".format(args.input_path))
+        self.logger.info("Setting _input_path to '{}'".format(args.input_path))
         self.set_input_path(args.input_path)
-        logger.info("Setting _target_bucket_name to '{}'".format(args.target_bucket_name))
+        self.logger.info("Setting _target_bucket_name to '{}'".format(args.target_bucket_name))
         self.set_target_bucket_name(args.target_bucket_name)
-        logger.info("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
+        self.logger.info("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
         self.set_target_key_prefix(args.target_key_prefix)
-        if args.output_directory is None:
-            logger.info("Setting _output_directory to '{}'".format(args.input_path))
-            self.set_output_directory(args.input_path)
-        else:
-            logger.info("Setting _output_directory to '{}'".format(args.output_directory))
+        #if args.output_directory is None:
+        #    self.logger.info("Setting _output_directory to '{}'".format(args.input_path))
+        #    self.set_output_directory(args.input_path)
+        #else:
+        if args.output_directory is not None:
+            self.logger.info("Setting _output_directory to '{}'".format(args.output_directory))
             self.set_output_directory(args.output_directory)
         if args.basic_rewrite:
-            logger.info("Setting _rewrite_type to '{}'".format('basic'))
+            self.logger.info("Setting _rewrite_type to '{}'".format('basic'))
             self.set_rewrite_type('basic')
+
+    def _set_excluded_key_prefixes(self):
+        self._excluded_prefixes = [
+            '{}doc/'.format(self._target_key_prefix),
+            '{}pics/'.format(self._target_key_prefix),
+            '{}media/'.format(self._target_key_prefix),
+            '{}downloads/'.format(self._target_key_prefix),
+            '{}installers/'.format(self._target_key_prefix)
+        ]
+
+    def _get_excluded_key_prefixes(self):
+        return self._excluded_prefixes
 
     def set_verbose(self, verbose):
         self._verbose = verbose
@@ -110,6 +122,7 @@ class CFNAlchemist(object):
 
     def set_target_key_prefix(self, target_key_prefix):
         self._target_key_prefix = target_key_prefix
+        self._set_excluded_key_prefixes()
 
     def get_target_key_prefix(self):
         return self._target_key_prefix
@@ -149,95 +162,68 @@ class CFNAlchemist(object):
             boto_session = boto3.Session()
             s3_resource = boto_session.resource('s3')
         '''
+        boto_session = self._boto_clients.get_session(
+            credential_set='alchemist',
+            region=self.get_default_region()
+        )
+        s3_resource = boto_session.resource('s3')
         upload_bucket = s3_resource.Bucket(self._target_bucket_name)
 
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print "\n[INFO]: Gathering remote S3 bucket keys {}/*".format(repo_path)
+        self.logger.info("Gathering remote S3 bucket keys {}*".format(self._target_key_prefix))
         remote_key_dict = {}
-        for obj in upload_bucket.objects.filter(Prefix='{}'.format(self.key_prefix)):
+        for obj in upload_bucket.objects.filter(Prefix='{}'.format(self._target_key_prefix)):
             if '/latest/doc/' not in obj.key:
                 remote_key_dict[obj.key] = obj
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #    print remote_key_dict.keys()
+        self.logger.debug(remote_key_dict.keys())
 
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print "\n[INFO]: Gathering local keys {}/*".format(repo_path)
         # Gather file list
-        file_list = self._gget_file_list(args.output_directory if args.output_directory else args.input_path)
+        self.logger.info("Gathering local keys {}*".format(self._target_key_prefix))
+        file_list = self._get_file_list(self._output_directory if self._output_directory else self._input_path)
 
         local_key_dict = {}
         for current_file in file_list:
-            local_key_dict[unicode(os.path.join(repo_path, current_file.replace(args.output_directory if args.output_directory else args.input_path, '', 1).lstrip('\/')).replace('\\', '/'))] = current_file
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print local_key_dict.keys()
+            local_key_dict[unicode(os.path.join(self._target_key_prefix, current_file.replace(self._output_directory if self._output_directory else self._input_path, '', 1).lstrip('\/')).replace('\\', '/'))] = current_file
+        self.logger.debug(local_key_dict.keys())
 
         remote_to_local_diff = list(set(remote_key_dict.keys()) - set(local_key_dict.keys()))
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print "\n[INFO]: Keys in remote S3 bucket but not in local".format(repo_path)
-        #     print remote_to_local_diff
+        self.logger.info("Keys in remote S3 bucket but not in local".format(self._target_key_prefix))
+        self.logger.info(remote_to_local_diff)
 
         local_to_remote_diff = list(set(local_key_dict.keys()) - set(remote_key_dict.keys()))
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print "\n[INFO]: Keys in local but not in remote S3 bucket".format(repo_path)
-        #     print local_to_remote_diff
+        self.logger.info("Keys in local but not in remote S3 bucket".format(self._target_key_prefix))
+        self.logger.info(local_to_remote_diff)
 
-        # TODO: FIX LOG LINE
-        # if args._verbose >= 1:
-        #     print "\n[INFO]: Syncing objects to S3 bucket [{}]".format(replacement_bucket_name)
+        self.logger.info("Syncing objects to S3 bucket [{}]".format(self._target_bucket_name))
         for _key in local_key_dict.keys():
             if _key in remote_key_dict:
-                # TODO: FIX LOG LINE
-                # if args._verbose >= 2:
-                #     print "[INFO]: File [{0}] exists in S3 bucket [{1}]. Verifying MD5 checksum for difference.".format(_key, replacement_bucket_name)
+                self.logger.debug("File [{0}] exists in S3 bucket [{1}]. Verifying MD5 checksum for difference.".format(_key, self._target_bucket_name))
                 s3_hash = remote_key_dict[_key].e_tag.strip('"')
                 local_hash = hashlib.md5(open(local_key_dict[_key], 'rb').read()).hexdigest()
-                # TODO: FIX LOG LINE
-                # if args._verbose >= 2:
-                #     print "[INFO]: S3 MD5 checksum (etag) [{}]".format(s3_hash)
-                #     print "[INFO]: Local MD5 checksum     [{}]".format(local_hash)
+                self.logger.debug("S3 MD5 checksum (etag) [{}]".format(s3_hash))
+                self.logger.debug("Local MD5 checksum     [{}]".format(local_hash))
                 if s3_hash != local_hash:
-                    if dry_run:
-                        print("[WHAT IF DRY RUN]: UPDATE [{0}]".format(_key))
+                    if self._dry_run:
+                        self.logger.info("[WHAT IF DRY RUN]: UPDATE [{0}]".format(_key))
                     else:
-                        # TODO: FIX LOG LINE
-                        # if args._verbose >= 1:
-                        #     print "[INFO]: UPDATE [{0}]".format(_key)
-                        s3_resource.Object(replacement_bucket_name, _key).upload_file(local_key_dict[_key])
+                        self.logger.info("UPDATE [{0}]".format(_key))
+                        s3_resource.Object(self._target_bucket_name, _key).upload_file(local_key_dict[_key])
                 else:
-                    if args.verbose >= 2:
-                        print("[INFO]: MD5 checksums are the same. Skipping [{}]".format(_key))
+                    self.logger.debug("MD5 checksums are the same. Skipping [{}]".format(_key))
             else:
-                if dry_run:
-                    print("[WHAT IF DRY RUN]: CREATE [{0}]".format(_key))
+                if self._dry_run:
+                    self.logger.info("[WHAT IF DRY RUN]: CREATE [{0}]".format(_key))
                 else:
-                    # TODO: FIX LOG LINE
-                    # if args._verbose >= 1:
-                    #     print "[INFO]: CREATE [{0}]".format(_key)
+                    self.logger.info("CREATE [{0}]".format(_key))
                     # Upload local file not present in S3 bucket
-                    s3_resource.Object(replacement_bucket_name, _key).upload_file(local_key_dict[_key])
+                    s3_resource.Object(self._target_bucket_name, _key).upload_file(local_key_dict[_key])
 
         # clean up/remove remote keys that are not in local keys
-        excluded_prefixes = [
-            '{}doc/'.format(self.key_prefix),
-            '{}pics/'.format(self.key_prefix),
-            '{}media/'.format(self.key_prefix),
-            '{}downloads/'.format(self.key_prefix),
-            '{}installers/'.format(self.key_prefix)
-        ]
         for _key in remote_to_local_diff:
-            if not any(x in _key for x in excluded_prefixes):
-                if dry_run:
-                    print("[WHAT IF DRY RUN]: DELETE [{0}]".format(_key))
+            if not any(x in _key for x in self._get_excluded_key_prefixes()):
+                if self._dry_run:
+                    self.logger.info("[WHAT IF DRY RUN]: DELETE [{0}]".format(_key))
                 else:
-                    # TODO: FIX LOG LINE
-                    # if args._verbose >= 1:
-                    #     print "[INFO]: DELETE [{0}]".format(_key)
+                    self.logger.info("DELETE [{0}]".format(_key))
                     remote_key_dict[_key].delete()
 
     def rewrite_only(self):
@@ -487,7 +473,7 @@ class CFNAlchemist(object):
         else:
             self._auth_mode = 'environment'
         try:
-            sts_client = self._boto_client.get(
+            sts_client = self._boto_clients.get(
                 'sts',
                 credential_set='alchemist',
                 aws_access_key_id=self._aws_access_key_id,
@@ -497,9 +483,9 @@ class CFNAlchemist(object):
             )
             account = sts_client.get_caller_identity().get('Account')
         except Exception as e:
-            logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
+            self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
             if self._verbose:
-                logger.debug(str(e))
+                self.logger.debug(str(e))
             sys.exit(1)
         print(" :AWS AccountNumber: \t [%s]" % account)
         print(" :Authenticated via: \t [%s]" % self._auth_mode)
@@ -605,7 +591,7 @@ class CFNAlchemist(object):
                 parser.error("-t/--target-key-prefix must be provided when uploading is specified (-u/--upload-only or -ru/--rewrite-and-upload")
 
         if args.convert_key_prefix_to_slashes:
-            args.key_prefix = CFNAlchemist.quickstart_s3_key_prefix_builder(args.repo_name)
+            args.target_key_prefix = CFNAlchemist.quickstart_s3_key_prefix_builder(args.target_key_prefix)
 
         return args
 
@@ -614,7 +600,7 @@ class CFNAlchemist(object):
         # Determine S3 path from a valid git repo name
         if repo_name.startswith('quickstart-'):
             # Remove quickstart-, change dashes to slashes, and add /latest
-            repo_path = repo_name.replace('quickstart-', '', 1).replace('-', '/') + '/latest/'
+            repo_path = os.path.join(repo_name.replace('quickstart-', '', 1).replace('-', '/'), 'latest/')
 
             # EXCEPTIONS (that we have to live with for now):
             # enterprise-accelerator
