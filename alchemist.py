@@ -8,10 +8,21 @@ from taskcat import deployer
 
 
 args = deployer.CFNAlchemist.interface()
+cfn_alchemist = deployer.CFNAlchemist(
+    input_path=args.input_path,
+    target_bucket_name=args.target_bucket_name,
+    target_key_prefix=args.target_key_prefix,
+    output_directory=args.output_directory,
+    rewrite_mode=deployer.CFNAlchemist.BASIC_REWRITE_MODE if args.basic_rewrite else deployer.CFNAlchemist.OBJECT_REWRITE_MODE,
+    debug=args.debug,
+    dry_run=args.dry_run
+)
 
-cfn_alchemist = deployer.CFNAlchemist()
-cfn_alchemist.initialize(args)
-cfn_alchemist.aws_api_init(args)
+cfn_alchemist.aws_api_init(
+    aws_profile=args.aws_profile,
+    aws_access_key_id=args.aws_access_key_id,
+    aws_secret_access_key=args.aws_secret_access_key
+)
 
 if args.upload_only:
     cfn_alchemist.upload_only()

@@ -20,7 +20,16 @@ class CFNAlchemist(object):
     OBJECT_REWRITE_MODE = 10
     BASIC_REWRITE_MODE = 20
 
-    def __init__(self):
+    def __init__(
+        self,
+        input_path,
+        target_bucket_name,
+        target_key_prefix=None,
+        output_directory=None,
+        rewrite_mode=OBJECT_REWRITE_MODE,
+        debug=False,
+        dry_run=False
+    ):
         # create logger
         self.logger = logging.getLogger('alchemist')
         self.logger.setLevel(logging.INFO)
@@ -41,10 +50,14 @@ class CFNAlchemist(object):
         self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
         self._prod_bucket_name = 'quickstart-reference'
 
-        # properties with setters/getters
-        self._debug = False
-        self._dry_run = False
+        # properties
+        self._boto_clients = ClientFactory(logger=self.logger)
+        self._auth_mode = None
+        self._aws_profile = None
+        self._aws_access_key_id = None
+        self._aws_secret_access_key = None
 
+        # properties with setters/getters
         self._input_path = None
         self._target_bucket_name = None
         self._target_key_prefix = None
@@ -52,52 +65,28 @@ class CFNAlchemist(object):
         self._rewrite_mode = self.OBJECT_REWRITE_MODE
         self._default_region = 'us-east-1'
         self._excluded_prefixes = None
+        self._debug = False
+        self._dry_run = False
 
-        # other properties
-        self._boto_clients = ClientFactory(logger=self.logger)
-        self._auth_mode = None
-        self._aws_profile = None
-        self._aws_access_key_id = None
-        self._aws_secret_access_key = None
+        # initialize
+        self.set_input_path(input_path)
+        self.set_target_bucket_name(target_bucket_name)
+        self.set_target_key_prefix(target_key_prefix)
+        self.set_output_directory(output_directory)
+        if rewrite_mode not in [self.OBJECT_REWRITE_MODE, self.BASIC_REWRITE_MODE]:
+            self.logger.error("Invalid rewrite_mode.")
+        else:
+            self.set_rewrite_mode(rewrite_mode)
+        self.set_debug(debug)
+        self.set_dry_run(dry_run)
 
         return
 
-    def initialize(self, args):
-        if args.debug:
-            self.logger.debug("Setting _debug to True")
-            self.set_debug(True)
+    def set_debug(self, debug):
+        self._debug = debug
+        if self._debug:
             self.logger.setLevel(logging.DEBUG)
             self.ch.setLevel(logging.DEBUG)
-        if args.dry_run:
-            self.logger.debug("Setting _dry_run to True")
-            self.set_dry_run(True)
-        self.logger.debug("Setting _input_path to '{}'".format(args.input_path))
-        self.set_input_path(args.input_path)
-        self.logger.debug("Setting _target_bucket_name to '{}'".format(args.target_bucket_name))
-        self.set_target_bucket_name(args.target_bucket_name)
-        self.logger.debug("Setting _target_key_prefix to '{}'".format(args.target_key_prefix))
-        self.set_target_key_prefix(args.target_key_prefix)
-        if args.output_directory is not None:
-            self.logger.debug("Setting _output_directory to '{}'".format(args.output_directory))
-            self.set_output_directory(args.output_directory)
-        if args.basic_rewrite:
-            self.logger.debug("Setting _rewrite_type to '{}'".format('basic'))
-            self.set_rewrite_type(self.BASIC_REWRITE_MODE)
-
-    def _set_excluded_key_prefixes(self):
-        self._excluded_prefixes = [
-            '{}doc/'.format(self._target_key_prefix),
-            '{}pics/'.format(self._target_key_prefix),
-            '{}media/'.format(self._target_key_prefix),
-            '{}downloads/'.format(self._target_key_prefix),
-            '{}installers/'.format(self._target_key_prefix)
-        ]
-
-    def _get_excluded_key_prefixes(self):
-        return self._excluded_prefixes
-
-    def set_debug(self, verbose):
-        self._debug = verbose
 
     def get_debug(self):
         return self._debug
@@ -121,8 +110,9 @@ class CFNAlchemist(object):
         return self._target_bucket_name
 
     def set_target_key_prefix(self, target_key_prefix):
-        self._target_key_prefix = target_key_prefix.strip('/') + '/'
-        self._set_excluded_key_prefixes()
+        if target_key_prefix is not None:
+            self._target_key_prefix = target_key_prefix.strip('/') + '/'
+            self._set_excluded_key_prefixes()
 
     def get_target_key_prefix(self):
         return self._target_key_prefix
@@ -133,10 +123,10 @@ class CFNAlchemist(object):
     def get_output_directory(self):
         return self._output_directory
 
-    def set_rewrite_type(self, rewrite_type):
+    def set_rewrite_mode(self, rewrite_type):
         self._rewrite_mode = rewrite_type
 
-    def get_rewrite_type(self):
+    def get_rewrite_mode(self):
         return self._rewrite_mode
 
     def set_default_region(self, region):
@@ -145,7 +135,22 @@ class CFNAlchemist(object):
     def get_default_region(self):
         return self._default_region
 
+    def _set_excluded_key_prefixes(self):
+        self._excluded_prefixes = [
+            '{}doc/'.format(self._target_key_prefix),
+            '{}pics/'.format(self._target_key_prefix),
+            '{}media/'.format(self._target_key_prefix),
+            '{}downloads/'.format(self._target_key_prefix),
+            '{}installers/'.format(self._target_key_prefix)
+        ]
+
+    def _get_excluded_key_prefixes(self):
+        return self._excluded_prefixes
+
     def upload_only(self):
+        if self._target_key_prefix is None:
+            self.logger.error('target_key_prefix cannot be None')
+            sys.exit(1)
         # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS
         '''
         # Use a profile
@@ -405,22 +410,25 @@ class CFNAlchemist(object):
 
         return current_node
 
-    def aws_api_init(self, args):
+    def aws_api_init(self, aws_profile=None, aws_access_key_id=None, aws_secret_access_key=None):
         """
-        This function reads the AWS credentials from various sources to ensure
-        that the client has right credentials defined to successfully run
-        TaskCat against an AWS account.
-        :param args: Command line arguments for AWS credentials. It could be
-            either profile name, access key and secret key or none.
+        This function reads the AWS credentials to ensure that the client has right credentials defined to successfully
+        authenticate against an AWS account. It could be either profile name, access key and secret key or none.
+        :param aws_profile: AWS profile name.
+        :param aws_access_key_id: access key ID secret key.
+        :param aws_secret_access_key: AWS secret access key.
         """
+        if aws_profile is not None:
+            if not (aws_secret_access_key is None and aws_access_key_id is None):
+                self.logger.error("Cannot use aws_profile with aws_access_key_id or aws_secret_access_key")
 
-        if args.aws_profile:
+        if aws_profile:
             self._auth_mode = 'profile'
-            self._aws_profile = args.aws_profile
-        elif args.aws_access_key_id and args.aws_secret_access_key:
+            self._aws_profile = aws_profile
+        elif aws_access_key_id and aws_secret_access_key:
             self._auth_mode = 'keys'
-            self._aws_access_key_id = args.aws_access_key_id
-            self._aws_secret_access_key = args.aws_secret_access_key
+            self._aws_access_key_id = aws_access_key_id
+            self._aws_secret_access_key = aws_secret_access_key
         else:
             self._auth_mode = 'environment'
         try:
@@ -435,8 +443,7 @@ class CFNAlchemist(object):
             account = sts_client.get_caller_identity().get('Account')
         except Exception as e:
             self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
-            if self._debug:
-                self.logger.debug(str(e))
+            self.logger.debug(str(e))
             sys.exit(1)
         self.logger.info("AWS AccountNumber: \t [%s]" % account)
         self.logger.info("Authenticated via: \t [%s]" % self._auth_mode)
@@ -543,12 +550,12 @@ class CFNAlchemist(object):
                 parser.error("-t/--target-key-prefix must be provided when uploading is specified (-u/--upload-only or -ru/--rewrite-and-upload")
 
         if args.convert_key_prefix_to_slashes:
-            args.target_key_prefix = CFNAlchemist.quickstart_s3_key_prefix_builder(args.target_key_prefix)
+            args.target_key_prefix = CFNAlchemist.aws_quickstart_s3_key_prefix_builder(args.target_key_prefix)
 
         return args
 
     @staticmethod
-    def quickstart_s3_key_prefix_builder(repo_name):
+    def aws_quickstart_s3_key_prefix_builder(repo_name):
         # Determine S3 path from a valid git repo name
         if repo_name.startswith('quickstart-'):
             # Remove quickstart-, change dashes to slashes, and add /latest
@@ -561,13 +568,8 @@ class CFNAlchemist(object):
             repo_path = repo_path.replace('nist/high', 'nist-high', 1)
             # chef-server
             repo_path = repo_path.replace('chefserver', 'chef-server', 1)
-            # TODO: FIX LOG LINE
-            # if args._verbose >= 1:
-            #     print "[INFO]: Converted repo name [" + str(args.repo_name) + "] to S3 path [" + str(repo_path) + "]"
+            print("[INFO]: Converted repo name [" + str(args.repo_name) + "] to S3 path [" + str(repo_path) + "]")
             return repo_path
         else:
-            pass
-            # TODO: FIX LOG LINE AND EXITING. REMOVE PASS ABOVE.
-            # print "[ERROR]: Repo name must start with 'quickstart-'. Aborting."
-            # exit(1)
-
+            print("[ERROR]: Repo name must start with 'quickstart-'. Aborting.")
+            sys.exit(1)
