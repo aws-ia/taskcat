@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# author: Santiago Cardenas sancard@amazon.com
+# author: Santiago Cardenas <sancard@amazon.com>
 from __future__ import print_function
 
 import sys

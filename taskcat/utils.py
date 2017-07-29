@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+# authors:
+# Santiago Cardenas <sancard@amazon.com>
+# Jay McConnell <jmmccon@amazon.com>
 from __future__ import print_function
 
 import boto3

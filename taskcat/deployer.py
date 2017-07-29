@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# author: sancard@amazon.com
+# author: Santiago Cardenas <sancard@amazon.com>
 from __future__ import print_function
 
 import json
