@@ -48,7 +48,6 @@ class CFNAlchemist(object):
         self._TEMPLATE_EXT = ['.template', '.json']
         self._GIT_EXT = ['.git', '.gitmodules', '.gitignore', '.gitattributes']
         self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
-        self._prod_bucket_name = 'quickstart-reference'
 
         # properties
         self._boto_clients = ClientFactory(logger=self.logger)
@@ -63,10 +62,11 @@ class CFNAlchemist(object):
         self._target_key_prefix = None
         self._output_directory = None
         self._rewrite_mode = self.OBJECT_REWRITE_MODE
-        self._default_region = 'us-east-1'
         self._excluded_prefixes = None
         self._debug = False
         self._dry_run = False
+        self._prod_bucket_name = 'quickstart-reference'
+        self._default_region = 'us-east-1'
 
         # initialize
         self.set_input_path(input_path)
@@ -128,6 +128,12 @@ class CFNAlchemist(object):
 
     def get_rewrite_mode(self):
         return self._rewrite_mode
+
+    def set_prod_bucket_name(self, prod_bucket_name):
+        self._prod_bucket_name = prod_bucket_name
+
+    def get_prod_bucket_name(self):
+        return self._prod_bucket_name
 
     def set_default_region(self, region):
         self._default_region = region
