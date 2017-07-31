@@ -240,7 +240,7 @@ class ClientFactory(object):
             region (str): region name, defaults to current region
 
         Returns:
-            list: aws region name strings
+            boto3.session.Session: instance of boto3 Session object
         """
         if not region:
             self.logger.debug("Region not set explicitly, getting default region")
