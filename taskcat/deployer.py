@@ -30,6 +30,17 @@ class CFNAlchemist(object):
         debug=False,
         dry_run=False
     ):
+        """
+        Construct an Alchemist object.
+
+        :param input_path: Directory path to the root of the assets
+        :param target_bucket_name: Target S3 bucket to use as replacement and to upload to
+        :param target_key_prefix: Target S3 key prefix to prepend to all object (including an ending forward slash '/')
+        :param output_directory: Directory to save rewritten assets to
+        :param rewrite_mode: Mode for rewriting like CFNAlchemist.OBJECT_REWRITE_MODE or CFNAlchemist.BASIC_REWRITE_MODE
+        :param debug: Set to True to log debug messages
+        :param dry_run: Set to True to perform a dry run
+        """
         # create logger
         self.logger = logging.getLogger('alchemist')
         self.logger.setLevel(logging.INFO)
@@ -154,10 +165,15 @@ class CFNAlchemist(object):
         return self._excluded_prefixes
 
     def upload_only(self):
+        """
+        This function uploads all assets to the target S3 bucket name using the target S3 key prefix for each object.
+          A comparison of checksums is done for all object as well to avoid reuploading files that have not changed (this
+          checksum comparison is only effective on non-multi part uploaded files).
+        """
         if self._target_key_prefix is None:
             self.logger.error('target_key_prefix cannot be None')
             sys.exit(1)
-        # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS
+        # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS CURRENTLY USING ClientFactory's get_session from utils.py
         '''
         # Use a profile
         if args.profile:
@@ -242,6 +258,11 @@ class CFNAlchemist(object):
                     remote_key_dict[_key].delete()
 
     def rewrite_only(self):
+        """
+        This function searches through all the files and rewrites any references of the production S3 bucket name
+         to the target S3 bucket name. This is done by both things like line-by-line basic rewrites or walking the
+         tree of a JSON or YAML document to find the references.
+        """
         # Create file list and recurse if args._input_path is directory
         file_list = self._get_file_list(self._input_path)
         self.logger.info("Files to be worked on:")
@@ -337,6 +358,9 @@ class CFNAlchemist(object):
                 updated_file.close()
 
     def rewrite_and_upload(self):
+        """
+        This function performs both a rewrite and upload of files by calling each respective function consecutively.
+        """
         self.rewrite_only()
         self.upload_only()
 
@@ -456,6 +480,11 @@ class CFNAlchemist(object):
 
     @staticmethod
     def interface():
+        """
+        This function creates an argparse parser, parses the arguments, and returns an args object.
+
+        :return: An object from argparse which contains all the args passed in from the command line.
+        """
         # Creating Parser
         parser = argparse.ArgumentParser(
             prog="alchemist",
@@ -562,6 +591,11 @@ class CFNAlchemist(object):
 
     @staticmethod
     def aws_quickstart_s3_key_prefix_builder(repo_name):
+        """
+        This converts a quickstart-some-repo/ key prefix string to a some/repo/latest/ key prefix string.
+
+        :return: An object from argparse which contains all the args passed in from the command line.
+        """
         # Determine S3 path from a valid git repo name
         if repo_name.startswith('quickstart-'):
             # Remove quickstart-, change dashes to slashes, and add /latest
