@@ -27,7 +27,7 @@ class CFNAlchemist(object):
         target_key_prefix=None,
         output_directory=None,
         rewrite_mode=OBJECT_REWRITE_MODE,
-        debug=False,
+        verbose=False,
         dry_run=False
     ):
         """
@@ -38,7 +38,7 @@ class CFNAlchemist(object):
         :param target_key_prefix: Target S3 key prefix to prepend to all object (including an ending forward slash '/')
         :param output_directory: Directory to save rewritten assets to
         :param rewrite_mode: Mode for rewriting like CFNAlchemist.OBJECT_REWRITE_MODE or CFNAlchemist.BASIC_REWRITE_MODE
-        :param debug: Set to True to log debug messages
+        :param verbose: Set to True to log debug messages
         :param dry_run: Set to True to perform a dry run
         """
         # create logger
@@ -74,7 +74,7 @@ class CFNAlchemist(object):
         self._output_directory = None
         self._rewrite_mode = self.OBJECT_REWRITE_MODE
         self._excluded_prefixes = None
-        self._debug = False
+        self._verbose = False
         self._dry_run = False
         self._prod_bucket_name = 'quickstart-reference'
         self._default_region = 'us-east-1'
@@ -88,19 +88,18 @@ class CFNAlchemist(object):
             self.logger.error("Invalid rewrite_mode.")
         else:
             self.set_rewrite_mode(rewrite_mode)
-        self.set_debug(debug)
+        self.set_verbose(verbose)
         self.set_dry_run(dry_run)
 
         return
 
-    def set_debug(self, debug):
-        self._debug = debug
-        if self._debug:
-            self.logger.setLevel(logging.DEBUG)
-            self.ch.setLevel(logging.DEBUG)
+    def set_verbose(self, verbose):
+        self._verbose = verbose
+        self.logger.setLevel(logging.DEBUG if self._verbose else logging.INFO)
+        self.ch.setLevel(logging.DEBUG if self._verbose else logging.INFO)
 
-    def get_debug(self):
-        return self._debug
+    def get_verbose(self):
+        return self._verbose
 
     def set_dry_run(self, dry_run):
         self._dry_run = dry_run
@@ -561,7 +560,7 @@ class CFNAlchemist(object):
             help="AWS secret access key."
         )
         parser.add_argument(
-            "--debug",
+            "--verbose",
             action='store_true',
             help="specify to enable debug mode logging."
         )

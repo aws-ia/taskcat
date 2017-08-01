@@ -14,7 +14,7 @@ cfn_alchemist = deployer.CFNAlchemist(
     target_key_prefix=args.target_key_prefix,
     output_directory=args.output_directory,
     rewrite_mode=deployer.CFNAlchemist.BASIC_REWRITE_MODE if args.basic_rewrite else deployer.CFNAlchemist.OBJECT_REWRITE_MODE,
-    debug=args.debug,
+    verbose=args.verbose,
     dry_run=args.dry_run
 )
 
