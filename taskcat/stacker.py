@@ -386,6 +386,21 @@ class TaskCat(object):
             azs = ','.join(available_azs[:count])
             return azs
 
+    def get_content(self, bucket, object_key):
+        """
+        Returns the content of an object, given the bucket name and the key of the object
+
+        :param bucket: Bucket name
+        :param object_key: Key of the object
+
+        :return: Content of the object
+
+        """
+        s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+        dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
+        content = dict_object.get()['Body'].read().strip()
+        return content
+
     def get_s3contents(self, url):
         payload = requests.get(url)
         return payload.text
@@ -660,6 +675,231 @@ class TaskCat(object):
         else:
             return str(uuid.uuid4())
 
+    def generate_input_param_values(self, s_parms):
+        """
+        Given a cloudformation input parameter file as JSON, this function generates the values
+        for the parameters indicated by $[] appropriately, replaces $[] with new value and return
+        the updated JSON.
+
+        :param s_parms: Cloudformation template input parameter file as JSON
+
+        :return: Input parameter file as JSON with $[] replaced with generated values
+
+        """
+        # gentype = None
+
+        # Auto-generated stack inputs
+
+        # (Passwords)
+        # Value that matches the following pattern will be replaced
+        # - Parameters must start with $[
+        # - Parameters must end with ]
+        # - genpass in invoked when _genpass_X is found
+        # - X is length of the string
+        # Example: $[taskcat_genpass_8]
+        # Optionally - you can specify the type of password by adding
+        # - A alpha-numeric passwords
+        # - S passwords with special characters
+        # Example: $[taskcat_genpass_8A]
+        # Generates: tI8zN3iX8
+        # or
+        # Example: $[taskcat_genpass_8S]
+        # Generates: mA5@cB5!
+
+        # (Auto generated s3 bucket )
+        # Example: $[taskcat_autobucket]
+        # Generates: <evaluates to auto generated bucket name>
+
+        # (Generate UUID String)
+        # Example: $[taskcat_genuuid]
+        # Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+
+        # (Generate Random String)
+        # Example: $[taskcat_random-string]
+        # Generates: yysuawpwubvotiqgwjcu
+        # or
+        # Example: $[taskcat_random-numbers]
+        # Generates: 56188163597280820763
+
+        # (Availability Zones)
+        # Value that matches the following pattern will be replaced
+        # - Parameters must start with $[
+        # - Parameters must end with ]
+        # - genaz in invoked when _genaz_X is found
+        # - A number of AZ's will be selected from the region
+        #   the stack is attempting to launch
+        # Example: $[taskcat_genaz_2] (if the region is us-east-2)
+        # Generates: us-east-1a, us-east-2b
+
+        for parmdict in s_parms:
+            for _ in parmdict:
+
+                param_value = parmdict['ParameterValue']
+
+                # Determines the size of the password to generate
+                count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
+
+                # Determines the type of password to generate
+                gentype_re = re.compile(
+                    '(?!\w+_genpass_\d{1,2}])([AS])', re.IGNORECASE)
+
+                # Determines if _genpass has been requested
+                genpass_re = re.compile(
+                    '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$', re.IGNORECASE)
+
+                # Determines if random string  value was requested
+                gen_string_re = re.compile(
+                    '\$\[taskcat_random-string]$', re.IGNORECASE)
+
+                # Determines if random number value was requested
+                gen_numbers_re = re.compile(
+                    '\$\[taskcat_random-numbers]$', re.IGNORECASE)
+
+                # Determines if autobucket value was requested
+                autobucket_re = re.compile(
+                    '\$\[taskcat_autobucket]$', re.IGNORECASE)
+
+                # Determines if _genaz has been requested. This can return single or multiple AZs.
+                genaz_re = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
+
+                # Determines if single AZ has been requested. This is added to support legacy templates
+                genaz_single_re = re.compile('\$\[\w+_ge[nt]singleaz_\d]', re.IGNORECASE)
+
+                # Determines if uuid has been requested
+                genuuid_re = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
+
+                # Determines if AWS QuickStart default KeyPair name has been requested
+                getkeypair_re = re.compile('\$\[\w+_getkeypair]', re.IGNORECASE)
+
+                # Determines if AWS QuickStart default license bucket name has been requested
+                getlicensebucket_re = re.compile('\$\[\w+_getlicensebucket]', re.IGNORECASE)
+
+                # Determines if AWS QuickStart default media bucket name has been requested
+                getmediabucket_re = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
+
+                # Determines if license content has been requested
+                licensecontent_re = re.compile('\$\[\w+_getlicensecontent]', re.IGNORECASE)
+
+                # Determines if s3 replacement was requested
+                gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
+                geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
+
+                if gen_string_re.search(param_value):
+                    random_string = self.regxfind(gen_string_re, param_value)
+                    param_value = self.generate_random('alpha', 20)
+
+                    if self.verbose:
+                        print("{}Generating random string for {}".format(D, random_string))
+                    parmdict['ParameterValue'] = param_value
+
+                if gen_numbers_re.search(param_value):
+                    random_numbers = self.regxfind(gen_numbers_re, param_value)
+                    param_value = self.generate_random('number', 20)
+
+                    if self.verbose:
+                        print("{}Generating numeric string for {}".format(D, random_numbers))
+                    parmdict['ParameterValue'] = param_value
+
+                if genuuid_re.search(param_value):
+                    uuid_string = self.regxfind(genuuid_re, param_value)
+                    param_value = self.generate_uuid('A')
+
+                    if self.verbose:
+                        print("{}Generating random uuid string for {}".format(D, uuid_string))
+                    parmdict['ParameterValue'] = param_value
+
+                if autobucket_re.search(param_value):
+                    bkt = self.regxfind(autobucket_re, param_value)
+                    param_value = self.get_s3bucket()
+                    if self.verbose:
+                        print("{}Setting value to {}".format(D, bkt))
+                    parmdict['ParameterValue'] = param_value
+
+                if gets3replace.search(param_value):
+                    url = self.regxfind(geturl_re, param_value)
+                    param_value = self.get_s3contents(url)
+                    if self.verbose:
+                        print("{}Raw content of url {}".format(D, url))
+                    parmdict['ParameterValue'] = param_value
+
+                if getkeypair_re.search(param_value):
+                    keypair = self.regxfind(getkeypair_re, param_value)
+                    param_value = 'cikey'
+                    if self.verbose:
+                        print("{}Generating default Keypair {}".format(D, keypair))
+                    parmdict['ParameterValue'] = param_value
+
+                if getlicensebucket_re.search(param_value):
+                    licensebucket = self.regxfind(getlicensebucket_re, param_value)
+                    param_value = 'quickstart-ci-license'
+                    if self.verbose:
+                        print("{}Generating default license bucket {}".format(D, licensebucket))
+                    parmdict['ParameterValue'] = param_value
+
+                if getmediabucket_re.search(param_value):
+                    mediaBucket = self.regxfind(getmediabucket_re, param_value)
+                    param_value = 'quickstart-ci-media'
+                    if self.verbose:
+                        print("{}Generating default media bucket {}".format(D, mediaBucket))
+                    parmdict['ParameterValue'] = param_value
+
+                if licensecontent_re.search(param_value):
+                    license_bucket = 'quickstart-ci-license'
+                    licensekey = (self.regxfind(licensecontent_re, param_value)).strip('/')
+                    param_value = self.get_content(license_bucket, licensekey)
+                    if self.verbose:
+                        print("{}Getting license content for {}/{}".format(D, license_bucket, licensekey))
+                    parmdict['ParameterValue'] = param_value
+
+                # Autogenerated value to password input in runtime
+                if genpass_re.search(param_value):
+                    passlen = int(
+                        self.regxfind(count_re, param_value))
+                    gentype = self.regxfind(
+                        gentype_re, param_value)
+                    if not gentype:
+                        # Set default password type
+                        # A value of D will generate a simple alpha
+                        # aplha numeric password
+                        gentype = 'D'
+
+                    if passlen:
+                        if self.verbose:
+                            print("{}AutoGen values for {}".format(D, param_value))
+                        param_value = self.genpassword(
+                            passlen, gentype)
+                        parmdict['ParameterValue'] = param_value
+
+                if genaz_re.search(param_value):
+                    numazs = int(
+                        self.regxfind(count_re, param_value))
+                    if numazs:
+                        if self.verbose:
+                            print(D + "Selecting availability zones")
+                            print(D + "Requested %s az's" % numazs)
+
+                        param_value = self.get_available_azs(
+                            region,
+                            numazs)
+                        parmdict['ParameterValue'] = param_value
+                    else:
+                        print(I + "$[taskcat_genaz_(!)]")
+                        print(I + "Number of az's not specified!")
+                        print(I + " - (Defaulting to 1 az)")
+                        param_value = self.get_available_azs(
+                            region,
+                            1)
+                        parmdict['ParameterValue'] = param_value
+
+                if genaz_single_re.search(param_value):
+                    print(D + "Selecting availability zones")
+                    print(D + "Requested 1 az")
+                    param_value = self.get_available_azs(
+                        region,
+                        1)
+                    parmdict['ParameterValue'] = param_value
+        return s_parms
+
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
         This function creates CloudFormation stack for the given tests.
@@ -687,164 +927,7 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
-                    # gentype = None
-
-                    # Auto-generated stack inputs
-
-                    # (Passwords)
-                    # Value that matches the following pattern will be replaced
-                    # - Parameters must start with $[
-                    # - Parameters must end with ]
-                    # - genpass in invoked when _genpass_X is found
-                    # - X is length of the string
-                    # Example: $[taskcat_genpass_8]
-                    # Optionally - you can specify the type of password by adding
-                    # - A alpha-numeric passwords
-                    # - S passwords with special characters
-                    # Example: $[taskcat_genpass_8A]
-                    # Generates: tI8zN3iX8
-                    # or
-                    # Example: $[taskcat_genpass_8S]
-                    # Generates: mA5@cB5!
-
-                    # (Auto generated s3 bucket )
-                    # Example: $[taskcat_autobucket]
-                    # Generates: <evaluates to auto generated bucket name>
-
-                    # (Generate UUID String)
-                    # Example: $[taskcat_genuuid]
-                    # Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
-
-                    # (Generate Random String)
-                    # Example: $[taskcat_random-string]
-                    # Generates: yysuawpwubvotiqgwjcu
-                    # or
-                    # Example: $[taskcat_random-numbers]
-                    # Generates: 56188163597280820763
-
-                    # (Availability Zones)
-                    # Value that matches the following pattern will be replaced
-                    # - Parameters must start with $[
-                    # - Parameters must end with ]
-                    # - genaz in invoked when _genaz_X is found
-                    # - A number of AZ's will be selected from the region
-                    #   the stack is attempting to launch
-                    # Example: $[taskcat_genaz_2] (if the region is us-east-2)
-                    # Generates: us-east-1a, us-east-2b
-
-                    for parmdict in s_parms:
-                        for _ in parmdict:
-
-                            param_value = parmdict['ParameterValue']
-                            # Determines the size of the password to generate
-                            count_re = re.compile('(?!\w+_genpass_)\d{1,2}')
-
-                            # Determines the type of password to generate
-                            gentype_re = re.compile(
-                                '(?!\w+_genpass_\d{1,2}])([AS])')
-
-                            # Determines if _genpass has been requested
-                            genpass_re = re.compile(
-                                '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$')
-
-                            # Determines if autobucket value was requested
-                            gen_string_re = re.compile(
-                                '\$\[taskcat_random-string]$')
-
-                            # Determines if random string  value was requested
-                            gen_numbers_re = re.compile(
-                                '\$\[taskcat_random-numbers]$')
-
-                            # Determines if random number value was requested
-                            autobucket_re = re.compile(
-                                '\$\[taskcat_autobucket]$')
-                            # Determines if _genaz has been requested
-                            genaz_re = re.compile('\$\[\w+_genaz_\d]')
-
-                            # Determines if _genaz has been requested
-                            genuuid_re = re.compile('\$\[\w+_gen[gu]uid]')
-
-                            # Determines if s3 replacement was requested
-                            gets3replace = re.compile('\$\[\w+_url_.+]$')
-                            geturl_re = re.compile('(?<=._url_)(.+)(?=]$)')
-
-                            if gen_string_re.search(param_value):
-                                random_string = self.regxfind(gen_string_re, param_value)
-                                param_value = self.generate_random('alpha', 20)
-
-                                if self.verbose:
-                                    print("{}Generating random string for {}".format(D, random_string))
-                                parmdict['ParameterValue'] = param_value
-
-                            if gen_numbers_re.search(param_value):
-                                random_numbers = self.regxfind(gen_numbers_re, param_value)
-                                param_value = self.generate_random('number', 20)
-
-                                if self.verbose:
-                                    print("{}Generating numeric string for {}".format(D, random_numbers))
-                                parmdict['ParameterValue'] = param_value
-
-                            if genuuid_re.search(param_value):
-                                uuid_string = self.regxfind(genuuid_re, param_value)
-                                param_value = self.generate_uuid('A')
-
-                                if self.verbose:
-                                    print("{}Generating random uuid string for {}".format(D, uuid_string))
-                                parmdict['ParameterValue'] = param_value
-
-                            if autobucket_re.search(param_value):
-                                bkt = self.regxfind(autobucket_re, param_value)
-                                param_value = self.get_s3bucket()
-                                if self.verbose:
-                                    print("{}Setting value to {}".format(D, bkt))
-                                parmdict['ParameterValue'] = param_value
-
-                            if gets3replace.search(param_value):
-                                url = self.regxfind(geturl_re, param_value)
-                                param_value = self.get_s3contents(url)
-                                if self.verbose:
-                                    print("{}Raw content of url {}".format(D, url))
-                                parmdict['ParameterValue'] = param_value
-
-                            # Autogenerated value to password input in runtime
-                            if genpass_re.search(param_value):
-                                passlen = int(
-                                    self.regxfind(count_re, param_value))
-                                gentype = self.regxfind(
-                                    gentype_re, param_value)
-                                if not gentype:
-                                    # Set default password type
-                                    # A value of D will generate a simple alpha
-                                    # aplha numeric password
-                                    gentype = 'D'
-
-                                if passlen:
-                                    if self.verbose:
-                                        print("{}AutoGen values for {}".format(D, param_value))
-                                    param_value = self.genpassword(
-                                        passlen, gentype)
-                                    parmdict['ParameterValue'] = param_value
-
-                            if genaz_re.search(param_value):
-                                numazs = int(
-                                    self.regxfind(count_re, param_value))
-                                if numazs:
-                                    if self.verbose:
-                                        print(D + "Selecting availability zones")
-                                        print(D + "Requested %s az's" % numazs)
-
-                                    param_value = self.get_available_azs(
-                                        region,
-                                        numazs)
-                                    parmdict['ParameterValue'] = param_value
-                                else:
-                                    print(I + "$[taskcat_genaz_(!)]")
-                                    print(I + "Number of az's not specified!")
-                                    print(I + " - (Defaulting to 1 az)")
-                                    param_value = self.get_available_azs(
-                                        region,
-                                        1)
-                                    parmdict['ParameterValue'] = param_value
+                    j_params = self.generate_input_param_values(s_parms)
                     if self.verbose:
                         print(D + "Creating Boto Connection region=%s" % region)
                         print(D + "StackName=" + stackname)
@@ -853,13 +936,13 @@ class TaskCat(object):
                         print(D + "Capabilities=%s" % self.get_capabilities())
                         print(D + "Parameters:")
                         if self.get_template_type() == 'json':
-                            print(json.dumps(s_parms, sort_keys=True, indent=11, separators=(',', ': ')))
+                            print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
                     stackdata = cfn.create_stack(
                         StackName=stackname,
                         DisableRollback=True,
                         TemplateURL=self.get_template_path(),
-                        Parameters=s_parms,
+                        Parameters=j_params,
                         Capabilities=self.get_capabilities())
 
                     testdata.add_test_stack(stackdata)
