@@ -19,6 +19,7 @@ setup(
     ],
     scripts=[
         'scripts/alchemist',
+        'scripts/beautycorn',
         'scripts/taskcat',
         'scripts/taskcat_taas'
     ],
