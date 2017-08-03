@@ -292,11 +292,14 @@ class CFNAlchemist(object):
 
             # Load current file
             if current_file.endswith(tuple(self._UNSUPPORTED_EXT)):
-                self.logger.warning("[{}] File type not supported. Skipping but copying.".format(current_file))
-                CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                # copy only if it's a new location for the output
-                if current_file is not output_file:
-                    shutil.copyfile(current_file, output_file)
+                if self._dry_run:
+                    self.logger.info("[WHAT IF DRY RUN]: [{}] File type not supported. Skipping but copying.".format(current_file))
+                else:
+                    self.logger.warning("[{}] File type not supported. Skipping but copying.".format(current_file))
+                    CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
+                    # copy only if it's a new location for the output
+                    if current_file is not output_file:
+                        shutil.copyfile(current_file, output_file)
             elif self._rewrite_mode != self.BASIC_REWRITE_MODE \
                     and current_file.endswith(tuple(self._TEMPLATE_EXT)) \
                     and os.path.dirname(current_file).endswith('/templates'):
@@ -329,18 +332,25 @@ class CFNAlchemist(object):
                         continue
 
                     # Write modified template
-                    self.logger.info("Writing file [{}]".format(output_file))
-                    CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                    with open(output_file, 'wb') as updated_template:
-                        if FILE_FORMAT == 'JSON':
-                            updated_template.write(json.dumps(template_data, indent=4, separators=(',', ': ')))
-                        elif FILE_FORMAT == 'YAML':
-                            updated_template.write(
-                                CFNYAMLHandler.ordered_safe_dump(template_data, indent=2, allow_unicode=True, default_flow_style=False, explicit_start=True, explicit_end=True))
-                    updated_template.close()
+                    if self._dry_run:
+                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]]".format(output_file))
+                    else:
+                        self.logger.info("Writing file [{}]".format(output_file))
+                        CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
+                        with open(output_file, 'wb') as updated_template:
+                            if FILE_FORMAT == 'JSON':
+                                updated_template.write(json.dumps(template_data, indent=4, separators=(',', ': ')))
+                            elif FILE_FORMAT == 'YAML':
+                                updated_template.write(
+                                    CFNYAMLHandler.ordered_safe_dump(template_data, indent=2, allow_unicode=True, default_flow_style=False, explicit_start=True, explicit_end=True))
+                        updated_template.close()
                 else:
-                    self.logger.warning("[{}] Unsupported file format. Skipping.".format(current_file))
-                    continue
+                    if self._dry_run:
+                        self.logger.info("[WHAT IF DRY RUN]: [{}] Unsupported file format. Skipping but copying.".format(current_file))
+                    else:
+                        self.logger.warning("[{}] Unsupported file format. Skipping but copying.".format(current_file))
+                        if current_file is not output_file:
+                            shutil.copyfile(current_file, output_file)
             else:
                 self.logger.info("Opening file [{}]".format(current_file))
                 with open(current_file, 'rU') as f:
@@ -350,11 +360,14 @@ class CFNAlchemist(object):
                     file_data[index] = self._string_rewriter(line, self._target_bucket_name)
 
                 # Write modified file
-                self.logger.info("Writing file [{}]".format(output_file))
-                CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                with open(output_file, 'wb') as updated_file:
-                    updated_file.writelines(file_data)
-                updated_file.close()
+                if self._dry_run:
+                    self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]]".format(output_file))
+                else:
+                    self.logger.info("Writing file [{}]".format(output_file))
+                    CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
+                    with open(output_file, 'wb') as updated_file:
+                        updated_file.writelines(file_data)
+                    updated_file.close()
 
     def rewrite_and_upload(self):
         """
