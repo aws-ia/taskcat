@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+# authors:
+# Santiago Cardenas <sancard@amazon.com>
+# Jay McConnell <jmmccon@amazon.com>
 from __future__ import print_function
 
 import boto3
@@ -226,6 +231,22 @@ class ClientFactory(object):
                     return self._clients[credential_set][region]['session'].get_available_regions(service)
         session = boto3.session.Session()
         return session.get_available_regions(service)
+
+    def get_session(self, credential_set, region=None):
+        """fetches existing session for credential set in a region
+
+        Args:
+            credential_set (str): name of credential set from a previously created client
+            region (str): region name, defaults to current region
+
+        Returns:
+            boto3.session.Session: instance of boto3 Session object
+        """
+        if not region:
+            self.logger.debug("Region not set explicitly, getting default region")
+            region = os.environ['AWS_DEFAULT_REGION']
+
+        return self._clients[credential_set][region]['session']
 
 
 class Logger(object):

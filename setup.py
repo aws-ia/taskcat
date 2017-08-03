@@ -18,6 +18,7 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     scripts=[
+        'scripts/alchemist',
         'scripts/taskcat',
         'scripts/taskcat_taas'
     ],
