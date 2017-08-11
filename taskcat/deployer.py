@@ -269,12 +269,7 @@ class CFNAlchemist(object):
 
         # Validate output
         if self._output_directory is not None:
-            if os.path.isdir(self._output_directory):
-                # We come here if the file is a directory or does not exist
-                CFNYAMLHandler.validate_output_dir(self._output_directory)
-            else:
-                self.logger.error("The location provided [{}] is not a directory.".format(self._output_directory))
-                sys.exit(1)
+            CFNYAMLHandler.validate_output_dir(self._output_directory)
 
         self.logger.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
         self.logger.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
