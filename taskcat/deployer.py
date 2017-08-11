@@ -620,7 +620,7 @@ class CFNAlchemist(object):
             repo_path = repo_path.replace('nist/high', 'nist-high', 1)
             # chef-server
             repo_path = repo_path.replace('chefserver', 'chef-server', 1)
-            print("[INFO]: Converted repo name [" + str(args.repo_name) + "] to S3 path [" + str(repo_path) + "]")
+            print("[INFO]: Converted repo name [" + str(repo_name) + "] to S3 path [" + str(repo_path) + "]")
             return repo_path
         else:
             print("[ERROR]: Repo name must start with 'quickstart-'. Aborting.")
