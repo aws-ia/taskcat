@@ -402,7 +402,7 @@ class TaskCat(object):
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         _project_s3_prefix = self.get_project()
-        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_s3_prefix)
+        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
         contents = result.get('Contents')
         for s3obj in contents:
             for metadata in s3obj.items():
