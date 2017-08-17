@@ -416,7 +416,8 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
-        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=self.get_project())
+        _project_s3_prefix = self.get_project()
+        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
         contents = result.get('Contents')
         for s3obj in contents:
             for metadata in s3obj.items():
@@ -424,7 +425,9 @@ class TaskCat(object):
                     if key in metadata[1]:
                         # Finding exact match
                         terms = metadata[1].split("/")
-                        if key == terms[-1]:
+                        _found_prefix = terms[0]
+                        # issues/
+                        if (key == terms[-1]) and (_found_prefix == _project_s3_prefix):
                             if bucket_location[
                                 'LocationConstraint'
                             ] is not None:
