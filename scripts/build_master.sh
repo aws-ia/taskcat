@@ -1,8 +1,18 @@
 #/bin/bash -x
 # Get pip creds
 cp scripts/setup_stub-develop.py ./setup_stub-develop.py
+
+# Create taskcat
+cp taskcat.py bin/taskcat
+
+# Create beautycorn
 cp beautycorn.py bin/beautycorn
+cp beautycorn.py bin/taskcat-beautycorn
+
+# Create alchemist
+cp alchemist.py bin/taskcat-alchemist
 cp alchemist.py bin/alchemist
+
 cp taskcat.py bin/taskcat
 # Update Pip Version
 cp scripts/setup_stub-master.py ./setup_stub-master.py
