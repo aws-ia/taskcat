@@ -678,7 +678,7 @@ class TaskCat(object):
         else:
             return str(uuid.uuid4())
 
-    def generate_input_param_values(self, s_parms):
+    def generate_input_param_values(self, s_parms, region):
         """
         Given a cloudformation input parameter file as JSON, this function generates the values
         for the parameters indicated by $[] appropriately, replaces $[] with new value and return
@@ -930,7 +930,7 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
-                    j_params = self.generate_input_param_values(s_parms)
+                    j_params = self.generate_input_param_values(s_parms, region)
                     if self.verbose:
                         print(D + "Creating Boto Connection region=%s" % region)
                         print(D + "StackName=" + stackname)
