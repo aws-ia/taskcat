@@ -23,9 +23,11 @@ if [[ -d $HOME/.aws ]]; then
  	echo "[INFO] : Boto profile will map to container during execution"
 	echo "echo \"[development image]\"" >taskcat-develop.docker
 	echo "docker run -it --rm -v ${HOME}/.aws:/root/.aws -v \$(pwd):/mnt taskcat/taskcat-develop taskcat \$@" >>taskcat-develop.docker
+	echo "docker run -it --rm -v ${HOME}/.aws:/root/.aws -v \$(pwd):/mnt taskcat/taskcat-develop alchemist \$@" >>alchemist-develop.docker
 else  
 	echo "echo [development image]" >taskcat-develop.docker
 	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat-develop taskcat \$@" >> taskcat-develop.docker
+	echo "docker run -it --rm -v \$(pwd):/mnt  taskcat/taskcat-develop alchemist \$@" >> alchemist-develop.docker
 
 fi
 
@@ -33,20 +35,24 @@ if [[ $(id -u) -eq 0  ]] ;
 then 
         docker pull taskcat/taskcat-develop:latest
         sudo mv taskcat-develop.docker ${INSTALL_DIR}/taskcat-develop
+        sudo mv alchemist-develop.docker ${INSTALL_DIR}/alchemist-develop
 	chmod 755 ${INSTALL_DIR}/taskcat-develop
+	chmod 755 ${INSTALL_DIR}/alchemist-develop
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
-        echo '\t[i] to run program type taskcat-develop'
+        echo '\t[i] to run program type taskcat-develop or alchemist-develop'
 else 
         docker pull taskcat/taskcat-develop:latest
         mv taskcat-develop.docker taskcat-develop
+        mv alchemist-develop.docker alchemist-develop
 	chmod 755 ${INSTALL_DIR}/taskcat-develop
+	chmod 755 ${INSTALL_DIR}/alchemist-develop
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] Root previlages were not provied!'
         echo '\t[i] taskcat is installed in => ' $(pwd)
         echo '\t[i] Please add taskcat to your path'
         echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
-        echo '\t[i] to run program type ./taskcat-develop'
+        echo '\t[i] to run program type ./taskcat-develop or ./alchemist-develop'
 fi
 '''
 
