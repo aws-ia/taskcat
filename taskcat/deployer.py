@@ -479,9 +479,22 @@ class CFNAlchemist(object):
             )
             account = sts_client.get_caller_identity().get('Account')
         except Exception as e:
-            self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
-            self.logger.debug(str(e))
-            sys.exit(1)
+            try:
+                self.logger.warning('Trying GovCloud region.')
+                self.set_default_region('us-gov-west-1')
+                sts_client = self._boto_clients.get(
+                    'sts',
+                    credential_set='alchemist',
+                    aws_access_key_id=self._aws_access_key_id,
+                    aws_secret_access_key=self._aws_secret_access_key,
+                    profile_name=self._aws_profile,
+                    region=self.get_default_region()
+                )
+                account = sts_client.get_caller_identity().get('Account')
+            except Exception as e:
+                self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
+                self.logger.debug(str(e))
+                sys.exit(1)
         self.logger.info("AWS AccountNumber: \t [%s]" % account)
         self.logger.info("Authenticated via: \t [%s]" % self._auth_mode)
 
