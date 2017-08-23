@@ -40,7 +40,8 @@ then
 	chmod 755 ${INSTALL_DIR}/alchemist-develop
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] taskcat is install in => ' ${INSTALL_DIR}
-        echo '\t[i] to run program type taskcat-develop or alchemist-develop'
+        echo '\t[i] To run dev preview of taskcat, type taskcat-develop'
+        echo '\t[i] To run dev preview of alchemist, type alchemist-develop'
 else 
         docker pull taskcat/taskcat-develop:latest
         mv taskcat-develop.docker taskcat-develop
@@ -50,9 +51,8 @@ else
         echo '\n\t[taskcat] INSTALL COMPLETE'
         echo '\t[i] Root previlages were not provied!'
         echo '\t[i] taskcat is installed in => ' $(pwd)
-        echo '\t[i] Please add taskcat to your path'
-        echo "\t[i] sudo cp taskcat ${INSTALL_DIR}"
-        echo '\t[i] to run program type ./taskcat-develop or ./alchemist-develop'
+        echo '\t[i] To run dev preview of taskcat, type ./taskcat-develop'
+        echo '\t[i] To run dev preview of alchemist, type ./alchemist-develop'
 fi
 '''
 
