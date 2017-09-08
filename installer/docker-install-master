@@ -42,8 +42,8 @@ then
         echo '\n'
 	echo '\t[i] INSTALL COMPLETE'
         echo '\t[i] tools are installed in => ' ${INSTALL_DIR}
-        echo '\t[i] To run taskcat, type taskcat'
-        echo '\t[i] To run alchemist, type alchemist'
+        echo '\t[i] To run taskcat the program type taskcat'
+        echo '\t[i] To run alchemist the program type alchemist'
 else 
         docker pull taskcat/taskcat
         mv taskcat.docker taskcat
@@ -56,8 +56,8 @@ else
         echo '\t[i] Tools are installed in => ' $(pwd)
         echo '\t[i] Please add these tools to your path'
         echo "\t[i] Manually copy tools ${INSTALL_DIR}"
-        echo '\t[i] To run taskcat, type ./taskcat'
-        echo '\t[i] To run alchemist, type ./alchemist'
+        echo '\t[i] To run taskcat the program type taskcat'
+        echo '\t[i] To run alchemist the program type alchemist'
 fi
 '''
 
