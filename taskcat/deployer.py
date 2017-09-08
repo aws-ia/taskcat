@@ -78,6 +78,7 @@ class CFNAlchemist(object):
         self._dry_run = False
         self._prod_bucket_name = 'quickstart-reference'
         self._default_region = 'us-east-1'
+        self._file_list = None
 
         # initialize
         self.set_input_path(input_path)
@@ -208,11 +209,15 @@ class CFNAlchemist(object):
         #       when initializing all the properties of this class. If it's only an upload that's meant to happen
         #       without a previous rewrite, then output directory should never be set.
         self.logger.info("Gathering local keys {}*".format(self._target_key_prefix))
-        file_list = self._get_file_list(self._output_directory if self._output_directory else self._input_path)
+        if self._file_list:
+            file_list = self._file_list
+        else:
+            file_list = self._get_file_list(self._input_path)
 
         local_key_dict = {}
         for current_file in file_list:
-            local_key_dict[unicode(os.path.join(self._target_key_prefix, current_file.replace(self._output_directory if self._output_directory else self._input_path, '', 1).lstrip('\/')).replace('\\', '/'))] = current_file
+            local_key_dict[os.path.join(self._target_key_prefix, current_file.replace(self._input_path, '', 1).lstrip('\/')).replace('\\', '/')] = \
+                os.path.join(self._output_directory if self._output_directory and not self._dry_run else self._input_path, current_file.replace(self._input_path, '', 1).lstrip('\/'))
         self.logger.debug(local_key_dict.keys())
 
         remote_to_local_diff = list(set(remote_key_dict.keys()) - set(local_key_dict.keys()))
@@ -229,8 +234,8 @@ class CFNAlchemist(object):
                 self.logger.debug("File [{0}] exists in S3 bucket [{1}]. Verifying MD5 checksum for difference.".format(_key, self._target_bucket_name))
                 s3_hash = remote_key_dict[_key].e_tag.strip('"')
                 local_hash = hashlib.md5(open(local_key_dict[_key], 'rb').read()).hexdigest()
-                self.logger.debug("S3 MD5 checksum (etag) [{}]".format(s3_hash))
-                self.logger.debug("Local MD5 checksum     [{}]".format(local_hash))
+                self.logger.debug("S3 MD5 checksum (etag) [{0}]=>[{1}]".format(s3_hash, remote_key_dict[_key]))
+                self.logger.debug("Local MD5 checksum     [{0}]=>[{1}]".format(local_hash, local_key_dict[_key]))
                 if s3_hash != local_hash:
                     if self._dry_run:
                         self.logger.info("[WHAT IF DRY RUN]: UPDATE [{0}]".format(_key))
@@ -288,7 +293,7 @@ class CFNAlchemist(object):
             # Load current file
             if current_file.endswith(tuple(self._UNSUPPORTED_EXT)):
                 if self._dry_run:
-                    self.logger.info("[WHAT IF DRY RUN]: [{}] File type not supported. Skipping but copying.".format(current_file))
+                    self.logger.warning("[WHAT IF DRY RUN]: [{}] File type not supported. Skipping but copying.".format(current_file))
                 else:
                     self.logger.warning("[{}] File type not supported. Skipping but copying.".format(current_file))
                     CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
@@ -323,8 +328,12 @@ class CFNAlchemist(object):
                     elif type(template_data) is list:
                         self._recurse_nodes(template_data)
                     else:
-                        self.logger.warning("[{0}] Unsupported {1} structure. Skipping.".format(current_file, FILE_FORMAT))
-                        continue
+                        if self._dry_run:
+                            self.logger.warning("[WHAT IF DRY RUN]: [{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
+                        else:
+                            self.logger.warning("[{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
+                            if current_file is not output_file:
+                                shutil.copyfile(current_file, output_file)
 
                     # Write modified template
                     if self._dry_run:
@@ -341,7 +350,7 @@ class CFNAlchemist(object):
                         updated_template.close()
                 else:
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: [{}] Unsupported file format. Skipping but copying.".format(current_file))
+                        self.logger.warning("[WHAT IF DRY RUN]: [{}] Unsupported file format. Skipping but copying.".format(current_file))
                     else:
                         self.logger.warning("[{}] Unsupported file format. Skipping but copying.".format(current_file))
                         if current_file is not output_file:
@@ -372,21 +381,23 @@ class CFNAlchemist(object):
         self.upload_only()
 
     def _get_file_list(self, input_path):
-        _file_list = []
-        if os.path.isfile(input_path):
-            _file_list.append(input_path)
-        elif os.path.isdir(input_path):
-            for root, dirs, files in os.walk(input_path):
-                for _current_file in files:
-                    if not _current_file.endswith(tuple(self._GIT_EXT)):
-                        _file_list.append(os.path.join(root, _current_file))
-                for directory in self._EXCLUDED_DIRS:
-                    if directory in dirs:
-                        dirs.remove(directory)
-        else:
-            self.logger.error("Directory/File is non-existent. Aborting.")
-            sys.exit(1)
-        return _file_list
+        if not self._file_list:
+            _file_list = []
+            if os.path.isfile(input_path):
+                _file_list.append(input_path)
+            elif os.path.isdir(input_path):
+                for root, dirs, files in os.walk(input_path):
+                    for _current_file in files:
+                        if not _current_file.endswith(tuple(self._GIT_EXT)):
+                            _file_list.append(os.path.join(root, _current_file))
+                    for directory in self._EXCLUDED_DIRS:
+                        if directory in dirs:
+                            dirs.remove(directory)
+            else:
+                self.logger.error("Directory/File is non-existent. Aborting.")
+                sys.exit(1)
+            self._file_list = _file_list
+        return self._file_list
 
     def _string_rewriter(self, current_string, replacement_bucket_name):
         if self._prod_bucket_name in current_string:
