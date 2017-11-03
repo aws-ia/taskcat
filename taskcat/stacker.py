@@ -916,7 +916,7 @@ class TaskCat(object):
 
         """
         testdata_list = []
-        self.set_capabilities('CAPABILITY_IAM')
+        self.set_capabilities('CAPABILITY_NAMED_IAM')
         for test in test_list:
             testdata = TestData()
             testdata.set_test_name(test)
