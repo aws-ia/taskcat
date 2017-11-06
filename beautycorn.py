@@ -46,7 +46,7 @@ else:
 
 # TODO: Enforce sections in specific order. Ordering tbd..
 for current_file in files:
-    if current_file.endswith('.template'):
+    if current_file.endswith('.template', '.json', '.yaml', '.yml'):
         logger.info("Opening file [{}]".format(current_file))
 
         with open(current_file, 'rU') as template:
