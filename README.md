@@ -36,7 +36,7 @@ example here:
 #### Example of config.yml 
     global:
       owner: owner@company.com
-      project: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)
+      qsname: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)
       #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket 
       regions:
         - us-east-1
