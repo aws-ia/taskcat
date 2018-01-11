@@ -589,7 +589,11 @@ class TaskCat(object):
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 print(P + "Validated [%s]" % self.get_template_file())
-                cfn_result = getattr(result, 'Description', 'No description in - CloudFormation template')
+                if 'Description' in result:
+                    cfn_result = (result['Description'])
+                    print(I + "Description  [%s]" % textwrap.fill(cfn_result))
+                else:
+                    print(I + "Please include a top-level description for template: [%s]" % self.get_template_file())
                 print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 if self.verbose:
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
