@@ -31,12 +31,14 @@ parser = argparse.ArgumentParser(description='AWS Quick Start JSON/YAML beautifi
 parser.add_argument("path", type=str, help='specify the path of template file(s)')
 args = parser.parse_args()
 
+TEMPLATE_EXT = ['.template', '.json', '.yaml', '.yml']
+
 files = []
 # Checks if path is directory. If so, updates all .template files
 if os.path.isdir(args.path):
     for dir_path, dir_name, file_names in os.walk(args.path):
         for file_name in file_names:
-            if file_name.endswith('.template'):
+            if file_name.endswith(tuple(TEMPLATE_EXT)):
                 files.append(os.path.join(dir_path, file_name))
 elif os.path.isfile(args.path):
     files.append(args.path)
@@ -46,7 +48,7 @@ else:
 
 # TODO: Enforce sections in specific order. Ordering tbd..
 for current_file in files:
-    if current_file.endswith('.template'):
+    if current_file.endswith(tuple(TEMPLATE_EXT)):
         logger.info("Opening file [{}]".format(current_file))
 
         with open(current_file, 'rU') as template:

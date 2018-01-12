@@ -1554,7 +1554,8 @@ class TaskCat(object):
         text = doc.text
         logo = 'taskcat'
         repo_link = 'https://github.com/aws-quickstart/taskcat'
-        output_css = 'https://taskcat.s3.amazonaws.com/assets/css/taskcat.css'
+        css_url = 'https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/css/taskcat_reporting.css'
+        output_css = requests.get(css_url).text
         doc_link = 'http://taskcat.io'
 
         with tag('html'):
@@ -1562,8 +1563,8 @@ class TaskCat(object):
                 doc.stag('meta', charset='utf-8')
                 doc.stag(
                     'meta', name="viewport", content="width=device-width")
-                doc.stag('link', rel='stylesheet',
-                         href=output_css)
+                with tag('style', type='text/css'):
+                    text(output_css)
                 with tag('title'):
                     text('TaskCat Report')
 

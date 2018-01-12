@@ -56,7 +56,7 @@ class CFNAlchemist(object):
 
         # Constants
         self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.tgz', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq']
-        self._TEMPLATE_EXT = ['.template', '.json']
+        self._TEMPLATE_EXT = ['.template', '.json', '.yaml', '.yml']
         self._GIT_EXT = ['.git', '.gitmodules', '.gitignore', '.gitattributes']
         self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
 
@@ -628,19 +628,15 @@ class CFNAlchemist(object):
         :return: An object from argparse which contains all the args passed in from the command line.
         """
         # Determine S3 path from a valid git repo name
-        if repo_name.startswith('quickstart-'):
-            # Remove quickstart-, change dashes to slashes, and add /latest
-            repo_path = os.path.join(repo_name.replace('quickstart-', '', 1).replace('-', '/'), 'latest/')
+        # Remove quickstart-, change dashes to slashes, and add /latest
+        repo_path = os.path.join(repo_name.replace('quickstart-', '', 1).replace('-', '/'), 'latest/')
 
-            # EXCEPTIONS (that we have to live with for now):
-            # enterprise-accelerator
-            repo_path = repo_path.replace('enterprise/accelerator', 'enterprise-accelerator', 1)
-            # nist-high
-            repo_path = repo_path.replace('nist/high', 'nist-high', 1)
-            # chef-server
-            repo_path = repo_path.replace('chefserver', 'chef-server', 1)
-            print("[INFO]: Converted repo name [" + str(repo_name) + "] to S3 path [" + str(repo_path) + "]")
-            return repo_path
-        else:
-            print("[ERROR]: Repo name must start with 'quickstart-'. Aborting.")
-            sys.exit(1)
+        # EXCEPTIONS (that we have to live with for now):
+        # enterprise-accelerator
+        repo_path = repo_path.replace('enterprise/accelerator', 'enterprise-accelerator', 1)
+        # nist-high
+        repo_path = repo_path.replace('nist/high', 'nist-high', 1)
+        # chef-server
+        repo_path = repo_path.replace('chefserver', 'chef-server', 1)
+        print("[INFO]: Converted repo name [" + str(repo_name) + "] to S3 path [" + str(repo_path) + "]")
+        return repo_path
