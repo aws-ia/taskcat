@@ -162,9 +162,10 @@ class TaskCat(object):
         self.config = 'config.yml'
         self.test_region = []
         self.s3bucket = None
+        self.s3bucket_type = None
         self.template_path = None
         self.parameter_path = None
-        self.defult_region = "us-east-1"
+        self.default_region = "us-east-1"
         self._template_file = None
         self._template_type = None
         self._parameter_file = None
@@ -210,6 +211,12 @@ class TaskCat(object):
 
     def get_s3bucket(self):
         return str(self.s3bucket)
+
+    def set_s3bucket_type(self, bucket):
+        self.s3bucket_type = bucket
+
+    def get_s3bucket_type(self):
+        return str(self.s3bucket_type)
 
     def set_config(self, config_yml):
         if os.path.isfile(config_yml):
@@ -270,10 +277,10 @@ class TaskCat(object):
         return self.ddbtable
 
     def set_default_region(self, region):
-        self.defult_region = region
+        self.default_region = region
 
     def get_default_region(self):
-        return self.defult_region
+        return self.default_region
 
     def get_test_region(self):
         return self.test_region
@@ -309,12 +316,14 @@ class TaskCat(object):
         # TODO Remove after alchemist is implemennted
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
+            self.set_s3bucket_type('defined')
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
             auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region() == 'us-east-1':
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
+                self.set_s3bucket_type('auto')
 
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
@@ -331,7 +340,7 @@ class TaskCat(object):
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
                     self.set_s3bucket(auto_bucket)
 
-        # TODO Remove after alchemist is implemennted
+        # TODO Remove after alchemist is implemented
 
         if os.path.isdir(self.get_project()):
             fsmap = buildmap('.', self.get_project())
@@ -1184,6 +1193,8 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+
+
         docleanup = self.get_docleanup()
         if self.verbose:
             print(D + "clean-up = %s " % str(docleanup))
@@ -1236,6 +1247,32 @@ class TaskCat(object):
                             res.get('resourceType')
                         ))
                 s.delete_all(failed_stacks)
+
+        # Check to see if auto bucket was created
+        if self.get_s3bucket_type() is 'auto':
+            print(I + "(Cleaning up staging assets)")
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            paginator = s3_client.get_paginator('list_objects')
+            operation_parameters = {'Bucket': self.get_s3bucket(),
+                                    'Prefix': self.get_project()}
+            page_iterator = paginator.paginate(**operation_parameters)
+            for page in page_iterator:
+                for key in (page['Contents']):
+                    _key_path = "{}/{}".format(self.get_s3bucket(), key['Key'])
+                    if self.verbose:
+                        print( D + "Deleting..... {0}".format(_key_path))
+                    s3_client.delete_objects(
+                         Bucket=self.get_s3bucket(),
+                         Delete={
+                             'Objects': [{'Key': key['Key']}]
+                         })
+                s3_client.delete_bucket(
+                    Bucket=self.get_s3bucket())
+                if self.verbose:
+                    print( D + "Deleted..... {0}".format(self.get_s3bucket()))
+
+        else:
+            print(I + "Retaining assets in s3bucket [{0}]".format(self.get_s3bucket()))
 
     def stackdelete(self, testdata_list):
         """
