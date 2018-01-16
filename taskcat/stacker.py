@@ -313,7 +313,7 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         self.set_project(taskcat_cfg['global']['qsname'])
 
-        # TODO Remove after alchemist is implemennted
+        # TODO Update to alchemist upload
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
             self.set_s3bucket_type('defined')
@@ -426,30 +426,34 @@ class TaskCat(object):
         bucket_location = s3_client.get_bucket_location(
             Bucket=self.get_s3bucket())
         _project_s3_prefix = self.get_project()
-        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
-        contents = result.get('Contents')
-        for s3obj in contents:
-            for metadata in s3obj.items():
-                if metadata[0] == 'Key':
-                    if key in metadata[1]:
-                        # Finding exact match
-                        terms = metadata[1].split("/")
-                        _found_prefix = terms[0]
-                        # issues/
-                        if (key == terms[-1]) and (_found_prefix == _project_s3_prefix):
-                            if bucket_location[
-                                'LocationConstraint'
-                            ] is not None:
-                                o_url = "https://s3-{0}.{1}/{2}/{3}".format(
-                                    bucket_location['LocationConstraint'],
-                                    "amazonaws.com",
-                                    self.get_s3bucket(),
-                                    metadata[1])
-                                return o_url
-                            else:
-                                amzns3 = 's3.amazonaws.com'
-                                o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
-                                return o_url
+        #result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
+        paginator = s3_client.get_paginator('list_objects')
+        operation_parameters = {'Bucket': self.get_s3bucket(),
+                                'Prefix': _project_s3_prefix}
+        page_iterator = paginator.paginate(**operation_parameters)
+        for page in page_iterator:
+            for s3obj in (page['Contents']):
+                for metadata in s3obj.items():
+                    if metadata[0] == 'Key':
+                        if key in metadata[1]:
+                            # Finding exact match
+                            terms = metadata[1].split("/")
+                            _found_prefix = terms[0]
+                            # issues/
+                            if (key == terms[-1]) and (_found_prefix == _project_s3_prefix):
+                                if bucket_location[
+                                    'LocationConstraint'
+                                ] is not None:
+                                    o_url = "https://s3-{0}.{1}/{2}/{3}".format(
+                                        bucket_location['LocationConstraint'],
+                                        "amazonaws.com",
+                                        self.get_s3bucket(),
+                                        metadata[1])
+                                    return o_url
+                                else:
+                                    amzns3 = 's3.amazonaws.com'
+                                    o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
+                                    return o_url
 
     def get_global_region(self, yamlcfg):
         """
@@ -1251,25 +1255,40 @@ class TaskCat(object):
         # Check to see if auto bucket was created
         if self.get_s3bucket_type() is 'auto':
             print(I + "(Cleaning up staging assets)")
+
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+
+            # Batch object processing by pages
             paginator = s3_client.get_paginator('list_objects')
-            operation_parameters = {'Bucket': self.get_s3bucket(),
-                                    'Prefix': self.get_project()}
-            page_iterator = paginator.paginate(**operation_parameters)
-            for page in page_iterator:
-                for key in (page['Contents']):
-                    _key_path = "{}/{}".format(self.get_s3bucket(), key['Key'])
-                    if self.verbose:
-                        print( D + "Deleting..... {0}".format(_key_path))
-                    s3_client.delete_objects(
-                         Bucket=self.get_s3bucket(),
-                         Delete={
-                             'Objects': [{'Key': key['Key']}]
-                         })
-                s3_client.delete_bucket(
-                    Bucket=self.get_s3bucket())
-                if self.verbose:
-                    print( D + "Deleted..... {0}".format(self.get_s3bucket()))
+            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+            s3_pages = paginator.paginate(**operation_parameters)
+
+            # Load objects to delete
+            objects_in_s3 = 1
+            delete_keys=dict(Objects=[])
+            for key in s3_pages.search('Contents'):
+                delete_keys['Objects'].append(dict(Key=key['Key']))
+                print(D + "Stage {0} for deletion".format(key['Key']))
+                objects_in_s3 += 1
+                if objects_in_s3 == 1000:
+                    print (objects_in_s3)
+                    # Batch delete 1000 objects at a time
+                    s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys )
+
+                    delete_keys=dict(Objects=[])
+                    objects_in_s3 = 1
+
+            # Delete last batch
+            if objects_in_s3 > 1:
+                print (I + "Purging last {} objects ....".format(objects_in_s3))
+                s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys )
+
+
+            # Delete bucket
+            s3_client.delete_bucket(
+                Bucket=self.get_s3bucket())
+            if self.verbose:
+                print(D + "Deleting Bucket {0}".format(self.get_s3bucket()))
 
         else:
             print(I + "Retaining assets in s3bucket [{0}]".format(self.get_s3bucket()))
