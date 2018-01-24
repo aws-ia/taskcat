@@ -258,6 +258,35 @@ class TaskCat(object):
     def get_parameter_path(self):
         return self.parameter_path
 
+    def get_param_includes(self, s_params):
+        # Github/issue/57
+        # Fetch overrides from S3.
+        param_path = self.parameter_path
+        _url_prefix=re.search(r'^http.*/.*/(?!\/.*?$)', param_path).group[:-1]
+        override_url = "{}/{}".format(_url_prefix, 'override.json')
+        r = requests.get(override_url)
+        if r.status_code != 200:
+            return None
+
+        override = json.loads(r.text)
+
+        # Setup a list index dictionary.
+        param_index = {}
+        for (idx, param_dict) in enumerate(s_params):
+            key = param_dict['ParameterKey']
+            param_index[key] = idx
+
+        # Merge the two lists, overriding the original values if necessary.
+        for override_pd in override:
+            key = override_pd['ParameterKey']
+            if key in param_index.keys():
+                idx = param_index[key]
+                s_params[idx] = override_pd
+            else:
+                s_params.append(override_pd)
+
+        return s_params
+
     def set_template_path(self, template):
         self.template_path = template
 
@@ -943,6 +972,9 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
+                    s_include_params = self.get_param_includes(s_parms)
+                    if s_include_params:
+                        s_parms = s_include_params
                     j_params = self.generate_input_param_values(s_parms, region)
                     if self.verbose:
                         print(D + "Creating Boto Connection region=%s" % region)
