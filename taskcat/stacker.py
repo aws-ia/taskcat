@@ -363,10 +363,13 @@ class TaskCat(object):
                     print(D + str(e))
                 sys.exit(1)
 
-        responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
-        for s3keys in responses.get('Contents'):
+        paginator = s3_client.get_paginator('list_objects')
+        operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+        s3_pages = paginator.paginate(**operation_parameters)
+
+        for s3keys in s3_pages.search('Contents'):
             print("{}[S3: -> ]{} s3://{}/{}".format(white, rst_color, self.get_s3bucket(), s3keys.get('Key')))
-        print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
+        print("{} |Contents of S3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
 
@@ -423,13 +426,10 @@ class TaskCat(object):
 
         """
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-        bucket_location = s3_client.get_bucket_location(
-            Bucket=self.get_s3bucket())
+        bucket_location = s3_client.get_bucket_location(Bucket=self.get_s3bucket())
         _project_s3_prefix = self.get_project()
-        #result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
         paginator = s3_client.get_paginator('list_objects')
-        operation_parameters = {'Bucket': self.get_s3bucket(),
-                                'Prefix': _project_s3_prefix}
+        operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': _project_s3_prefix}
         page_iterator = paginator.paginate(**operation_parameters)
         for page in page_iterator:
             for s3obj in (page['Contents']):
@@ -701,6 +701,7 @@ class TaskCat(object):
         for the parameters indicated by $[] appropriately, replaces $[] with new value and return
         the updated JSON.
 
+        :param region:
         :param s_parms: Cloudformation template input parameter file as JSON
 
         :return: Input parameter file as JSON with $[] replaced with generated values
@@ -1198,7 +1199,6 @@ class TaskCat(object):
 
         """
 
-
         docleanup = self.get_docleanup()
         if self.verbose:
             print(D + "clean-up = %s " % str(docleanup))
@@ -1265,24 +1265,22 @@ class TaskCat(object):
 
             # Load objects to delete
             objects_in_s3 = 1
-            delete_keys=dict(Objects=[])
+            delete_keys = dict(Objects=[])
             for key in s3_pages.search('Contents'):
                 delete_keys['Objects'].append(dict(Key=key['Key']))
-                print(D + "Stage {0} for deletion".format(key['Key']))
                 objects_in_s3 += 1
                 if objects_in_s3 == 1000:
-                    print (objects_in_s3)
                     # Batch delete 1000 objects at a time
-                    s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys )
+                    s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
+                    print(I + "Deleted {} objects from ".format(objects_in_s3, self.get_s3bucket()))
 
-                    delete_keys=dict(Objects=[])
+                    delete_keys = dict(Objects=[])
                     objects_in_s3 = 1
 
-            # Delete last batch
+            # Delete last batch of objects
             if objects_in_s3 > 1:
-                print (I + "Purging last {} objects ....".format(objects_in_s3))
-                s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys )
-
+                s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
+                print(I + "Deleted {} objects from ".format(objects_in_s3, self.get_s3bucket()))
 
             # Delete bucket
             s3_client.delete_bucket(
@@ -2016,6 +2014,7 @@ class TaskCat(object):
 def get_cfn_stack_events(self, stackname, region):
     """
     Given a stack name and the region, this function returns the event logs of the given stack, as list.
+    :param self:
     :param stackname: Name of the stack
     :param region: Region stack belongs to
     :return: Event logs of the stack
