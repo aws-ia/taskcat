@@ -1272,7 +1272,7 @@ class TaskCat(object):
                 if objects_in_s3 == 1000:
                     # Batch delete 1000 objects at a time
                     s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
-                    print(I + "Deleted {} objects from ".format(objects_in_s3, self.get_s3bucket()))
+                    print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
 
                     delete_keys = dict(Objects=[])
                     objects_in_s3 = 1
@@ -1280,7 +1280,7 @@ class TaskCat(object):
             # Delete last batch of objects
             if objects_in_s3 > 1:
                 s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
-                print(I + "Deleted {} objects from ".format(objects_in_s3, self.get_s3bucket()))
+                print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
 
             # Delete bucket
             s3_client.delete_bucket(
