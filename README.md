@@ -1,5 +1,5 @@
 # TaskCat
-> This program requires python3 
+> This program requires python3
 
 # Currently in (beta release)
 
@@ -13,31 +13,31 @@ Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/taskcat.m.html" t
 
 Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/sweeper.m.html" target="_parent">[taskcat.Sweeper]</a>
 
- 
-## What is TaskCat? 
+
+## What is TaskCat?
 TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.
- 
-TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation 
+
+TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation
 templates across AWS Regions
 
 ## Files you’ll need
 * **config.yml** - This file contains the test cases
 * **JSON input** - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested
 
-* Step 1 Building your configuration file 
+* Step 1 Building your configuration file
 * Step 2 Building your JSON input file.
 
 #### Step 1 Creating a config.yml
-Open the config.yml file with and editor and update the filenames to match your need. 
+Open the config.yml file with and editor and update the filenames to match your need.
 
 example here:
 [config.yml](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml)
 
-#### Example of config.yml 
+#### Example of config.yml
     global:
       owner: owner@company.com
       qsname: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)
-      #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket 
+      #s3bucket: projectx-templates <- (Optional) Only needed if you want to use a specific bucket
       regions:
         - us-east-1
         - us-east-2
@@ -61,7 +61,7 @@ example here:
     ├── LICENSE.txt
     ├── README.md
     ├── ci
-    │   ├── config.yml <- This the config file that will hold all the test definitions 
+    │   ├── config.yml <- This the config file that will hold all the test definitions
     │   ├──  sample-cloudformation-input-novpc.json <-  This file contain input that will pass in during stack creation [vpc version] (See auto parms for more info)
     │   └──  sample-cloudformation-input-withvpc.json <-  This file contain input that will pass in during stack creation [no-vpc version](See auto parms for more info)
     ├── scripts
@@ -71,8 +71,8 @@ example here:
     │       └── templates
     │           └── aws-vpc.template
     └── templates
-        ├── sample-cloudformation-project-novpc.template 
-        └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload 
+        ├── sample-cloudformation-project-novpc.template
+        └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload
 
 ### Step 2 Building a json input file
 The example below shows an input file for a stack that requires four parameters `KeyPair`,`InstanceType`, `AvailablityZones` and `Password`
@@ -190,7 +190,7 @@ curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installe
 ```
 > Note: (If you do not have root privileges taskcat will install in the current directory)
 
-### Installing via pip 
+### Installing via pip
 > Prerequisites: Python 3.5+ and pip3
 ```
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
@@ -210,3 +210,22 @@ If you want to use a different account or profile
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ```
+
+### Local Parameter Overrides.
+In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
+
+The first is located within the home-directory of the running user.
+```
+~/.taskcat_global_override.json
+```
+
+The second applies per-project and is located the 'CI' directory.  
+```
+<project_name>/ci/taskcat_project_override.json
+```
+
+Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
+- Home Directory (~/.taskcat_global_override.json)
+- Project Directory (ci/taskcat_project_override.json)
+
+Keys defined in the Project Override with supersede the same keys defined in the Global Override.

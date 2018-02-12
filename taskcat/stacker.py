@@ -258,34 +258,60 @@ class TaskCat(object):
     def get_parameter_path(self):
         return self.parameter_path
 
-    def get_param_includes(self, s_params):
-        # Github/issue/57
-        # Fetch overrides from S3.
-        param_path = self.parameter_path
-        _url_prefix=re.search(r'^http.*/.*/(?!\/.*?$)', param_path).group[:-1]
-        override_url = "{}/{}".format(_url_prefix, 'override.json')
-        r = requests.get(override_url)
-        if r.status_code != 200:
-            return None
+    def get_param_includes(self, original_keys):
+        """
+        This function searches for ~/.taskcat_global_override.json, then <project>/ci/taskcat_project_override.json, in that order.
+        Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
 
-        override = json.loads(r.text)
+        :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
+        """
+        # Github/issue/57
+        # Look for ~/.taskcat_overrides.json
+
+        # Fetch overrides Homedir first.
+        dict_squash_list = []
+        _homedir_override_file_path = "{}/{}".format(os.path.expanduser('~'), '.taskcat_global_override.json')
+        if os.path.isfile(_homedir_override_file_path):
+            with open(_homedir_override_file_path) as f:
+                _homedir_override_json = json.loads(f.read())
+                print(D + "Values loaded from ~/.taskcat_global_override.json")
+                print(D + str(_homedir_override_json))
+            dict_squash_list.append(_homedir_override_json)
+
+
+        # Now look for per-project override uploaded to S3.
+        override_file_key = "{}/ci/taskcat_project_override.json".format(self.project)
+        try:
+            # Intentional duplication of self.get_content() here, as I don't want to break that due to
+            # tweaks necessary here.
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
+            content = dict_object['Body'].read().strip()
+            _obj = json.loads(content)
+            dict_squash_list.append(_obj)
+            print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
+            print(D + str(_obj))
+        except:
+            pass
 
         # Setup a list index dictionary.
+        # - Used to give an Parameter => Index mapping for replacement.
         param_index = {}
-        for (idx, param_dict) in enumerate(s_params):
+        for (idx, param_dict) in enumerate(original_keys):
             key = param_dict['ParameterKey']
             param_index[key] = idx
 
         # Merge the two lists, overriding the original values if necessary.
-        for override_pd in override:
-            key = override_pd['ParameterKey']
-            if key in param_index.keys():
-                idx = param_index[key]
-                s_params[idx] = override_pd
-            else:
-                s_params.append(override_pd)
+        for override in dict_squash_list:
+            for override_pd in override:
+                key = override_pd['ParameterKey']
+                if key in param_index.keys():
+                    idx = param_index[key]
+                    original_keys[idx] = override_pd
+                else:
+                    original_keys.append(override_pd)
 
-        return s_params
+        return original_keys
 
     def set_template_path(self, template):
         self.template_path = template
