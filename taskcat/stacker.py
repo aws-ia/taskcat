@@ -95,7 +95,7 @@ def get_pip_version(pkginfo_url):
             return (current_version[1]).strip()
 
 
-def buildmap(start_location, map_string):
+def buildmap(start_location, map_string, partial_match=True):
     """
     Given a start location and a string value, this function returns a list of
     file paths containing the given string value, down in the directory
@@ -103,9 +103,12 @@ def buildmap(start_location, map_string):
 
     :param start_location: directory from where to start looking for the file
     :param map_string: value to match in the file path
+    :param partial_match: (bool) Turn on partial matching.  Ex: 'foo' matches 'foo' and 'foo.old'. Defaults true. False adds a '/' to the end of the string.
     :return:
         list of file paths containing the given value.
     """
+    if not partial_match:
+        map_string = "{}/".format(map_string)
     fs_map = []
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
         for fs_file in filelist:
@@ -398,7 +401,7 @@ class TaskCat(object):
         # TODO Remove after alchemist is implemented
 
         if os.path.isdir(self.get_project()):
-            fsmap = buildmap('.', self.get_project())
+            fsmap = buildmap('.', self.get_project(), partial_match=False)
         else:
 
             print('''\t\t Hint: The name specfied as value of qsname ({})
