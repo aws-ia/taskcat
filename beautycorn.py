@@ -65,7 +65,7 @@ for current_file in files:
             FILE_FORMAT = 'YAML'
             template_data = utils.CFNYAMLHandler.ordered_safe_load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
 
-        with open(current_file, 'wb') as updated_template:
+        with open(current_file, 'w') as updated_template:
             logger.info("Writing file [{}]".format(current_file))
             if FILE_FORMAT == 'JSON':
                 updated_template.write(json.dumps(template_data, indent=4, separators=(',', ': ')))
