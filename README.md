@@ -225,7 +225,7 @@ The second applies per-project and is located the 'CI' directory.
 ```
 
 Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
-- Home Directory (~/.taskcat_global_override.json)
+- Home Directory (~/.aws/taskcat_global_override.json)
 - Project Directory (ci/taskcat_project_override.json)
 
 Keys defined in the Project Override with supersede the same keys defined in the Global Override.
