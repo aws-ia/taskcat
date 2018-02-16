@@ -1899,46 +1899,49 @@ class TaskCat(object):
         # Get stack resources
         cfnlogs = self.get_cfnlogs(stackname, region)
 
-        if cfnlogs[0]['ResourceStatus'] != 'CREATE_COMPLETE':
-            if 'ResourceStatusReason' in cfnlogs[0]:
-                reason = cfnlogs[0]['ResourceStatusReason']
+        if len(cfnlogs) != 0:
+            if cfnlogs[0]['ResourceStatus'] != 'CREATE_COMPLETE':
+                if 'ResourceStatusReason' in cfnlogs[0]:
+                    reason = cfnlogs[0]['ResourceStatusReason']
+                else:
+                    reason = 'Unknown'
             else:
-                reason = 'Unknown'
+                reason = "Stack launch was successful"
+
+            print("\t |StackName: " + stackname)
+            print("\t |Region: " + region)
+            print("\t |Logging to: " + logpath)
+            print("\t |Tested on: " + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")))
+            print("------------------------------------------------------------------------------------------")
+            print("ResourceStatusReason: ")
+            print(textwrap.fill(str(reason), 85))
+            print("==========================================================================================")
+            with open(logpath, "a") as log_output:
+                log_output.write("-----------------------------------------------------------------------------\n")
+                log_output.write("Region: " + region + "\n")
+                log_output.write("StackName: " + stackname + "\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("ResourceStatusReason:  \n")
+                log_output.write(textwrap.fill(str(reason), 85) + "\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("Events:  \n")
+                log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
+                log_output.write(
+                    "\n*****************************************************************************\n")
+                log_output.write("-----------------------------------------------------------------------------\n")
+                log_output.write("Tested on: " + datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p") + "\n")
+                log_output.write(
+                    "-----------------------------------------------------------------------------\n\n")
+                log_output.close()
+
+            # Collect resources of the stack and get event logs for any child stacks
+            resources = self.get_resources(stackname, region, include_stacks=True)
+            for resource in resources:
+                if resource['resourceType'] == 'AWS::CloudFormation::Stack':
+                    self.write_logs(resource['physicalId'], logpath)
         else:
-            reason = "Stack launch was successful"
-
-        print("\t |StackName: " + stackname)
-        print("\t |Region: " + region)
-        print("\t |Logging to: " + logpath)
-        print("\t |Tested on: " + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")))
-        print("------------------------------------------------------------------------------------------")
-        print("ResourceStatusReason: ")
-        print(textwrap.fill(str(reason), 85))
-        print("==========================================================================================")
-        with open(logpath, "a") as log_output:
-            log_output.write("-----------------------------------------------------------------------------\n")
-            log_output.write("Region: " + region + "\n")
-            log_output.write("StackName: " + stackname + "\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("ResourceStatusReason:  \n")
-            log_output.write(textwrap.fill(str(reason), 85) + "\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("Events:  \n")
-            log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
-            log_output.write(
-                "\n*****************************************************************************\n")
-            log_output.write("-----------------------------------------------------------------------------\n")
-            log_output.write("Tested on: " + datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p") + "\n")
-            log_output.write(
-                "-----------------------------------------------------------------------------\n\n")
-            log_output.close()
-
-        # Collect resources of the stack and get event logs for any child stacks
-        resources = self.get_resources(stackname, region, include_stacks=True)
-        for resource in resources:
-            if resource['resourceType'] == 'AWS::CloudFormation::Stack':
-                self.write_logs(resource['physicalId'], logpath)
+            print(E + "No event logs found. Something went wrong at describe event call.\n")
 
     def createreport(self, testdata_list, filename):
         """
@@ -2095,7 +2098,8 @@ def get_cfn_stack_events(self, stackname, region):
             str(region),
             e
         ))
-        sys.exit()
+        # Commenting below line to avoid sudden exit on describe call failure. So that delete stack may continue.
+        # sys.exit()
 
     return stack_events
 
