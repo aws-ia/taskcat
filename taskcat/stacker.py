@@ -263,7 +263,7 @@ class TaskCat(object):
 
     def get_param_includes(self, original_keys):
         """
-        This function searches for ~/.taskcat_global_override.json, then <project>/ci/taskcat_project_override.json, in that order.
+        This function searches for ~/.aws/taskcat_global_override.json, then <project>/ci/taskcat_project_override.json, in that order.
         Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
@@ -273,11 +273,11 @@ class TaskCat(object):
 
         # Fetch overrides Homedir first.
         dict_squash_list = []
-        _homedir_override_file_path = "{}/{}".format(os.path.expanduser('~'), '.taskcat_global_override.json')
+        _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
         if os.path.isfile(_homedir_override_file_path):
             with open(_homedir_override_file_path) as f:
                 _homedir_override_json = json.loads(f.read())
-                print(D + "Values loaded from ~/.taskcat_global_override.json")
+                print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
 
