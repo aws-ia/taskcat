@@ -1652,21 +1652,27 @@ class TaskCat(object):
                 return str(location)
 
         def get_teststate(stackname, region):
-            # Add try catch and return MANUALLY_DELETED
-            # Add css test-orange
-            cfn = self._boto_client.get('cloudformation', region)
-            test_query = cfn.describe_stacks(StackName=stackname)
             rstatus = None
             status_css = None
+            try:
+                cfn = self._boto_client.get('cloudformation', region)
+                test_query = cfn.describe_stacks(StackName=stackname)
 
-            for result in test_query['Stacks']:
-                rstatus = result.get('StackStatus')
-                if rstatus == 'CREATE_COMPLETE':
-                    status_css = 'class=test-green'
-                elif rstatus == 'CREATE_FAILED':
-                    status_css = 'class=test-red'
-                else:
-                    status_css = 'class=test-red'
+                for result in test_query['Stacks']:
+                    rstatus = result.get('StackStatus')
+                    if rstatus == 'CREATE_COMPLETE':
+                        status_css = 'class=test-green'
+                    elif rstatus == 'CREATE_FAILED':
+                        status_css = 'class=test-red'
+                    else:
+                        status_css = 'class=test-red'
+            except Exception as e:
+                print(E + "Error describing stack named [%s] " % stackname)
+                if self.verbose:
+                    print(D + str(e))
+                rstatus = 'MANUALLY_DELETED'
+                status_css = 'class=test-orange'
+
             return rstatus, status_css
 
         tag = doc.tag
