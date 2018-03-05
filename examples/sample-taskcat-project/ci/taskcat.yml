@@ -2,7 +2,8 @@
 global: 
   owner: tonynv@amazon.com
   qsname: sample-taskcat-project
-  s3bucket: tonynv
+  #s3bucket: tonynv
+  s3bucket: taskcat-sample-taskcat-project-a1c14bc9
   regions: 
     - ap-northeast-1
     - ap-northeast-2

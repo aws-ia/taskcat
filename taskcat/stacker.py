@@ -95,7 +95,7 @@ def get_pip_version(pkginfo_url):
             return (current_version[1]).strip()
 
 
-def buildmap(start_location, map_string):
+def buildmap(start_location, map_string, partial_match=True):
     """
     Given a start location and a string value, this function returns a list of
     file paths containing the given string value, down in the directory
@@ -103,9 +103,12 @@ def buildmap(start_location, map_string):
 
     :param start_location: directory from where to start looking for the file
     :param map_string: value to match in the file path
+    :param partial_match: (bool) Turn on partial matching.  Ex: 'foo' matches 'foo' and 'foo.old'. Defaults true. False adds a '/' to the end of the string.
     :return:
         list of file paths containing the given value.
     """
+    if not partial_match:
+        map_string = "{}/".format(map_string)
     fs_map = []
     for fs_path, dirs, filelist in os.walk(start_location, topdown=False):
         for fs_file in filelist:
@@ -162,9 +165,10 @@ class TaskCat(object):
         self.config = 'config.yml'
         self.test_region = []
         self.s3bucket = None
+        self.s3bucket_type = None
         self.template_path = None
         self.parameter_path = None
-        self.defult_region = "us-east-1"
+        self.default_region = "us-east-1"
         self._template_file = None
         self._template_type = None
         self._parameter_file = None
@@ -211,6 +215,12 @@ class TaskCat(object):
     def get_s3bucket(self):
         return str(self.s3bucket)
 
+    def set_s3bucket_type(self, bucket):
+        self.s3bucket_type = bucket
+
+    def get_s3bucket_type(self):
+        return str(self.s3bucket_type)
+
     def set_config(self, config_yml):
         if os.path.isfile(config_yml):
             self.config = config_yml
@@ -251,6 +261,61 @@ class TaskCat(object):
     def get_parameter_path(self):
         return self.parameter_path
 
+    def get_param_includes(self, original_keys):
+        """
+        This function searches for ~/.aws/taskcat_global_override.json, then <project>/ci/taskcat_project_override.json, in that order.
+        Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
+
+        :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
+        """
+        # Github/issue/57
+        # Look for ~/.taskcat_overrides.json
+
+        # Fetch overrides Homedir first.
+        dict_squash_list = []
+        _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
+        if os.path.isfile(_homedir_override_file_path):
+            with open(_homedir_override_file_path) as f:
+                _homedir_override_json = json.loads(f.read())
+                print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
+                print(D + str(_homedir_override_json))
+            dict_squash_list.append(_homedir_override_json)
+
+
+        # Now look for per-project override uploaded to S3.
+        override_file_key = "{}/ci/taskcat_project_override.json".format(self.project)
+        try:
+            # Intentional duplication of self.get_content() here, as I don't want to break that due to
+            # tweaks necessary here.
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
+            content = dict_object['Body'].read().strip()
+            _obj = json.loads(content)
+            dict_squash_list.append(_obj)
+            print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
+            print(D + str(_obj))
+        except:
+            pass
+
+        # Setup a list index dictionary.
+        # - Used to give an Parameter => Index mapping for replacement.
+        param_index = {}
+        for (idx, param_dict) in enumerate(original_keys):
+            key = param_dict['ParameterKey']
+            param_index[key] = idx
+
+        # Merge the two lists, overriding the original values if necessary.
+        for override in dict_squash_list:
+            for override_pd in override:
+                key = override_pd['ParameterKey']
+                if key in param_index.keys():
+                    idx = param_index[key]
+                    original_keys[idx] = override_pd
+                else:
+                    original_keys.append(override_pd)
+
+        return original_keys
+
     def set_template_path(self, template):
         self.template_path = template
 
@@ -270,10 +335,10 @@ class TaskCat(object):
         return self.ddbtable
 
     def set_default_region(self, region):
-        self.defult_region = region
+        self.default_region = region
 
     def get_default_region(self):
-        return self.defult_region
+        return self.default_region
 
     def get_test_region(self):
         return self.test_region
@@ -306,15 +371,17 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         self.set_project(taskcat_cfg['global']['qsname'])
 
-        # TODO Remove after alchemist is implemennted
+        # TODO Update to alchemist upload
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
+            self.set_s3bucket_type('defined')
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
             auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region() == 'us-east-1':
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
+                self.set_s3bucket_type('auto')
 
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
@@ -331,10 +398,10 @@ class TaskCat(object):
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
                     self.set_s3bucket(auto_bucket)
 
-        # TODO Remove after alchemist is implemennted
+        # TODO Remove after alchemist is implemented
 
         if os.path.isdir(self.get_project()):
-            fsmap = buildmap('.', self.get_project())
+            fsmap = buildmap('.', self.get_project(), partial_match=False)
         else:
 
             print('''\t\t Hint: The name specfied as value of qsname ({})
@@ -354,10 +421,13 @@ class TaskCat(object):
                     print(D + str(e))
                 sys.exit(1)
 
-        responses = s3_client.list_objects_v2(Bucket=self.get_s3bucket())
-        for s3keys in responses.get('Contents'):
+        paginator = s3_client.get_paginator('list_objects')
+        operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+        s3_pages = paginator.paginate(**operation_parameters)
+
+        for s3keys in s3_pages.search('Contents'):
             print("{}[S3: -> ]{} s3://{}/{}".format(white, rst_color, self.get_s3bucket(), s3keys.get('Key')))
-        print("{} |Contents of  s3 Bucket {} {}".format(self.nametag, header, rst_color))
+        print("{} |Contents of S3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
 
@@ -414,33 +484,34 @@ class TaskCat(object):
 
         """
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-        bucket_location = s3_client.get_bucket_location(
-            Bucket=self.get_s3bucket())
+        bucket_location = s3_client.get_bucket_location(Bucket=self.get_s3bucket())
         _project_s3_prefix = self.get_project()
-        result = s3_client.list_objects(Bucket=self.get_s3bucket(), Prefix=_project_s3_prefix)
-        contents = result.get('Contents')
-        for s3obj in contents:
-            for metadata in s3obj.items():
-                if metadata[0] == 'Key':
-                    if key in metadata[1]:
-                        # Finding exact match
-                        terms = metadata[1].split("/")
-                        _found_prefix = terms[0]
-                        # issues/
-                        if (key == terms[-1]) and (_found_prefix == _project_s3_prefix):
-                            if bucket_location[
-                                'LocationConstraint'
-                            ] is not None:
-                                o_url = "https://s3-{0}.{1}/{2}/{3}".format(
-                                    bucket_location['LocationConstraint'],
-                                    "amazonaws.com",
-                                    self.get_s3bucket(),
-                                    metadata[1])
-                                return o_url
-                            else:
-                                amzns3 = 's3.amazonaws.com'
-                                o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
-                                return o_url
+        paginator = s3_client.get_paginator('list_objects')
+        operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': _project_s3_prefix}
+        page_iterator = paginator.paginate(**operation_parameters)
+        for page in page_iterator:
+            for s3obj in (page['Contents']):
+                for metadata in s3obj.items():
+                    if metadata[0] == 'Key':
+                        if key in metadata[1]:
+                            # Finding exact match
+                            terms = metadata[1].split("/")
+                            _found_prefix = terms[0]
+                            # issues/
+                            if (key == terms[-1]) and (_found_prefix == _project_s3_prefix):
+                                if bucket_location[
+                                    'LocationConstraint'
+                                ] is not None:
+                                    o_url = "https://s3-{0}.{1}/{2}/{3}".format(
+                                        bucket_location['LocationConstraint'],
+                                        "amazonaws.com",
+                                        self.get_s3bucket(),
+                                        metadata[1])
+                                    return o_url
+                                else:
+                                    amzns3 = 's3.amazonaws.com'
+                                    o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
+                                    return o_url
 
     def get_global_region(self, yamlcfg):
         """
@@ -589,7 +660,11 @@ class TaskCat(object):
                 cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 result = cfn.validate_template(TemplateURL=self.get_s3_url(self.get_template_file()))
                 print(P + "Validated [%s]" % self.get_template_file())
-                cfn_result = (result['Description'])
+                if 'Description' in result:
+                    cfn_result = (result['Description'])
+                    print(I + "Description  [%s]" % textwrap.fill(cfn_result))
+                else:
+                    print(I + "Please include a top-level description for template: [%s]" % self.get_template_file())
                 print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 if self.verbose:
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
@@ -684,6 +759,7 @@ class TaskCat(object):
         for the parameters indicated by $[] appropriately, replaces $[] with new value and return
         the updated JSON.
 
+        :param region:
         :param s_parms: Cloudformation template input parameter file as JSON
 
         :return: Input parameter file as JSON with $[] replaced with generated values
@@ -916,7 +992,7 @@ class TaskCat(object):
 
         """
         testdata_list = []
-        self.set_capabilities('CAPABILITY_IAM')
+        self.set_capabilities('CAPABILITY_NAMED_IAM')
         for test in test_list:
             testdata = TestData()
             testdata.set_test_name(test)
@@ -930,6 +1006,9 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = requests.get(self.get_parameter_path()).text
                     s_parms = json.loads(s_parmsdata)
+                    s_include_params = self.get_param_includes(s_parms)
+                    if s_include_params:
+                        s_parms = s_include_params
                     j_params = self.generate_input_param_values(s_parms, region)
                     if self.verbose:
                         print(D + "Creating Boto Connection region=%s" % region)
@@ -1180,6 +1259,7 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+
         docleanup = self.get_docleanup()
         if self.verbose:
             print(D + "clean-up = %s " % str(docleanup))
@@ -1232,6 +1312,45 @@ class TaskCat(object):
                             res.get('resourceType')
                         ))
                 s.delete_all(failed_stacks)
+
+        # Check to see if auto bucket was created
+        if self.get_s3bucket_type() is 'auto':
+            print(I + "(Cleaning up staging assets)")
+
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+
+            # Batch object processing by pages
+            paginator = s3_client.get_paginator('list_objects')
+            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+            s3_pages = paginator.paginate(**operation_parameters)
+
+            # Load objects to delete
+            objects_in_s3 = 1
+            delete_keys = dict(Objects=[])
+            for key in s3_pages.search('Contents'):
+                delete_keys['Objects'].append(dict(Key=key['Key']))
+                objects_in_s3 += 1
+                if objects_in_s3 == 1000:
+                    # Batch delete 1000 objects at a time
+                    s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
+                    print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
+
+                    delete_keys = dict(Objects=[])
+                    objects_in_s3 = 1
+
+            # Delete last batch of objects
+            if objects_in_s3 > 1:
+                s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
+                print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
+
+            # Delete bucket
+            s3_client.delete_bucket(
+                Bucket=self.get_s3bucket())
+            if self.verbose:
+                print(D + "Deleting Bucket {0}".format(self.get_s3bucket()))
+
+        else:
+            print(I + "Retaining assets in s3bucket [{0}]".format(self.get_s3bucket()))
 
     def stackdelete(self, testdata_list):
         """
@@ -1533,21 +1652,27 @@ class TaskCat(object):
                 return str(location)
 
         def get_teststate(stackname, region):
-            # Add try catch and return MANUALLY_DELETED
-            # Add css test-orange
-            cfn = self._boto_client.get('cloudformation', region)
-            test_query = cfn.describe_stacks(StackName=stackname)
             rstatus = None
             status_css = None
+            try:
+                cfn = self._boto_client.get('cloudformation', region)
+                test_query = cfn.describe_stacks(StackName=stackname)
 
-            for result in test_query['Stacks']:
-                rstatus = result.get('StackStatus')
-                if rstatus == 'CREATE_COMPLETE':
-                    status_css = 'class=test-green'
-                elif rstatus == 'CREATE_FAILED':
-                    status_css = 'class=test-red'
-                else:
-                    status_css = 'class=test-red'
+                for result in test_query['Stacks']:
+                    rstatus = result.get('StackStatus')
+                    if rstatus == 'CREATE_COMPLETE':
+                        status_css = 'class=test-green'
+                    elif rstatus == 'CREATE_FAILED':
+                        status_css = 'class=test-red'
+                    else:
+                        status_css = 'class=test-red'
+            except Exception as e:
+                print(E + "Error describing stack named [%s] " % stackname)
+                if self.verbose:
+                    print(D + str(e))
+                rstatus = 'MANUALLY_DELETED'
+                status_css = 'class=test-orange'
+
             return rstatus, status_css
 
         tag = doc.tag
@@ -1780,46 +1905,49 @@ class TaskCat(object):
         # Get stack resources
         cfnlogs = self.get_cfnlogs(stackname, region)
 
-        if cfnlogs[0]['ResourceStatus'] != 'CREATE_COMPLETE':
-            if 'ResourceStatusReason' in cfnlogs[0]:
-                reason = cfnlogs[0]['ResourceStatusReason']
+        if len(cfnlogs) != 0:
+            if cfnlogs[0]['ResourceStatus'] != 'CREATE_COMPLETE':
+                if 'ResourceStatusReason' in cfnlogs[0]:
+                    reason = cfnlogs[0]['ResourceStatusReason']
+                else:
+                    reason = 'Unknown'
             else:
-                reason = 'Unknown'
+                reason = "Stack launch was successful"
+
+            print("\t |StackName: " + stackname)
+            print("\t |Region: " + region)
+            print("\t |Logging to: " + logpath)
+            print("\t |Tested on: " + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")))
+            print("------------------------------------------------------------------------------------------")
+            print("ResourceStatusReason: ")
+            print(textwrap.fill(str(reason), 85))
+            print("==========================================================================================")
+            with open(logpath, "a") as log_output:
+                log_output.write("-----------------------------------------------------------------------------\n")
+                log_output.write("Region: " + region + "\n")
+                log_output.write("StackName: " + stackname + "\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("ResourceStatusReason:  \n")
+                log_output.write(textwrap.fill(str(reason), 85) + "\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("*****************************************************************************\n")
+                log_output.write("Events:  \n")
+                log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
+                log_output.write(
+                    "\n*****************************************************************************\n")
+                log_output.write("-----------------------------------------------------------------------------\n")
+                log_output.write("Tested on: " + datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p") + "\n")
+                log_output.write(
+                    "-----------------------------------------------------------------------------\n\n")
+                log_output.close()
+
+            # Collect resources of the stack and get event logs for any child stacks
+            resources = self.get_resources(stackname, region, include_stacks=True)
+            for resource in resources:
+                if resource['resourceType'] == 'AWS::CloudFormation::Stack':
+                    self.write_logs(resource['physicalId'], logpath)
         else:
-            reason = "Stack launch was successful"
-
-        print("\t |StackName: " + stackname)
-        print("\t |Region: " + region)
-        print("\t |Logging to: " + logpath)
-        print("\t |Tested on: " + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")))
-        print("------------------------------------------------------------------------------------------")
-        print("ResourceStatusReason: ")
-        print(textwrap.fill(str(reason), 85))
-        print("==========================================================================================")
-        with open(logpath, "a") as log_output:
-            log_output.write("-----------------------------------------------------------------------------\n")
-            log_output.write("Region: " + region + "\n")
-            log_output.write("StackName: " + stackname + "\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("ResourceStatusReason:  \n")
-            log_output.write(textwrap.fill(str(reason), 85) + "\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("*****************************************************************************\n")
-            log_output.write("Events:  \n")
-            log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
-            log_output.write(
-                "\n*****************************************************************************\n")
-            log_output.write("-----------------------------------------------------------------------------\n")
-            log_output.write("Tested on: " + datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p") + "\n")
-            log_output.write(
-                "-----------------------------------------------------------------------------\n\n")
-            log_output.close()
-
-        # Collect resources of the stack and get event logs for any child stacks
-        resources = self.get_resources(stackname, region, include_stacks=True)
-        for resource in resources:
-            if resource['resourceType'] == 'AWS::CloudFormation::Stack':
-                self.write_logs(resource['physicalId'], logpath)
+            print(E + "No event logs found. Something went wrong at describe event call.\n")
 
     def createreport(self, testdata_list, filename):
         """
@@ -1956,6 +2084,7 @@ class TaskCat(object):
 def get_cfn_stack_events(self, stackname, region):
     """
     Given a stack name and the region, this function returns the event logs of the given stack, as list.
+    :param self:
     :param stackname: Name of the stack
     :param region: Region stack belongs to
     :return: Event logs of the stack
@@ -1975,7 +2104,8 @@ def get_cfn_stack_events(self, stackname, region):
             str(region),
             e
         ))
-        sys.exit()
+        # Commenting below line to avoid sudden exit on describe call failure. So that delete stack may continue.
+        # sys.exit()
 
     return stack_events
 

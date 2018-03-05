@@ -369,7 +369,7 @@ class CFNAlchemist(object):
                 else:
                     self.logger.info("Writing file [{}]".format(output_file))
                     CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                    with open(output_file, 'wb') as updated_file:
+                    with open(output_file, 'w') as updated_file:
                         updated_file.writelines(file_data)
                     updated_file.close()
 
