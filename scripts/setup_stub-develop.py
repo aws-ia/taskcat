@@ -20,8 +20,13 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
     ],
-    scripts=['bin/taskcat'],
-    #scripts=['bin/taskcat', 'bin/alchemist', 'bin/beautycorn'],
+    scripts=[
+        'bin/taskcat',
+        'bin/alchemist',
+        'bin/taskcat-alchemist',
+        'bin/beautycorn',
+        'bin/taskcat-beautycorn'
+    ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag']
 )
