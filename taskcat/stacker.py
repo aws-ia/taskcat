@@ -115,6 +115,8 @@ def buildmap(start_location, map_string, partial_match=True):
             fs_path_to_file = (os.path.join(fs_path, fs_file))
             if map_string in fs_path_to_file and '.git' not in fs_path_to_file:
                 fs_map.append(fs_path_to_file)
+
+    print (fs_map)
     return fs_map
 
 
@@ -168,7 +170,7 @@ class TaskCat(object):
         self.s3bucket_type = None
         self.template_path = None
         self.parameter_path = None
-        self.default_region = "us-east-1"
+        self.default_region = None
         self._template_file = None
         self._template_type = None
         self._parameter_file = None
@@ -378,15 +380,26 @@ class TaskCat(object):
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
             auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
-            if self.get_default_region() == 'us-east-1':
+            if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
-                response = s3_client.create_bucket(ACL='public-read', Bucket=auto_bucket)
+                if self.get_default_region() == 'us-east-1':
+                    response = s3_client.create_bucket(ACL='public-read',
+                                                   Bucket=auto_bucket)
+                else:
+                    response = s3_client.create_bucket(ACL='public-read',
+                                                   Bucket=auto_bucket,
+                                                   CreateBucketConfiguration={
+                                                       'LocationConstraint': self.get_default_region()}
+                                                   )
+
                 self.set_s3bucket_type('auto')
+            else:
+                print (E + "Default_region = " + self.get_default_region())
+                sys.exit(1)
 
-                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                    print(I + "Staging Bucket => [%s]" % auto_bucket)
-                    self.set_s3bucket(auto_bucket)
-
+            if response['ResponseMetadata']['HTTPStatusCode'] is 200:
+                print(I + "Staging Bucket => [%s]" % auto_bucket)
+                self.set_s3bucket(auto_bucket)
             else:
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 response = s3_client.create_bucket(ACL='public-read',
@@ -1562,9 +1575,14 @@ class TaskCat(object):
                 print(E + "Credential Error - Please check you keys!")
                 if self.verbose:
                     print(D + str(e))
-                sys.exit(1)
         else:
             self._auth_mode = 'environment'
+            if os.environ.get('AWS_DEFAULT_REGION'):
+                self.set_default_region(os.environ.get('AWS_DEFAULT_REGION'))
+                print(I + "Using environmental region set in $AWS_DEFAULT_REGION")
+            else:
+                self.set_default_region('us-east-1')
+
             try:
                 sts_client = self._boto_client.get('sts',
                                                    region=self.get_default_region())

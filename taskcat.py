@@ -39,7 +39,6 @@ def main():
             taskcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()
 
-        tcat_instance.set_default_region('us-east-1')
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
