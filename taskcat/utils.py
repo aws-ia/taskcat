@@ -177,7 +177,7 @@ class ClientFactory(object):
                         session = boto3.session.Session(region_name=region)
                 return session
             except Exception as e:
-                if "could not be found" in e.message:
+                if "could not be found" in str(e):
                     raise
                 self.logger.debug("failed to create session", exc_info=1)
                 retry += 1
@@ -477,15 +477,14 @@ class CFNYAMLHandler(object):
         def _str_representer(dumper, _data):
             if re.match('!\w+\s+\|.+', _data):
                 tag = re.search('^!\w+', _data).group(0)
-                return dumper.represent_scalar(unicode(tag), _data.split('|', 1)[1].lstrip(), style='|')
+                return dumper.represent_scalar(str(tag), _data.split('|', 1)[1].lstrip(), style='|')
             elif len(_data.splitlines()) > 1:
                 return dumper.represent_scalar('tag:yaml.org,2002:str', _data, style='|')
             else:
-                return dumper.represent_unicode(_data)
+                return dumper.represent_str(_data)
 
         OrderedSafeDumper.add_representer(OrderedDict, _dict_representer)
         OrderedSafeDumper.add_representer(str, _str_representer)
-        OrderedSafeDumper.add_representer(unicode, _str_representer)
 
         yaml_dump = yaml.dump(data, stream, OrderedSafeDumper, **kwds)
 

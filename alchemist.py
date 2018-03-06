@@ -6,6 +6,8 @@ from __future__ import print_function
 import sys
 from taskcat import deployer
 
+if sys.version_info[0] < 3:
+    raise Exception("Please use Python 3")
 
 args = deployer.CFNAlchemist.interface()
 cfn_alchemist = deployer.CFNAlchemist(
