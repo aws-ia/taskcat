@@ -13,6 +13,8 @@ from __future__ import print_function
 import taskcat
 import yaml
 
+if sys.version_info[0] < 3:
+    raise Exception("Please use Python 3")
 
 def main():
     tcat_instance = taskcat.TaskCat()

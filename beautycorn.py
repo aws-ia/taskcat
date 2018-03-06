@@ -10,6 +10,9 @@ import logging
 from collections import OrderedDict
 from taskcat import utils
 
+if sys.version_info[0] < 3:
+    raise Exception("Please use Python 3")
+
 # create logger
 logger = logging.getLogger('beautycorn')
 logger.setLevel(logging.INFO)

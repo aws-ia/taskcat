@@ -221,11 +221,11 @@ class CFNAlchemist(object):
         self.logger.debug(local_key_dict.keys())
 
         remote_to_local_diff = list(set(remote_key_dict.keys()) - set(local_key_dict.keys()))
-        self.logger.info("Keys in remote S3 bucket but not in local".format(self._target_key_prefix))
+        self.logger.info("Keys in remote S3 bucket but not in local:")
         self.logger.info(remote_to_local_diff)
 
         local_to_remote_diff = list(set(local_key_dict.keys()) - set(remote_key_dict.keys()))
-        self.logger.info("Keys in local but not in remote S3 bucket".format(self._target_key_prefix))
+        self.logger.info("Keys in local but not in remote S3 bucket:")
         self.logger.info(local_to_remote_diff)
 
         self.logger.info("Syncing objects to S3 bucket [{}]".format(self._target_bucket_name))
@@ -304,7 +304,7 @@ class CFNAlchemist(object):
                     and current_file.endswith(tuple(self._TEMPLATE_EXT)) \
                     and os.path.dirname(current_file).endswith('/templates'):
                 self.logger.info("Opening file [{}]".format(current_file))
-                with open(current_file, 'rU') as template:
+                with open(current_file, 'r', newline=None) as template:
                     template_raw_data = template.read()
                     template.close()
                 template_raw_data = template_raw_data.strip()
@@ -312,11 +312,11 @@ class CFNAlchemist(object):
                 if template_raw_data[0] in ['{', '['] and template_raw_data[-1] in ['}', ']']:
                     self.logger.info('Detected JSON. Loading file.')
                     FILE_FORMAT = 'JSON'
-                    template_data = json.load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
+                    template_data = json.load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
                 else:
                     self.logger.info('Detected YAML. Loading file.')
                     FILE_FORMAT = 'YAML'
-                    template_data = CFNYAMLHandler.ordered_safe_load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
+                    template_data = CFNYAMLHandler.ordered_safe_load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
 
                 if FILE_FORMAT in ['JSON', 'YAML']:
                     # Iterate through every top level node.
@@ -341,7 +341,7 @@ class CFNAlchemist(object):
                     else:
                         self.logger.info("Writing file [{}]".format(output_file))
                         CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                        with open(output_file, 'wb') as updated_template:
+                        with open(output_file, 'w') as updated_template:
                             if FILE_FORMAT == 'JSON':
                                 updated_template.write(json.dumps(template_data, indent=4, separators=(',', ': ')))
                             elif FILE_FORMAT == 'YAML':
@@ -357,7 +357,7 @@ class CFNAlchemist(object):
                             shutil.copyfile(current_file, output_file)
             else:
                 self.logger.info("Opening file [{}]".format(current_file))
-                with open(current_file, 'rU') as f:
+                with open(current_file, 'r', newline=None) as f:
                     file_data = f.readlines()
 
                 for index, line in enumerate(file_data):
@@ -436,11 +436,11 @@ class CFNAlchemist(object):
                 self.logger.debug(item)
                 current_node[_index] = self._recurse_nodes(item)
             return current_node
-        elif type(current_node) in [unicode, str]:
+        elif type(current_node) is str:
             return self._string_rewriter(current_node, self._target_bucket_name)
         elif type(current_node) is bool:
             self.logger.debug("Not much we can do with booleans. Skipping.")
-        elif type(current_node) in [int, long, float]:
+        elif type(current_node) in [int, float]:
             self.logger.debug("Not much we can do with numbers. Skipping.")
         elif type(current_node) in [datetime.date, datetime.time, datetime.datetime, datetime.timedelta]:
             self.logger.debug("Not much we can do with datetime. Skipping.")
