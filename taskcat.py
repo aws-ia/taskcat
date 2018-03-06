@@ -12,6 +12,7 @@
 from __future__ import print_function
 import taskcat
 import yaml
+import sys
 
 if sys.version_info[0] < 3:
     raise Exception("Please use Python 3")
