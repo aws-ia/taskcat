@@ -51,19 +51,20 @@ for current_file in files:
     if current_file.endswith(tuple(TEMPLATE_EXT)):
         logger.info("Opening file [{}]".format(current_file))
 
-        with open(current_file, 'rU') as template:
+        with open(current_file, 'r', newline=None) as template:
             template_raw_data = template.read()
             template.close()
+
         template_raw_data = template_raw_data.strip()
 
         if template_raw_data[0] in ['{', '['] and template_raw_data[-1] in ['}', ']']:
             logger.info('Detected JSON. Loading file.')
             FILE_FORMAT = 'JSON'
-            template_data = json.load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
+            template_data = json.load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
         else:
             logger.info('Detected YAML. Loading file.')
             FILE_FORMAT = 'YAML'
-            template_data = utils.CFNYAMLHandler.ordered_safe_load(open(current_file, 'rU'), object_pairs_hook=OrderedDict)
+            template_data = utils.CFNYAMLHandler.ordered_safe_load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
 
         with open(current_file, 'w') as updated_template:
             logger.info("Writing file [{}]".format(current_file))
