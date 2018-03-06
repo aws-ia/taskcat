@@ -1,6 +1,6 @@
 botocore
 boto3>=1.4.3
-pyfiglet
+pyfiglet==0.7.5
 PyYAML==3.12
 tabulate==0.7.5
 yattag==1.7.2
