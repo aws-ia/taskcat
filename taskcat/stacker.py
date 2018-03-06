@@ -103,7 +103,8 @@ def buildmap(start_location, map_string, partial_match=True):
 
     :param start_location: directory from where to start looking for the file
     :param map_string: value to match in the file path
-    :param partial_match: (bool) Turn on partial matching.  Ex: 'foo' matches 'foo' and 'foo.old'. Defaults true. False adds a '/' to the end of the string.
+    :param partial_match: (bool) Turn on partial matching.
+    :  Ex: 'foo' matches 'foo' and 'foo.old'. Defaults true. False adds a '/' to the end of the string.
     :return:
         list of file paths containing the given value.
     """
@@ -264,7 +265,8 @@ class TaskCat(object):
 
     def get_param_includes(self, original_keys):
         """
-        This function searches for ~/.aws/taskcat_global_override.json, then <project>/ci/taskcat_project_override.json, in that order.
+        This function searches for ~/.aws/taskcat_global_override.json,
+        then <project>/ci/taskcat_project_override.json, in that order.
         Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
@@ -282,7 +284,6 @@ class TaskCat(object):
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
 
-
         # Now look for per-project override uploaded to S3.
         override_file_key = "{}/ci/taskcat_project_override.json".format(self.project)
         try:
@@ -295,7 +296,7 @@ class TaskCat(object):
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
-        except:
+        except Exception:
             pass
 
         # Setup a list index dictionary.
@@ -383,17 +384,18 @@ class TaskCat(object):
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
                     response = s3_client.create_bucket(ACL='public-read',
-                                                   Bucket=auto_bucket)
+                                                       Bucket=auto_bucket)
                 else:
                     response = s3_client.create_bucket(ACL='public-read',
-                                                   Bucket=auto_bucket,
-                                                   CreateBucketConfiguration={
-                                                       'LocationConstraint': self.get_default_region()}
-                                                   )
+                                                       Bucket=auto_bucket,
+                                                       CreateBucketConfiguration = {
+                                                           'LocationConstraint': self.get_default_region()
+                                                       }
+                                                       )
 
                 self.set_s3bucket_type('auto')
             else:
-                print (E + "Default_region = " + self.get_default_region())
+                print(E + "Default_region = " + self.get_default_region())
                 sys.exit(1)
 
             if response['ResponseMetadata']['HTTPStatusCode'] is 200:
@@ -679,7 +681,6 @@ class TaskCat(object):
                     print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 else:
                     print(I + "Please include a top-level description for template: [%s]" % self.get_template_file())
-                print(I + "Description  [%s]" % textwrap.fill(cfn_result))
                 if self.verbose:
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
                     print(D + "Parameters:")
@@ -930,10 +931,10 @@ class TaskCat(object):
                     parmdict['ParameterValue'] = param_value
 
                 if getmediabucket_re.search(param_value):
-                    mediaBucket = self.regxfind(getmediabucket_re, param_value)
+                    media_bucket = self.regxfind(getmediabucket_re, param_value)
                     param_value = 'quickstart-ci-media'
                     if self.verbose:
-                        print("{}Generating default media bucket {}".format(D, mediaBucket))
+                        print("{}Generating default media bucket {}".format(D, media_bucket))
                     parmdict['ParameterValue'] = param_value
 
                 if licensecontent_re.search(param_value):
@@ -1012,6 +1013,7 @@ class TaskCat(object):
             testdata.set_test_name(test)
             print("{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(I, header, test, rst_color))
             sname = str(sig)
+
             stackname = sname + '-' + sprefix + '-' + test + '-' + jobid[:8]
             self.define_tests(taskcat_cfg, test)
             for region in self.get_test_region():

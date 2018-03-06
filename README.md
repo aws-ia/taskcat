@@ -214,9 +214,9 @@ taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ### Local Parameter Overrides.
 In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
 
-The first is located within the home-directory of the running user.
+The first is located .aws directory within the home-directory of the running user.
 ```
-~/.taskcat_global_override.json
+~/.aws/.taskcat_global_override.json
 ```
 
 The second applies per-project and is located the 'CI' directory.  
