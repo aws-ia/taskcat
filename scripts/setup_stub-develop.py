@@ -1,5 +1,4 @@
 from setuptools import setup
-
 setup(
     name='taskcat',
     packages=['taskcat'],
