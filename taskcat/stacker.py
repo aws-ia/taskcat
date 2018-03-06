@@ -116,7 +116,6 @@ def buildmap(start_location, map_string, partial_match=True):
             if map_string in fs_path_to_file and '.git' not in fs_path_to_file:
                 fs_map.append(fs_path_to_file)
 
-    print (fs_map)
     return fs_map
 
 
@@ -414,7 +413,9 @@ class TaskCat(object):
         # TODO Remove after alchemist is implemented
 
         if os.path.isdir(self.get_project()):
-            fsmap = buildmap('.', self.get_project(), partial_match=False)
+            current_dir = "."
+            start_location = "{}/{}".format(".", self.get_project())
+            fsmap = buildmap(current_dir, start_location, partial_match=False)
         else:
 
             print('''\t\t Hint: The name specfied as value of qsname ({})
