@@ -832,10 +832,9 @@ class TaskCat(object):
                 # Determines the size of the password to generate
                 count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
 
-                # Determines the type of password to generate - partially. Additional computation is required on the
-                # result returned by the matched string.
+                # Determines the type of password to generate
                 gentype_re = re.compile(
-                    '(?<=_genpass_)((\d+)(\w)(\]))', re.IGNORECASE)
+                    '(?!\w+_genpass_\d{1,2}])([AS])', re.IGNORECASE)
 
                 # Determines if _genpass has been requested
                 genpass_re = re.compile(
@@ -949,18 +948,8 @@ class TaskCat(object):
                 if genpass_re.search(param_value):
                     passlen = int(
                         self.regxfind(count_re, param_value))
-
                     gentype = self.regxfind(
                         gentype_re, param_value)
-                    # Additional computation to identify if the gentype is one of the desired values.
-                    # sample gentype values would be '8A]' or '24S]' or '2]'
-                    # To get the correct gentype, get 2nd char from the last and check if its A or S
-                    gentype = gentype[-2]
-                    if gentype in ('a', 'A', 's', 'S'):
-                        gentype = gentype.upper()
-                    else:
-                        gentype = None
-
                     if not gentype:
                         # Set default password type
                         # A value of D will generate a simple alpha
