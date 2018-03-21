@@ -13,6 +13,7 @@ args = deployer.CFNAlchemist.interface()
 cfn_alchemist = deployer.CFNAlchemist(
     input_path=args.input_path,
     target_bucket_name=args.target_bucket_name,
+    source_bucket_name=args.source_bucket_name,
     target_key_prefix=args.target_key_prefix,
     output_directory=args.output_directory,
     rewrite_mode=deployer.CFNAlchemist.BASIC_REWRITE_MODE if args.basic_rewrite else deployer.CFNAlchemist.OBJECT_REWRITE_MODE,
