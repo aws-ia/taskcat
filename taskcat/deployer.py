@@ -24,6 +24,7 @@ class CFNAlchemist(object):
         self,
         input_path,
         target_bucket_name,
+        source_bucket_name=None,
         target_key_prefix=None,
         output_directory=None,
         rewrite_mode=OBJECT_REWRITE_MODE,
@@ -35,6 +36,7 @@ class CFNAlchemist(object):
 
         :param input_path: Directory path to the root of the assets
         :param target_bucket_name: Target S3 bucket to use as replacement and to upload to
+        :param source_bucket_name: Source S3 bucket to search for replacement
         :param target_key_prefix: Target S3 key prefix to prepend to all object (including an ending forward slash '/')
         :param output_directory: Directory to save rewritten assets to
         :param rewrite_mode: Mode for rewriting like CFNAlchemist.OBJECT_REWRITE_MODE or CFNAlchemist.BASIC_REWRITE_MODE
@@ -82,6 +84,7 @@ class CFNAlchemist(object):
 
         # initialize
         self.set_input_path(input_path)
+        self.set_prod_bucket_name(source_bucket_name)
         self.set_target_bucket_name(target_bucket_name)
         self.set_target_key_prefix(target_key_prefix)
         self.set_output_directory(output_directory)
@@ -141,7 +144,8 @@ class CFNAlchemist(object):
         return self._rewrite_mode
 
     def set_prod_bucket_name(self, prod_bucket_name):
-        self._prod_bucket_name = prod_bucket_name
+        if prod_bucket_name is not None:
+            self._prod_bucket_name = prod_bucket_name
 
     def get_prod_bucket_name(self):
         return self._prod_bucket_name
@@ -525,6 +529,12 @@ class CFNAlchemist(object):
             "input_path",
             type=str,
             help="the input path of assets to rewrite and/or upload."
+        )
+        parser.add_argument(
+            "-sb",
+            "--source-bucket-name",
+            type=str,
+            help="source S3 bucket name for rewrite."
         )
         parser.add_argument(
             "target_bucket_name",

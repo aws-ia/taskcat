@@ -485,6 +485,7 @@ class CFNYAMLHandler(object):
 
         OrderedSafeDumper.add_representer(OrderedDict, _dict_representer)
         OrderedSafeDumper.add_representer(str, _str_representer)
+        OrderedSafeDumper.ignore_aliases = lambda self, data: True
 
         yaml_dump = yaml.dump(data, stream, OrderedSafeDumper, **kwds)
 
