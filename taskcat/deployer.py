@@ -57,7 +57,7 @@ class CFNAlchemist(object):
         self.logger.addHandler(self.ch)
 
         # Constants
-        self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.tgz', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq']
+        self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.tgz', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq', '.so', '.pyc']
         self._TEMPLATE_EXT = ['.template', '.json', '.yaml', '.yml']
         self._GIT_EXT = ['.git', '.gitmodules', '.gitignore', '.gitattributes']
         self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
