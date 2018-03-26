@@ -57,7 +57,6 @@ class CFNAlchemist(object):
         self.logger.addHandler(self.ch)
 
         # Constants
-        self._UNSUPPORTED_EXT = ['.bz2', '.gz', '.tar', '.tgz', '.zip', '.rar', '.md', '.txt', '.gif', '.jpg', '.png', '.svg', 'jq', '.so', '.pyc']
         self._TEMPLATE_EXT = ['.template', '.json', '.yaml', '.yml']
         self._GIT_EXT = ['.git', '.gitmodules', '.gitignore', '.gitattributes']
         self._EXCLUDED_DIRS = ['.git', 'ci', '.idea', '.vs']
@@ -295,16 +294,7 @@ class CFNAlchemist(object):
                 output_file = current_file
 
             # Load current file
-            if current_file.endswith(tuple(self._UNSUPPORTED_EXT)):
-                if self._dry_run:
-                    self.logger.warning("[WHAT IF DRY RUN]: [{}] File type not supported. Skipping but copying.".format(current_file))
-                else:
-                    self.logger.warning("[{}] File type not supported. Skipping but copying.".format(current_file))
-                    CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                    # copy only if it's a new location for the output
-                    if current_file is not output_file:
-                        shutil.copyfile(current_file, output_file)
-            elif self._rewrite_mode != self.BASIC_REWRITE_MODE \
+            if self._rewrite_mode != self.BASIC_REWRITE_MODE \
                     and current_file.endswith(tuple(self._TEMPLATE_EXT)) \
                     and os.path.dirname(current_file).endswith('/templates'):
                 self.logger.info("Opening file [{}]".format(current_file))
@@ -341,7 +331,7 @@ class CFNAlchemist(object):
 
                     # Write modified template
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]]".format(output_file))
+                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
                     else:
                         self.logger.info("Writing file [{}]".format(output_file))
                         CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
@@ -361,21 +351,30 @@ class CFNAlchemist(object):
                             shutil.copyfile(current_file, output_file)
             else:
                 self.logger.info("Opening file [{}]".format(current_file))
-                with open(current_file, 'r', newline=None) as f:
-                    file_data = f.readlines()
+                try:
+                    with open(current_file, 'r', newline=None) as f:
+                        file_data = f.readlines()
 
-                for index, line in enumerate(file_data):
-                    file_data[index] = self._string_rewriter(line, self._target_bucket_name)
+                    for index, line in enumerate(file_data):
+                        file_data[index] = self._string_rewriter(line, self._target_bucket_name)
 
-                # Write modified file
-                if self._dry_run:
-                    self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]]".format(output_file))
-                else:
-                    self.logger.info("Writing file [{}]".format(output_file))
-                    CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
-                    with open(output_file, 'w') as updated_file:
-                        updated_file.writelines(file_data)
-                    updated_file.close()
+                    # Write modified file
+                    if self._dry_run:
+                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
+                    else:
+                        self.logger.info("Writing file [{}]".format(output_file))
+                        CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
+                        with open(output_file, 'w') as updated_file:
+                            updated_file.writelines(file_data)
+                        updated_file.close()
+                except UnicodeDecodeError:
+                    if self._dry_run:
+                        self.logger.info("[WHAT IF DRY RUN]: Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
+                    else:
+                        self.logger.warning("Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
+                        self._copy_file(current_file, output_file)
+                except Exception as e:
+                    raise e
 
     def rewrite_and_upload(self):
         """
@@ -461,6 +460,12 @@ class CFNAlchemist(object):
         self.logger.debug("PARSED!")
 
         return current_node
+
+    def _copy_file(self, in_file, out_file):
+        CFNYAMLHandler.validate_output_dir(os.path.split(out_file)[0])
+        # copy only if it's a new location for the output
+        if in_file is not out_file:
+            shutil.copyfile(in_file, out_file)
 
     def aws_api_init(self, aws_profile=None, aws_access_key_id=None, aws_secret_access_key=None):
         """
