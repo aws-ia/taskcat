@@ -185,10 +185,12 @@ class TaskCat(object):
         self._use_global = False
         self._password = None
         self.run_cleanup = True
+        self.public_s3_bucket = False
         self._aws_access_key = None
         self._aws_secret_key = None
         self._boto_profile = None
         self._boto_client = ClientFactory(logger=logger)
+        self._key_url_map = {}
 
     # SETTERS AND GETTERS
     # ===================
@@ -484,12 +486,23 @@ class TaskCat(object):
         """
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
-        content = dict_object.get()['Body'].read().strip()
+        content = dict_object['Body'].read().strip()
         return content
 
     def get_s3contents(self, url):
-        payload = requests.get(url)
-        return payload.text
+        """
+        Returns S3 object.
+        - If --public-s3-bucket is passed, returns via the requests library.
+        - If not, does an S3 API call.
+
+        :param url: URL of the S3 object to return.
+        :return: Data of the s3 object.
+        """
+        if self.public_s3_bucket:
+            payload = requests.get(url)
+            return payload.text
+        key = self._key_url_map[url]
+        return self.get_content(self.get_s3bucket(), key)
 
     def get_s3_url(self, key):
         """
@@ -523,10 +536,12 @@ class TaskCat(object):
                                         "amazonaws.com",
                                         self.get_s3bucket(),
                                         metadata[1])
+                                    self._key_url_map.update({o_url:metadata[1]})
                                     return o_url
                                 else:
                                     amzns3 = 's3.amazonaws.com'
                                     o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
+                                    self._key_url_map.update({o_url:metadata[1]})
                                     return o_url
 
     def get_global_region(self, yamlcfg):
@@ -1020,7 +1035,7 @@ class TaskCat(object):
                 print(I + "Preparing to launch in region [%s] " % region)
                 try:
                     cfn = self._boto_client.get('cloudformation', region=region)
-                    s_parmsdata = requests.get(self.get_parameter_path()).text
+                    s_parmsdata = self.get_s3contents(self.get_parameter_path())
                     s_parms = json.loads(s_parmsdata)
                     s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
@@ -1078,7 +1093,7 @@ class TaskCat(object):
             if self.verbose:
                 print(D + "parameter_path = %s" % self.get_parameter_path())
 
-            inputparms = requests.get(self.get_parameter_path()).text
+            inputparms = self.get_s3contents(self.get_parameter_path())
             jsonstatus = self.check_json(inputparms)
 
             if self.verbose:
@@ -1452,7 +1467,8 @@ class TaskCat(object):
                     quit()
 
                 # Detect template type
-                cfntemplate = requests.get(self.get_s3_url(self.get_template_file())).text
+
+                cfntemplate = self.get_s3contents(self.get_s3_url(self.get_template_file()))
 
                 if self.check_json(cfntemplate, quite=True, strict=False):
                     self.set_template_type('json')
@@ -2040,7 +2056,10 @@ class TaskCat(object):
             '--verbose',
             action='store_true',
             help="Enables verbosity")
-
+        parser.add_argument(
+            '--public_s3_bucket',
+            action='store_true',
+            help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)")
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
@@ -2059,6 +2078,9 @@ class TaskCat(object):
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
                 sys.exit(1)
+
+        if args.public_s3_bucket:
+            self.public_s3_bucket = True
 
         return args
 
