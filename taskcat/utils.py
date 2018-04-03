@@ -459,8 +459,6 @@ class CFNYAMLHandler(object):
             return OrderedDict([(tag_suffix, constructor(node))])
 
         OrderedSafeLoader.add_constructor(u'tag:yaml.org,2002:int', _construct_int_without_octals)
-        OrderedSafeLoader.add_implicit_resolver(u'tag:yaml.org,2002:int', re.compile(u'^[-+]?[0-9][0-9_]*$'),
-                                                list(u'-+0123456789'))
         OrderedSafeLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
         OrderedSafeLoader.add_multi_constructor('!', _construct_cfn_tag)
 
@@ -484,6 +482,7 @@ class CFNYAMLHandler(object):
                 return dumper.represent_str(_data)
 
         OrderedSafeDumper.add_representer(OrderedDict, _dict_representer)
+        OrderedSafeDumper.add_implicit_resolver('tag:yaml.org,2002:int', re.compile('^[-+]?[0-9][0-9_]*$'), list('-+0123456789'))
         OrderedSafeDumper.add_representer(str, _str_representer)
         OrderedSafeDumper.ignore_aliases = lambda self, data: True
 
