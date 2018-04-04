@@ -265,14 +265,13 @@ class TaskCat(object):
     def get_parameter_path(self):
         return self.parameter_path
 
-    def get_param_includes(self, original_keys, taskcat_cfg):
+    def get_param_includes(self, original_keys):
         """
         This function searches for ~/.aws/taskcat_global_override.json,
         then <project>/ci/taskcat_project_override.json, in that order.
         Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
-        :param taskcat_cfg: TaskCat config as yaml object
         """
         # Github/issue/57
         # Look for ~/.taskcat_overrides.json
@@ -1049,7 +1048,7 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = self.get_s3contents(self.get_parameter_path())
                     s_parms = json.loads(s_parmsdata)
-                    s_include_params = self.get_param_includes(s_parms, taskcat_cfg)
+                    s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
                         s_parms = s_include_params
                     j_params = self.generate_input_param_values(s_parms, region)
