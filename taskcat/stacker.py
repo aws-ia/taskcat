@@ -265,13 +265,14 @@ class TaskCat(object):
     def get_parameter_path(self):
         return self.parameter_path
 
-    def get_param_includes(self, original_keys):
+    def get_param_includes(self, original_keys, taskcat_cfg):
         """
         This function searches for ~/.aws/taskcat_global_override.json,
         then <project>/ci/taskcat_project_override.json, in that order.
         Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
+        :param taskcat_cfg: TaskCat config as yaml object
         """
         # Github/issue/57
         # Look for ~/.taskcat_overrides.json
@@ -317,6 +318,17 @@ class TaskCat(object):
                     original_keys[idx] = override_pd
                 else:
                     original_keys.append(override_pd)
+                    param_index[override_pd['ParameterKey']] = original_keys.index(override_pd)
+        # check if s3 bucket and QSS3BucketName param match. fix if they dont.
+        bucket_name = self.get_s3bucket()
+        _kn = 'QSS3BucketName'
+        if _kn in param_index:
+            _knidx = param_index[_kn]
+            param_bucket_name = original_keys[_knidx]['ParameterValue']
+            if (param_bucket_name != bucket_name):
+                print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
+                print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
+                original_keys[_knidx]['ParameterValue'] = bucket_name
 
         return original_keys
 
@@ -1037,7 +1049,7 @@ class TaskCat(object):
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = self.get_s3contents(self.get_parameter_path())
                     s_parms = json.loads(s_parmsdata)
-                    s_include_params = self.get_param_includes(s_parms)
+                    s_include_params = self.get_param_includes(s_parms, taskcat_cfg)
                     if s_include_params:
                         s_parms = s_include_params
                     j_params = self.generate_input_param_values(s_parms, region)
@@ -2078,7 +2090,6 @@ class TaskCat(object):
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
                 sys.exit(1)
-
         if args.public_s3_bucket:
             self.public_s3_bucket = True
 
