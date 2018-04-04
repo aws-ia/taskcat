@@ -317,6 +317,17 @@ class TaskCat(object):
                     original_keys[idx] = override_pd
                 else:
                     original_keys.append(override_pd)
+                    param_index[override_pd['ParameterKey']] = original_keys.index(override_pd)
+        # check if s3 bucket and QSS3BucketName param match. fix if they dont.
+        bucket_name = self.get_s3bucket()
+        _kn = 'QSS3BucketName'
+        if _kn in param_index:
+            _knidx = param_index[_kn]
+            param_bucket_name = original_keys[_knidx]['ParameterValue']
+            if (param_bucket_name != bucket_name):
+                print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
+                print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
+                original_keys[_knidx]['ParameterValue'] = bucket_name
 
         return original_keys
 
@@ -2078,7 +2089,6 @@ class TaskCat(object):
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
                 sys.exit(1)
-
         if args.public_s3_bucket:
             self.public_s3_bucket = True
 
