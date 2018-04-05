@@ -383,6 +383,10 @@ class TaskCat(object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
+        if self.public_s3_bucket:
+            bucket_or_object_acl = 'public-read'
+        else:
+            bucket_or_object_acl = 'bucket-owner-read'
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         self.set_project(taskcat_cfg['global']['qsname'])
 
@@ -396,10 +400,10 @@ class TaskCat(object):
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
-                    response = s3_client.create_bucket(ACL='public-read',
+                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket)
                 else:
-                    response = s3_client.create_bucket(ACL='public-read',
+                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket,
                                                        CreateBucketConfiguration = {
                                                            'LocationConstraint': self.get_default_region()
@@ -416,7 +420,7 @@ class TaskCat(object):
                 self.set_s3bucket(auto_bucket)
             else:
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
-                response = s3_client.create_bucket(ACL='public-read',
+                response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                    Bucket=auto_bucket,
                                                    CreateBucketConfiguration={
                                                        'LocationConstraint': self.get_default_region()})
@@ -442,7 +446,7 @@ class TaskCat(object):
         for filename in fsmap:
             try:
                 upload = re.sub('^./', '', filename)
-                s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
+                s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': bucket_or_object_acl})
             except Exception as e:
                 print("Cannot Upload to bucket => %s" % self.get_s3bucket())
                 print(E + "Check that you bucketname is correct")
