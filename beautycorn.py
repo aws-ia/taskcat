@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# author: Santiago Cardenas <sancard@amazon.com>
+# authors:
+# Tony Vattathil <tonynv@amazon.com>, <avattathil@gmail.com>
+# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
+# Shivansh Singh <sshvans@amazon.com>,
+# Jay McConnell <jmmccon@amazon.com>,
+# Andrew Glenn <andglenn@amazon.com>
 
 import os
 import sys

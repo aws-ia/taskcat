@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 # authors:
-# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
-# Shivansh Singh sshvans@amazon.com,
-# Santiago Cardenas sancard@amazon.com,
-# Jay McConnell jmmccon@amazon.com,
+# Tony Vattathil <tonynv@amazon.com>, <avattathil@gmail.com>
+# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
+# Shivansh Singh <sshvans@amazon.com>,
+# Jay McConnell <jmmccon@amazon.com>,
+# Andrew Glenn <andglenn@amazon.com>
 #
 # repo: https://github.com/aws-quickstart/taskcat
 # docs: https://aws-quickstart.github.io/taskcat/

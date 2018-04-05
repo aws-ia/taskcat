@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # authors:
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
 # Shivansh Singh sshvans@amazon.com,
-# Santiago Cardenas sancard@amazon.com,
 # Jay McConnell, jmmccon@amazon.com
 """
  Program License: Amazon License
