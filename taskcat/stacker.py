@@ -191,6 +191,7 @@ class TaskCat(object):
         self._boto_profile = None
         self._boto_client = ClientFactory(logger=logger)
         self._key_url_map = {}
+        self.retain_if_failed = False
 
     # SETTERS AND GETTERS
     # ===================
@@ -1428,7 +1429,7 @@ class TaskCat(object):
                     cleanupstack = yamlc['global']['cleanup']
                     if cleanupstack:
                         if self.verbose:
-                            print(D + "cleanup set to ymal value")
+                            print(D + "cleanup set to yaml value")
                             self.set_docleanup(cleanupstack)
                     else:
                         print(I + "Cleanup value set to (false)")
@@ -1705,6 +1706,8 @@ class TaskCat(object):
                         status_css = 'class=test-green'
                     elif rstatus == 'CREATE_FAILED':
                         status_css = 'class=test-red'
+                        if self.retain_if_failed and (self.run_cleanup == True):
+                            self.run_cleanup = False
                     else:
                         status_css = 'class=test-red'
             except Exception as e:
@@ -2056,6 +2059,12 @@ class TaskCat(object):
             action='store_true',
             help="Sets cleanup to false (Does not teardown stacks)")
         parser.add_argument(
+            '-N',
+            '--no_cleanup_failed',
+            action='store_true',
+            help="Sets cleaup to false if the stack launch fails (Does not teardown stacks if it experiences a failure)"
+        )
+        parser.add_argument(
             '-v',
             '--verbose',
             action='store_true',
@@ -2085,6 +2094,13 @@ class TaskCat(object):
 
         if args.public_s3_bucket:
             self.public_s3_bucket = True
+
+        if args.no_cleanup_failed:
+            if args.no_cleanup:
+                parser.error("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
+                print(parser.print_help())
+                sys.exit(1)
+            self.retain_if_failed = True
 
         return args
 
