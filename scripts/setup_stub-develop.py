@@ -3,7 +3,7 @@ setup(
     name='taskcat',
     packages=['taskcat'],
     description='An OpenSource Cloudformation Deployment Framework',
-    author='Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell Andrew Glenn',
+    author='Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell, Andrew Glenn',
     author_email='tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com, jmmccon@amazon.com, andglenn@amazon.com',
     url='https://aws-quickstart.github.io/taskcat/',
     version='VERSION_STUB',
