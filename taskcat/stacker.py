@@ -414,8 +414,7 @@ class TaskCat(object):
                     response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket)
                 else:
-                    response = s3_client.create_bucket(ACL=
-                                                       ,
+                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket,
                                                        CreateBucketConfiguration = {
                                                            'LocationConstraint': self.get_default_region()
@@ -442,6 +441,7 @@ class TaskCat(object):
                     self.set_s3bucket(auto_bucket)
 
         # TODO Remove after alchemist is implemented
+
         if os.path.isdir(self.get_project()):
             current_dir = "."
             start_location = "{}/{}".format(".", self.get_project())
