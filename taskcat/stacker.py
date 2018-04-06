@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 # authors:
-# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
-# Shivansh Singh sshvans@amazon.com,
-# Santiago Cardenas sancard@amazon.com,
-# Jay McConnell jmmccon@amazon.com,
+# Tony Vattathil <tonynv@amazon.com>, <avattathil@gmail.com>
+# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
+# Shivansh Singh <sshvans@amazon.com>,
+# Jay McConnell <jmmccon@amazon.com>,
+# Andrew Glenn <andglenn@amazon.com>
 #
 # repo: https://github.com/aws-quickstart/taskcat
 # docs: https://aws-quickstart.github.io/taskcat/
@@ -194,6 +195,7 @@ class TaskCat(object):
         self._boto_client = ClientFactory(logger=logger)
         self._key_url_map = {}
         self.multithread_upload = False
+        self.retain_if_failed = False
 
     # SETTERS AND GETTERS
     # ===================
@@ -392,6 +394,10 @@ class TaskCat(object):
         :param taskcat_cfg: Taskcat configuration provided in yml file
 
         """
+        if self.public_s3_bucket:
+            bucket_or_object_acl = 'public-read'
+        else:
+            bucket_or_object_acl = 'bucket-owner-read'
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         self.set_project(taskcat_cfg['global']['qsname'])
 
@@ -405,10 +411,11 @@ class TaskCat(object):
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
-                    response = s3_client.create_bucket(ACL='public-read',
+                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket)
                 else:
-                    response = s3_client.create_bucket(ACL='public-read',
+                    response = s3_client.create_bucket(ACL=
+                                                       ,
                                                        Bucket=auto_bucket,
                                                        CreateBucketConfiguration = {
                                                            'LocationConstraint': self.get_default_region()
@@ -425,7 +432,7 @@ class TaskCat(object):
                 self.set_s3bucket(auto_bucket)
             else:
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
-                response = s3_client.create_bucket(ACL='public-read',
+                response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                    Bucket=auto_bucket,
                                                    CreateBucketConfiguration={
                                                        'LocationConstraint': self.get_default_region()})
@@ -451,7 +458,7 @@ class TaskCat(object):
             threads = 16
             print(I + "Multithread upload enabled, spawning %s threads" % threads)
             pool = ThreadPool(threads)
-            func = partial(self._s3_upload_file, s3_client=s3_client)
+            func = partial(self._s3_upload_file, s3_client=s3_client, bucket_or_object_acl=bucket_or_object_acl)
             pool.map(func, fsmap)
             pool.close()
             pool.join()
@@ -469,10 +476,10 @@ class TaskCat(object):
 
         print('\n')
 
-    def _s3_upload_file(self, filename, s3_client):
+    def _s3_upload_file(self, filename, s3_client, bucket_or_object_acl):
         upload = re.sub('^./', '', filename)
         try:
-            s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
+            s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': bucket_or_object_acl})
         except Exception as e:
             print("Cannot Upload to bucket => %s" % self.get_s3bucket())
             print(E + "Check that you bucketname is correct")
@@ -1455,7 +1462,7 @@ class TaskCat(object):
                     cleanupstack = yamlc['global']['cleanup']
                     if cleanupstack:
                         if self.verbose:
-                            print(D + "cleanup set to ymal value")
+                            print(D + "cleanup set to yaml value")
                             self.set_docleanup(cleanupstack)
                     else:
                         print(I + "Cleanup value set to (false)")
@@ -1732,6 +1739,8 @@ class TaskCat(object):
                         status_css = 'class=test-green'
                     elif rstatus == 'CREATE_FAILED':
                         status_css = 'class=test-red'
+                        if self.retain_if_failed and (self.run_cleanup == True):
+                            self.run_cleanup = False
                     else:
                         status_css = 'class=test-red'
             except Exception as e:
@@ -2083,6 +2092,12 @@ class TaskCat(object):
             action='store_true',
             help="Sets cleanup to false (Does not teardown stacks)")
         parser.add_argument(
+            '-N',
+            '--no_cleanup_failed',
+            action='store_true',
+            help="Sets cleaup to false if the stack launch fails (Does not teardown stacks if it experiences a failure)"
+        )
+        parser.add_argument(
             '-v',
             '--verbose',
             action='store_true',
@@ -2118,6 +2133,13 @@ class TaskCat(object):
                 sys.exit(1)
         if args.public_s3_bucket:
             self.public_s3_bucket = True
+
+        if args.no_cleanup_failed:
+            if args.no_cleanup:
+                parser.error("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
+                print(parser.print_help())
+                sys.exit(1)
+            self.retain_if_failed = True
 
         return args
 
