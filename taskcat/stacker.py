@@ -39,6 +39,8 @@ from argparse import RawTextHelpFormatter
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
 from pkg_resources import get_distribution
+from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
 
 from .reaper import Reaper
 from .utils import ClientFactory
@@ -191,6 +193,7 @@ class TaskCat(object):
         self._boto_profile = None
         self._boto_client = ClientFactory(logger=logger)
         self._key_url_map = {}
+        self.multithread_upload = False
 
     # SETTERS AND GETTERS
     # ===================
@@ -200,6 +203,12 @@ class TaskCat(object):
 
     def get_project(self):
         return self.project
+
+    def set_multithread_upload(self, multithread_upload):
+        self.multithread_upload = multithread_upload
+
+    def get_multithread_upload(self):
+        return self.multithread_upload
 
     def set_owner(self, owner):
         self.owner = owner
@@ -426,7 +435,6 @@ class TaskCat(object):
                     self.set_s3bucket(auto_bucket)
 
         # TODO Remove after alchemist is implemented
-
         if os.path.isdir(self.get_project()):
             current_dir = "."
             start_location = "{}/{}".format(".", self.get_project())
@@ -439,16 +447,17 @@ class TaskCat(object):
             print(I + "Please cd to where you project is located")
             sys.exit(1)
 
-        for filename in fsmap:
-            try:
-                upload = re.sub('^./', '', filename)
-                s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
-            except Exception as e:
-                print("Cannot Upload to bucket => %s" % self.get_s3bucket())
-                print(E + "Check that you bucketname is correct")
-                if self.verbose:
-                    print(D + str(e))
-                sys.exit(1)
+        if self.multithread_upload:
+            threads = 16
+            print(I + "Multithread upload enabled, spawning %s threads" % threads)
+            pool = ThreadPool(threads)
+            func = partial(self._s3_upload_file, s3_client=s3_client)
+            pool.map(func, fsmap)
+            pool.close()
+            pool.join()
+        else:
+            for filename in fsmap:
+                self._s3_upload_file(filename, s3_client)
 
         paginator = s3_client.get_paginator('list_objects')
         operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
@@ -459,6 +468,17 @@ class TaskCat(object):
         print("{} |Contents of S3 Bucket {} {}".format(self.nametag, header, rst_color))
 
         print('\n')
+
+    def _s3_upload_file(self, filename, s3_client):
+        upload = re.sub('^./', '', filename)
+        try:
+            s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': 'public-read'})
+        except Exception as e:
+            print("Cannot Upload to bucket => %s" % self.get_s3bucket())
+            print(E + "Check that you bucketname is correct")
+            if self.verbose:
+                print(D + str(e))
+            sys.exit(1)
 
     def get_available_azs(self, region, count):
         """
@@ -2071,12 +2091,19 @@ class TaskCat(object):
             '--public_s3_bucket',
             action='store_true',
             help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)")
+        parser.add_argument(
+            '-m',
+            '--multithread_upload',
+            action='store_true',
+            help="Enables multithreaded upload to S3")
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
             print(parser.print_help())
             sys.exit(0)
 
+        if args.multithread_upload:
+            self.multithread_upload = True
         if args.verbose:
             self.verbose = True
         # Overrides Defaults for cleanup but does not overwrite config.yml
