@@ -292,7 +292,7 @@ class TaskCat(object):
         _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
         if os.path.isfile(_homedir_override_file_path):
             with open(_homedir_override_file_path) as f:
-                _homedir_override_json = json.loads(f.read())
+                _homedir_override_json = json.loads(f.read().decode('utf-8'))
                 print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
@@ -305,7 +305,7 @@ class TaskCat(object):
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
             dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
             content = dict_object['Body'].read().strip()
-            _obj = json.loads(content)
+            _obj = json.loads(content.decode('utf-8'))
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
@@ -1083,7 +1083,7 @@ class TaskCat(object):
                 try:
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = self.get_s3contents(self.get_parameter_path())
-                    s_parms = json.loads(s_parmsdata)
+                    s_parms = json.loads(s_parmsdata.decode('utf-8'))
                     s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
                         s_parms = s_include_params
@@ -1564,7 +1564,7 @@ class TaskCat(object):
         :return: TRUE if given Json is valid, FALSE otherwise.
         """
         try:
-            parms = json.loads(jsonin)
+            parms = json.loads(jsonin.decode('utf-8'))
             if self.verbose:
                 if not quite:
                     print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
