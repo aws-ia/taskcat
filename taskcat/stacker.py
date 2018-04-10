@@ -464,7 +464,7 @@ class TaskCat(object):
             pool.join()
         else:
             for filename in fsmap:
-                self._s3_upload_file(filename, s3_client)
+                self._s3_upload_file(filename, s3_client=s3_client, bucket_or_object_acl=bucket_or_object_acl)
 
         paginator = s3_client.get_paginator('list_objects')
         operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
@@ -886,7 +886,7 @@ class TaskCat(object):
                 # Determines the size of the password to generate
                 count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
 
-                # Determines the type of password to generate, partially. Additional computation 
+                # Determines the type of password to generate, partially. Additional computation
                 # is required on the result returned by the matching string.
                 gentype_re = re.compile(
                     '(?<=_genpass_)((\d+)(\w)(\]))', re.IGNORECASE)
