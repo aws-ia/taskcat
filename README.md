@@ -216,7 +216,7 @@ In certain situations it may be desirable to introduce local Parameter Override 
 
 The first is located .aws directory within the home-directory of the running user.
 ```
-~/.aws/.taskcat_global_override.json
+~/.aws/taskcat_global_override.json
 ```
 
 The second applies per-project and is located the 'CI' directory.  
