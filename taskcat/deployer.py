@@ -82,7 +82,7 @@ class CFNAlchemist(object):
         self._excluded_prefixes = None
         self._verbose = False
         self._dry_run = False
-        self._prod_bucket_name = 'quickstart-reference'
+        self._prod_bucket_name = 'aws-quickstart'
         self._default_region = 'us-east-1'
         self._file_list = None
 
