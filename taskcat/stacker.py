@@ -292,7 +292,7 @@ class TaskCat(object):
         _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
         if os.path.isfile(_homedir_override_file_path):
             with open(_homedir_override_file_path) as f:
-                _homedir_override_json = json.loads(f.read().decode('utf-8'))
+                _homedir_override_json = json.loads(f.read())
                 print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
@@ -305,7 +305,7 @@ class TaskCat(object):
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
             dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
             content = dict_object['Body'].read().strip()
-            _obj = json.loads(content.decode('utf-8'))
+            _obj = json.loads(content)
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
@@ -932,6 +932,11 @@ class TaskCat(object):
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
                 geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
 
+                if type(param_value) == int:
+                    param_value = str(param_value)
+                    print(I + "Converting byte values in stack input file({1}) to [string value]".format(self.get_parameter_file()))
+                    parmdict['ParameterValue'] = param_value
+
                 if gen_string_re.search(param_value):
                     random_string = self.regxfind(gen_string_re, param_value)
                     param_value = self.generate_random('alpha', 20)
@@ -1083,7 +1088,7 @@ class TaskCat(object):
                 try:
                     cfn = self._boto_client.get('cloudformation', region=region)
                     s_parmsdata = self.get_s3contents(self.get_parameter_path())
-                    s_parms = json.loads(s_parmsdata.decode('utf-8'))
+                    s_parms = json.loads(s_parmsdata)
                     s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
                         s_parms = s_include_params
@@ -1564,7 +1569,7 @@ class TaskCat(object):
         :return: TRUE if given Json is valid, FALSE otherwise.
         """
         try:
-            parms = json.loads(jsonin.decode('utf-8'))
+            parms = json.loads(jsonin)
             if self.verbose:
                 if not quite:
                     print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
