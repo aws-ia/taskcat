@@ -932,9 +932,12 @@ class TaskCat(object):
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
                 geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
 
+                # If Number is found as Parameter Value convert it to String ( ex: 1 to "1")
                 if type(param_value) == int:
                     param_value = str(param_value)
-                    print(I + "Converting byte values in stack input file({1}) to [string value]".format(self.get_parameter_file()))
+                    if self.verbose:
+                        (I + "Converting byte values in stack input file({}) to [string value]".format(
+                            self.get_parameter_file()))
                     parmdict['ParameterValue'] = param_value
 
                 if gen_string_re.search(param_value):
