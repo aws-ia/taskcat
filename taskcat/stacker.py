@@ -91,7 +91,7 @@ logger.setLevel(logging.DEBUG)
 
 
 def get_pip_version(url):
-    return (requests.get(url).json()["info"]["version"])
+    return requests.get(url).json()["info"]["version"]
 
 
 def buildmap(start_location, map_string, partial_match=True):

@@ -18,11 +18,9 @@ USER root
 RUN dnf install git -y
 # Install taskcat (develop)
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN pip3 install boto3 pyfiglet pyyaml tabulate yattag
-RUN pip3 install -i https://testpypi.python.org/pypi taskcat  --upgrade
-
-ADD https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/taskcat.py /usr/local/bin/taskcat
-ADD https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/alchemist.py /usr/local/bin/alchemist
+RUN pip3 install --upgrade pip
+RUN /usr/local/bin/pip3 install boto3 pyfiglet pyyaml tabulate yattag
+RUN /usr/local/bin/pip3 install -i https://test.pypi.org/pypi taskcat  --upgrade
 
 # Set the work directory
 WORKDIR /mnt
