@@ -2,11 +2,39 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Lambda  Cluster Id generator",
     "Parameters": {
-        "Param1": {
-            "Description": "Param1",
+        "StackName": {
+            "Description": "StackName",
             "Type": "String"
+        },
+        "RandomString": {
+            "Description": "RandomString",
+            "Type": "String"
+        },
+        "RandomNumber": {
+            "Description": "RandomNumber",
+            "Type": "String"
+        },
+        "UUID": {
+            "Description": "UUID",
+            "Type": "String"
+        },
+        "PasswordA": {
+            "Description": "Password (Alpha)",
+            "Type": "String"
+        },
+        "PasswordB": {
+            "Description": "Password (Special)",
+            "Type": "String"
+        },
+        "ByteValue": {
+            "Description": "NumberValueInput",
+            "Type": "Number"
+        },
+        "AvailabilityZones": {
+            "Description": "List of 3 Availability Zones ",
+            "Type": "List<AWS::EC2::AvailabilityZone::Name>"
         }
-},	
+    },
     "Resources": {
         "LambdaExecutionRole": {
             "Type": "AWS::IAM::Role",
@@ -35,11 +63,11 @@
                             ],
                             "Resource": "arn:aws:logs:*:*:*"
                         }, {
-                            "Effect": "Allow",
-                            "Action": [
-                                "cloudformation:DescribeStacks"
-                            ],
-                            "Resource": "*"
+                        "Effect": "Allow",
+                        "Action": [
+                            "cloudformation:DescribeStacks"
+                        ],
+                        "Resource": "*"
                         }]
                     }
                 }]
@@ -86,11 +114,10 @@
                 "ResponseURL":  {"Fn::Join": ["", [ "http://ResponseURL",{ "Ref": "AWS::StackId" },"RequestId" ]]},
                 "StackId": { "Ref": "AWS::StackId" },
                 "ResourceProperties": {
-                "RequestType": "Create",
-                "RequestId":  {"Fn::Join": ["", [{ "Ref": "AWS::StackId" },"RequestId" ]]},
-                "LogicalResourceId":  "GenIDLogicalResourceId"
+                    "RequestType": "Create",
+                    "RequestId":  {"Fn::Join": ["", [{ "Ref": "AWS::StackId" },"RequestId" ]]},
+                    "LogicalResourceId":  "GenIDLogicalResourceId"
                 }
-
             },
             "DependsOn": ["GenID"]
         }
