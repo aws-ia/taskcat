@@ -2205,7 +2205,7 @@ class TaskCat(object):
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
         print("{0}".format(banner.renderText(prog_name), '\n'))
-        self.checkforupdate()
+        #self.checkforupdate()
 
 
 def get_cfn_stack_events(self, stackname, region):
