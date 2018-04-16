@@ -90,12 +90,8 @@ logger = logging.getLogger('taskcat')
 logger.setLevel(logging.DEBUG)
 
 
-def get_pip_version(pkginfo_url):
-    pkginfo = requests.get(pkginfo_url).text
-    for record in pkginfo.split('\n'):
-        if record.startswith('Version'):
-            current_version = str(record).split(':', 1)
-            return (current_version[1]).strip()
+def get_pip_version(url):
+    return (requests.get(url).json()["info"]["version"])
 
 
 def buildmap(start_location, map_string, partial_match=True):
@@ -2185,7 +2181,7 @@ class TaskCat(object):
         if _run_mode > 0:
             if 'dev' not in version:
                 current_version = get_pip_version(
-                    'https://pypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+                    'https://pypi.org/pypi/taskcat/json')
                 if version in current_version:
                     print("version %s" % version)
                 else:
@@ -2193,7 +2189,7 @@ class TaskCat(object):
 
             else:
                 current_version = get_pip_version(
-                    'https://testpypi.python.org/pypi?name=taskcat&:action=display_pkginfo')
+                    'https://test.pypi.org/pypi/taskcat/json')
                 if version in current_version:
                     print("version %s" % version)
                 else:
@@ -2205,7 +2201,7 @@ class TaskCat(object):
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
         print("{0}".format(banner.renderText(prog_name), '\n'))
-        #self.checkforupdate()
+        self.checkforupdate()
 
 
 def get_cfn_stack_events(self, stackname, region):
