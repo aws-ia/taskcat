@@ -2134,10 +2134,17 @@ class TaskCat(object):
             print(parser.print_help())
             sys.exit(0)
 
+        if not args.config_yml:
+            parser.error("-c (--config_yml) not passed (Config File Required!)")
+            print(parser.print_help())
+            sys.exit(1)
+
         if args.multithread_upload:
             self.multithread_upload = True
+
         if args.verbose:
             self.verbose = True
+
         # Overrides Defaults for cleanup but does not overwrite config.yml
         if args.no_cleanup:
             self.run_cleanup = False
