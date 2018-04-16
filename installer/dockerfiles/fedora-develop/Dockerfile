@@ -19,12 +19,15 @@ RUN dnf install git -y
 # Install taskcat (develop)
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 install --upgrade pip
-RUN /usr/local/bin/pip3 install boto3 pyfiglet pyyaml tabulate yattag
-RUN /usr/local/bin/pip3 install -i https://test.pypi.org/pypi taskcat  --upgrade
+RUN ln -s /usr/local/bin/pip /usr/bin/pip
+RUN git clone -b develop https://github.com/aws-quickstart/taskcat.git && cd taskcat
+RUN curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/develop/scripts/build_develop.sh | bash
+RUN python3 setup.py build
+RUN python3 setup.py install --user
+RUN cp -rf ~/.local/bin/* /usr/local/bin
 
 # Set the work directory
 WORKDIR /mnt
 
 # Make taskcat executable
-RUN chmod 755 /usr/local/bin/taskcat
-RUN chmod 755 /usr/local/bin/alchemist
+RUN chmod 755 /usr/local/bin/*
