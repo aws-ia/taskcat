@@ -2115,14 +2115,15 @@ class TaskCat(object):
             help="Sets cleaup to false if the stack launch fails (Does not teardown stacks if it experiences a failure)"
         )
         parser.add_argument(
+            '-p',
+            '--public_s3_bucket',
+            action='store_true',
+            help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)")
+        parser.add_argument(
             '-v',
             '--verbose',
             action='store_true',
             help="Enables verbosity")
-        parser.add_argument(
-            '--public_s3_bucket',
-            action='store_true',
-            help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)")
         parser.add_argument(
             '-m',
             '--multithread_upload',
