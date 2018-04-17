@@ -117,7 +117,7 @@
         }, 
         {
             "location": "/FAQ/", 
-            "text": "TaskCat FAQ\n\n\nFAQ\n\n\nError: \nbotocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.\n\n\nSolution: Set your default region to \nus-east-1\n\n\nFor boto profile set the default to \nus-east-1\n\n\n[profile default]\noutput\n \n=\n \njson\nregion\n \n=\n \nus-east-1", 
+            "text": "TaskCat FAQ\n\n\nFAQ\n\n\nCommonErrors\n\n\nError:\n\n\n1\nbotocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.\n\n\n\n\n\n\nSolution: Set your default region to \nus-east-1\n\nFor boto profile set the default to \nus-east-1\n\n\n1\n2\n3\n[profile default]\n\n\noutput\n \n=\n \njson\n\n\nregion\n \n=\n \nus-east-1\n\n\n\n\n\n\n\n\nCritial failure with version all version below 2018.416.143234\n\n\nError: \n\n 1\n 2\n 3\n 4\n 5\n 6\n 7\n 8\n 9\n10\nTraceback (most recent call last):\n  File \n/var/lib/jenkins/.local/bin/taskcat\n, line 58, in \nmodule\n\n    main()\n  File \n/var/lib/jenkins/.local/bin/taskcat\n, line 22, in main\n    tcat_instance.welcome(\ntaskcat\n)\n  File \n/var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py\n, line 2192, in welcome\n    self.checkforupdate()\n  File \n/var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py\n, line 2173, in checkforupdate\n    if version in current_version:\nTypeError: argument of type \nNoneType\n is not iterable\n\n\n\n\n\n\n\nDue to infrastructure changes in \nhttps://pypi.org\n version check will fail for older versions :-( please update to latest version\n\n\n\n\nSolution: (Get latest version)\n\n\n\n\nTo upgrade pip version    [ pip install --upgrade taskcat]\n\n\nTo upgrade docker version [ docker pull taskcat/taskcat ]", 
             "title": "FAQ"
         }, 
         {
@@ -127,8 +127,18 @@
         }, 
         {
             "location": "/FAQ/#faq", 
-            "text": "Error:  botocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.  Solution: Set your default region to  us-east-1  For boto profile set the default to  us-east-1  [profile default] output   =   json region   =   us-east-1", 
+            "text": "", 
             "title": "FAQ"
+        }, 
+        {
+            "location": "/FAQ/#commonerrors", 
+            "text": "Error:  1 botocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.   Solution: Set your default region to  us-east-1 \nFor boto profile set the default to  us-east-1  1\n2\n3 [profile default]  output   =   json  region   =   us-east-1", 
+            "title": "CommonErrors"
+        }, 
+        {
+            "location": "/FAQ/#critial-failure-with-version-all-version-below-2018416143234", 
+            "text": "Error:   1\n 2\n 3\n 4\n 5\n 6\n 7\n 8\n 9\n10 Traceback (most recent call last):\n  File  /var/lib/jenkins/.local/bin/taskcat , line 58, in  module \n    main()\n  File  /var/lib/jenkins/.local/bin/taskcat , line 22, in main\n    tcat_instance.welcome( taskcat )\n  File  /var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py , line 2192, in welcome\n    self.checkforupdate()\n  File  /var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py , line 2173, in checkforupdate\n    if version in current_version:\nTypeError: argument of type  NoneType  is not iterable    Due to infrastructure changes in  https://pypi.org  version check will fail for older versions :-( please update to latest version   Solution: (Get latest version)   To upgrade pip version    [ pip install --upgrade taskcat]  To upgrade docker version [ docker pull taskcat/taskcat ]", 
+            "title": "Critial failure with version all version below 2018.416.143234"
         }
     ]
 }

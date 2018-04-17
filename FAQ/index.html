@@ -239,6 +239,26 @@
     FAQ
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commonerrors" title="CommonErrors" class="md-nav__link">
+    CommonErrors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critial-failure-with-version-all-version-below-2018416143234" title="Critial failure with version all version below 2018.416.143234" class="md-nav__link">
+    Critial failure with version all version below 2018.416.143234
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -286,6 +306,26 @@
     FAQ
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#commonerrors" title="CommonErrors" class="md-nav__link">
+    CommonErrors
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critial-failure-with-version-all-version-below-2018416143234" title="Critial failure with version all version below 2018.416.143234" class="md-nav__link">
+    Critial failure with version all version below 2018.416.143234
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -314,10 +354,53 @@
                 
                 <h2 id="taskcat-faq">TaskCat FAQ<a class="headerlink" href="#taskcat-faq" title="Permanent link">&para;</a></h2>
 <h3 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h3>
-<p>Error: <code class="codehilite">botocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.</code></p>
-<p>Solution: Set your default region to <code class="codehilite">us-east-1</code></p>
-<p>For boto profile set the default to <code class="codehilite">us-east-1</code></p>
-<p><code class="codehilite"><span class="k">[profile default]</span><span class="na">output</span> <span class="o">=</span> <span class="s">json</span><span class="na">region</span> <span class="o">=</span> <span class="s">us-east-1</span></code></p>
+<h4 id="commonerrors">CommonErrors<a class="headerlink" href="#commonerrors" title="Permanent link">&para;</a></h4>
+<p>Error:</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>botocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.
+</pre></div>
+</td></tr></table>
+
+<p>Solution: Set your default region to <code class="codehilite">us-east-1</code>
+For boto profile set the default to <code class="codehilite">us-east-1</code>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="k">[profile default]</span>
+<span class="na">output</span> <span class="o">=</span> <span class="s">json</span>
+<span class="na">region</span> <span class="o">=</span> <span class="s">us-east-1</span>
+</pre></div>
+</td></tr></table></p>
+<hr />
+<h4 id="critial-failure-with-version-all-version-below-2018416143234">Critial failure with version all version below 2018.416.143234<a class="headerlink" href="#critial-failure-with-version-all-version-below-2018416143234" title="Permanent link">&para;</a></h4>
+<p>Error: 
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>Traceback (most recent call last):
+  File &quot;/var/lib/jenkins/.local/bin/taskcat&quot;, line 58, in &lt;module&gt;
+    main()
+  File &quot;/var/lib/jenkins/.local/bin/taskcat&quot;, line 22, in main
+    tcat_instance.welcome(&#39;taskcat&#39;)
+  File &quot;/var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py&quot;, line 2192, in welcome
+    self.checkforupdate()
+  File &quot;/var/lib/jenkins/.local/lib/python3.6/site-packages/taskcat/stacker.py&quot;, line 2173, in checkforupdate
+    if version in current_version:
+TypeError: argument of type &#39;NoneType&#39; is not iterable
+</pre></div>
+</td></tr></table></p>
+<blockquote>
+<p>Due to infrastructure changes in <a href="https://pypi.org">https://pypi.org</a> version check will fail for older versions :-( please update to latest version</p>
+</blockquote>
+<p>Solution: (Get latest version)</p>
+<blockquote>
+<p>To upgrade pip version    [ pip install --upgrade taskcat]</p>
+<p>To upgrade docker version [ docker pull taskcat/taskcat ]</p>
+</blockquote>
                 
                   
                 
