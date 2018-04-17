@@ -5,6 +5,7 @@ set +x
 export PATH=:~/.local/bin/:$PATH
 
 # Pull latest version
+echo "Checking for new docker image taskcat/taskcat-develop:latest"
 docker pull taskcat/taskcat-develop
 
 LAST_VERSION=$(cat ~/taskcat-develop-version)
@@ -15,11 +16,11 @@ echo "CURRENT_VERSION = $CURRENT_VERSION"
 
 if [ ${LAST_VERSION} != ${CURRENT_VERSION} ]
 then
-    echo "Validating taskcat-development container"
+    echo "Validating taskcat/taskcat-develop container"
   cd examples
   taskcat-develop -c sample-taskcat-project/ci/taskcat-autobucket.yml
 
   echo ${CURRENT_VERSION} >~/taskcat-develop-version
 else
-    echo "No updates found"
+    echo "No changes found in taskcat/taskcat-develop:latest"
 fi
