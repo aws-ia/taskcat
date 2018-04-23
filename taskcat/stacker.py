@@ -322,9 +322,7 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
-                else:
-                    original_keys.append(override_pd)
-                    param_index[override_pd['ParameterKey']] = original_keys.index(override_pd)
+
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
         _kn = 'QSS3BucketName'
