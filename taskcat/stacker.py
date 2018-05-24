@@ -1407,27 +1407,31 @@ class TaskCat(object):
             # Load objects to delete
             objects_in_s3 = 1
             delete_keys = dict(Objects=[])
-            for key in s3_pages.search('Contents'):
-                delete_keys['Objects'].append(dict(Key=key['Key']))
-                objects_in_s3 += 1
-                if objects_in_s3 == 1000:
-                    # Batch delete 1000 objects at a time
+            try:
+                for key in s3_pages.search('Contents'):
+                    delete_keys['Objects'].append(dict(Key=key['Key']))
+                    objects_in_s3 += 1
+                    if objects_in_s3 == 1000:
+                        # Batch delete 1000 objects at a time
+                        s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
+                        print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
+
+                        delete_keys = dict(Objects=[])
+                        objects_in_s3 = 1
+
+                # Delete last batch of objects
+                if objects_in_s3 > 1:
                     s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
                     print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
 
-                    delete_keys = dict(Objects=[])
-                    objects_in_s3 = 1
-
-            # Delete last batch of objects
-            if objects_in_s3 > 1:
-                s3_client.delete_objects(Bucket=self.get_s3bucket(), Delete=delete_keys)
-                print(I + "Deleted {} objects from {}".format(objects_in_s3, self.get_s3bucket()))
-
-            # Delete bucket
-            s3_client.delete_bucket(
-                Bucket=self.get_s3bucket())
-            if self.verbose:
-                print(D + "Deleting Bucket {0}".format(self.get_s3bucket()))
+                # Delete bucket
+                s3_client.delete_bucket(
+                    Bucket=self.get_s3bucket())
+                if self.verbose:
+                    print(D + "Deleting Bucket {0}".format(self.get_s3bucket()))
+            except s3_client.exceptions.NoSuchBucket:
+                if self.verbose:
+                    print(D + "Bucket {0} already deleted".format(self.get_s3bucket()))
 
         else:
             print(I + "Retaining assets in s3bucket [{0}]".format(self.get_s3bucket()))
