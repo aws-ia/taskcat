@@ -1100,12 +1100,40 @@ class TaskCat(object):
                         if self.get_template_type() == 'json':
                             print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
-                    stackdata = cfn.create_stack(
+                    # stackdata = cfn.create_stack(
+                    #     StackName=stackname,
+                    #     DisableRollback=True,
+                    #     TemplateURL=self.get_template_path(),
+                    #     Parameters=j_params,
+                    #     Capabilities=self.get_capabilities())
+
+                    stack_cs_data = cfn.create_change_set(
                         StackName=stackname,
-                        DisableRollback=True,
                         TemplateURL=self.get_template_path(),
                         Parameters=j_params,
-                        Capabilities=self.get_capabilities())
+                        Capabilities=self.get_capabilities(),
+                        ChangeSetType="CREATE",
+                        ChangeSetName=stackname + "-cs"
+                    )
+
+                    change_set_name = stack_cs_data['Id']
+
+                    # wait for change set
+                    waiter = cfn.get_waiter('change_set_create_complete')
+                    waiter.wait(
+                        ChangeSetName=change_set_name,
+                        WaiterConfig={
+                            'Delay': 10,
+                            'MaxAttempts': 26  # max lambda execute is 5 minutes
+                        })
+
+                    stack_ex_data = cfn.execute_change_set(
+                        ChangeSetName=change_set_name
+                    )
+
+                    stackdata = {
+                        'StackId': stack_cs_data['StackId']
+                    }
 
                     testdata.add_test_stack(stackdata)
 
