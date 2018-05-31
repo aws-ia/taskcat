@@ -9,9 +9,9 @@ For helpful information see [Frequently Asked Questions](FAQ.md)
 
 # Python Module documentation
 
-Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/taskcat.m.html" target="_top">[taskcat.Taskcat]</a>
+Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/stacker.m.html" target="_top">[taskcat.Stacker]</a>
 
-Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/sweeper.m.html" target="_parent">[taskcat.Sweeper]</a>
+Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/reaper.m.html" target="_parent">[taskcat.Reaper]</a>
 
 
 ## What is TaskCat?
