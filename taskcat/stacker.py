@@ -402,7 +402,7 @@ class TaskCat(object):
             self.set_s3bucket_type('defined')
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
-            auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
+            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
@@ -2139,6 +2139,12 @@ class TaskCat(object):
             '--tag',
             action=AppendTag,
             help="add tag to cloudformation stack, must be in the format TagKey=TagValue, multiple -t can be specified")
+        parser.add_argument(
+            '-s',
+            '--stack-prefix',
+            type=str,
+            default="tag",
+            help="set prefix for cloudformation stack name. only accepts lowercase letters, numbers and '-'")
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
@@ -2157,6 +2163,8 @@ class TaskCat(object):
             self.tags = args.tags
         except AttributeError:
             pass
+
+        self.stack_prefix = args.stack_prefix
 
         if args.verbose:
             self.verbose = True
