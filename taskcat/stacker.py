@@ -193,6 +193,7 @@ class TaskCat(object):
         self.multithread_upload = False
         self.retain_if_failed = False
         self.tags = []
+        self.stack_prefix = ''
 
     # SETTERS AND GETTERS
     # ===================
@@ -2164,6 +2165,9 @@ class TaskCat(object):
         except AttributeError:
             pass
 
+        if not re.compile('^[a-z0-9\-]+$').match(args.stack_prefix):
+            print("--stack-prefix only accepts lowercase letters, numbers and '-'")
+            sys.exit(1)
         self.stack_prefix = args.stack_prefix
 
         if args.verbose:
