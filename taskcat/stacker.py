@@ -2153,8 +2153,10 @@ class TaskCat(object):
         if args.multithread_upload:
             self.multithread_upload = True
 
-        if args.tags:
+        try:
             self.tags = args.tags
+        except AttributeError:
+            pass
 
         if args.verbose:
             self.verbose = True
