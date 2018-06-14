@@ -541,29 +541,29 @@ Note: (the user install dir is platform specific)</p>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>If you have AWS credentials sourced (or default boto profile is available)
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
+</pre></div>
+</td></tr></table>
 If you need to pass ACCESS and SECRET keys
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
 </td></tr></table>
-taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; If you want to use a different account or profile
+If you want to use a different account or profile
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 </pre></div>
-</td></tr></table>
-taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>### Local Parameter Overrides.
-In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
+</td></tr></table></p>
+</blockquote>
+<h3 id="local-parameter-overrides">Local Parameter Overrides.<a class="headerlink" href="#local-parameter-overrides" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
 The first is located .aws directory within the home-directory of the running user.
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>~/.aws/taskcat_global_override.json
 </pre></div>
-</td></tr></table>
-~/.aws/taskcat_global_override.json
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; The second applies per-project and is located the &#39;CI&#39; directory.
+</td></tr></table></p>
+<p>The second applies per-project and is located the 'CI' directory.
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&lt;project_name&gt;/ci/taskcat_project_override.json
 </pre></div>
-</td></tr></table>
-<project_name>/ci/taskcat_project_override.json
-```</p>
+</td></tr></table></p>
 </blockquote>
 <p>Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
 - Home Directory (~/.aws/taskcat_global_override.json)
