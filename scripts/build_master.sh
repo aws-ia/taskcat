@@ -15,4 +15,4 @@ cp scripts/setup_stub-master.py ./setup_stub-master.py
 python3 -c 'import datetime; print (open("./setup_stub-master.py").read().replace("VERSION_STUB",datetime.datetime.now().strftime("%Y.%m%d.%H%M%S")))' >setup.py
 
 # Push to prod pypi
-python3 setup.py sdist && twine-3 upload dist/*
+python3 setup.py sdist && twine upload dist/*
