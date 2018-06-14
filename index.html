@@ -464,7 +464,7 @@ templates across AWS Regions</p>
 <ul>
 <li>Parameters must start with $[</li>
 <li>Parameters must end with ]</li>
-<li>genpass in invoked when _genpass_X is found</li>
+<li>genpass in invoked when taskcat_genpass_X is found</li>
 <li>X is length of the string</li>
 </ul>
 <p>(Optionally - you can specify the type of password by adding A or S)</p>
@@ -483,7 +483,7 @@ Generates: mA5@cB5!</p>
 <ul>
 <li>Parameters must start with $[</li>
 <li>Parameters must end with ]</li>
-<li>genaz in invoked when _genaz_X is found</li>
+<li>genaz in invoked when taskcat_genaz_X is found</li>
 <li>A number of AZ's will be selected from the region the stack is attempting to launch</li>
 </ul>
 <blockquote>
@@ -517,36 +517,53 @@ Generates: 56188163597280820763</p>
 </td></tr></table>
 Note: (If you do not have root privileges taskcat will install in the current directory)</p>
 </blockquote>
-<h3 id="installing-via-pip">Installing via pip<a class="headerlink" href="#installing-via-pip" title="Permanent link">&para;</a></h3>
+<h3 id="installing-via-pip3-for-those-who-do-not-want-to-use-the-docker-installer">Installing via pip3 (for those who do not want to use the docker installer)<a class="headerlink" href="#installing-via-pip3-for-those-who-do-not-want-to-use-the-docker-installer" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: Python 3.5+ and pip3
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install taskcat
 </pre></div>
 </td></tr></table></p>
 </blockquote>
+<h3 id="installing-via-pip3-user-for-those-who-want-install-taskcat-into-their-homedir">Installing via pip3 --user (for those who want install taskcat into their homedir)<a class="headerlink" href="#installing-via-pip3-user-for-those-who-want-install-taskcat-into-their-homedir" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Note: (the user install dir is platform specfic)
+For Example: (On Mac: ~/Library/Python/3.x/bin/taskcat)
+For Example: (On Linux: ~/.local/bin)</p>
+<p>Prerequisites: Python 3.5+ and pip3
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install taskcat --user
+</pre></div>
+</td></tr></table>
+Be sure to add the python bin dir to you <code class="codehilite">$PATH</code></p>
+</blockquote>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
 <p>If you have AWS credentials sourced (or default boto profile is available)
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
-</pre></div>
-</td></tr></table>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
+
 If you need to pass ACCESS and SECRET keys
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
 </td></tr></table>
-If you want to use a different account or profile
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
+taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>If you want to use a different account or profile
 </pre></div>
-</td></tr></table></p>
-<h3 id="local-parameter-overrides">Local Parameter Overrides.<a class="headerlink" href="#local-parameter-overrides" title="Permanent link">&para;</a></h3>
-<p>In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.</p>
-<p>The first is located .aws directory within the home-directory of the running user.
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>~/.aws/taskcat_global_override.json
+</td></tr></table>
+taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>### Local Parameter Overrides.
+In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
+
+The first is located .aws directory within the home-directory of the running user.
 </pre></div>
-</td></tr></table></p>
-<p>The second applies per-project and is located the 'CI' directory.<br />
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&lt;project_name&gt;/ci/taskcat_project_override.json
+</td></tr></table>
+~/.aws/taskcat_global_override.json
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>The second applies per-project and is located the &#39;CI&#39; directory.  
 </pre></div>
-</td></tr></table></p>
+</td></tr></table>
+<project_name>/ci/taskcat_project_override.json
+```</p>
 <p>Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
 - Home Directory (~/.aws/taskcat_global_override.json)
 - Project Directory (ci/taskcat_project_override.json)</p>
