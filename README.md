@@ -190,18 +190,30 @@ curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installe
 ```
 > Note: (If you do not have root privileges taskcat will install in the current directory)
 
-### Installing via pip
+### Installing via pip3 (for those who do not want to use the docker installer)
 > Prerequisites: Python 3.5+ and pip3
 ```
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/pip/pip3-install-master| python -E
+pip3 install taskcat
 ```
 
-### Running TaskCat
+### Installing via pip3 --user (for those who want to install taskcat into their homedir)
+> Prerequisites: Python 3.5+ and pip3
+> Note: (the user install dir is platform specific)
 
+> For Example: (On Mac: ~/Library/Python/3.x/bin/taskcat)
+
+> For Example: (On Linux: ~/.local/bin)
+
+```
+pip3 install taskcat --user
+```
+> Warning: Be sure to add the python bin dir to your `$PATH`
+
+### Running TaskCat
 If you have AWS credentials sourced (or default boto profile is available)
 ```
 taskcat -c sample-taskcat-project/ci/config.yml
-```
+
 If you need to pass ACCESS and SECRET keys
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
