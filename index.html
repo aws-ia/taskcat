@@ -539,6 +539,7 @@ Note: (the user install dir is platform specific)</p>
 <p>Warning: Be sure to add the python bin dir to your <code class="codehilite">$PATH</code></p>
 </blockquote>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
+<blockquote>
 <p>If you have AWS credentials sourced (or default boto profile is available)
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
 2</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
@@ -546,7 +547,7 @@ If you need to pass ACCESS and SECRET keys
 </pre></div>
 </td></tr></table>
 taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>If you want to use a different account or profile
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; If you want to use a different account or profile
 </pre></div>
 </td></tr></table>
 taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
@@ -558,11 +559,12 @@ The first is located .aws directory within the home-directory of the running use
 </pre></div>
 </td></tr></table>
 ~/.aws/taskcat_global_override.json
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>The second applies per-project and is located the &#39;CI&#39; directory.  
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; The second applies per-project and is located the &#39;CI&#39; directory.  
 </pre></div>
 </td></tr></table>
 <project_name>/ci/taskcat_project_override.json
 ```</p>
+</blockquote>
 <p>Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
 - Home Directory (~/.aws/taskcat_global_override.json)
 - Project Directory (ci/taskcat_project_override.json)</p>
