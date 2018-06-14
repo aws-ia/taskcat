@@ -210,14 +210,14 @@ pip3 install taskcat --user
 > Warning: Be sure to add the python bin dir to your `$PATH`
 
 ### Running TaskCat
-If you have AWS credentials sourced (or default boto profile is available)
+> If you have AWS credentials sourced (or default boto profile is available)
 ```
 taskcat -c sample-taskcat-project/ci/config.yml
 If you need to pass ACCESS and SECRET keys
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 ```
-If you want to use a different account or profile
+> If you want to use a different account or profile
 ```
 taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
 ```
@@ -229,7 +229,7 @@ The first is located .aws directory within the home-directory of the running use
 ~/.aws/taskcat_global_override.json
 ```
 
-The second applies per-project and is located the 'CI' directory.  
+> The second applies per-project and is located the 'CI' directory.  
 ```
 <project_name>/ci/taskcat_project_override.json
 ```
