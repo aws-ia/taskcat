@@ -261,7 +261,7 @@
 <p>Sub Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/reaper.m.html" target="_parent">[taskcat.Reaper]</a></p>
 <h2 id="what-is-taskcat">What is TaskCat?<a class="headerlink" href="#what-is-taskcat" title="Permanent link">&para;</a></h2>
 <p>TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.</p>
-<p>TestCat was developed by the AWS Quick Start team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation
+<p>TestCat was developed by the AWS QuickStart team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation
 templates across AWS Regions</p>
 <h2 id="files-youll-need">Files you’ll need<a class="headerlink" href="#files-youll-need" title="Permanent link">&para;</a></h2>
 <ul>
@@ -509,7 +509,7 @@ Generates: yysuawpwubvotiqgwjcu</p>
 Generates: 56188163597280820763</p>
 </blockquote>
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
-<h3 id="installing-taskcat-docker-install-is-recommended">Installing TaskCat (Docker install is recommended)<a class="headerlink" href="#installing-taskcat-docker-install-is-recommended" title="Permanent link">&para;</a></h3>
+<h3 id="installing-taskcat-docker-install">Installing TaskCat (Docker install)<a class="headerlink" href="#installing-taskcat-docker-install" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Prerequisites: docker
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
@@ -559,7 +559,7 @@ The first is located .aws directory within the home-directory of the running use
 </pre></div>
 </td></tr></table>
 ~/.aws/taskcat_global_override.json
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; The second applies per-project and is located the &#39;CI&#39; directory.  
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&gt; The second applies per-project and is located the &#39;CI&#39; directory.
 </pre></div>
 </td></tr></table>
 <project_name>/ci/taskcat_project_override.json
@@ -568,7 +568,7 @@ The first is located .aws directory within the home-directory of the running use
 <p>Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
 - Home Directory (~/.aws/taskcat_global_override.json)
 - Project Directory (ci/taskcat_project_override.json)</p>
-<p>Keys defined in the Project Override with supersede the same keys defined in the Global Override.</p>
+<p>Keys defined in the Project override with supersede the same keys defined in the global override.</p>
                 
                   
                 
