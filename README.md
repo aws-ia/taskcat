@@ -141,7 +141,7 @@ Value that matches the following pattern will be replaced
 
  * Parameters must start with $[
  * Parameters must end with ]
- * genpass in invoked when _genpass_X is found
+ * genpass in invoked when taskcat_genpass_X is found
  * X is length of the string
 
 (Optionally - you can specify the type of password by adding A or S)
@@ -159,7 +159,7 @@ Value that matches the following pattern will be replaced
 
 * Parameters must start with $[
 * Parameters must end with ]
-* genaz in invoked when _genaz_X is found
+* genaz in invoked when taskcat_genaz_X is found
 * A number of AZ's will be selected from the region the stack is attempting to launch
 
 > Example: $[taskcat_genaz_2]  
