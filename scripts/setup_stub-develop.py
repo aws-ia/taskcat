@@ -21,9 +21,7 @@ setup(
     scripts=[
         'bin/taskcat',
         'bin/alchemist',
-        'bin/taskcat-alchemist',
-        'bin/beautycorn',
-        'bin/taskcat-beautycorn'
+        'bin/taskcat-alchemist'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag']

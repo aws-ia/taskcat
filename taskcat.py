@@ -46,8 +46,7 @@ def main():
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
         # instance.stackcreate returns testdata object
-        # 'tag' can be replace with only alphanumeric values
-        testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, 'tag')
+        testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, args.stack_prefix)
         tcat_instance.get_stackstatus(testdata, 5)
         tcat_instance.createreport(testdata, 'index.html')
         tcat_instance.cleanup(testdata, 5)

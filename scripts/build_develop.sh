@@ -4,10 +4,6 @@
 # Create taskcat
 cp taskcat.py bin/taskcat
 
-# Create beautycorn
-cp beautycorn.py bin/beautycorn
-cp beautycorn.py bin/taskcat-beautycorn
-
 # Create alchemist
 cp alchemist.py bin/taskcat-alchemist
 cp alchemist.py bin/alchemist

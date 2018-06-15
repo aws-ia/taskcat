@@ -192,6 +192,8 @@ class TaskCat(object):
         self._key_url_map = {}
         self.multithread_upload = False
         self.retain_if_failed = False
+        self.tags = []
+        self.stack_prefix = ''
 
     # SETTERS AND GETTERS
     # ===================
@@ -401,7 +403,7 @@ class TaskCat(object):
             self.set_s3bucket_type('defined')
             print(I + "Staging Bucket => " + self.get_s3bucket())
         else:
-            auto_bucket = 'taskcat-' + self.get_project() + "-" + jobid[:8]
+            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(I, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
@@ -433,7 +435,11 @@ class TaskCat(object):
                 if response['ResponseMetadata']['HTTPStatusCode'] is 200:
                     print(I + "Staging Bucket => [%s]" % auto_bucket)
                     self.set_s3bucket(auto_bucket)
-
+            if self.tags:
+                s3_client.put_bucket_tagging(
+                    Bucket=auto_bucket,
+                    Tagging={"TagSet": self.tags}
+                )
         # TODO Remove after alchemist is implemented
 
         if os.path.isdir(self.get_project()):
@@ -1097,6 +1103,7 @@ class TaskCat(object):
                         print(D + "TemplateURL=%s" % self.get_template_path())
                         print(D + "Capabilities=%s" % self.get_capabilities())
                         print(D + "Parameters:")
+                        print(D + "Tags:%s" % str(self.tags))
                         if self.get_template_type() == 'json':
                             print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
@@ -1105,7 +1112,8 @@ class TaskCat(object):
                         DisableRollback=True,
                         TemplateURL=self.get_template_path(),
                         Parameters=j_params,
-                        Capabilities=self.get_capabilities())
+                        Capabilities=self.get_capabilities(),
+                        Tags=self.tags)
 
                     testdata.add_test_stack(stackdata)
 
@@ -2127,6 +2135,17 @@ class TaskCat(object):
             '--multithread_upload',
             action='store_true',
             help="Enables multithreaded upload to S3")
+        parser.add_argument(
+            '-t',
+            '--tag',
+            action=AppendTag,
+            help="add tag to cloudformation stack, must be in the format TagKey=TagValue, multiple -t can be specified")
+        parser.add_argument(
+            '-s',
+            '--stack-prefix',
+            type=str,
+            default="tag",
+            help="set prefix for cloudformation stack name. only accepts lowercase letters, numbers and '-'")
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
@@ -2140,6 +2159,16 @@ class TaskCat(object):
 
         if args.multithread_upload:
             self.multithread_upload = True
+
+        try:
+            self.tags = args.tags
+        except AttributeError:
+            pass
+
+        if not re.compile('^[a-z0-9\-]+$').match(args.stack_prefix):
+            print("--stack-prefix only accepts lowercase letters, numbers and '-'")
+            sys.exit(1)
+        self.stack_prefix = args.stack_prefix
 
         if args.verbose:
             self.verbose = True
@@ -2208,6 +2237,20 @@ class TaskCat(object):
         except Exception:
             print(I + "Unable to get version info!!, continuing")
             pass
+
+
+class AppendTag(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if len(values.split('=')) != 2:
+            print(E + "tags must be in the format TagKey=TagValue")
+            sys.exit(1)
+        n, v = values.split('=')
+        try:
+            getattr(namespace, 'tags')
+        except AttributeError:
+            setattr(namespace, 'tags', [])
+        namespace.tags.append({"Key": n, "Value": v})
+
 
 def get_cfn_stack_events(self, stackname, region):
     """
