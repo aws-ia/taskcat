@@ -358,9 +358,9 @@ templates across AWS Regions</p>
 </pre></div>
 </td></tr></table>
 
-<h3 id="step-2-building-a-json-input-file">Step 2 Building a json input file<a class="headerlink" href="#step-2-building-a-json-input-file" title="Permanent link">&para;</a></h3>
-<p>The example below shows an input file for a stack that requires four parameters <code class="codehilite">KeyPair</code>,<code class="codehilite">InstanceType</code>, <code class="codehilite">AvailablityZones</code> and <code class="codehilite">Password</code></p>
-<p>Note: you can auto generate values at runtime using special tokens (see example below).</p>
+<h3 id="step-2-building-a-json-input-file-using-taskcat-tokens">Step 2 Building a json input file using taskcat-tokens<a class="headerlink" href="#step-2-building-a-json-input-file-using-taskcat-tokens" title="Permanent link">&para;</a></h3>
+<p>The example below shows an input file for a stack that requires seven parameters <code class="codehilite">KeyPairName</code>,<code class="codehilite">InstanceType</code>, <code class="codehilite">AvailablityZones``RandomString</code>, <code class="codehilite">RandomNumbers</code>, <code class="codehilite">GenerateUUID</code> and <code class="codehilite">Password</code></p>
+<p>Note: you can auto generate values at runtime using <code class="codehilite">taskcat runtime injection</code> (see example below).</p>
 <blockquote>
 <p>The following json will evaluate</p>
 </blockquote>
@@ -384,11 +384,9 @@ templates across AWS Regions</p>
 17
 18
 19
-20
-21
-22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
+20</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
     &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
-    &quot;ParameterValue&quot;: &quot;mykey&quot;
+    &quot;ParameterValue&quot;: &quot;tonynv&quot;
 }, {
     &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
     &quot;ParameterValue&quot;: &quot;t2.small&quot;
@@ -404,9 +402,7 @@ templates across AWS Regions</p>
 }, {
     &quot;ParameterKey&quot;: &quot;GenerateUUID&quot;,
     &quot;ParameterValue&quot;: &quot;$[taskcat_genuuid]&quot;
-}, {
-    &quot;ParameterKey&quot;: &quot;Password&quot;,
-    &quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;
+}, { &quot;ParameterKey&quot;: &quot;Password&quot;, &quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;
 }]
 </pre></div>
 </td></tr></table>
@@ -458,15 +454,14 @@ templates across AWS Regions</p>
 </pre></div>
 </td></tr></table>
 
-<h4 id="more-information-on-auto-generated-stack-inputs">More information on Auto-generated stack inputs<a class="headerlink" href="#more-information-on-auto-generated-stack-inputs" title="Permanent link">&para;</a></h4>
+<h4 id="more-information-on-taskcat-runtime-injection">More information on <code class="codehilite">taskcat runtime injection</code><a class="headerlink" href="#more-information-on-taskcat-runtime-injection" title="Permanent link">&para;</a></h4>
 <h3 id="passwords">(Passwords)<a class="headerlink" href="#passwords" title="Permanent link">&para;</a></h3>
-<p>Value that matches the following pattern will be replaced</p>
-<ul>
-<li>Parameters must start with $[</li>
-<li>Parameters must end with ]</li>
-<li>genpass in invoked when taskcat_genpass_X is found</li>
-<li>X is length of the string</li>
-</ul>
+<p>Value that matches the following pattern will be replaced:
+ * All runtime injection parameters must start with <code class="codehilite">$[</code>
+ * Parameters must end with<code class="codehilite">]</code></p>
+<p>To generate a random 8 character alpha-numeric password for testing use $[taskcat_genpass_8] as the value in the json input file
+ * The number (8) in the injection string tells taskcat you want a password that character long.
+ * Changing the 8 to 12 would result in a 12 character string</p>
 <p>(Optionally - you can specify the type of password by adding A or S)</p>
 <ul>
 <li>A alpha-numeric passwords</li>
