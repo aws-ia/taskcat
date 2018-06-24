@@ -73,18 +73,18 @@ example here:
         ├── sample-cloudformation-project-novpc.template
         └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload
 
-### Step 2 Building a json input file
-The example below shows an input file for a stack that requires four parameters `KeyPair`,`InstanceType`, `AvailablityZones` and `Password`
+### Step 2 Building a json input file using taskcat-tokens
+The example below shows an input file for a stack that requires seven parameters `KeyPairName`,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
 
-Note: you can auto generate values at runtime using special tokens (see example below).
+Note: you can auto generate values at runtime using `taskcat runtime injection` (see example below).
 > The following json will evaluate
 
 #### From:
 
 ```
 [{
-    "ParameterKey": "KeyPair",
-    "ParameterValue": "mykey"
+    "ParameterKey": "KeyPairName",
+    "ParameterValue": "tonynv"
 }, {
     "ParameterKey": "InstanceType",
     "ParameterValue": "t2.small"
@@ -133,15 +133,16 @@ Note: you can auto generate values at runtime using special tokens (see example 
 }]
 ```
 
-#### More information on Auto-generated stack inputs
+#### More information on `taskcat runtime injection`
 
 ### (Passwords)
-Value that matches the following pattern will be replaced
+Value that matches the following pattern will be replaced:
+ * All runtime injection parameters must start with `$[`
+ * Parameters must end with` ]`
 
- * Parameters must start with $[
- * Parameters must end with ]
- * genpass in invoked when taskcat_genpass_X is found
- * X is length of the string
+To generate a random 8 character alpha-numeric password for testing use $[taskcat_genpass_8] as the value in the json input file
+ * The number (8) in the injection string tells Taskcat you want a password that character long.
+ * Changing the 8 to 12 would result in a 12 character string
 
 (Optionally - you can specify the type of password by adding A or S)
 
@@ -149,7 +150,8 @@ Value that matches the following pattern will be replaced
  * S passwords with special characters
 
 > Example: $[taskcat_genpass_8A]
-> Generates: `tI8zN3iX8`
+> Generates: tI8zN3iX8
+
 > Example: $[taskcat_genpass_8S]
 > Generates: mA5@cB5!
 
@@ -161,7 +163,7 @@ Value that matches the following pattern will be replaced
 * genaz in invoked when taskcat_genaz_X is found
 * A number of AZ's will be selected from the region the stack is attempting to launch
 
-> Example: $[taskcat_genaz_2]  
+> Example: $[taskcat_genaz_2]
 > Generates: us-east-1a, us-east-2b
 > (if the region is us-east-1)
 
@@ -187,7 +189,7 @@ Value that matches the following pattern will be replaced
 ```
 curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 ```
-> Note: (If you do not have root privileges taskcat will install in the current directory)
+> Note: (If you do not have root privileges Taskcat will install in the current directory)
 
 ### Installing via pip3 (for those who do not want to use the docker installer)
 > Prerequisites: Python 3.5+ and pip3
