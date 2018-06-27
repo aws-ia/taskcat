@@ -1,6 +1,6 @@
 site_name: taskcat
 site_url: http://aws-quickstart.github.io/taskcat/
-site_author: 'Tony Vattathil, Santiago Cardenas, Shivansh Singh'
+site_author: 'Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell, Andrew Glenn'
 site_description: Project documentation for taskcat python class.
 site_favicon: 'images/favicon.png'
 
