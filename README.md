@@ -1,4 +1,5 @@
 # TaskCat
+![TaskCat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)
 > This program requires python3
 
 # Currently in (beta release)
