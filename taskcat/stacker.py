@@ -307,8 +307,10 @@ class TaskCat(object):
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
-        except Exception:
-            pass
+        except ValueError:
+            print(D + "Unable to parse JSON")
+        except Exception as e:
+            print(D + e.msg)
 
         # Setup a list index dictionary.
         # - Used to give an Parameter => Index mapping for replacement.
