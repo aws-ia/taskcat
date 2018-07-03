@@ -310,7 +310,7 @@ class TaskCat(object):
         except ValueError:
             print(D + "Unable to parse JSON")
         except Exception as e:
-            print(D + e.msg)
+            pass
 
         # Setup a list index dictionary.
         # - Used to give an Parameter => Index mapping for replacement.
