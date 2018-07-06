@@ -326,6 +326,8 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
+                else:
+                    print(I + "Cannot override [{}]! It's not present within the parameters file!".format(key))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
