@@ -387,7 +387,10 @@ templates across AWS Regions</p>
 19
 20
 21
-22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
+22
+23
+24
+25</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
     &quot;ParameterKey&quot;: &quot;KeyPairName&quot;,
     &quot;ParameterValue&quot;: &quot;tonynv&quot;
 }, {
@@ -408,6 +411,9 @@ templates across AWS Regions</p>
 }, {
     &quot;ParameterKey&quot;: &quot;Password&quot;,
     &quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;PasswordConfirm&quot;,
+    &quot;ParameterValue&quot;: &quot;$[taskcat_getval_Password]&quot;
 }]
 </pre></div>
 </td></tr></table>
@@ -434,7 +440,10 @@ templates across AWS Regions</p>
 19
 20
 21
-22</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
+22
+23
+24
+25</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
     &quot;ParameterKey&quot;: &quot;KeyPair&quot;,
     &quot;ParameterValue&quot;: &quot;mykey&quot;
 }, {
@@ -454,6 +463,9 @@ templates across AWS Regions</p>
     &quot;ParameterValue&quot;: &quot;1c2e3483-2c99-45bb-801d-8af68a3b907b&quot;
 }, {
     &quot;ParameterKey&quot;: &quot;Password&quot;,
+    &quot;ParameterValue&quot;: &quot;tI8zN3iX8&quot;
+}, {
+    &quot;ParameterKey&quot;: &quot;PasswordConfirm&quot;,
     &quot;ParameterValue&quot;: &quot;tI8zN3iX8&quot;
 }]
 </pre></div>
@@ -507,6 +519,16 @@ Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b</p>
 Generates: yysuawpwubvotiqgwjcu</p>
 <p>Example: $[taskcat_random-numbers]
 Generates: 56188163597280820763</p>
+</blockquote>
+<h3 id="retrieve-previously-generated-value-based-on-parameter-name">(Retrieve previously generated value based on parameter name)<a class="headerlink" href="#retrieve-previously-generated-value-based-on-parameter-name" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>UseCase: Need to confirm a dynamically generated password
+"ParameterKey": "MyAppPassword",
+"ParameterValue": "$[taskcat_genpass_8A]"
+Generates: pI8zN4iX8</p>
+<p>"ParameterKey": "ConfirmMyAppPassword",
+"ParameterValue": "$[taskcat_getval_MyAppPassword]"
+Generates: pI8zN4iX8</p>
 </blockquote>
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
 <h3 id="installing-taskcat-docker-install">Installing TaskCat (Docker install)<a class="headerlink" href="#installing-taskcat-docker-install" title="Permanent link">&para;</a></h3>
