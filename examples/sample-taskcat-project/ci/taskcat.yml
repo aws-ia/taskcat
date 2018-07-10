@@ -1,10 +1,10 @@
---- 
-global: 
+---
+global:
   owner: tonynv@amazon.com
   qsname: sample-taskcat-project
   #s3bucket: tonynv
   s3bucket: taskcat-sample-taskcat-project-a1c14bc9
-  regions: 
+  regions:
     - ap-northeast-1
     - ap-northeast-2
     - ap-southeast-1
@@ -16,10 +16,10 @@ global:
     - us-west-1
     - us-west-2
   reporting: true
-tests: 
-  taskcat-test1: 
+tests:
+  taskcat-json:
     parameter_input: debug-input.json
-    regions: 
+    regions:
       - us-east-1
     template_file: debug.template
 

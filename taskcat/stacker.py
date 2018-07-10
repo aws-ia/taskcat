@@ -888,6 +888,10 @@ class TaskCat(object):
         # Example: $[taskcat_genaz_2] (if the region is us-east-2)
         # Generates: us-east-1a, us-east-2b
 
+        # (Retrieve previously generated value)
+        # Example: $[taskcat_getval_KeyName]
+        # UseCase: Can be used to confirm geneared passwords
+
         for _parameters in s_parms:
             for _ in _parameters:
 
@@ -1049,8 +1053,6 @@ class TaskCat(object):
                             passlen, gentype)
                         _parameters['ParameterValue'] = param_value
 
-
-
                 if genaz_re.search(param_value):
                     numazs = int(
                         self.regxfind(count_re, param_value))
@@ -1089,9 +1091,6 @@ class TaskCat(object):
                     print("{}Loading {} as value for {} ".format(D, param_value, requested_key))
                     _parameters['ParameterValue'] = param_value
 
-        print("-----------------------------------")
-        print(self._parameters)
-        print("-----------------------------------")
         return s_parms
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
