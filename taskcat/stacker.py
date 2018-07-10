@@ -285,12 +285,17 @@ class TaskCat(object):
         # Github/issue/57
         # Look for ~/.taskcat_overrides.json
 
-        # Fetch overrides Homedir first.
+        print(I + "|Processing Overrides")
+        # Fetch overrides Home dir first.
         dict_squash_list = []
         _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
         if os.path.isfile(_homedir_override_file_path):
             with open(_homedir_override_file_path) as f:
-                _homedir_override_json = json.loads(f.read())
+                try:
+                    _homedir_override_json = json.loads(f.read())
+                except ValueError:
+                    print(E + "Unable to parse JSON (taskcat global overrides)")
+                    sys.exit(1)
                 print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
