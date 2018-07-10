@@ -182,7 +182,7 @@ class TaskCat(object):
         self._auth_mode = None
         self._report = False
         self._use_global = False
-        self._password = None
+        self._parameters = []
         self.run_cleanup = True
         self.public_s3_bucket = False
         self._aws_access_key = None
@@ -354,11 +354,11 @@ class TaskCat(object):
     def get_template_path(self):
         return self.template_path
 
-    def set_password(self, password):
-        self._password = password
+    def set_parameter(self, key, val):
+        self._parameters[key] = val
 
-    def get_password(self):
-        return self._password
+    def get_parameter(self, key):
+        return self._parameters[key]
 
     def set_dynamodb_table(self, ddb_table):
         self.ddb_table = ddb_table
