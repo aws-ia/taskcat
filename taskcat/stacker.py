@@ -1117,7 +1117,8 @@ class TaskCat(object):
                         if self.get_template_type() == 'json':
                             print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
-                    try:         
+                    try:
+                        print(I + "|CFN Execution mode [create_stack]")
                         stackdata = cfn.create_stack(
                             StackName=stackname,
                             DisableRollback=True,
@@ -1126,7 +1127,8 @@ class TaskCat(object):
                             Capabilities=self.get_capabilities(),
                             Tags=self.tags
                         )
-                    except:    
+                    except:
+                        print(I + "|CFN Execution mode [change_set]")
                         stack_cs_data = cfn.create_change_set(
                             StackName=stackname,
                             TemplateURL=self.get_template_path(),
@@ -1135,7 +1137,6 @@ class TaskCat(object):
                             ChangeSetType="CREATE",
                             ChangeSetName=stackname + "-cs"
                         )
-
                         change_set_name = stack_cs_data['Id']
 
                         # wait for change set
