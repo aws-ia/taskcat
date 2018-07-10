@@ -313,7 +313,8 @@ class TaskCat(object):
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
         except ValueError:
-            print(D + "Unable to parse JSON")
+            print(E + "Unable to parse JSON (taskcat project overrides)")
+            sys.exit(1)
         except Exception as e:
             pass
 
