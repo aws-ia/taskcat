@@ -182,7 +182,7 @@ class TaskCat(object):
         self._auth_mode = None
         self._report = False
         self._use_global = False
-        self._parameters = []
+        self._parameters = {}
         self.run_cleanup = True
         self.public_s3_bucket = False
         self._aws_access_key = None
@@ -888,10 +888,12 @@ class TaskCat(object):
         # Example: $[taskcat_genaz_2] (if the region is us-east-2)
         # Generates: us-east-1a, us-east-2b
 
-        for parmdict in s_parms:
-            for _ in parmdict:
+        for _parameters in s_parms:
+            for _ in _parameters:
 
-                param_value = parmdict['ParameterValue']
+                param_key = _parameters['ParameterKey']
+                param_value =_parameters['ParameterValue']
+                self.set_parameter(param_key, param_value)
 
                 # Determines the size of the password to generate
                 count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
@@ -942,13 +944,16 @@ class TaskCat(object):
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
                 geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
 
+                # Determines if getval has been requested (Matches parameter key)
+                getval_re = re.compile('(?<=._getval_)(\w+)(?=]$)', re.IGNORECASE)
+
                 # If Number is found as Parameter Value convert it to String ( ex: 1 to "1")
                 if type(param_value) == int:
                     param_value = str(param_value)
                     if self.verbose:
                         (I + "Converting byte values in stack input file({}) to [string value]".format(
                             self.get_parameter_file()))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gen_string_re.search(param_value):
                     random_string = self.regxfind(gen_string_re, param_value)
@@ -956,7 +961,7 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating random string for {}".format(D, random_string))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gen_numbers_re.search(param_value):
                     random_numbers = self.regxfind(gen_numbers_re, param_value)
@@ -964,7 +969,7 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating numeric string for {}".format(D, random_numbers))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if genuuid_re.search(param_value):
                     uuid_string = self.regxfind(genuuid_re, param_value)
@@ -972,42 +977,42 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating random uuid string for {}".format(D, uuid_string))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if autobucket_re.search(param_value):
                     bkt = self.regxfind(autobucket_re, param_value)
                     param_value = self.get_s3bucket()
                     if self.verbose:
                         print("{}Setting value to {}".format(D, bkt))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gets3replace.search(param_value):
                     url = self.regxfind(geturl_re, param_value)
                     param_value = self.get_s3contents(url)
                     if self.verbose:
                         print("{}Raw content of url {}".format(D, url))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getkeypair_re.search(param_value):
                     keypair = self.regxfind(getkeypair_re, param_value)
                     param_value = 'cikey'
                     if self.verbose:
                         print("{}Generating default Keypair {}".format(D, keypair))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getlicensebucket_re.search(param_value):
                     licensebucket = self.regxfind(getlicensebucket_re, param_value)
                     param_value = 'quickstart-ci-license'
                     if self.verbose:
                         print("{}Generating default license bucket {}".format(D, licensebucket))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getmediabucket_re.search(param_value):
                     media_bucket = self.regxfind(getmediabucket_re, param_value)
                     param_value = 'quickstart-ci-media'
                     if self.verbose:
                         print("{}Generating default media bucket {}".format(D, media_bucket))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if licensecontent_re.search(param_value):
                     license_bucket = 'quickstart-ci-license'
@@ -1015,7 +1020,7 @@ class TaskCat(object):
                     param_value = self.get_content(license_bucket, licensekey)
                     if self.verbose:
                         print("{}Getting license content for {}/{}".format(D, license_bucket, licensekey))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 # Autogenerated value to password input in runtime
                 if genpass_re.search(param_value):
@@ -1042,7 +1047,9 @@ class TaskCat(object):
                             print("{}AutoGen values for {}".format(D, param_value))
                         param_value = self.genpassword(
                             passlen, gentype)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
+
+
 
                 if genaz_re.search(param_value):
                     numazs = int(
@@ -1055,7 +1062,7 @@ class TaskCat(object):
                         param_value = self.get_available_azs(
                             region,
                             numazs)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
                     else:
                         print(I + "$[taskcat_genaz_(!)]")
                         print(I + "Number of az's not specified!")
@@ -1063,7 +1070,7 @@ class TaskCat(object):
                         param_value = self.get_available_azs(
                             region,
                             1)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
 
                 if genaz_single_re.search(param_value):
                     print(D + "Selecting availability zones")
@@ -1071,7 +1078,20 @@ class TaskCat(object):
                     param_value = self.get_available_azs(
                         region,
                         1)
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
+
+                self.set_parameter(param_key, param_value)
+
+                if getval_re.search(param_value):
+                    requested_key = self.regxfind(getval_re, param_value)
+                    print("{}Getting previously assigned value for {}".format(D, requested_key))
+                    param_value = self.get_parameter(requested_key)
+                    print("{}Loading {} as value for {} ".format(D, param_value, requested_key))
+                    _parameters['ParameterValue'] = param_value
+
+        print("-----------------------------------")
+        print(self._parameters)
+        print("-----------------------------------")
         return s_parms
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
