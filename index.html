@@ -485,10 +485,10 @@ templates across AWS Regions</p>
 <li>S passwords with special characters</li>
 </ul>
 <blockquote>
-<p>Example: $[taskcat_genpass_8A]
-Generates: tI8zN3iX8</p>
-<p>Example: $[taskcat_genpass_8S]
-Generates: mA5@cB5!</p>
+<p>Example: $[taskcat_genpass_8A]</p>
+<p>Generates: tI8zN3iX8</p>
+<p>Example: $[taskcat_genpass_8S]</p>
+<p>Generates: mA5@cB5!</p>
 </blockquote>
 <h3 id="availability-zones">(Availability Zones)<a class="headerlink" href="#availability-zones" title="Permanent link">&para;</a></h3>
 <p>Value that matches the following pattern will be replaced</p>
@@ -499,57 +499,60 @@ Generates: mA5@cB5!</p>
 <li>A number of AZ's will be selected from the region the stack is attempting to launch</li>
 </ul>
 <blockquote>
-<p>Example: $[taskcat_genaz_2]
-Generates: us-east-1a, us-east-2b
-(if the region is us-east-1)</p>
+<p>Example: $[taskcat_genaz_2]</p>
+<p>Generates: us-east-1a, us-east-2b</p>
+<p>(if the region is us-east-1)</p>
 </blockquote>
 <h3 id="auto-generated-s3-bucket">(Auto generated s3 bucket )<a class="headerlink" href="#auto-generated-s3-bucket" title="Permanent link">&para;</a></h3>
 <blockquote>
-<p>Example: $[taskcat_autobucket]
-Generates: <evaluates to auto generated bucket name></p>
+<p>Example: $[taskcat_autobucket]</p>
+<p>Generates: evaluates to auto generated bucket name (taskcat-tag-sample-taskcat-project-5fba6597)</p>
 </blockquote>
 <h3 id="generate-uuid-string">(Generate UUID String)<a class="headerlink" href="#generate-uuid-string" title="Permanent link">&para;</a></h3>
 <blockquote>
-<p>Example: $[taskcat_genuuid]
-Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b</p>
+<p>Example: $[taskcat_genuuid]</p>
+<p>Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b</p>
 </blockquote>
-<h3 id="generate-random-string">(Generate Random String)<a class="headerlink" href="#generate-random-string" title="Permanent link">&para;</a></h3>
+<h3 id="generate-random-values">(Generate Random Values)<a class="headerlink" href="#generate-random-values" title="Permanent link">&para;</a></h3>
+<p>String:</p>
 <blockquote>
-<p>Example: $[taskcat_random-string]
-Generates: yysuawpwubvotiqgwjcu</p>
-<p>Example: $[taskcat_random-numbers]
-Generates: 56188163597280820763</p>
+<p>Example: $[taskcat_random-string]</p>
+<p>Generates: yysuawpwubvotiqgwjcu</p>
+</blockquote>
+<p>Numbers:</p>
+<blockquote>
+<p>Example: $[taskcat_random-numbers]</p>
+<p>Generates: 56188163597280820763</p>
 </blockquote>
 <h3 id="retrieve-previously-generated-value-based-on-parameter-name">(Retrieve previously generated value based on parameter name)<a class="headerlink" href="#retrieve-previously-generated-value-based-on-parameter-name" title="Permanent link">&para;</a></h3>
+<p>UseCase: Need to confirm a dynamically generated password</p>
+<p><code class="codehilite">&quot;ParameterKey&quot;: &quot;MyAppPassword&quot;</code></p>
+<p><code class="codehilite">&quot;ParameterValue&quot;: &quot;$[taskcat_genpass_8A]&quot;</code></p>
 <blockquote>
-<p>UseCase: Need to confirm a dynamically generated password
-"ParameterKey": "MyAppPassword",
-"ParameterValue": "$[taskcat_genpass_8A]"
-Generates: pI8zN4iX8</p>
-<p>"ParameterKey": "ConfirmMyAppPassword",
-"ParameterValue": "$[taskcat_getval_MyAppPassword]"
-Generates: pI8zN4iX8</p>
+<p>Generates: pI8zN4iX8</p>
+</blockquote>
+<p><code class="codehilite">&quot;ParameterKey&quot;: &quot;ConfirmMyAppPassword&quot;</code></p>
+<p><code class="codehilite">&quot;ParameterValue&quot;: &quot;$[taskcat_getval_MyAppPassword]&quot;</code></p>
+<blockquote>
+<p>Generates: pI8zN4iX8</p>
 </blockquote>
 <h2 id="installing-taskcat">Installing TaskCat<a class="headerlink" href="#installing-taskcat" title="Permanent link">&para;</a></h2>
 <h3 id="installing-taskcat-docker-install">Installing TaskCat (Docker install)<a class="headerlink" href="#installing-taskcat-docker-install" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>Prerequisites: docker
-<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
+<p>Prerequisites: <code class="codehilite">docker</code></p>
+<p><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 </pre></div>
 </td></tr></table>
 Note: (If you do not have root privileges Taskcat will install in the current directory)</p>
-</blockquote>
 <h3 id="installing-via-pip3-for-those-who-do-not-want-to-use-the-docker-installer">Installing via pip3 (for those who do not want to use the docker installer)<a class="headerlink" href="#installing-via-pip3-for-those-who-do-not-want-to-use-the-docker-installer" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>Prerequisites: Python 3.5+ and pip3
+<p>Prerequisites: <code class="codehilite">Python 3.5+ and pip3</code></p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>pip3 install taskcat
 </pre></div>
-</td></tr></table></p>
-</blockquote>
+</td></tr></table>
+
 <h3 id="installing-via-pip3-user-for-those-who-want-to-install-taskcat-into-their-homedir">Installing via pip3 --user (for those who want to install taskcat into their homedir)<a class="headerlink" href="#installing-via-pip3-user-for-those-who-want-to-install-taskcat-into-their-homedir" title="Permanent link">&para;</a></h3>
+<p>Prerequisites: <code class="codehilite">Python 3.5+ and pip3</code></p>
+<p>Note: (the user install dir is platform specific)</p>
 <blockquote>
-<p>Prerequisites: Python 3.5+ and pip3
-Note: (the user install dir is platform specific)</p>
 <p>For Example: (On Mac: ~/Library/Python/3.x/bin/taskcat)</p>
 <p>For Example: (On Linux: ~/.local/bin)</p>
 </blockquote>
@@ -561,12 +564,13 @@ Note: (the user install dir is platform specific)</p>
 <p>Warning: Be sure to add the python bin dir to your <code class="codehilite">$PATH</code></p>
 </blockquote>
 <h3 id="running-taskcat">Running TaskCat<a class="headerlink" href="#running-taskcat" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>If you have AWS credentials sourced (or default boto profile is available)
+<p>Note: If you have AWS credentials sourced (or default boto profile is available)</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml
 </pre></div>
 </td></tr></table>
-If you need to pass ACCESS and SECRET keys
+
+<blockquote>
+<p>If you need to pass ACCESS and SECRET keys
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 </pre></div>
 </td></tr></table>
@@ -576,21 +580,20 @@ If you want to use a different account or profile
 </td></tr></table></p>
 </blockquote>
 <h3 id="local-parameter-overrides">Local Parameter Overrides.<a class="headerlink" href="#local-parameter-overrides" title="Permanent link">&para;</a></h3>
-<blockquote>
-<p>In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
-The first is located .aws directory within the home-directory of the running user.
+<p>In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.</p>
+<p>The first is located .aws directory within the home-directory of the running user.</p>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>~/.aws/taskcat_global_override.json
 </pre></div>
-</td></tr></table></p>
-<p>The second applies per-project and is located the 'CI' directory.
+</td></tr></table>
+
+<p>The second applies per-project and is located the 'ci' directory.
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>&lt;project_name&gt;/ci/taskcat_project_override.json
 </pre></div>
 </td></tr></table></p>
-</blockquote>
 <p>Parameters defined in either file will supersede parameters within the normal parameter files. The override includes are read in the following order.
 - Home Directory (~/.aws/taskcat_global_override.json)
 - Project Directory (ci/taskcat_project_override.json)</p>
-<p>Keys defined in the Project override with supersede the same keys defined in the global override.</p>
+<p>Note: Keys defined in the Project override with supersede the same keys defined in the global override.</p>
                 
                   
                 
