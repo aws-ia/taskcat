@@ -104,6 +104,9 @@ Note: you can auto generate values at runtime using `taskcat runtime injection` 
 }, {
     "ParameterKey": "Password",
     "ParameterValue": "$[taskcat_genpass_8A]"
+}, {
+    "ParameterKey": "PasswordConfirm",
+    "ParameterValue": "$[taskcat_getval_Password]"
 }]
 ```
 
@@ -130,6 +133,9 @@ Note: you can auto generate values at runtime using `taskcat runtime injection` 
     "ParameterValue": "1c2e3483-2c99-45bb-801d-8af68a3b907b"
 }, {
     "ParameterKey": "Password",
+    "ParameterValue": "tI8zN3iX8"
+}, {
+    "ParameterKey": "PasswordConfirm",
     "ParameterValue": "tI8zN3iX8"
 }]
 ```
@@ -182,6 +188,16 @@ Value that matches the following pattern will be replaced
 
 > Example: $[taskcat_random-numbers]
 > Generates: 56188163597280820763
+
+### (Retrieve previously generated value based on parameter name)
+> UseCase: Need to confirm a dynamically generated password
+> "ParameterKey": "MyAppPassword",
+> "ParameterValue": "$[taskcat_genpass_8A]"
+> Generates: pI8zN4iX8
+
+> "ParameterKey": "ConfirmMyAppPassword",
+> "ParameterValue": "$[taskcat_getval_MyAppPassword]"
+> Generates: pI8zN4iX8
 
 ## Installing TaskCat
 
