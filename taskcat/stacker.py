@@ -517,7 +517,7 @@ class TaskCat(object):
 
         if len(available_azs) < count:
             print("{0}!Only {1} az's are available in {2}".format(E, len(available_azs), region))
-            quit()
+            quit(1)
         else:
             azs = ','.join(available_azs[:count])
             return azs
@@ -1578,14 +1578,14 @@ class TaskCat(object):
                 if not template_path:
                     print("{0} Could not locate {1}".format(E, self.get_template_file()))
                     print("{0} Check to make sure filename is correct?".format(E, self.get_template_path()))
-                    quit()
+                    quit(1)
 
                 # Check to make sure parameter filenames are correct
                 parameter_path = self.get_parameter_path()
                 if not parameter_path:
                     print("{0} Could not locate {1}".format(E, self.get_parameter_file()))
                     print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
-                    quit()
+                    quit(1)
 
                 # Detect template type
 
