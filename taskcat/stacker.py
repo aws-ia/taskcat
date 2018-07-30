@@ -544,7 +544,7 @@ class TaskCat(object):
         - If not, does an S3 API call.
 
         :param url: URL of the S3 object to return.
-        :return: Data of the s3 object.
+        :return: Data of the s3 object
         """
         if self.public_s3_bucket:
             payload = requests.get(url)
@@ -2278,15 +2278,8 @@ class TaskCat(object):
                 else:
                     _print_upgrade_msg(current_version)
 
-            else:
-                current_version = get_pip_version(
-                    'https://test.pypi.org/pypi/taskcat/json')
-                if version in current_version:
-                    print("version %s" % version)
-                else:
-                    _print_upgrade_msg(current_version)
         else:
-            print(I + "using %s (development mode) \n" % version)
+            print(I + "Using local source (development mode) \n")
 
     def welcome(self, prog_name='taskcat.io'):
         banner = pyfiglet.Figlet(font='standard')
