@@ -751,7 +751,10 @@ class TaskCat(object):
             except Exception as e:
                 if self.verbose:
                     print(D + str(e))
-                sys.exit(F + "Cannot validate %s" % self.get_template_file())
+                print(F + "Cannot validate %s" % self.get_template_file())
+                print(I + "Deleting any automatically-created buckets...")
+                self.delete_autobucket()
+                sys.exit(1)
         print('\n')
         return True
 
@@ -1461,6 +1464,12 @@ class TaskCat(object):
                         ))
                 s.delete_all(failed_stacks)
 
+        self.delete_autobucket()
+
+    def delete_autobucket(self):
+        """
+        This function deletes the automatically created S3 bucket(s) of the current project.
+        """
         # Check to see if auto bucket was created
         if self.get_s3bucket_type() is 'auto':
             print(I + "(Cleaning up staging assets)")
