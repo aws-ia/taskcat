@@ -956,7 +956,7 @@ class TaskCat(object):
                 getmediabucket_re = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
 
                 # Determines if license content has been requested
-                licensecontent_re = re.compile('\$\[\w+_getlicensecontent]', re.IGNORECASE)
+                licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
 
                 # Determines if s3 replacement was requested
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
@@ -1034,7 +1034,7 @@ class TaskCat(object):
 
                 if licensecontent_re.search(param_value):
                     license_bucket = 'quickstart-ci-license'
-                    licensekey = (self.regxfind(licensecontent_re, param_value)).strip('/')
+                    licensekey = (self.regxfind(licensecontent_re, param_value)).strip('/',1)[1]
                     param_value = self.get_content(license_bucket, licensekey)
                     if self.verbose:
                         print("{}Getting license content for {}/{}".format(D, license_bucket, licensekey))
