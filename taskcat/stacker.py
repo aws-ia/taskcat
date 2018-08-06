@@ -194,6 +194,7 @@ class TaskCat(object):
         self.retain_if_failed = False
         self.tags = []
         self.stack_prefix = ''
+        self.template_data = None
 
     # SETTERS AND GETTERS
     # ===================
@@ -338,13 +339,14 @@ class TaskCat(object):
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
         _kn = 'QSS3BucketName'
-        if _kn in param_index:
-            _knidx = param_index[_kn]
-            param_bucket_name = original_keys[_knidx]['ParameterValue']
-            if (param_bucket_name != bucket_name):
-                print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
-                print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
-                original_keys[_knidx]['ParameterValue'] = bucket_name
+        if _kn in self.extract_template_parameters():
+            if _kn in param_index:
+                _knidx = param_index[_kn]
+                param_bucket_name = original_keys[_knidx]['ParameterValue']
+                if (param_bucket_name != bucket_name):
+                    print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
+                    print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
+                    original_keys[_knidx]['ParameterValue'] = bucket_name
 
         return original_keys
 
@@ -716,6 +718,15 @@ class TaskCat(object):
             }
             l_all_resources.append(d)
         return l_all_resources
+
+    def extract_template_parameters(self):
+        """
+        Returns a dictionary of the parameters in the template entrypoint.
+
+        :param template_file: Template file location.
+        :return: list of parameters for the template.
+        """
+        return self.template_data['Parameters'].keys()
 
     def validate_template(self, taskcat_cfg, test_list):
         """
@@ -1605,10 +1616,12 @@ class TaskCat(object):
                     # Enforce strict json syntax
                     if self._strict_syntax_json:
                         self.check_json(cfntemplate, quite=True, strict=True)
+                    self.template_data = json.loads(cfntemplate)
                 else:
                     self.set_template_type(None)
                     self.check_yaml(cfntemplate, quite=True, strict=False)
                     self.set_template_type('yaml')
+                    self.template_data = yaml.load(cfntemplate)
 
                 if self.verbose:
                     print(I + "|Acquiring tests assets for .......[%s]" % test)
