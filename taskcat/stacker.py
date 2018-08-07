@@ -36,6 +36,7 @@ import tabulate
 import yaml
 import yattag
 import logging
+import cfnlint.core
 from argparse import RawTextHelpFormatter
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
@@ -88,6 +89,7 @@ Given the url to PypI package info url returns the current live version
 # create logger
 logger = logging.getLogger('taskcat')
 logger.setLevel(logging.DEBUG)
+
 
 
 def get_pip_version(url):
@@ -1619,9 +1621,13 @@ class TaskCat(object):
                     self.template_data = json.loads(cfntemplate)
                 else:
                     self.set_template_type(None)
-                    self.check_yaml(cfntemplate, quite=True, strict=False)
+                    #self.check_yaml(cfntemplate, quite=True, strict=False)
                     self.set_template_type('yaml')
-                    self.template_data = yaml.load(cfntemplate)
+
+                    m_constructor = cfnlint.decode.cfn_yaml.multi_constructor
+                    loader = cfnlint.decode.cfn_yaml.MarkedLoader(cfntemplate, None)
+                    loader.add_multi_constructor('!', m_constructor)
+                    self.template_data = loader.get_single_data()
 
                 if self.verbose:
                     print(I + "|Acquiring tests assets for .......[%s]" % test)
@@ -1692,6 +1698,8 @@ class TaskCat(object):
                 sys.exit(1)
             return False
         return True
+
+
 
     # Set AWS Credentials
     # Set AWS Credentials
