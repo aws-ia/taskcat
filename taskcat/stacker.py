@@ -1613,15 +1613,15 @@ class TaskCat(object):
 
                 cfntemplate = self.get_s3contents(self.get_s3_url(self.get_template_file()))
 
-                if self.check_json(cfntemplate, quite=True, strict=False):
+                if self.check_json(cfntemplate, quiet=True, strict=False):
                     self.set_template_type('json')
                     # Enforce strict json syntax
                     if self._strict_syntax_json:
-                        self.check_json(cfntemplate, quite=True, strict=True)
+                        self.check_json(cfntemplate, quiet=True, strict=True)
                     self.template_data = json.loads(cfntemplate)
                 else:
                     self.set_template_type(None)
-                    self.check_cfnyaml(cfntemplate, quite=True, strict=False)
+                    self.check_cfnyaml(cfntemplate, quiet=True, strict=False)
                     self.set_template_type('yaml')
 
                     m_constructor = cfnlint.decode.cfn_yaml.multi_constructor
@@ -1655,12 +1655,12 @@ class TaskCat(object):
                 print(P + "(Completed) acquisition of [%s]" % test)
                 print('\n')
 
-    def check_json(self, jsonin, quite=None, strict=None):
+    def check_json(self, jsonin, quiet=None, strict=None):
         """
         This function validates the given JSON.
 
         :param jsonin: Json object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given Json is valid, FALSE otherwise.
@@ -1668,7 +1668,7 @@ class TaskCat(object):
         try:
             parms = json.loads(jsonin)
             if self.verbose:
-                if not quite:
+                if not quiet:
                     print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
         except ValueError as e:
             if strict:
@@ -1677,12 +1677,12 @@ class TaskCat(object):
             return False
         return True
 
-    def check_yaml(self, yamlin, quite=None, strict=None):
+    def check_yaml(self, yamlin, quiet=None, strict=None):
         """
         This function validates the given YAML.
 
         :param yamlin: Yaml object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given yaml is valid, FALSE otherwise.
@@ -1690,7 +1690,7 @@ class TaskCat(object):
         try:
             parms = yaml.load(yamlin)
             if self.verbose:
-                if not quite:
+                if not quiet:
                     print(yaml.dump(parms))
         except yaml.YAMLError as e:
             if strict:
@@ -1699,12 +1699,12 @@ class TaskCat(object):
             return False
         return True
 
-    def check_cfnyaml(self, yamlin, quite=None, strict=None):
+    def check_cfnyaml(self, yamlin, quiet=None, strict=None):
         """
         This function validates the given Cloudforamtion YAML.
 
         :param yamlin: CFNYaml object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given yaml is valid, FALSE otherwise.
@@ -1713,7 +1713,7 @@ class TaskCat(object):
             loader = cfnlint.decode.cfn_yaml.MarkedLoader(yamlin, None)
             loader.add_multi_constructor('!', cfnlint.decode.cfn_yaml.multi_constructor)
             if self.verbose:
-                if not quite:
+                if not quiet:
                     print(loader.get_single_data())
         except Exception as e:
             if strict:
