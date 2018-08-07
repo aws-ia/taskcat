@@ -1621,7 +1621,7 @@ class TaskCat(object):
                     self.template_data = json.loads(cfntemplate)
                 else:
                     self.set_template_type(None)
-                    #self.check_yaml(cfntemplate, quite=True, strict=False)
+                    self.check_cfnyaml(cfntemplate, quite=True, strict=False)
                     self.set_template_type('yaml')
 
                     m_constructor = cfnlint.decode.cfn_yaml.multi_constructor
@@ -1698,6 +1698,30 @@ class TaskCat(object):
                 sys.exit(1)
             return False
         return True
+
+    def check_cfnyaml(self, yamlin, quite=None, strict=None):
+        """
+        This function validates the given Cloudforamtion YAML.
+
+        :param yamlin: CFNYaml object to be validated
+        :param quite: Optional value, if set True suppress verbose output
+        :param strict: Optional value, Display errors and exit
+
+        :return: TRUE if given yaml is valid, FALSE otherwise.
+        """
+        try:
+            loader = cfnlint.decode.cfn_yaml.MarkedLoader(yamlin, None)
+            loader.add_multi_constructor('!', cfnlint.decode.cfn_yaml.multi_constructor)
+            if self.verbose:
+                if not quite:
+                    print(loader.get_single_data())
+        except Exception as e:
+            if strict:
+                print(E + str(e))
+                sys.exit(1)
+            return False
+        return True
+
 
 
 
