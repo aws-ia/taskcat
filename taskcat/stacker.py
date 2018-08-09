@@ -1036,7 +1036,7 @@ class TaskCat(object):
 
                 if licensecontent_re.search(param_value):
                     license_bucket = 'quickstart-ci-license'
-                    licensekey = (self.regxfind(licensecontent_re, param_value)).strip('/',1)[1]
+                    licensekey = '/'.join((self.regxfind(licensecontent_re, param_value)).split('/')[1:])
                     param_value = self.get_content(license_bucket, licensekey)
                     if self.verbose:
                         print("{}Getting license content for {}/{}".format(D, license_bucket, licensekey))
