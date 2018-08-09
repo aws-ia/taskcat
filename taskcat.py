@@ -43,10 +43,10 @@ def main():
             taskcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()
 
-        project_path = '/'.join(tcat_instance.get_config().split('/')[0:-2])
-        os.chdir(os.path.abspath(project_path))
-        tcat_instance.lint(args.lint)
-        os.chdir(os.path.abspath('../'))
+        project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
+        if project_path:
+            os.chdir(os.path.abspath(project_path))
+        tcat_instance.lint(args.lint, path='/'.join(tcat_instance.get_config().split('/')[-3:-2]))
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)

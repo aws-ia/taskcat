@@ -1722,7 +1722,7 @@ class TaskCat(object):
             return False
         return True
 
-    def lint(self, strict='warn'):
+    def lint(self, strict='warn', path=''):
         """
         Lints all templates (against each region to be tested) using cfn_python_lint
 
@@ -1743,11 +1743,13 @@ class TaskCat(object):
                 lints[test]['regions'] = config['tests'][test]['regions']
             else:
                 lints[test]['regions'] = config['global']['regions']
-            template_file = config['tests'][test]['template_file']
-            template_file = 'templates/' + template_file
+            if path:
+                template_file = '%s/templates/%s' % (path, config['tests'][test]['template_file'])
+            else:
+                template_file = 'templates/%s' % (config['tests'][test]['template_file'])
             lints[test]['template_file'] = template_file
             if template_file not in templates.keys():
-                templates[template_file] = self.get_child_templates(template_file)
+                templates[template_file] = self.get_child_templates(template_file, parent_path=path)
             lints[test]['results'] = {}
             templates[template_file].add(template_file)
             for t in templates[template_file]:
@@ -1780,7 +1782,7 @@ class TaskCat(object):
             print(F + "Exiting due to lint warnings")
             sys.exit(1)
 
-    def get_child_templates(self, filename):
+    def get_child_templates(self, filename, parent_path=''):
         """
         recursively find nested templates given a template path
 
@@ -1805,8 +1807,10 @@ class TaskCat(object):
                     if 'submodules/' not in template_url:
                         child_name = '/'.join(template_url.split('/')[-2:])
             if child_name and not child_name.startswith('submodules/'):
+                if parent_path:
+                    child_name = "%s/%s" % (parent_path, child_name)
                 children.add(child_name)
-                children.union(self.get_child_templates(child_name))
+                children.union(self.get_child_templates(child_name, parent_path=parent_path))
         return children
 
     # Set AWS Credentials
