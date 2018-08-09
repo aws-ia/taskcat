@@ -281,7 +281,7 @@ class TaskCat(object):
         """
         This function searches for ~/.aws/taskcat_global_override.json,
         then <project>/ci/taskcat_project_override.json, in that order.
-        Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
+        Keys defined in either of these files will override Keys defined in <project>/ci/*.json or in the template parameters.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
         """
@@ -328,6 +328,7 @@ class TaskCat(object):
             key = param_dict['ParameterKey']
             param_index[key] = idx
 
+        template_params = self.extract_template_parameters()
         # Merge the two lists, overriding the original values if necessary.
         for override in dict_squash_list:
             for override_pd in override:
@@ -335,8 +336,10 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
+                elif key in template_params:
+                    original_keys.append(override_pd)
                 else:
-                    print(I + "Cannot override [{}]! It's not present within the parameters file!".format(key))
+                    print(I + "Cannot override [{}]! It's not present within the template!".format(key))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
