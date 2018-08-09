@@ -14,9 +14,12 @@ import taskcat
 import yaml
 import sys
 import os
+import traceback
+
 
 if sys.version_info[0] < 3:
     raise Exception("Please use Python 3")
+
 
 def main():
     tcat_instance = taskcat.TaskCat()
@@ -43,10 +46,17 @@ def main():
             taskcat_cfg = yaml.safe_load(cfg.read())
         cfg.close()
 
-        project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
-        if project_path:
-            os.chdir(os.path.abspath(project_path))
-        tcat_instance.lint(args.lint, path='/'.join(tcat_instance.get_config().split('/')[-3:-2]))
+        try:
+            project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
+            if project_path:
+                os.chdir(os.path.abspath(project_path))
+                tcat_instance.lint(args.lint, path='/'.join(tcat_instance.get_config().split('/')[-3:-2]))
+        except Exception as e:
+            print("ERROR: Linting failed: %s" % e)
+            if args.lint in ['error', 'strict']:
+                raise
+            else:
+                traceback.print_exc()
         tcat_instance.stage_in_s3(taskcat_cfg)
         tcat_instance.validate_template(taskcat_cfg, test_list)
         tcat_instance.validate_parameters(taskcat_cfg, test_list)
