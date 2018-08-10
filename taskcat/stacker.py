@@ -963,7 +963,7 @@ class TaskCat(object):
                 # Determines if license content has been requested
                 licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
 
-                presignedurl_re = re.compile('\$\[\w+_presignedurl].*$', re.IGNORECASE)
+                presignedurl_re = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
 
                 # Determines if s3 replacement was requested
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
