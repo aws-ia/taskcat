@@ -1058,6 +1058,10 @@ class TaskCat(object):
                     _parameters['ParameterValue'] = param_value
 
                 if presignedurl_re.search(param_value):
+                    if len(param_value) < 2:
+                        print("{}Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.".format(D))
+                        print("{}Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT".format(D))
+                        quit(1)
                     paramsplit = self.regxfind(presignedurl_re, param_value).split(',')[1:]
                     url_bucket, url_key = paramsplit[:2]
                     if len(paramsplit) == 3:
