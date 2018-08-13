@@ -909,7 +909,16 @@ class TaskCat(object):
 
         # (Retrieve previously generated value)
         # Example: $[taskcat_getval_KeyName]
-        # UseCase: Can be used to confirm geneared passwords
+        # UseCase: Can be used to confirm generated passwords
+
+        # (Presigned URLs)
+        # Usage: $[taskcat_presignedurl],S3BucketName,PathToKey,[Optional URL Expiry in seconds]
+        #
+        # Example with default expiry (1 hour):
+        # - $[taskcat_presignedurl],my-example-bucket,example/content.txt
+        #
+        # Example with 5 minute expiry:
+        # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
 
         for _parameters in s_parms:
             for _ in _parameters:
@@ -963,6 +972,7 @@ class TaskCat(object):
                 # Determines if license content has been requested
                 licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
 
+                # Determines if a presigned URL has been requested.
                 presignedurl_re = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
 
                 # Determines if s3 replacement was requested
