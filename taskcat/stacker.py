@@ -95,6 +95,8 @@ logger.setLevel(logging.DEBUG)
 def get_pip_version(url):
     return requests.get(url).json()["info"]["version"]
 
+def get_installed_version():
+    return __version__
 
 def buildmap(start_location, map_string, partial_match=True):
     """
@@ -119,7 +121,6 @@ def buildmap(start_location, map_string, partial_match=True):
                 fs_map.append(fs_path_to_file)
 
     return fs_map
-
 
 """
     This class is used to represent the test data.
@@ -2390,10 +2391,21 @@ class TaskCat(object):
             default="warn",
             help="set linting 'strict' - will fail on errors and warnings, 'error' will fail on errors or 'warn' will "
                  "log errors to the console, but not fail")
+        parser.add_argument(
+            '-V',
+            '--version',
+            action='store_true',
+            help="Prints Version")
+
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
+            self.welcome()
             print(parser.print_help())
+            sys.exit(0)
+
+        if args.version:
+            print(get_installed_version())
             sys.exit(0)
 
         if not args.config_yml:
@@ -2465,7 +2477,8 @@ class TaskCat(object):
         else:
             print(I + "Using local source (development mode) \n")
 
-    def welcome(self, prog_name='taskcat.io'):
+    def welcome(self, prog_name='taskcat'):
+
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
         print("{0}".format(banner.renderText(prog_name), '\n'))
@@ -2521,9 +2534,10 @@ def get_cfn_stack_events(self, stackname, region):
 def main():
     pass
 
-
 if __name__ == '__main__':
     pass
 
 else:
     main()
+
+

@@ -23,10 +23,10 @@ if sys.version_info[0] < 3:
 
 def main():
     tcat_instance = taskcat.TaskCat()
+    args = tcat_instance.interface
     tcat_instance.welcome('taskcat')
     # Initialize cli interface
     # :TODO Add RestFull Interface
-    args = tcat_instance.interface
 
     # Get configuration from command line arg (-c)
     tcat_instance.set_config(args.config_yml)
