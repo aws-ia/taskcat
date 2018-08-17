@@ -541,7 +541,11 @@ class TaskCat(object):
 
         """
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-        dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
+        try:
+            dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
+        except Exception:
+            print("{} Attempted to fetch Bucket: {}, Key: {}".format(E, bucket, object_key))
+            raise
         content = dict_object['Body'].read().strip()
         return content
 
