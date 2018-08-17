@@ -16,6 +16,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries',
     ],
     scripts=[
@@ -24,5 +25,6 @@ setup(
         'bin/taskcat-alchemist'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
-    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag']
+    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'cfn-lint']
+
 )

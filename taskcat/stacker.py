@@ -36,6 +36,7 @@ import tabulate
 import yaml
 import yattag
 import logging
+import cfnlint.core
 from argparse import RawTextHelpFormatter
 from botocore.vendored import requests
 from botocore.exceptions import ClientError
@@ -90,9 +91,12 @@ logger = logging.getLogger('taskcat')
 logger.setLevel(logging.DEBUG)
 
 
+
 def get_pip_version(url):
     return requests.get(url).json()["info"]["version"]
 
+def get_installed_version():
+    return __version__
 
 def buildmap(start_location, map_string, partial_match=True):
     """
@@ -117,7 +121,6 @@ def buildmap(start_location, map_string, partial_match=True):
                 fs_map.append(fs_path_to_file)
 
     return fs_map
-
 
 """
     This class is used to represent the test data.
@@ -182,7 +185,7 @@ class TaskCat(object):
         self._auth_mode = None
         self._report = False
         self._use_global = False
-        self._password = None
+        self._parameters = {}
         self.run_cleanup = True
         self.public_s3_bucket = False
         self._aws_access_key = None
@@ -194,6 +197,7 @@ class TaskCat(object):
         self.retain_if_failed = False
         self.tags = []
         self.stack_prefix = ''
+        self.template_data = None
 
     # SETTERS AND GETTERS
     # ===================
@@ -278,19 +282,24 @@ class TaskCat(object):
         """
         This function searches for ~/.aws/taskcat_global_override.json,
         then <project>/ci/taskcat_project_override.json, in that order.
-        Keys defined in either of these files will override Keys defined in <project>/ci/*.json.
+        Keys defined in either of these files will override Keys defined in <project>/ci/*.json or in the template parameters.
 
         :param original_keys: json object derived from Parameter Input JSON in <project>/ci/
         """
         # Github/issue/57
         # Look for ~/.taskcat_overrides.json
 
-        # Fetch overrides Homedir first.
+        print(I + "|Processing Overrides")
+        # Fetch overrides Home dir first.
         dict_squash_list = []
         _homedir_override_file_path = "{}/.aws/{}".format(os.path.expanduser('~'), 'taskcat_global_override.json')
         if os.path.isfile(_homedir_override_file_path):
             with open(_homedir_override_file_path) as f:
-                _homedir_override_json = json.loads(f.read())
+                try:
+                    _homedir_override_json = json.loads(f.read())
+                except ValueError:
+                    print(E + "Unable to parse JSON (taskcat global overrides)")
+                    sys.exit(1)
                 print(D + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(D + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
@@ -307,7 +316,10 @@ class TaskCat(object):
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(D + str(_obj))
-        except Exception:
+        except ValueError:
+            print(E + "Unable to parse JSON (taskcat project overrides)")
+            sys.exit(1)
+        except Exception as e:
             pass
 
         # Setup a list index dictionary.
@@ -317,6 +329,7 @@ class TaskCat(object):
             key = param_dict['ParameterKey']
             param_index[key] = idx
 
+        template_params = self.extract_template_parameters()
         # Merge the two lists, overriding the original values if necessary.
         for override in dict_squash_list:
             for override_pd in override:
@@ -324,17 +337,22 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
+                elif key in template_params:
+                    original_keys.append(override_pd)
+                else:
+                    print(I + "Cannot override [{}]! It's not present within the template!".format(key))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
         _kn = 'QSS3BucketName'
-        if _kn in param_index:
-            _knidx = param_index[_kn]
-            param_bucket_name = original_keys[_knidx]['ParameterValue']
-            if (param_bucket_name != bucket_name):
-                print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
-                print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
-                original_keys[_knidx]['ParameterValue'] = bucket_name
+        if _kn in self.extract_template_parameters():
+            if _kn in param_index:
+                _knidx = param_index[_kn]
+                param_bucket_name = original_keys[_knidx]['ParameterValue']
+                if (param_bucket_name != bucket_name):
+                    print(I + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
+                    print(I + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
+                    original_keys[_knidx]['ParameterValue'] = bucket_name
 
         return original_keys
 
@@ -344,11 +362,11 @@ class TaskCat(object):
     def get_template_path(self):
         return self.template_path
 
-    def set_password(self, password):
-        self._password = password
+    def set_parameter(self, key, val):
+        self._parameters[key] = val
 
-    def get_password(self):
-        return self._password
+    def get_parameter(self, key):
+        return self._parameters[key]
 
     def set_dynamodb_table(self, ddb_table):
         self.ddb_table = ddb_table
@@ -507,7 +525,7 @@ class TaskCat(object):
 
         if len(available_azs) < count:
             print("{0}!Only {1} az's are available in {2}".format(E, len(available_azs), region))
-            quit()
+            quit(1)
         else:
             azs = ','.join(available_azs[:count])
             return azs
@@ -534,7 +552,7 @@ class TaskCat(object):
         - If not, does an S3 API call.
 
         :param url: URL of the S3 object to return.
-        :return: Data of the s3 object.
+        :return: Data of the s3 object
         """
         if self.public_s3_bucket:
             payload = requests.get(url)
@@ -707,6 +725,15 @@ class TaskCat(object):
             l_all_resources.append(d)
         return l_all_resources
 
+    def extract_template_parameters(self):
+        """
+        Returns a dictionary of the parameters in the template entrypoint.
+
+        :param template_file: Template file location.
+        :return: list of parameters for the template.
+        """
+        return self.template_data['Parameters'].keys()
+
     def validate_template(self, taskcat_cfg, test_list):
         """
         Returns TRUE if all the template files are valid, otherwise FALSE.
@@ -741,7 +768,10 @@ class TaskCat(object):
             except Exception as e:
                 if self.verbose:
                     print(D + str(e))
-                sys.exit(F + "Cannot validate %s" % self.get_template_file())
+                print(F + "Cannot validate %s" % self.get_template_file())
+                print(I + "Deleting any automatically-created buckets...")
+                self.delete_autobucket()
+                sys.exit(1)
         print('\n')
         return True
 
@@ -878,10 +908,25 @@ class TaskCat(object):
         # Example: $[taskcat_genaz_2] (if the region is us-east-2)
         # Generates: us-east-1a, us-east-2b
 
-        for parmdict in s_parms:
-            for _ in parmdict:
+        # (Retrieve previously generated value)
+        # Example: $[taskcat_getval_KeyName]
+        # UseCase: Can be used to confirm generated passwords
 
-                param_value = parmdict['ParameterValue']
+        # (Presigned URLs)
+        # Usage: $[taskcat_presignedurl],S3BucketName,PathToKey,[Optional URL Expiry in seconds]
+        #
+        # Example with default expiry (1 hour):
+        # - $[taskcat_presignedurl],my-example-bucket,example/content.txt
+        #
+        # Example with 5 minute expiry:
+        # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
+
+        for _parameters in s_parms:
+            for _ in _parameters:
+
+                param_key = _parameters['ParameterKey']
+                param_value =_parameters['ParameterValue']
+                self.set_parameter(param_key, param_value)
 
                 # Determines the size of the password to generate
                 count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
@@ -926,11 +971,17 @@ class TaskCat(object):
                 getmediabucket_re = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
 
                 # Determines if license content has been requested
-                licensecontent_re = re.compile('\$\[\w+_getlicensecontent]', re.IGNORECASE)
+                licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
+
+                # Determines if a presigned URL has been requested.
+                presignedurl_re = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
 
                 # Determines if s3 replacement was requested
                 gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
                 geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
+
+                # Determines if getval has been requested (Matches parameter key)
+                getval_re = re.compile('(?<=._getval_)(\w+)(?=]$)', re.IGNORECASE)
 
                 # If Number is found as Parameter Value convert it to String ( ex: 1 to "1")
                 if type(param_value) == int:
@@ -938,7 +989,7 @@ class TaskCat(object):
                     if self.verbose:
                         (I + "Converting byte values in stack input file({}) to [string value]".format(
                             self.get_parameter_file()))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gen_string_re.search(param_value):
                     random_string = self.regxfind(gen_string_re, param_value)
@@ -946,7 +997,7 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating random string for {}".format(D, random_string))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gen_numbers_re.search(param_value):
                     random_numbers = self.regxfind(gen_numbers_re, param_value)
@@ -954,7 +1005,7 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating numeric string for {}".format(D, random_numbers))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if genuuid_re.search(param_value):
                     uuid_string = self.regxfind(genuuid_re, param_value)
@@ -962,50 +1013,70 @@ class TaskCat(object):
 
                     if self.verbose:
                         print("{}Generating random uuid string for {}".format(D, uuid_string))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if autobucket_re.search(param_value):
                     bkt = self.regxfind(autobucket_re, param_value)
                     param_value = self.get_s3bucket()
                     if self.verbose:
                         print("{}Setting value to {}".format(D, bkt))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if gets3replace.search(param_value):
                     url = self.regxfind(geturl_re, param_value)
                     param_value = self.get_s3contents(url)
                     if self.verbose:
                         print("{}Raw content of url {}".format(D, url))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getkeypair_re.search(param_value):
                     keypair = self.regxfind(getkeypair_re, param_value)
                     param_value = 'cikey'
                     if self.verbose:
                         print("{}Generating default Keypair {}".format(D, keypair))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getlicensebucket_re.search(param_value):
                     licensebucket = self.regxfind(getlicensebucket_re, param_value)
                     param_value = 'quickstart-ci-license'
                     if self.verbose:
                         print("{}Generating default license bucket {}".format(D, licensebucket))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if getmediabucket_re.search(param_value):
                     media_bucket = self.regxfind(getmediabucket_re, param_value)
                     param_value = 'quickstart-ci-media'
                     if self.verbose:
                         print("{}Generating default media bucket {}".format(D, media_bucket))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
 
                 if licensecontent_re.search(param_value):
                     license_bucket = 'quickstart-ci-license'
-                    licensekey = (self.regxfind(licensecontent_re, param_value)).strip('/')
+                    licensekey = '/'.join((self.regxfind(licensecontent_re, param_value)).split('/')[1:])
                     param_value = self.get_content(license_bucket, licensekey)
                     if self.verbose:
                         print("{}Getting license content for {}/{}".format(D, license_bucket, licensekey))
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
+
+                if presignedurl_re.search(param_value):
+                    if len(param_value) < 2:
+                        print("{}Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.".format(D))
+                        print("{}Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT".format(D))
+                        quit(1)
+                    paramsplit = self.regxfind(presignedurl_re, param_value).split(',')[1:]
+                    url_bucket, url_key = paramsplit[:2]
+                    if len(paramsplit) == 3:
+                        url_expire_seconds = paramsplit[2]
+                    else:
+                        url_expire_seconds = 3600
+                    if self.verbose:
+                        print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(D, url_bucket, url_key, url_expire_seconds))
+                    s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+                    param_value = s3_client.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': url_bucket, 'Key': url_key},
+                        ExpiresIn=int(url_expire_seconds))
+                    _parameters['ParameterValue'] = param_value
 
                 # Autogenerated value to password input in runtime
                 if genpass_re.search(param_value):
@@ -1032,7 +1103,7 @@ class TaskCat(object):
                             print("{}AutoGen values for {}".format(D, param_value))
                         param_value = self.genpassword(
                             passlen, gentype)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
 
                 if genaz_re.search(param_value):
                     numazs = int(
@@ -1045,7 +1116,7 @@ class TaskCat(object):
                         param_value = self.get_available_azs(
                             region,
                             numazs)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
                     else:
                         print(I + "$[taskcat_genaz_(!)]")
                         print(I + "Number of az's not specified!")
@@ -1053,7 +1124,7 @@ class TaskCat(object):
                         param_value = self.get_available_azs(
                             region,
                             1)
-                        parmdict['ParameterValue'] = param_value
+                        _parameters['ParameterValue'] = param_value
 
                 if genaz_single_re.search(param_value):
                     print(D + "Selecting availability zones")
@@ -1061,7 +1132,17 @@ class TaskCat(object):
                     param_value = self.get_available_azs(
                         region,
                         1)
-                    parmdict['ParameterValue'] = param_value
+                    _parameters['ParameterValue'] = param_value
+
+                self.set_parameter(param_key, param_value)
+
+                if getval_re.search(param_value):
+                    requested_key = self.regxfind(getval_re, param_value)
+                    print("{}Getting previously assigned value for {}".format(D, requested_key))
+                    param_value = self.get_parameter(requested_key)
+                    print("{}Loading {} as value for {} ".format(D, param_value, requested_key))
+                    _parameters['ParameterValue'] = param_value
+
         return s_parms
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
@@ -1107,13 +1188,44 @@ class TaskCat(object):
                         if self.get_template_type() == 'json':
                             print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
-                    stackdata = cfn.create_stack(
-                        StackName=stackname,
-                        DisableRollback=True,
-                        TemplateURL=self.get_template_path(),
-                        Parameters=j_params,
-                        Capabilities=self.get_capabilities(),
-                        Tags=self.tags)
+                    try:
+                        print(I + "|CFN Execution mode [create_stack]")
+                        stackdata = cfn.create_stack(
+                            StackName=stackname,
+                            DisableRollback=True,
+                            TemplateURL=self.get_template_path(),
+                            Parameters=j_params,
+                            Capabilities=self.get_capabilities(),
+                            Tags=self.tags
+                        )
+                    except:
+                        print(I + "|CFN Execution mode [change_set]")
+                        stack_cs_data = cfn.create_change_set(
+                            StackName=stackname,
+                            TemplateURL=self.get_template_path(),
+                            Parameters=j_params,
+                            Capabilities=self.get_capabilities(),
+                            ChangeSetType="CREATE",
+                            ChangeSetName=stackname + "-cs"
+                        )
+                        change_set_name = stack_cs_data['Id']
+
+                        # wait for change set
+                        waiter = cfn.get_waiter('change_set_create_complete')
+                        waiter.wait(
+                            ChangeSetName=change_set_name,
+                            WaiterConfig={
+                                'Delay': 10,
+                                'MaxAttempts': 26  # max lambda execute is 5 minutes
+                            })
+
+                        stack_ex_data = cfn.execute_change_set(
+                            ChangeSetName=change_set_name
+                        )
+
+                        stackdata = {
+                            'StackId': stack_cs_data['StackId']
+                        }
 
                     testdata.add_test_stack(stackdata)
 
@@ -1401,6 +1513,12 @@ class TaskCat(object):
                         ))
                 s.delete_all(failed_stacks)
 
+        self.delete_autobucket()
+
+    def delete_autobucket(self):
+        """
+        This function deletes the automatically created S3 bucket(s) of the current project.
+        """
         # Check to see if auto bucket was created
         if self.get_s3bucket_type() is 'auto':
             print(I + "(Cleaning up staging assets)")
@@ -1518,28 +1636,34 @@ class TaskCat(object):
                 if not template_path:
                     print("{0} Could not locate {1}".format(E, self.get_template_file()))
                     print("{0} Check to make sure filename is correct?".format(E, self.get_template_path()))
-                    quit()
+                    quit(1)
 
                 # Check to make sure parameter filenames are correct
                 parameter_path = self.get_parameter_path()
                 if not parameter_path:
                     print("{0} Could not locate {1}".format(E, self.get_parameter_file()))
                     print("{0} Check to make sure filename is correct?".format(E, self.get_parameter_file()))
-                    quit()
+                    quit(1)
 
                 # Detect template type
 
                 cfntemplate = self.get_s3contents(self.get_s3_url(self.get_template_file()))
 
-                if self.check_json(cfntemplate, quite=True, strict=False):
+                if self.check_json(cfntemplate, quiet=True, strict=False):
                     self.set_template_type('json')
                     # Enforce strict json syntax
                     if self._strict_syntax_json:
-                        self.check_json(cfntemplate, quite=True, strict=True)
+                        self.check_json(cfntemplate, quiet=True, strict=True)
+                    self.template_data = json.loads(cfntemplate)
                 else:
                     self.set_template_type(None)
-                    self.check_yaml(cfntemplate, quite=True, strict=False)
+                    self.check_cfnyaml(cfntemplate, quiet=True, strict=False)
                     self.set_template_type('yaml')
+
+                    m_constructor = cfnlint.decode.cfn_yaml.multi_constructor
+                    loader = cfnlint.decode.cfn_yaml.MarkedLoader(cfntemplate, None)
+                    loader.add_multi_constructor('!', m_constructor)
+                    self.template_data = loader.get_single_data()
 
                 if self.verbose:
                     print(I + "|Acquiring tests assets for .......[%s]" % test)
@@ -1567,12 +1691,12 @@ class TaskCat(object):
                 print(P + "(Completed) acquisition of [%s]" % test)
                 print('\n')
 
-    def check_json(self, jsonin, quite=None, strict=None):
+    def check_json(self, jsonin, quiet=None, strict=None):
         """
         This function validates the given JSON.
 
         :param jsonin: Json object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given Json is valid, FALSE otherwise.
@@ -1580,7 +1704,7 @@ class TaskCat(object):
         try:
             parms = json.loads(jsonin)
             if self.verbose:
-                if not quite:
+                if not quiet:
                     print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
         except ValueError as e:
             if strict:
@@ -1589,12 +1713,12 @@ class TaskCat(object):
             return False
         return True
 
-    def check_yaml(self, yamlin, quite=None, strict=None):
+    def check_yaml(self, yamlin, quiet=None, strict=None):
         """
         This function validates the given YAML.
 
         :param yamlin: Yaml object to be validated
-        :param quite: Optional value, if set True suppress verbose output
+        :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
         :return: TRUE if given yaml is valid, FALSE otherwise.
@@ -1602,7 +1726,7 @@ class TaskCat(object):
         try:
             parms = yaml.load(yamlin)
             if self.verbose:
-                if not quite:
+                if not quiet:
                     print(yaml.dump(parms))
         except yaml.YAMLError as e:
             if strict:
@@ -1610,6 +1734,120 @@ class TaskCat(object):
                 sys.exit(1)
             return False
         return True
+
+    def check_cfnyaml(self, yamlin, quiet=None, strict=None):
+        """
+        This function validates the given Cloudforamtion YAML.
+
+        :param yamlin: CFNYaml object to be validated
+        :param quiet: Optional value, if set True suppress verbose output
+        :param strict: Optional value, Display errors and exit
+
+        :return: TRUE if given yaml is valid, FALSE otherwise.
+        """
+        try:
+            loader = cfnlint.decode.cfn_yaml.MarkedLoader(yamlin, None)
+            loader.add_multi_constructor('!', cfnlint.decode.cfn_yaml.multi_constructor)
+            if self.verbose:
+                if not quiet:
+                    print(loader.get_single_data())
+        except Exception as e:
+            if strict:
+                print(E + str(e))
+                sys.exit(1)
+            return False
+        return True
+
+    def lint(self, strict='warn', path=''):
+        """
+        Lints all templates (against each region to be tested) using cfn_python_lint
+
+        :param strict: string, "error" outputs a log line for each warning and fails on errors, if set to "strict"
+        will exit on warnings and failures, if set to "warn" will only output warnings for errors
+        :return:
+        """
+        if strict not in ['error', 'strict', 'warn']:
+            print(E + "lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
+            sys.exit(1)
+        lints = {}
+        templates = {}
+        config = yaml.safe_load(open(self.config))
+        rules = cfnlint.core.get_rules([], [])
+        for test in config['tests'].keys():
+            lints[test] = {}
+            if 'regions' in config['tests'][test].keys():
+                lints[test]['regions'] = config['tests'][test]['regions']
+            else:
+                lints[test]['regions'] = config['global']['regions']
+            if path:
+                template_file = '%s/templates/%s' % (path, config['tests'][test]['template_file'])
+            else:
+                template_file = 'templates/%s' % (config['tests'][test]['template_file'])
+            lints[test]['template_file'] = template_file
+            if template_file not in templates.keys():
+                templates[template_file] = self.get_child_templates(template_file, parent_path=path)
+            lints[test]['results'] = {}
+            templates[template_file].add(template_file)
+            for t in templates[template_file]:
+                template = cfnlint.decode.cfn_yaml.load(t)
+                lints[test]['results'][t] = cfnlint.core.run_checks(
+                    t,
+                    template,
+                    rules,
+                    lints[test]['regions'])
+        test_status = {"W": False, "E": False}
+        for test in lints.keys():
+            for t in lints[test]['results'].keys():
+                print(I + "Lint results for test %s on template %s:" % (test, t))
+                for r in lints[test]['results'][t]:
+                    message = r.__str__().lstrip('[')
+                    sev = message[0]
+                    if sev == 'E':
+                        print(E + "    " + message)
+                        test_status[sev] = True
+                    elif sev == 'W':
+                        if 'E' + message[1:] not in [r.__str__().lstrip('[') for r in lints[test]['results'][t]]:
+                            print(I + "    " + message)
+                            test_status[sev] = True
+                    else:
+                        print(D + "linter produced unkown output: " + message)
+        if strict in ['error', 'strict'] and test_status['E']:
+            print(F + "Exiting due to lint errors")
+            sys.exit(1)
+        elif strict == 'strict' and test_status['W']:
+            print(F + "Exiting due to lint warnings")
+            sys.exit(1)
+
+    def get_child_templates(self, filename, parent_path=''):
+        """
+        recursively find nested templates given a template path
+
+        :param filename: string, path to template
+        :return: set of nested template paths
+        """
+        children = set()
+        template = cfnlint.decode.cfn_yaml.load(filename)
+        for resource in template['Resources'].keys():
+            child_name = ''
+            if template['Resources'][resource]['Type'] == "AWS::CloudFormation::Stack":
+                template_url = template['Resources'][resource]['Properties']['TemplateURL']
+                if type(template_url) == dict:
+                    if 'Fn::Sub' in template_url.keys():
+                        if type(template_url['Fn::Sub']) == str:
+                            child_name = template_url['Fn::Sub'].split('}')[-1]
+                        else:
+                            child_name = template_url['Fn::Sub'][0].split('}')[-1]
+                    elif 'Fn::Join' in template_url.keys()[0]:
+                        child_name = template_url['Fn::Join'][1][-1]
+                elif type(template_url) == str:
+                    if 'submodules/' not in template_url:
+                        child_name = '/'.join(template_url.split('/')[-2:])
+            if child_name and not child_name.startswith('submodules/'):
+                if parent_path:
+                    child_name = "%s/%s" % (parent_path, child_name)
+                children.add(child_name)
+                children.union(self.get_child_templates(child_name, parent_path=parent_path))
+        return children
 
     # Set AWS Credentials
     # Set AWS Credentials
@@ -2146,10 +2384,28 @@ class TaskCat(object):
             type=str,
             default="tag",
             help="set prefix for cloudformation stack name. only accepts lowercase letters, numbers and '-'")
+        parser.add_argument(
+            '-l',
+            '--lint',
+            type=str,
+            default="warn",
+            help="set linting 'strict' - will fail on errors and warnings, 'error' will fail on errors or 'warn' will "
+                 "log errors to the console, but not fail")
+        parser.add_argument(
+            '-V',
+            '--version',
+            action='store_true',
+            help="Prints Version")
+
         args = parser.parse_args()
 
         if len(sys.argv) == 1:
+            self.welcome()
             print(parser.print_help())
+            sys.exit(0)
+
+        if args.version:
+            print(get_installed_version())
             sys.exit(0)
 
         if not args.config_yml:
@@ -2218,17 +2474,11 @@ class TaskCat(object):
                 else:
                     _print_upgrade_msg(current_version)
 
-            else:
-                current_version = get_pip_version(
-                    'https://test.pypi.org/pypi/taskcat/json')
-                if version in current_version:
-                    print("version %s" % version)
-                else:
-                    _print_upgrade_msg(current_version)
         else:
-            print(I + "using %s (development mode) \n" % version)
+            print(I + "Using local source (development mode) \n")
 
-    def welcome(self, prog_name='taskcat.io'):
+    def welcome(self, prog_name='taskcat'):
+
         banner = pyfiglet.Figlet(font='standard')
         self.banner = banner
         print("{0}".format(banner.renderText(prog_name), '\n'))
@@ -2284,9 +2534,10 @@ def get_cfn_stack_events(self, stackname, region):
 def main():
     pass
 
-
 if __name__ == '__main__':
     pass
 
 else:
     main()
+
+

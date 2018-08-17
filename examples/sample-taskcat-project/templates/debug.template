@@ -22,6 +22,10 @@
             "Description": "Password (Alpha)",
             "Type": "String"
         },
+        "PasswordAConfirm": {
+            "Description": "Password (Alpha)",
+            "Type": "String"
+        },
         "PasswordB": {
             "Description": "Password (Special)",
             "Type": "String"

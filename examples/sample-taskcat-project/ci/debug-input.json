@@ -32,6 +32,10 @@
         "ParameterValue": "$[taskcat_genpass_8A]"
     },
     {
+        "ParameterKey": "PasswordAConfirm",
+        "ParameterValue": "$[taskcat_getval_PasswordA]"
+    },
+    {
         "ParameterKey": "PasswordB",
         "ParameterValue": "$[taskcat_genpass_32S]"
     }

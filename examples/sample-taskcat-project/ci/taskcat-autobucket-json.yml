@@ -17,12 +17,7 @@ global:
 tests:
   taskcat-json:
     parameter_input: debug-input.json
+    regions:
+      - us-east-1
     template_file: debug.template
-    regions:
-      - us-east-1
-  taskcat-yaml:
-    parameter_input: debug-input.json
-    template_file: debug-yaml.template
-    regions:
-      - us-east-1
 
