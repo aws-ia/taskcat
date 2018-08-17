@@ -1038,14 +1038,14 @@ class TaskCat(object):
 
                 if getlicensebucket_re.search(param_value):
                     licensebucket = self.regxfind(getlicensebucket_re, param_value)
-                    param_value = 'quickstart-ci-license'
+                    param_value = 'override_this'
                     if self.verbose:
                         print("{}Generating default license bucket {}".format(D, licensebucket))
                     _parameters['ParameterValue'] = param_value
 
                 if getmediabucket_re.search(param_value):
                     media_bucket = self.regxfind(getmediabucket_re, param_value)
-                    param_value = 'quickstart-ci-media'
+                    param_value = 'override_this'
                     if self.verbose:
                         print("{}Generating default media bucket {}".format(D, media_bucket))
                     _parameters['ParameterValue'] = param_value
