@@ -311,7 +311,7 @@ class TaskCat(object):
             # tweaks necessary here.
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
             dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
-            content = dict_object['Body'].read().strip()
+            content = dict_object['Body'].read().decode('utf-8').strip()
             _obj = json.loads(content)
             dict_squash_list.append(_obj)
             print(D + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
@@ -546,7 +546,7 @@ class TaskCat(object):
         except Exception:
             print("{} Attempted to fetch Bucket: {}, Key: {}".format(E, bucket, object_key))
             raise
-        content = dict_object['Body'].read().strip()
+        content = dict_object['Body'].read().decode('utf-8').strip()
         return content
 
     def get_s3contents(self, url):
