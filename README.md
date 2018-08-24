@@ -223,7 +223,7 @@ UseCase: Need to confirm a dynamically generated password
 Prerequisites: `docker`
 
 ```
-docker pull taskcat/taskcat
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
 ```
 Note: (If you do not have root privileges Taskcat will install in the current directory)
 
