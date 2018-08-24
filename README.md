@@ -20,19 +20,19 @@ TestCat was developed by the AWS QuickStart team to test AWS CloudFormation temp
 templates across AWS Regions
 
 ## Files you’ll need
-* **config.yml** - This file contains the test cases
+* **taskcat.yml** - This file contains the test cases
 * **JSON input** - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested
 
 * Step 1 Building your configuration file
 * Step 2 Building your JSON input file.
 
 #### Step 1 Creating a config.yml
-Open the config.yml file with and editor and update the filenames to match your need.
+Open the taskcat.yml file with and editor and update the filenames to match your need.
 
 example here:
-[config.yml](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml)
+[taskcat.yml](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml)
 
-#### Example of config.yml
+#### Example of taskcat.yml
     global:
       owner: owner@company.com
       qsname: sample-cloudformation-project <- Must match the root directory of project (usually the name of git repo)
@@ -60,7 +60,7 @@ example here:
     ├── LICENSE.txt
     ├── README.md
     ├── ci
-    │   ├── config.yml <- This the config file that will hold all the test definitions
+    │   ├── taskcat.yml <- This the config file that will hold all the test definitions
     │   ├──  sample-cloudformation-input-novpc.json <-  This file contain input that will pass in during stack creation [vpc version] (See auto parms for more info)
     │   └──  sample-cloudformation-input-withvpc.json <-  This file contain input that will pass in during stack creation [no-vpc version](See auto parms for more info)
     ├── scripts
@@ -86,7 +86,7 @@ Note: you can auto generate values at runtime using `taskcat runtime injection` 
 ```
 [{
     "ParameterKey": "KeyPairName",
-    "ParameterValue": "tonynv"
+    "ParameterValue": "mykey"
 }, {
     "ParameterKey": "InstanceType",
     "ParameterValue": "t2.small"
