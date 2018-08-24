@@ -248,8 +248,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-of-configyml" title="Example of config.yml" class="md-nav__link">
-    Example of config.yml
+  <a href="#example-of-taskcatyml" title="Example of taskcat.yml" class="md-nav__link">
+    Example of taskcat.yml
   </a>
   
 </li>
@@ -461,8 +461,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#example-of-configyml" title="Example of config.yml" class="md-nav__link">
-    Example of config.yml
+  <a href="#example-of-taskcatyml" title="Example of taskcat.yml" class="md-nav__link">
+    Example of taskcat.yml
   </a>
   
 </li>
@@ -636,7 +636,7 @@
 templates across AWS Regions</p>
 <h2 id="files-youll-need">Files you’ll need<a class="headerlink" href="#files-youll-need" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>config.yml</strong> - This file contains the test cases</li>
+<li><strong>taskcat.yml</strong> - This file contains the test cases</li>
 <li>
 <p><strong>JSON input</strong> - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested</p>
 </li>
@@ -646,10 +646,10 @@ templates across AWS Regions</p>
 <li>Step 2 Building your JSON input file.</li>
 </ul>
 <h4 id="step-1-creating-a-configyml">Step 1 Creating a config.yml<a class="headerlink" href="#step-1-creating-a-configyml" title="Permanent link">&para;</a></h4>
-<p>Open the config.yml file with and editor and update the filenames to match your need.</p>
+<p>Open the taskcat.yml file with and editor and update the filenames to match your need.</p>
 <p>example here:
-<a href="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml">config.yml</a></p>
-<h4 id="example-of-configyml">Example of config.yml<a class="headerlink" href="#example-of-configyml" title="Permanent link">&para;</a></h4>
+<a href="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml">taskcat.yml</a></p>
+<h4 id="example-of-taskcatyml">Example of taskcat.yml<a class="headerlink" href="#example-of-taskcatyml" title="Permanent link">&para;</a></h4>
 <table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -714,7 +714,7 @@ templates across AWS Regions</p>
 <span class="err">├──</span> <span class="n">LICENSE</span><span class="p">.</span><span class="n">txt</span>
 <span class="err">├──</span> <span class="n">README</span><span class="p">.</span><span class="n">md</span>
 <span class="err">├──</span> <span class="n">ci</span>
-<span class="err">│ </span>  <span class="err">├──</span> <span class="n">config</span><span class="p">.</span><span class="n">yml</span> <span class="o">&lt;-</span> <span class="n">This</span> <span class="n">the</span> <span class="n">config</span> <span class="n">file</span> <span class="n">that</span> <span class="n">will</span> <span class="n">hold</span> <span class="n">all</span> <span class="n">the</span> <span class="n">test</span> <span class="n">definitions</span>
+<span class="err">│ </span>  <span class="err">├──</span> <span class="n">taskcat</span><span class="p">.</span><span class="n">yml</span> <span class="o">&lt;-</span> <span class="n">This</span> <span class="n">the</span> <span class="n">config</span> <span class="n">file</span> <span class="n">that</span> <span class="n">will</span> <span class="n">hold</span> <span class="n">all</span> <span class="n">the</span> <span class="n">test</span> <span class="n">definitions</span>
 <span class="err">│ </span>  <span class="err">├──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">novpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">vpc</span> <span class="n">version</span><span class="p">]</span> <span class="p">(</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
 <span class="err">│ </span>  <span class="err">└──</span>  <span class="n">sample</span><span class="o">-</span><span class="n">cloudformation</span><span class="o">-</span><span class="n">input</span><span class="o">-</span><span class="n">withvpc</span><span class="p">.</span><span class="n">json</span> <span class="o">&lt;-</span>  <span class="n">This</span> <span class="n">file</span> <span class="n">contain</span> <span class="n">input</span> <span class="n">that</span> <span class="n">will</span> <span class="n">pass</span> <span class="k">in</span> <span class="n">during</span> <span class="n">stack</span> <span class="n">creation</span> <span class="p">[</span><span class="n">no</span><span class="o">-</span><span class="n">vpc</span> <span class="n">version</span><span class="p">](</span><span class="n">See</span> <span class="k">auto</span> <span class="n">parms</span> <span class="k">for</span> <span class="n">more</span> <span class="n">info</span><span class="p">)</span>
 <span class="err">├──</span> <span class="n">scripts</span>
@@ -762,7 +762,7 @@ templates across AWS Regions</p>
 24
 25</pre></div></td><td class="code"><div class="codehilite"><pre><span></span>[{
     &quot;ParameterKey&quot;: &quot;KeyPairName&quot;,
-    &quot;ParameterValue&quot;: &quot;tonynv&quot;
+    &quot;ParameterValue&quot;: &quot;mykey&quot;
 }, {
     &quot;ParameterKey&quot;: &quot;InstanceType&quot;,
     &quot;ParameterValue&quot;: &quot;t2.small&quot;
