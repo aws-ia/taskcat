@@ -2,13 +2,12 @@
 ![TaskCat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)
 > This program requires python3
 
-# Currently in (beta release)
-
 Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
 
 For helpful information see [Frequently Asked Questions](FAQ.md)
 
-# Python Module documentation
+
+## Python Module documentation
 
 Class <a href="https://s3-us-west-2.amazonaws.com/taskcat-docs/stacker.m.html" target="_top">[taskcat.Stacker]</a>
 
@@ -80,6 +79,7 @@ The example below shows an input file for a stack that requires seven parameters
 Note: you can auto generate values at runtime using `taskcat runtime injection` (see example below).
 
 > The following json will evaluate
+
 
 #### From:
 
@@ -227,6 +227,8 @@ curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installe
 ```
 Note: (If you do not have root privileges Taskcat will install in the current directory)
 
+[More info here](https://aws-quickstart.github.io/input-files.html)
+
 ### Installing via pip3 (for those who do not want to use the docker installer)
 Prerequisites: `Python 3.5+ and pip3`
 
@@ -282,4 +284,5 @@ Parameters defined in either file will supersede parameters within the normal pa
 - Project Directory (ci/taskcat_project_override.json)
 
 Note: Keys defined in the Project override with supersede the same keys defined in the global override.
+[More info here](https://aws-quickstart.github.io/input-files.html#parm-override)
 
