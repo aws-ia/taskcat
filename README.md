@@ -27,7 +27,7 @@ templates across AWS Regions
 * Step 1 Building your configuration file
 * Step 2 Building your JSON input file.
 
-#### Step 1 Creating a config.yml
+#### Step 1 Creating a taskcat.yml
 Open the taskcat.yml file with and editor and update the filenames to match your need.
 
 example here:
