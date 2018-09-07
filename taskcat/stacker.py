@@ -1288,21 +1288,6 @@ class TaskCat(object):
         else:
             return str('Not-found')
 
-    def parse_stack_info(self, stack_name):
-        """
-        Returns a dictionary object containing the region and stack name.
-
-        :param stack_name: Full stack name arn
-        :return: Dictionary object containing the region and stack name
-
-        """
-        stack_info = dict()
-
-        region_re = re.compile('(?<=:)(.\w-.+(\w*)-\d)(?=:)')
-        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
-        stack_info['region'] = self.regxfind(region_re, stack_name)
-        stack_info['stack_name'] = self.regxfind(stack_name_re, stack_name)
-        return stack_info
 
     def stackcheck(self, stack_id):
         """
@@ -1315,7 +1300,7 @@ class TaskCat(object):
         :return: List containing the stack name, region and stack status in the
             respective order.
         """
-        stackdata = self.parse_stack_info(stack_id)
+        stackdata = CommonTools(stack_id).parse_stack_info()
         region = stackdata['region']
         stack_name = stackdata['stack_name']
         test_info = []
@@ -1488,8 +1473,7 @@ class TaskCat(object):
 
             print(PrintMsg.INFO + "Few stacks failed to delete. Collecting resources for deep clean-up.")
             # get test region from the stack id
-            stackdata = self.parse_stack_info(
-                str(failed_stack_ids[0]))
+            stackdata = CommonTools(failed_stack_ids[0]).parse_stack_info()
             region = stackdata['region']
             session = boto3.session.Session(region_name=region)
             s = Reaper(session)
@@ -1568,8 +1552,7 @@ class TaskCat(object):
         """
         for test in testdata_list:
             for stack in test.get_test_stacks():
-                stackdata = self.parse_stack_info(
-                    str(stack['StackId']))
+                stackdata = CommonTools(stack['StackId']).parse_stack_info()
                 region = stackdata['region']
                 stack_name = stackdata['stack_name']
                 cfn = self._boto_client.get('cloudformation', region=region)
@@ -1981,7 +1964,7 @@ class TaskCat(object):
         print(PrintMsg.INFO + "(Collecting Resources)")
         for test in testdata_list:
             for stack in test.get_test_stacks():
-                stackinfo = self.parse_stack_info(str(stack['StackId']))
+                stackinfo = CommonTools(stack['StackId']).parse_stack_info()
                 # Get stack resources
                 resource[stackinfo['region']] = (
                     self.get_resources(
