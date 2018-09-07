@@ -47,6 +47,7 @@ from .reaper import Reaper
 from .utils import ClientFactory
 from .colored_console import PrintMsg
 from .generate_reports import ReportBuilder
+from .common_utils import CommonTools
 
 # Version Tag
 '''
@@ -73,12 +74,13 @@ logger = logging.getLogger('taskcat')
 logger.setLevel(logging.DEBUG)
 
 
-
 def get_pip_version(url):
     return requests.get(url).json()["info"]["version"]
 
+
 def get_installed_version():
     return __version__
+
 
 def buildmap(start_location, map_string, partial_match=True):
     """
@@ -103,6 +105,7 @@ def buildmap(start_location, map_string, partial_match=True):
                 fs_map.append(fs_path_to_file)
 
     return fs_map
+
 
 """
     This class is used to represent the test data.
@@ -333,7 +336,9 @@ class TaskCat(object):
                 _knidx = param_index[_kn]
                 param_bucket_name = original_keys[_knidx]['ParameterValue']
                 if param_bucket_name != bucket_name:
-                    print(PrintMsg.INFO + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
+                    print(
+                        PrintMsg.INFO + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(
+                            bucket_name, param_bucket_name))
                     print(PrintMsg.INFO + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
                     original_keys[_knidx]['ParameterValue'] = bucket_name
 
@@ -413,10 +418,9 @@ class TaskCat(object):
                 else:
                     response = s3_client.create_bucket(ACL=bucket_or_object_acl,
                                                        Bucket=auto_bucket,
-                                                       CreateBucketConfiguration = {
+                                                       CreateBucketConfiguration={
                                                            'LocationConstraint': self.get_default_region()
-                                                       }
-                                                       )
+                                                       })
 
                 self.set_s3bucket_type('auto')
             else:
@@ -472,7 +476,8 @@ class TaskCat(object):
         s3_pages = paginator.paginate(**operation_parameters)
 
         for s3keys in s3_pages.search('Contents'):
-            print("{}[S3: -> ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, self.get_s3bucket(), s3keys.get('Key')))
+            print("{}[S3: -> ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, self.get_s3bucket(),
+                                                    s3keys.get('Key')))
         print("{} |Contents of S3 Bucket {} {}".format(self.nametag, PrintMsg.header, PrintMsg.rst_color))
 
         print('\n')
@@ -579,12 +584,12 @@ class TaskCat(object):
                                         "amazonaws.com",
                                         self.get_s3bucket(),
                                         metadata[1])
-                                    self._key_url_map.update({o_url:metadata[1]})
+                                    self._key_url_map.update({o_url: metadata[1]})
                                     return o_url
                                 else:
                                     amzns3 = 's3.amazonaws.com'
                                     o_url = "https://{1}.{0}/{2}".format(amzns3, self.get_s3bucket(), metadata[1])
-                                    self._key_url_map.update({o_url:metadata[1]})
+                                    self._key_url_map.update({o_url: metadata[1]})
                                     return o_url
 
     def get_global_region(self, yamlcfg):
@@ -746,7 +751,8 @@ class TaskCat(object):
                     cfn_result = (result['Description'])
                     print(PrintMsg.INFO + "Description  [%s]" % textwrap.fill(cfn_result))
                 else:
-                    print(PrintMsg.INFO + "Please include a top-level description for template: [%s]" % self.get_template_file())
+                    print(
+                        PrintMsg.INFO + "Please include a top-level description for template: [%s]" % self.get_template_file())
                 if self.verbose:
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
                     print(PrintMsg.DEBUG + "Parameters:")
@@ -911,7 +917,7 @@ class TaskCat(object):
             for _ in _parameters:
 
                 param_key = _parameters['ParameterKey']
-                param_value =_parameters['ParameterValue']
+                param_value = _parameters['ParameterValue']
                 self.set_parameter(param_key, param_value)
 
                 # Determines the size of the password to generate
@@ -1057,7 +1063,10 @@ class TaskCat(object):
                     else:
                         url_expire_seconds = 3600
                     if self.verbose:
-                        print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(PrintMsg.DEBUG, url_bucket, url_key, url_expire_seconds))
+                        print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(PrintMsg.DEBUG,
+                                                                                                       url_bucket,
+                                                                                                       url_key,
+                                                                                                       url_expire_seconds))
                     s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
                     param_value = s3_client.generate_presigned_url(
                         'get_object',
@@ -1149,7 +1158,8 @@ class TaskCat(object):
         for test in test_list:
             testdata = TestData()
             testdata.set_test_name(test)
-            print("{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(PrintMsg.INFO, PrintMsg.header, test, PrintMsg.rst_color))
+            print(
+                "{0}{1}|PREPARING TO LAUNCH => {2}{3}".format(PrintMsg.INFO, PrintMsg.header, test, PrintMsg.rst_color))
             sname = str(sig)
 
             stackname = sname + '-' + sprefix + '-' + test + '-' + jobid[:8]
@@ -1622,14 +1632,16 @@ class TaskCat(object):
                 template_path = self.get_template_path()
                 if not template_path:
                     print("{0} Could not locate {1}".format(PrintMsg.ERROR, self.get_template_file()))
-                    print("{0} Check to make sure filename is correct?".format(PrintMsg.ERROR, self.get_template_path()))
+                    print(
+                        "{0} Check to make sure filename is correct?".format(PrintMsg.ERROR, self.get_template_path()))
                     quit(1)
 
                 # Check to make sure parameter filenames are correct
                 parameter_path = self.get_parameter_path()
                 if not parameter_path:
                     print("{0} Could not locate {1}".format(PrintMsg.ERROR, self.get_parameter_file()))
-                    print("{0} Check to make sure filename is correct?".format(PrintMsg.ERROR, self.get_parameter_file()))
+                    print(
+                        "{0} Check to make sure filename is correct?".format(PrintMsg.ERROR, self.get_parameter_file()))
                     quit(1)
 
                 # Detect template type
@@ -1686,7 +1698,7 @@ class TaskCat(object):
         :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
-        :return: TRUPrintMsg.ERROR if given Json is valid, FALSPrintMsg.ERROR otherwise.
+        :return: TRUPrintMsg.ERROR if given Json is valid, FALSE otherwise.
         """
         try:
             parms = json.loads(jsonin)
@@ -1708,7 +1720,7 @@ class TaskCat(object):
         :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
-        :return: TRUPrintMsg.ERROR if given yaml is valid, FALSPrintMsg.ERROR otherwise.
+        :return: TRUPrintMsg.ERROR if given yaml is valid, FALSE otherwise.
         """
         try:
             parms = yaml.load(yamlin)
@@ -1730,7 +1742,7 @@ class TaskCat(object):
         :param quiet: Optional value, if set True suppress verbose output
         :param strict: Optional value, Display errors and exit
 
-        :return: TRUPrintMsg.ERROR if given yaml is valid, FALSPrintMsg.ERROR otherwise.
+        :return: TRUPrintMsg.ERROR if given yaml is valid, FALSE otherwise.
         """
         try:
             loader = cfnlint.decode.cfn_yaml.MarkedLoader(yamlin, None)
@@ -1755,7 +1767,8 @@ class TaskCat(object):
         :return:
         """
         if strict not in ['error', 'strict', 'warn']:
-            print(PrintMsg.ERROR + "lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
+            print(
+                PrintMsg.ERROR + "lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
             sys.exit(1)
         lints = {}
         templates = {}
@@ -1954,8 +1967,6 @@ class TaskCat(object):
                 print(PrintMsg.DEBUG + str(e))
             sys.exit(1)
         return run_tests
-
-
 
     def collect_resources(self, testdata_list, logpath):
         """
@@ -2351,10 +2362,9 @@ def get_cfn_stack_events(self, stackname, region):
 def main():
     pass
 
+
 if __name__ == '__main__':
     pass
 
 else:
     main()
-
-

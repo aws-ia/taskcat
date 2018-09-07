@@ -4,8 +4,6 @@ import yattag
 from botocore.vendored import requests
 from .colored_console import PrintMsg
 from .common_utils import CommonTools
-from .utils import ClientFactory
-
 
 
 class ReportBuilder:
