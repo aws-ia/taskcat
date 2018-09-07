@@ -3,9 +3,9 @@ import textwrap
 import tabulate
 from botocore.exceptions import ClientError
 
-from .colored_console import PrintMsg
-from .common_utils import CommonTools
-from .cfn_resources import CfnResourceTools
+from taskcat.colored_console import PrintMsg
+from taskcat.common_utils import CommonTools
+from taskcat.cfn_resources import CfnResourceTools
 
 
 class CfnLogTools:

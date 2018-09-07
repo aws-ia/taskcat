@@ -32,7 +32,6 @@ import time
 import uuid
 import boto3
 import pyfiglet
-import tabulate
 import yaml
 import logging
 import cfnlint.core
@@ -48,8 +47,7 @@ from .utils import ClientFactory
 from .colored_console import PrintMsg
 from .generate_reports import ReportBuilder
 from .common_utils import CommonTools
-from .cfn_resources import CfnResourceTools
-from .cfn_logutils import CfnLogTools
+from taskcat.cfn_logutils import CfnLogTools
 
 
 # Version Tag
