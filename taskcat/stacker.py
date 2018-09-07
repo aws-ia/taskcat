@@ -34,7 +34,6 @@ import boto3
 import pyfiglet
 import tabulate
 import yaml
-import yattag
 import logging
 import cfnlint.core
 from argparse import RawTextHelpFormatter
@@ -47,6 +46,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from .reaper import Reaper
 from .utils import ClientFactory
 from .colored_console import PrintMsg
+from .generate_reports import ReportBuilder
 
 # Version Tag
 '''
@@ -180,6 +180,7 @@ class TaskCat(object):
         self.tags = []
         self.stack_prefix = ''
         self.template_data = None
+        self.version = get_installed_version()
 
     # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -1954,179 +1955,7 @@ class TaskCat(object):
             sys.exit(1)
         return run_tests
 
-    def genreport(self, testdata_list, dashboard_filename):
-        """
-        This function generates the test report.
 
-        :param testdata_list: List of TestData objects
-        :param dashboard_filename: Report file name
-
-        """
-        doc = yattag.Doc()
-
-        # Type of cfnlog return cfn log file
-        # Type of resource_log return resource log file
-        def getofile(region, stack_name, resource_type):
-            extension = '.txt'
-            if resource_type == 'cfnlog':
-                location = "{}-{}-{}{}".format(stack_name, region, 'cfnlogs', extension)
-                return str(location)
-            elif resource_type == 'resource_log':
-                location = "{}-{}-{}{}".format(stack_name, region, 'resources', extension)
-                return str(location)
-
-        def get_teststate(stackname, region):
-            rstatus = None
-            status_css = None
-            try:
-                cfn = self._boto_client.get('cloudformation', region)
-                test_query = cfn.describe_stacks(StackName=stackname)
-
-                for result in test_query['Stacks']:
-                    rstatus = result.get('StackStatus')
-                    if rstatus == 'CREATE_COMPLETE':
-                        status_css = 'class=test-green'
-                    elif rstatus == 'CREATE_FAILED':
-                        status_css = 'class=test-red'
-                        if self.retain_if_failed and (self.run_cleanup == True):
-                            self.run_cleanup = False
-                    else:
-                        status_css = 'class=test-red'
-            except Exception as e:
-                print(PrintMsg.ERROR + "Error describing stack named [%s] " % stackname)
-                if self.verbose:
-                    print(PrintMsg.DEBUG + str(e))
-                rstatus = 'MANUALLY_DELETED'
-                status_css = 'class=test-orange'
-
-            return rstatus, status_css
-
-        tag = doc.tag
-        text = doc.text
-        logo = 'taskcat'
-        repo_link = 'https://github.com/aws-quickstart/taskcat'
-        css_url = 'https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/css/taskcat_reporting.css'
-        output_css = requests.get(css_url).text
-        doc_link = 'http://taskcat.io'
-
-        with tag('html'):
-            with tag('head'):
-                doc.stag('meta', charset='utf-8')
-                doc.stag(
-                    'meta', name="viewport", content="width=device-width")
-                with tag('style', type='text/css'):
-                    text(output_css)
-                with tag('title'):
-                    text('TaskCat Report')
-
-            with tag('body'):
-                tested_on = time.strftime('%A - %b,%d,%Y @ %H:%M:%S')
-
-                with tag('table', 'class=PrintMsg.header-table-fill'):
-                    with tag('tbody'):
-                        with tag('th', 'colspan=2'):
-                            with tag('tr'):
-                                with tag('td'):
-                                    with tag('a', href=repo_link):
-                                        text('GitHub Repo: ')
-                                        text(repo_link)
-                                        doc.stag('br')
-                                    with tag('a', href=doc_link):
-                                        text('Documentation: ')
-                                        text(doc_link)
-                                        doc.stag('br')
-                                    text('Tested on: ')
-                                    text(tested_on)
-                                with tag('td', 'class=taskcat-logo'):
-                                    with tag('h3'):
-                                        text(logo)
-            doc.stag('p')
-            with tag('table', 'class=table-fill'):
-                with tag('tbody'):
-                    with tag('thread'):
-                        with tag('tr'):
-                            with tag('th',
-                                     'class=text-center',
-                                     'width=25%'):
-                                text('Test Name')
-                            with tag('th',
-                                     'class=text-left',
-                                     'width=10%'):
-                                text('Tested Region')
-                            with tag('th',
-                                     'class=text-left',
-                                     'width=30%'):
-                                text('Stack Name')
-                            with tag('th',
-                                     'class=text-left',
-                                     'width=20%'):
-                                text('Tested Results')
-                            with tag('th',
-                                     'class=text-left',
-                                     'width=15%'):
-                                text('Test Logs')
-
-                            for test in testdata_list:
-                                with tag('tr', 'class= test-footer'):
-                                    with tag('td', 'colspan=5'):
-                                        text('')
-
-                                testname = test.get_test_name()
-                                print(PrintMsg.INFO + "(Generating Reports)")
-                                print(PrintMsg.INFO + " - Processing {}".format(testname))
-                                for stack in test.get_test_stacks():
-                                    state = self.parse_stack_info(
-                                        str(stack['StackId']))
-                                    status, css = get_teststate(
-                                        state['stack_name'],
-                                        state['region'])
-
-                                    with tag('tr'):
-                                        with tag('td',
-                                                 'class=test-info'):
-                                            with tag('h3'):
-                                                text(testname)
-                                        with tag('td',
-                                                 'class=text-left'):
-                                            text(state['region'])
-                                        with tag('td',
-                                                 'class=text-left'):
-                                            text(state['stack_name'])
-                                        with tag('td', css):
-                                            text(str(status))
-                                        with tag('td',
-                                                 'class=text-left'):
-                                            clog = getofile(
-                                                state['region'],
-                                                state['stack_name'],
-                                                'cfnlog')
-                                            # rlog = getofile(
-                                            #    state['region'],
-                                            #    state['stack_name'],
-                                            #    'resource_log')
-                                            #
-                                            with tag('a', href=clog):
-                                                text('View Logs ')
-                                                # with tag('a', href=rlog):
-                                                #    text('Resource Logs ')
-                            with tag('tr', 'class= test-footer'):
-                                with tag('td', 'colspan=5'):
-                                    vtag = 'Generated by {} {}'.format('taskcat', version)
-                                    text(vtag)
-
-                        doc.stag('p')
-                        print('\n')
-
-        htmloutput = yattag.indent(doc.getvalue(),
-                                   indentation='    ',
-                                   newline='\r\n',
-                                   indent_text=True)
-
-        file = open(dashboard_filename, 'w')
-        file.write(htmloutput)
-        file.close()
-
-        return htmloutput
 
     def collect_resources(self, testdata_list, logpath):
         """
@@ -2299,8 +2128,8 @@ class TaskCat(object):
         self.createcfnlogs(testdata_list, o_directory)
 
         # Generate html test dashboard
-        # Uses logpath + region to create View Logs link
-        self.genreport(testdata_list, dashboard_filename)
+        report = ReportBuilder(testdata_list, dashboard_filename, self.version, self._boto_client)
+        report.generate_report()
 
     @property
     def interface(self):
