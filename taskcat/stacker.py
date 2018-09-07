@@ -331,7 +331,7 @@ class TaskCat(object):
             if _kn in param_index:
                 _knidx = param_index[_kn]
                 param_bucket_name = original_keys[_knidx]['ParameterValue']
-                if (param_bucket_name != bucket_name):
+                if param_bucket_name != bucket_name:
                     print(PrintMsg.INFO + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(bucket_name, param_bucket_name))
                     print(PrintMsg.INFO + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
                     original_keys[_knidx]['ParameterValue'] = bucket_name
@@ -715,7 +715,6 @@ class TaskCat(object):
         """
         Returns a dictionary of the parameters in the template entrypoint.
 
-        :param template_file: Template file location.
         :return: list of parameters for the template.
         """
         return self.template_data['Parameters'].keys()
@@ -1749,6 +1748,7 @@ class TaskCat(object):
         """
         Lints all templates (against each region to be tested) using cfn_python_lint
 
+        :param path:
         :param strict: string, "error" outputs a log line for each warning and fails on errors, if set to "strict"
         will exit on warnings and failures, if set to "warn" will only output warnings for errors
         :return:
@@ -1809,6 +1809,7 @@ class TaskCat(object):
         """
         recursively find nested templates given a template path
 
+        :param parent_path:
         :param filename: string, path to template
         :return: set of nested template paths
         """
