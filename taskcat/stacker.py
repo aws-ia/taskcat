@@ -43,7 +43,7 @@ from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 
 from .reaper import Reaper
-from .utils import ClientFactory
+from .client_factory import ClientFactory
 from .colored_console import PrintMsg
 from .generate_reports import ReportBuilder
 from .common_utils import CommonTools

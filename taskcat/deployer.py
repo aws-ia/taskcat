@@ -17,7 +17,7 @@ import datetime
 import logging
 import sys
 from collections import OrderedDict
-from .utils import ClientFactory
+from .client_factory import ClientFactory
 from .utils import CFNYAMLHandler
 
 
