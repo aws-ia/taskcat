@@ -137,7 +137,7 @@ class ClientFactory(object):
             )
             return self._clients[credential_set][region][service][s3v4]
 
-    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None):
+    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None, max_retries=4, delay=5, backoff_factor=2):
         """creates a boto3 session object
 
         Args:
@@ -146,10 +146,12 @@ class ClientFactory(object):
             secret_key (str): [optional] IAM secret key, defaults to None
             session_token (str): [optional] IAM secret key, defaults to None
             profile_name (str): [optional] credential profile to use, defaults to None
+            max_retries (int): [optional] number of retries, defaults to 4
+            delay (int): [optional] retry delay in seconds, defaults to 5
+            backoff_factor (int): [optional] retry delay exponent, defaults to 2
         """
         session = None
         retry = 0
-        max_retries = 4
         while not session:
             try:
                 with self._lock:
@@ -181,7 +183,7 @@ class ClientFactory(object):
                 retry += 1
                 if retry >= max_retries:
                     raise
-                sleep(5 * (retry ** 2))
+                sleep(delay * (retry ** backoff_factor))
 
     def _create_client(self, credential_set, region, service, s3v4):
         """creates (or fetches from cache) a boto3 client object
