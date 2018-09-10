@@ -15,6 +15,7 @@ import os
 from threading import Lock
 from time import sleep
 
+
 class ClientFactory(object):
     """Manages creating and caching boto3 clients, helpful when creating lots of
     clients in different regions or functions.
@@ -136,7 +137,7 @@ class ClientFactory(object):
             )
             return self._clients[credential_set][region][service][s3v4]
 
-    def _create_session(self, region, access_key, secret_key, session_token, profile_name):
+    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None):
         """creates a boto3 session object
 
         Args:
