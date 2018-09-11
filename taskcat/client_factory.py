@@ -192,7 +192,7 @@ class ClientFactory(object):
             credential_set (str): session name
             region (str): region name
             service (str): AWS service name
-            s3v4 (bool): when True enables signature_version=s3v4 which is required for SSE protected buckets/objects
+            s3v4 (str): when set to "s3v4" enables signature version 4 which is required for SSE protected buckets/objects
             max_retries (int): [optional] number of retries, defaults to 4
             delay (int): [optional] retry delay in seconds, defaults to 5
             backoff_factor (int): [optional] retry delay exponent, defaults to 2
