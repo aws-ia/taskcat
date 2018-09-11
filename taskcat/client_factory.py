@@ -103,7 +103,8 @@ class ClientFactory(object):
         """
         if not aws_access_key_id and not profile_name:
             self.logger.debug(
-                "no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set)
+                "no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set
+            )
             if credential_set not in self._credential_sets.keys():
                 raise KeyError('credential set %s does not exist' % credential_set)
             aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[
@@ -137,7 +138,8 @@ class ClientFactory(object):
             )
             return self._clients[credential_set][region][service][s3v4]
 
-    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None, max_retries=4, delay=5, backoff_factor=2):
+    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None,
+                        max_retries=4, delay=5, backoff_factor=2):
         """creates a boto3 session object
 
         Args:
@@ -192,7 +194,7 @@ class ClientFactory(object):
             credential_set (str): session name
             region (str): region name
             service (str): AWS service name
-            s3v4 (str): when set to "s3v4" enables signature version 4 which is required for SSE protected buckets/objects
+            s3v4 (str): when set to "s3v4" enables signature version 4, required for SSE protected buckets/objects
             max_retries (int): [optional] number of retries, defaults to 4
             delay (int): [optional] retry delay in seconds, defaults to 5
             backoff_factor (int): [optional] retry delay exponent, defaults to 2
