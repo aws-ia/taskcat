@@ -185,7 +185,7 @@ class ClientFactory(object):
                     raise
                 sleep(delay * (retry ** backoff_factor))
 
-    def _create_client(self, credential_set, region, service, s3v4):
+    def _create_client(self, credential_set, region, service, s3v4, max_retries=4, delay=5, backoff_factor=2):
         """creates (or fetches from cache) a boto3 client object
 
         Args:
@@ -193,10 +193,12 @@ class ClientFactory(object):
             region (str): region name
             service (str): AWS service name
             s3v4 (bool): when True enables signature_version=s3v4 which is required for SSE protected buckets/objects
+            max_retries (int): [optional] number of retries, defaults to 4
+            delay (int): [optional] retry delay in seconds, defaults to 5
+            backoff_factor (int): [optional] retry delay exponent, defaults to 2
         """
         client = None
         retry = 0
-        max_retries = 4
         while not client:
             try:
                 with self._lock:
@@ -213,7 +215,7 @@ class ClientFactory(object):
                 retry += 1
                 if retry >= max_retries:
                     raise
-                sleep(5 * (retry ** 2))
+                sleep(delay * (retry ** backoff_factor))
 
     def get_available_regions(self, service):
         """fetches available regions for a service
