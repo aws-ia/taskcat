@@ -42,11 +42,11 @@ from pkg_resources import get_distribution
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 
-from .reaper import Reaper
-from .client_factory import ClientFactory
-from .colored_console import PrintMsg
-from .generate_reports import ReportBuilder
-from .common_utils import CommonTools
+from taskcat.reaper import Reaper
+from taskcat.client_factory import ClientFactory
+from taskcat.colored_console import PrintMsg
+from taskcat.generate_reports import ReportBuilder
+from taskcat.common_utils import CommonTools
 from taskcat.cfn_logutils import CfnLogTools
 
 

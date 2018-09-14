@@ -10,8 +10,8 @@ from __future__ import print_function
 
 import unittest
 import mock
-from .client_factory import ClientFactory
-from .cfn_logutils import CfnResourceTools
+from taskcat.client_factory import ClientFactory
+from taskcat.cfn_logutils import CfnResourceTools
 
 
 def client_factory_instance():

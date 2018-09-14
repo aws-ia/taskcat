@@ -15,7 +15,7 @@ import logging
 from threading import Lock
 import mock
 import os
-from .client_factory import ClientFactory
+from taskcat.client_factory import ClientFactory
 
 
 class MockClientConfig(object):

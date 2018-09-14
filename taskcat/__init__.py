@@ -1,8 +1,8 @@
 """
 taskcat python module
 """
-from .deployer import *
-from .stacker import *
-from .reaper import *
-from .utils import *
-from .client_factory import ClientFactory
+from taskcat.deployer import *
+from taskcat.stacker import *
+from taskcat.reaper import *
+from taskcat.utils import *
+from taskcat.client_factory import ClientFactory

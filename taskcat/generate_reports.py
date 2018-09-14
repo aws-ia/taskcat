@@ -2,8 +2,8 @@ import time
 import yattag
 
 from botocore.vendored import requests
-from .colored_console import PrintMsg
-from .common_utils import CommonTools
+from taskcat.colored_console import PrintMsg
+from taskcat.common_utils import CommonTools
 
 
 class ReportBuilder:
