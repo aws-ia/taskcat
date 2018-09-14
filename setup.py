@@ -1,8 +1,15 @@
 from setuptools import setup
 import datetime
+import unittest
 
 def get_version():
   _version = datetime.datetime.now().strftime("%Y.%m%d.%H%M%S")
+  return _version
+
+def test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('tests/unittest', pattern='test_*.py')
+    return test_suite
 
 setup(
     name='taskcat',
@@ -29,7 +36,8 @@ setup(
         'bin/alchemist'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
-    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'cfn-lint']
+    install_requires=['boto3', 'pyfiglet', 'pyyaml', 'tabulate', 'yattag', 'cfn-lint'],
+    test_suite='setup.test_suite'
 
 )
 
