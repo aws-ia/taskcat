@@ -9,7 +9,7 @@ def get_version():
     if os.path.exists(_version_file) and os.path.getsize(_version_file) > 0:
         _version = open(_version_file, 'r').read()
     else:
-        _version = datetime.datetime.now().strftime("%Y.%-m%-d.%-H%-M%-s")
+        _version = datetime.datetime.now().strftime("%Y.%-m%-d.%-H%-M")
         print("Creating new version {}".format(_version))
         update_version = open(_version_file, "w")
         update_version.write(''.join(_version.splitlines()))
