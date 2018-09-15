@@ -17,8 +17,8 @@ import datetime
 import logging
 import sys
 from collections import OrderedDict
-from .utils import ClientFactory
-from .utils import CFNYAMLHandler
+from taskcat.client_factory import ClientFactory
+from taskcat.utils import CFNYAMLHandler
 
 
 class CFNAlchemist(object):

@@ -1,0 +1,47 @@
+language: python
+python:
+- '3.6'
+
+if: tag IS blank
+
+script:
+   - if [ $TRAVIS_BRANCH != "master" ];then  echo -n "" > taskcat/.version; RELEASE_TYPE='rc.'; else RELEASE_TYPE='release.'; fi
+   - python setup.py install
+   - pytest
+   - taskcat
+   - taskcat -V
+   - git config --global user.email "builds@travis-ci.com"
+   - git config --global user.name "Travis CI"
+   - git diff
+   - git tag $RELEASE_TYPE`taskcat -V`
+   - git push --tags https://$GHT:@github.com/aws-quickstart/taskcat
+
+jobs:
+  include:
+  - stage: (Dev 1) Build Pip Module
+    deploy:
+      provider: pypi
+      skip_cleanup: true
+      server: https://test.pypi.org/legacy/
+      user: $PYPI_USER
+      password: $PYPI_PASSWORD
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH != master
+  - stage: (Dev 2) Create Release
+    deploy:
+      provider: releases
+      skip_cleanup: true
+      api_key: "$GHT"
+      file: directory/*
+      on:
+        all_branches: true
+        condition: $TRAVIS_BRANCH != master
+  - stage: Publish Pip Module
+    deploy:
+      provider: pypi
+      skip_cleanup: true
+      user: $PYPI_USER
+      password: $PYPI_PASSWORD
+      on:
+        branch: master

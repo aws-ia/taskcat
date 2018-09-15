@@ -1,1 +1,0 @@
-Note: This directory will be populated by ci system
