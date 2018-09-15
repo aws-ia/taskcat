@@ -1,10 +1,21 @@
 from setuptools import setup
 import datetime
 import unittest
+import os
 
 def get_version():
-  _version = datetime.datetime.now().strftime("%Y.%m%d.%H%M%S")
-  return _version
+    _version_file = 'taskcat/.version'
+
+    if os.path.exists(_version_file) and os.path.getsize(_version_file) > 0:
+        _version = open(_version_file, 'r').read()
+    else:
+        _version = datetime.datetime.now().strftime("%Y.%-m%-d.%-H%-M%-s")
+        print("Creating new version {}".format(_version))
+        update_version = open(_version_file, "w")
+        update_version.write(''.join(_version.splitlines()))
+        update_version.close()
+
+    return _version
 
 def test_suite():
     test_loader = unittest.TestLoader()
