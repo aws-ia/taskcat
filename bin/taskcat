@@ -15,6 +15,7 @@ import yaml
 import sys
 import os
 import traceback
+from taskcat.common_utils import exit1
 
 
 if sys.version_info[0] < 3:
@@ -57,15 +58,18 @@ def main():
                 raise
             else:
                 traceback.print_exc()
-        tcat_instance.stage_in_s3(taskcat_cfg)
-        tcat_instance.validate_template(taskcat_cfg, test_list)
-        tcat_instance.validate_parameters(taskcat_cfg, test_list)
-        # instance.stackcreate returns testdata object
-        testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, args.stack_prefix)
-        tcat_instance.get_stackstatus(testdata, 5)
-        tcat_instance.createreport(testdata, 'index.html')
-        tcat_instance.cleanup(testdata, 5)
-
+        try:
+            tcat_instance.stage_in_s3(taskcat_cfg)
+            tcat_instance.validate_template(taskcat_cfg, test_list)
+            tcat_instance.validate_parameters(taskcat_cfg, test_list)
+            # instance.stackcreate returns testdata object
+            testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, args.stack_prefix)
+            tcat_instance.get_stackstatus(testdata, 5)
+            tcat_instance.createreport(testdata, 'index.html')
+            tcat_instance.cleanup(testdata, 5)
+        except taskcat.exceptions.TaskCatException as e:
+            print(taskcat.PrintMsg.ERROR + str(e))
+            exit1(str(e))
 
 # --End
 
