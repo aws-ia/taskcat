@@ -35,3 +35,9 @@ class CommonTools:
         stack_info['region'] = self.regxfind(region_re, self.stack_name)
         stack_info['stack_name'] = self.regxfind(stack_name_re, self.stack_name)
         return stack_info
+
+def exit1(msg):
+    sys.exit(1)
+
+def exit0(msg):
+    sys.exit(0)
