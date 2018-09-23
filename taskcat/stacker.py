@@ -60,6 +60,8 @@ from taskcat.common_utils import exit1
 try:
     __version__ = get_distribution('taskcat').version.replace('.0', '.')
     _run_mode = 1
+except TaskCatException:
+    raise
 except Exception:
     __version__ = "[local source] no pip module installed"
     _run_mode = 0
@@ -306,6 +308,8 @@ class TaskCat(object):
             print(PrintMsg.DEBUG + str(_obj))
         except ValueError:
             raise TaskCatException("Unable to parse JSON (taskcat project overrides)")
+        except TaskCatException:
+            raise
         except Exception as e:
             pass
 
@@ -485,6 +489,8 @@ class TaskCat(object):
         upload = re.sub('^./', '', filename)
         try:
             s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': bucket_or_object_acl})
+        except TaskCatException:
+            raise
         except Exception as e:
             print("Cannot Upload to bucket => %s" % self.get_s3bucket())
             if self.verbose:
@@ -529,6 +535,8 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         try:
             dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
+        except TaskCatException:
+            raise
         except Exception:
             print("{} Attempted to fetch Bucket: {}, Key: {}".format(PrintMsg.ERROR, bucket, object_key))
             raise
@@ -655,6 +663,8 @@ class TaskCat(object):
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
                     print(PrintMsg.DEBUG + "Parameters:")
                     print(cfn_params)
+            except TaskCatException:
+                raise
             except Exception as e:
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
@@ -1093,6 +1103,8 @@ class TaskCat(object):
                             Capabilities=self.get_capabilities(),
                             Tags=self.tags
                         )
+                    except TaskCatException:
+                        raise
                     except:
                         print(PrintMsg.INFO + "|CFN Execution mode [change_set]")
                         stack_cs_data = cfn.create_change_set(
@@ -1123,7 +1135,8 @@ class TaskCat(object):
                         }
 
                     testdata.add_test_stack(stackdata)
-
+                except TaskCatException:
+                    raise
                 except Exception as e:
                     if self.verbose:
                         print(PrintMsg.ERROR + str(e))
@@ -1216,6 +1229,8 @@ class TaskCat(object):
                     test_info.append(1)
                 else:
                     test_info.append(0)
+        except TaskCatException:
+            raise
         except Exception:
             test_info.append(stack_name)
             test_info.append(region)
@@ -1253,7 +1268,8 @@ class TaskCat(object):
             print('Creating new [{}]'.format(table_name))
             table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
             return table
-
+        except TaskCatException:
+            raise
         except Exception as notable:
             if notable:
                 print('Adding to existing [{}]'.format(table_name))
@@ -1629,6 +1645,8 @@ class TaskCat(object):
             if self.verbose:
                 if not quiet:
                     print(loader.get_single_data())
+        except TaskCatException:
+            raise
         except Exception as e:
             if strict:
                 raise TaskCatException(str(e))
@@ -1746,6 +1764,8 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
@@ -1764,6 +1784,8 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
                 print(PrintMsg.ERROR + "Credential Error - Please check you keys!")
                 if self.verbose:
@@ -1782,6 +1804,8 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
@@ -1830,6 +1854,8 @@ class TaskCat(object):
                                     raise TaskCatException("While inspecting: " + parms)
             else:
                 raise TaskCatException("Cannot open [%s]" % yaml_file)
+        except TaskCatException:
+            raise
         except Exception as e:
             if self.verbose:
                 print(PrintMsg.DEBUG + str(e))
@@ -1887,6 +1913,8 @@ class TaskCat(object):
         # noinspection PyBroadException
         try:
             os.stat(o_directory)
+        except TaskCatException:
+            raise
         except Exception:
             os.mkdir(o_directory)
         print("{} |GENERATING REPORTS{}".format(self.nametag, PrintMsg.header, PrintMsg.rst_color))
@@ -2072,6 +2100,8 @@ class TaskCat(object):
         print("{0}".format(banner.renderText(prog_name), '\n'))
         try:
             self.checkforupdate()
+        except TaskCatException:
+            raise
         except Exception:
             print(PrintMsg.INFO + "Unable to get version info!!, continuing")
             pass

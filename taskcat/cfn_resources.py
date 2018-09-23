@@ -72,6 +72,8 @@ class CfnResourceTools:
                              'physicalId': resource.get('PhysicalResourceId'),
                              'resourceType': resource.get('ResourceType')}
                         l_resources.append(d)
+            except TaskCatException:
+                raise
             except Exception as e:
                 print(PrintMsg.ERROR + str(e))
                 raise TaskCatException("Unable to get resources for stack %s" % stackname)
