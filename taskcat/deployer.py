@@ -377,6 +377,8 @@ class CFNAlchemist(object):
                     else:
                         self.logger.warning("Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
                         self._copy_file(current_file, output_file)
+                except TaskCatException:
+                    raise
                 except Exception as e:
                     raise e
 
@@ -501,6 +503,8 @@ class CFNAlchemist(object):
                 region=self.get_default_region()
             )
             account = sts_client.get_caller_identity().get('Account')
+        except TaskCatException:
+            raise
         except Exception as e:
             try:
                 self.logger.warning('Trying GovCloud region.')
@@ -514,6 +518,8 @@ class CFNAlchemist(object):
                     region=self.get_default_region()
                 )
                 account = sts_client.get_caller_identity().get('Account')
+            except TaskCatException:
+                raise
             except Exception as e:
                 self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
                 self.logger.debug(str(e))

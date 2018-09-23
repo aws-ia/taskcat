@@ -4,6 +4,7 @@ import yattag
 from botocore.vendored import requests
 from taskcat.colored_console import PrintMsg
 from taskcat.common_utils import CommonTools
+from taskcat.exceptions import TaskCatException
 
 
 class ReportBuilder:
@@ -49,6 +50,8 @@ class ReportBuilder:
                             self.run_cleanup = False
                     else:
                         status_css = 'class=test-red'
+            except TaskCatException:
+                raise
             except Exception as e:
                 print(PrintMsg.ERROR + "Error describing stack named [%s] " % stackname)
                 print(PrintMsg.DEBUG + str(e))

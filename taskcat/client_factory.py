@@ -14,6 +14,7 @@ import logging
 import os
 from threading import Lock
 from time import sleep
+from taskcat.exceptions import TaskCatException
 
 
 class ClientFactory(object):
@@ -178,6 +179,8 @@ class ClientFactory(object):
                     else:
                         session = boto3.session.Session(region_name=region)
                 return session
+            except TaskCatException:
+                raise
             except Exception as e:
                 if "could not be found" in str(e):
                     raise
@@ -212,6 +215,8 @@ class ClientFactory(object):
                     else:
                         client = self._clients[credential_set][region]['session'].client(service)
                 return client
+            except TaskCatException:
+                raise
             except Exception:
                 self.logger.debug("failed to create client", exc_info=1)
                 retry += 1
