@@ -11,7 +11,7 @@ from __future__ import print_function
 import unittest
 import mock
 from taskcat.client_factory import ClientFactory
-from taskcat.cfn_logutils import CfnResourceTools
+from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 
 
@@ -77,7 +77,7 @@ class TestCfnResourceTools(unittest.TestCase):
         cfn_resource_tools = cfn_resource_tools_instance()
 
         msg = "should return a list of resources"
-        with mock.patch("taskcat.cfn_logutils.CfnResourceTools.get_resources_helper", mock_get_resources_helper):
+        with mock.patch("taskcat.cfn_resources.CfnResourceTools.get_resources_helper", mock_get_resources_helper):
             resources = cfn_resource_tools.get_resources("test_stack", "us-east-1")
         self.assertEqual(["test_resource"], resources, msg)
 
@@ -109,6 +109,6 @@ class TestCfnResourceTools(unittest.TestCase):
         cfn_resource_tools = cfn_resource_tools_instance()
 
         msg = "should return a list of resources"
-        with mock.patch("taskcat.cfn_logutils.CfnResourceTools.get_resources", mock_get_resources):
+        with mock.patch("taskcat.cfn_resources.CfnResourceTools.get_resources", mock_get_resources):
             resources = cfn_resource_tools.get_all_resources(["test_stack"], "us-east-1")
         self.assertEqual([{'resources': [], 'stackId': 'test_stack'}], resources, msg)
