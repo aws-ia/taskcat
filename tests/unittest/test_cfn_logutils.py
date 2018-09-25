@@ -1,17 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-# authors:
-# Tony Vattathil <tonynv@amazon.com>, <avattathil@gmail.com>
-# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
-# Shivansh Singh <sshvans@amazon.com>,
-# Jay McConnell <jmmccon@amazon.com>,
-# Andrew Glenn <andglenn@amazon.com>
 from __future__ import print_function
 
 import unittest
 import mock
+
 from taskcat.client_factory import ClientFactory
-from taskcat.cfn_logutils import CfnResourceTools
+from taskcat.cfn_logutils import CfnLogTools
+from botocore.exceptions import ClientError
+import random
 
 
 def client_factory_instance():
@@ -21,27 +16,119 @@ def client_factory_instance():
     return aws_clients
 
 
-def cfn_resource_tools_instance():
-    return CfnResourceTools(client_factory_instance())
+def cfn_logutils_instance():
+    return CfnLogTools(client_factory_instance())
 
 
-def mock_get_resources_helper(self, stackname, region, l_resources, include_stacks):
-    l_resources.append("test_resource")
+def mock_boto_get(service, region):
+    return MockCfn()
 
 
-class TestCfnResourceTools(unittest.TestCase):
+def mock_get_resources(self, stackname, region, include_stacks=False):
+    return []
+
+
+def mock_get_cfn_stack_events(self, stackid, region):
+    return [{
+            "Timestamp": None,
+            "ResourceStatus": None,
+            "ResourceType": None,
+            "LogicalResourceId": None
+        }]
+
+
+def mock_get_cfnlogs(self, stackid, region):
+    return [{
+            "TimeStamp": None,
+            "ResourceStatus": None,
+            "ResourceType": None,
+            "LogicalResourceId": None,
+            'ResourceStatusReason': ''
+        }]
+
+
+def mock_parse_stack_info(self):
+    return {'stack_name': "test_stack", 'region': "us-east-1"}
+
+class MockCfn(object):
+
+    def __init__(self):
+        pass
+
+    def describe_stack_events(self, StackName, NextToken=None):
+        outp = {"StackEvents": []}
+        if StackName == "test_stack" and NextToken:
+            outp["StackEvents"].append({})
+        elif StackName == "test_stack":
+            outp["NextToken"] = "test_token"
+        elif StackName == "test_client_error":
+            raise ClientError({}, "")
+        return outp
+
+
+class TestCfnLogTools(unittest.TestCase):
 
     def test___init__(self):
         client_factory = client_factory_instance()
 
         msg = "should store client factory in self._boto_client"
-        cfn_resource = CfnResourceTools(client_factory)
+        cfn_resource = CfnLogTools(client_factory)
         self.assertEqual(client_factory, cfn_resource._boto_client, msg)
 
-    def test_get_resources(self):
-        cfn_resource_tools = cfn_resource_tools_instance()
+    def test_get_cfn_stack_events(self):
+        cfn_logutils = cfn_logutils_instance()
+        cfn_logutils._boto_client.get = mock_boto_get
 
-        msg = "should return a list of resources"
-        with mock.patch("taskcat.cfn_logutils.CfnResourceTools.get_resources_helper", mock_get_resources_helper):
-            resources = cfn_resource_tools.get_resources("test_stack", "us-east-1")
-        self.assertEqual(["test_resource"], resources, msg)
+        msg = "should return a list of events"
+        resources = cfn_logutils.get_cfn_stack_events("test_stack", "us-east-1")
+        self.assertEqual([{}], resources, msg)
+
+        msg = "should swallow ClientError and return an ekpty list"
+        resources = cfn_logutils.get_cfn_stack_events("test_client_error", "us-east-1")
+        self.assertEqual([], resources, msg)
+
+    def test_get_cfnlogs(self):
+        cfn_logutils = cfn_logutils_instance()
+
+        msg = "should return the expected output"
+        with mock.patch("taskcat.cfn_logutils.CfnLogTools.get_cfn_stack_events", mock_get_cfn_stack_events):
+            resources = cfn_logutils.get_cfnlogs("test_stack", "us-east-1")
+        expected = [{
+            "TimeStamp": None,
+            "ResourceStatus": None,
+            "ResourceType": None,
+            "LogicalResourceId": None,
+            'ResourceStatusReason': ''
+        }]
+        self.assertEqual(expected, resources, msg)
+
+    def test_write_logs(self):
+        cfn_logutils = cfn_logutils_instance()
+
+        msg = "should write the expected output to a file"
+        path = "/tmp/taskcat_test_write_logs_" + str(random.randrange(1, 1000000000000000))
+        with mock.patch("taskcat.cfn_logutils.CfnLogTools.get_cfnlogs", mock_get_cfnlogs):
+            with mock.patch("taskcat.common_utils.CommonTools.parse_stack_info", mock_parse_stack_info):
+                with mock.patch("taskcat.cfn_resources.CfnResourceTools.get_resources", mock_get_resources):
+                    cfn_logutils.write_logs("test_stack", path)
+        actual = open(path, 'r').read()
+        expected = [
+            '-----------------------------------------------------------------------------\n'
+            'Region: us-east-1\n'
+            'StackName: test_stack\n'
+            '*****************************************************************************\n'
+            'ResourceStatusReason:  \n'
+            '\n'
+            '*****************************************************************************\n'
+            '*****************************************************************************\n'
+            'Events:  \n'
+            '  TimeStamp    ResourceStatus    ResourceType    LogicalResourceId  '
+            'ResourceStatusReason\n'
+            '-----------  ----------------  --------------  -------------------  '
+            '----------------------\n'
+            '\n'
+            '*****************************************************************************\n'
+            '-----------------------------------------------------------------------------\n'
+        ]
+        len(expected)
+        self.assertEqual(actual.startswith(expected[0]), True, msg)
