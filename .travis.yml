@@ -2,11 +2,6 @@ language: python
 python:
   - 3.5
 
-branch:
-  only:
-   - deploy
-   - master
-
 before_install:
   - pip install pipreqs
   - pipreqs . --force
@@ -16,6 +11,7 @@ install:
   - bumpversion patch --tag --allow-dirty
   - python setup.py install
 script:
+  - chown -R travis:travis /tmp
   - pytest
 
 after_success:
