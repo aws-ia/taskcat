@@ -15,7 +15,7 @@ import sys
 import yaml
 import re
 from collections import OrderedDict
-
+from taskcat.exceptions import TaskCatException
 
 class Logger(object):
     """Wrapper for a logging object that logs in json"""
@@ -120,11 +120,15 @@ class Logger(object):
             metadata["job_id"] = self.job_id
         try:
             message = json.loads(message)
+        except TaskCatException:
+            raise
         except Exception:
             pass
         try:
             metadata["message"] = message
             return json.dumps(metadata)
+        except TaskCatException:
+            raise
         except Exception:
             metadata["message"] = str(message)
             return json.dumps(metadata)

@@ -48,6 +48,9 @@ from taskcat.colored_console import PrintMsg
 from taskcat.generate_reports import ReportBuilder
 from taskcat.common_utils import CommonTools
 from taskcat.cfn_logutils import CfnLogTools
+from taskcat.exceptions import TaskCatException
+from taskcat.common_utils import exit1
+from taskcat.common_utils import exit0
 
 
 # Version Tag
@@ -58,6 +61,8 @@ from taskcat.cfn_logutils import CfnLogTools
 try:
     __version__ = get_distribution('taskcat').version.replace('.0', '.')
     _run_mode = 1
+except TaskCatException:
+    raise
 except Exception:
     __version__ = "[local source] no pip module installed"
     _run_mode = 0
@@ -285,8 +290,7 @@ class TaskCat(object):
                 try:
                     _homedir_override_json = json.loads(f.read())
                 except ValueError:
-                    print(PrintMsg.ERROR + "Unable to parse JSON (taskcat global overrides)")
-                    sys.exit(1)
+                    raise TaskCatException("Unable to parse JSON (taskcat global overrides)")
                 print(PrintMsg.DEBUG + "Values loaded from ~/.aws/taskcat_global_override.json")
                 print(PrintMsg.DEBUG + str(_homedir_override_json))
             dict_squash_list.append(_homedir_override_json)
@@ -304,8 +308,9 @@ class TaskCat(object):
             print(PrintMsg.DEBUG + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
             print(PrintMsg.DEBUG + str(_obj))
         except ValueError:
-            print(PrintMsg.ERROR + "Unable to parse JSON (taskcat project overrides)")
-            sys.exit(1)
+            raise TaskCatException("Unable to parse JSON (taskcat project overrides)")
+        except TaskCatException:
+            raise
         except Exception as e:
             pass
 
@@ -425,8 +430,7 @@ class TaskCat(object):
 
                 self.set_s3bucket_type('auto')
             else:
-                print(PrintMsg.ERROR + "Default_region = " + self.get_default_region())
-                sys.exit(1)
+                raise TaskCatException("Default_region = " + self.get_default_region())
 
             if response['ResponseMetadata']['HTTPStatusCode'] is 200:
                 print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
@@ -457,8 +461,7 @@ class TaskCat(object):
             print('''\t\t Hint: The name specfied as value of qsname ({})
                     must match the root directory of your project'''.format(self.get_project()))
             print("{0}!Cannot find directory [{1}] in {2}".format(PrintMsg.ERROR, self.get_project(), os.getcwd()))
-            print(PrintMsg.INFO + "Please cd to where you project is located")
-            sys.exit(1)
+            raise TaskCatException("Please cd to where you project is located")
 
         if self.multithread_upload:
             threads = 16
@@ -487,12 +490,13 @@ class TaskCat(object):
         upload = re.sub('^./', '', filename)
         try:
             s3_client.upload_file(filename, self.get_s3bucket(), upload, ExtraArgs={'ACL': bucket_or_object_acl})
+        except TaskCatException:
+            raise
         except Exception as e:
             print("Cannot Upload to bucket => %s" % self.get_s3bucket())
-            print(PrintMsg.ERROR + "Check that you bucketname is correct")
             if self.verbose:
                 print(PrintMsg.DEBUG + str(e))
-            sys.exit(1)
+            raise TaskCatException("Check that you bucketname is correct")
 
     def get_available_azs(self, region, count):
         """
@@ -532,6 +536,8 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         try:
             dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
+        except TaskCatException:
+            raise
         except Exception:
             print("{} Attempted to fetch Bucket: {}, Key: {}".format(PrintMsg.ERROR, bucket, object_key))
             raise
@@ -658,13 +664,15 @@ class TaskCat(object):
                     cfn_params = json.dumps(result['Parameters'], indent=11, separators=(',', ': '))
                     print(PrintMsg.DEBUG + "Parameters:")
                     print(cfn_params)
+            except TaskCatException:
+                raise
             except Exception as e:
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
                 print(PrintMsg.FAIL + "Cannot validate %s" % self.get_template_file())
                 print(PrintMsg.INFO + "Deleting any automatically-created buckets...")
                 self.delete_autobucket()
-                sys.exit(1)
+                raise TaskCatException("Cannot validate %s" % self.get_template_file())
         print('\n')
         return True
 
@@ -1096,6 +1104,8 @@ class TaskCat(object):
                             Capabilities=self.get_capabilities(),
                             Tags=self.tags
                         )
+                    except TaskCatException:
+                        raise
                     except:
                         print(PrintMsg.INFO + "|CFN Execution mode [change_set]")
                         stack_cs_data = cfn.create_change_set(
@@ -1126,11 +1136,12 @@ class TaskCat(object):
                         }
 
                     testdata.add_test_stack(stackdata)
-
+                except TaskCatException:
+                    raise
                 except Exception as e:
                     if self.verbose:
                         print(PrintMsg.ERROR + str(e))
-                    sys.exit(PrintMsg.FAIL + "Cannot launch %s" % self.get_template_file())
+                    raise TaskCatException("Cannot launch %s" % self.get_template_file())
 
             testdata_list.append(testdata)
         print('\n')
@@ -1170,7 +1181,7 @@ class TaskCat(object):
                 print(PrintMsg.PASS + "Validated [%s]" % self.get_parameter_file())
             else:
                 print(PrintMsg.DEBUG + "parameter_file = %s" % self.get_parameter_file())
-                sys.exit(PrintMsg.FAIL + "Cannot validate %s" % self.get_parameter_file())
+                raise TaskCatException("Cannot validate %s" % self.get_parameter_file())
         return True
 
     @staticmethod
@@ -1219,6 +1230,8 @@ class TaskCat(object):
                     test_info.append(1)
                 else:
                     test_info.append(0)
+        except TaskCatException:
+            raise
         except Exception:
             test_info.append(stack_name)
             test_info.append(region)
@@ -1256,7 +1269,8 @@ class TaskCat(object):
             print('Creating new [{}]'.format(table_name))
             table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
             return table
-
+        except TaskCatException:
+            raise
         except Exception as notable:
             if notable:
                 print('Adding to existing [{}]'.format(table_name))
@@ -1591,8 +1605,7 @@ class TaskCat(object):
                     print(json.dumps(parms, sort_keys=True, indent=11, separators=(',', ': ')))
         except ValueError as e:
             if strict:
-                print(PrintMsg.ERROR + str(e))
-                sys.exit(1)
+                raise TaskCatException(str(e))
             return False
         return True
 
@@ -1613,8 +1626,7 @@ class TaskCat(object):
                     print(yaml.dump(parms))
         except yaml.YAMLError as e:
             if strict:
-                print(PrintMsg.ERROR + str(e))
-                sys.exit(1)
+                raise TaskCatException(str(e))
             return False
         return True
 
@@ -1634,10 +1646,11 @@ class TaskCat(object):
             if self.verbose:
                 if not quiet:
                     print(loader.get_single_data())
+        except TaskCatException:
+            raise
         except Exception as e:
             if strict:
-                print(PrintMsg.ERROR + str(e))
-                sys.exit(1)
+                raise TaskCatException(str(e))
             return False
         return True
 
@@ -1651,9 +1664,7 @@ class TaskCat(object):
         :return:
         """
         if strict not in ['error', 'strict', 'warn']:
-            print(
-                PrintMsg.ERROR + "lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
-            sys.exit(1)
+            raise TaskCatException("lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
         lints = {}
         templates = {}
         config = yaml.safe_load(open(self.config))
@@ -1697,11 +1708,9 @@ class TaskCat(object):
                     else:
                         print(PrintMsg.DEBUG + "linter produced unkown output: " + message)
         if strict in ['error', 'strict'] and test_status['E']:
-            print(PrintMsg.FAIL + "Exiting due to lint errors")
-            sys.exit(1)
+            raise TaskCatException("Exiting due to lint errors")
         elif strict == 'strict' and test_status['W']:
-            print(PrintMsg.FAIL + "Exiting due to lint warnings")
-            sys.exit(1)
+            raise TaskCatException("Exiting due to lint warnings")
 
     def get_child_templates(self, filename, parent_path=''):
         """
@@ -1756,11 +1765,12 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
-                print(PrintMsg.ERROR + "Credential Error - Please check you profile!")
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
-                sys.exit(1)
+                raise TaskCatException("Credential Error - Please check you profile!")
         elif args.aws_access_key and args.aws_secret_key:
             self._auth_mode = 'keys'
             self._aws_access_key = args.aws_access_key
@@ -1775,6 +1785,8 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
                 print(PrintMsg.ERROR + "Credential Error - Please check you keys!")
                 if self.verbose:
@@ -1793,11 +1805,12 @@ class TaskCat(object):
                 account = sts_client.get_caller_identity().get('Account')
                 print(self.nametag + " :AWS AccountNumber: \t [%s]" % account)
                 print(self.nametag + " :Authenticated via: \t [%s]" % self._auth_mode)
+            except TaskCatException:
+                raise
             except Exception as e:
-                print(PrintMsg.ERROR + "Credential Error - Please check your boto environment variable !")
                 if self.verbose:
                     print(PrintMsg.DEBUG + str(e))
-                sys.exit(1)
+                raise TaskCatException("Credential Error - Please check your boto environment variable !")
 
     def validate_yaml(self, yaml_file):
         """
@@ -1828,8 +1841,7 @@ class TaskCat(object):
                         if key in cfg_yml['global'].keys():
                             pass
                         else:
-                            print("global:%s missing from " % key + yaml_file)
-                            sys.exit(1)
+                            raise TaskCatException("global:%s missing from " % key + yaml_file)
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
@@ -1840,16 +1852,15 @@ class TaskCat(object):
                                     pass
                                 else:
                                     print("No key %s in test" % key + defined)
-                                    print(PrintMsg.ERROR + "While inspecting: " + parms)
-                                    sys.exit(1)
+                                    raise TaskCatException("While inspecting: " + parms)
             else:
-                print(PrintMsg.ERROR + "Cannot open [%s]" % yaml_file)
-                sys.exit(1)
+                raise TaskCatException("Cannot open [%s]" % yaml_file)
+        except TaskCatException:
+            raise
         except Exception as e:
-            print(PrintMsg.ERROR + "config.yml [%s] is not formatted well!!" % yaml_file)
             if self.verbose:
                 print(PrintMsg.DEBUG + str(e))
-            sys.exit(1)
+            raise TaskCatException("config.yml [%s] is not formatted well!!" % yaml_file)
         return run_tests
 
     def collect_resources(self, testdata_list, logpath):
@@ -1903,6 +1914,8 @@ class TaskCat(object):
         # noinspection PyBroadException
         try:
             os.stat(o_directory)
+        except TaskCatException:
+            raise
         except Exception:
             os.mkdir(o_directory)
         print("{} |GENERATING REPORTS{}".format(self.nametag, PrintMsg.header, PrintMsg.rst_color))
@@ -2006,16 +2019,16 @@ class TaskCat(object):
         if len(sys.argv) == 1:
             self.welcome()
             print(parser.print_help())
-            sys.exit(0)
+            exit0()
 
         if args.version:
             print(get_installed_version())
-            sys.exit(0)
+            exit0()
 
         if not args.config_yml:
             parser.error("-c (--config_yml) not passed (Config File Required!)")
             print(parser.print_help())
-            sys.exit(1)
+            raise TaskCatException("-c (--config_yml) not passed (Config File Required!)")
 
         if args.multithread_upload:
             self.multithread_upload = True
@@ -2026,8 +2039,7 @@ class TaskCat(object):
             pass
 
         if not re.compile('^[a-z0-9\-]+$').match(args.stack_prefix):
-            print("--stack-prefix only accepts lowercase letters, numbers and '-'")
-            sys.exit(1)
+            raise TaskCatException("--stack-prefix only accepts lowercase letters, numbers and '-'")
         self.stack_prefix = args.stack_prefix
 
         if args.verbose:
@@ -2042,7 +2054,8 @@ class TaskCat(object):
                 parser.error("Cannot use boto profile -P (--boto_profile)" +
                              "with --aws_access_key or --aws_secret_key")
                 print(parser.print_help())
-                sys.exit(1)
+                raise TaskCatException("Cannot use boto profile -P (--boto_profile)" +
+                             "with --aws_access_key or --aws_secret_key")
         if args.public_s3_bucket:
             self.public_s3_bucket = True
 
@@ -2050,7 +2063,7 @@ class TaskCat(object):
             if args.no_cleanup:
                 parser.error("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
                 print(parser.print_help())
-                sys.exit(1)
+                raise TaskCatException("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
             self.retain_if_failed = True
 
         return args
@@ -2088,6 +2101,8 @@ class TaskCat(object):
         print("{0}".format(banner.renderText(prog_name), '\n'))
         try:
             self.checkforupdate()
+        except TaskCatException:
+            raise
         except Exception:
             print(PrintMsg.INFO + "Unable to get version info!!, continuing")
             pass
@@ -2096,8 +2111,7 @@ class TaskCat(object):
 class AppendTag(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if len(values.split('=')) != 2:
-            print(PrintMsg.ERROR + "tags must be in the format TagKey=TagValue")
-            sys.exit(1)
+            raise TaskCatException("tags must be in the format TagKey=TagValue")
         n, v = values.split('=')
         try:
             getattr(namespace, 'tags')

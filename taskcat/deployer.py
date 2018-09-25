@@ -19,7 +19,7 @@ import sys
 from collections import OrderedDict
 from taskcat.client_factory import ClientFactory
 from taskcat.utils import CFNYAMLHandler
-
+from taskcat.exceptions import TaskCatException
 
 class CFNAlchemist(object):
     OBJECT_REWRITE_MODE = 10
@@ -179,8 +179,7 @@ class CFNAlchemist(object):
           checksum comparison is only effective on non-multi part uploaded files).
         """
         if self._target_key_prefix is None:
-            self.logger.error('target_key_prefix cannot be None')
-            sys.exit(1)
+            raise TaskCatException('target_key_prefix cannot be None')
         # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS CURRENTLY USING ClientFactory's get_session from utils.py
         '''
         # Use a profile
@@ -378,6 +377,8 @@ class CFNAlchemist(object):
                     else:
                         self.logger.warning("Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
                         self._copy_file(current_file, output_file)
+                except TaskCatException:
+                    raise
                 except Exception as e:
                     raise e
 
@@ -402,8 +403,7 @@ class CFNAlchemist(object):
                         if directory in dirs:
                             dirs.remove(directory)
             else:
-                self.logger.error("Directory/File is non-existent. Aborting.")
-                sys.exit(1)
+                raise TaskCatException("Directory/File is non-existent. Aborting.")
             self._file_list = _file_list
         return self._file_list
 
@@ -460,7 +460,7 @@ class CFNAlchemist(object):
             self.logger.error(type(current_node))
             self.logger.error("Failing Value: ")
             self.logger.error(current_node)
-            sys.exit(1)
+            raise TaskCatException("Unsupported type.")
 
         self.logger.debug("PARSED!")
 
@@ -503,6 +503,8 @@ class CFNAlchemist(object):
                 region=self.get_default_region()
             )
             account = sts_client.get_caller_identity().get('Account')
+        except TaskCatException:
+            raise
         except Exception as e:
             try:
                 self.logger.warning('Trying GovCloud region.')
@@ -516,10 +518,12 @@ class CFNAlchemist(object):
                     region=self.get_default_region()
                 )
                 account = sts_client.get_caller_identity().get('Account')
+            except TaskCatException:
+                raise
             except Exception as e:
                 self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
                 self.logger.debug(str(e))
-                sys.exit(1)
+                raise TaskCatException("Credential Error - Please check you {}!".format(self._auth_mode))
         self.logger.info("AWS AccountNumber: \t [%s]" % account)
         self.logger.info("Authenticated via: \t [%s]" % self._auth_mode)
 

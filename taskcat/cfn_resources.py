@@ -1,6 +1,7 @@
 import sys
-from .colored_console import PrintMsg
-from .common_utils import CommonTools
+from taskcat.colored_console import PrintMsg
+from taskcat.common_utils import CommonTools
+from taskcat.exceptions import TaskCatException
 
 
 class CfnResourceTools:
@@ -71,9 +72,11 @@ class CfnResourceTools:
                              'physicalId': resource.get('PhysicalResourceId'),
                              'resourceType': resource.get('ResourceType')}
                         l_resources.append(d)
+            except TaskCatException:
+                raise
             except Exception as e:
                 print(PrintMsg.ERROR + str(e))
-                sys.exit(PrintMsg.FAIL + "Unable to get resources for stack %s" % stackname)
+                raise TaskCatException("Unable to get resources for stack %s" % stackname)
 
     def get_all_resources(self, stackids, region):
         """
