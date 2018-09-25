@@ -32,4 +32,17 @@ after_success:
         git push -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       fi
 
+deploy:
+  - provider: releases
+    skip_cleanup: true
+    api_key: "$GHT"
+    file: directory/*
+    on:
+      branch: master
 
+  - provider: pypi
+    skip_cleanup: true
+    user: $PYPI_USER
+    password: $PYPI_PASSWORD
+    on:
+      tags: true
