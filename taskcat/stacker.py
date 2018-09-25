@@ -50,6 +50,7 @@ from taskcat.common_utils import CommonTools
 from taskcat.cfn_logutils import CfnLogTools
 from taskcat.exceptions import TaskCatException
 from taskcat.common_utils import exit1
+from taskcat.common_utils import exit0
 
 
 # Version Tag
