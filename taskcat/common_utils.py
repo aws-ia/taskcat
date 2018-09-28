@@ -26,7 +26,6 @@ class CommonTools:
         """
         Returns a dictionary object containing the region and stack name.
 
-        :param stack_name: Full stack name arn
         :return: Dictionary object containing the region and stack name
 
         """
