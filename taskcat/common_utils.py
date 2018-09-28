@@ -1,4 +1,5 @@
 import re
+import sys
 
 
 class CommonTools:
@@ -36,8 +37,10 @@ class CommonTools:
         stack_info['stack_name'] = self.regxfind(stack_name_re, self.stack_name)
         return stack_info
 
-def exit1(msg):
+
+def exit1(msg=''):
     sys.exit(1)
 
-def exit0(msg):
+
+def exit0(msg=''):
     sys.exit(0)
