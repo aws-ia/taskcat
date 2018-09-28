@@ -66,6 +66,37 @@ class ClientFactory(object):
         self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
         return
 
+    def get_default_region(self, aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name):
+        """returns the default region for the credentials provided
+
+        :param aws_access_key_id:
+        :param aws_secret_access_key:
+        :param aws_session_token:
+        :param profile_name:
+        :return:
+        """
+        try:
+            if aws_access_key_id and aws_secret_access_key and aws_session_token:
+                session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
+                                                aws_secret_access_key=aws_secret_access_key,
+                                                aws_session_token=aws_session_token)
+            elif aws_access_key_id and aws_secret_access_key:
+                session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
+                                                aws_secret_access_key=aws_secret_access_key)
+            elif profile_name:
+                session = boto3.session.Session(profile_name=profile_name)
+            else:
+                session = boto3.session.Session()
+            region = session.region_name
+            if not region:
+                self.logger.warning("Region not set in credential chain, defaulting to us-east-1")
+                region = 'us-east-1'
+        except Exception as e:
+            self.logger.error('failed to get default region: %s' % str(e))
+            region = 'us-east-1'
+        finally:
+            return region
+
     def put_credential_set(self, credential_set_name, aws_access_key_id=None, aws_secret_access_key=None,
                            aws_session_token=None, profile_name=None):
         """Adds or updates a credential set to be re-used when creating clients
@@ -111,11 +142,7 @@ class ClientFactory(object):
             aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[
                 credential_set]
         if not region:
-            self.logger.debug("Region not set explicitly, getting default region")
-            region = os.environ.get('AWS_DEFAULT_REGION')
-            if not region:
-                self.logger.warning("Region not set in environment, defaulting to us-east-1")
-                region = 'us-east-1'
+            region = self.get_default_region(aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
         s3v4 = 's3v4' if s3v4 else 'default_sig_version'
         try:
             self.logger.debug("Trying to get [%s][%s][%s][%s]" % (credential_set, region, service, s3v4))
@@ -255,10 +282,6 @@ class ClientFactory(object):
             boto3.session.Session: instance of boto3 Session object
         """
         if not region:
-            self.logger.debug("Region not set explicitly, getting default region")
-            region = os.environ.get('AWS_DEFAULT_REGION')
-            if not region:
-                self.logger.warning("Region not set in environment, defaulting to us-east-1")
-                region = 'us-east-1'
+            region = self.get_default_region(None, None, None, None)
 
         return self._clients[credential_set][region]['session']
