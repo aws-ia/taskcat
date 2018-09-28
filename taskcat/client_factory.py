@@ -112,7 +112,10 @@ class ClientFactory(object):
                 credential_set]
         if not region:
             self.logger.debug("Region not set explicitly, getting default region")
-            region = os.environ['AWS_DEFAULT_REGION']
+            region = os.environ.get('AWS_DEFAULT_REGION')
+            if not region:
+                self.logger.warning("Region not set in environment, defaulting to us-east-1")
+                region = 'us-east-1'
         s3v4 = 's3v4' if s3v4 else 'default_sig_version'
         try:
             self.logger.debug("Trying to get [%s][%s][%s][%s]" % (credential_set, region, service, s3v4))
@@ -253,6 +256,9 @@ class ClientFactory(object):
         """
         if not region:
             self.logger.debug("Region not set explicitly, getting default region")
-            region = os.environ['AWS_DEFAULT_REGION']
+            region = os.environ.get('AWS_DEFAULT_REGION')
+            if not region:
+                self.logger.warning("Region not set in environment, defaulting to us-east-1")
+                region = 'us-east-1'
 
         return self._clients[credential_set][region]['session']
