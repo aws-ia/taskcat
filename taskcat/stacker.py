@@ -1756,7 +1756,7 @@ class TaskCat(object):
         """
         print('\n')
 
-        self.set_default_region = ClientFactory().get_default_region(args.aws_access_key, args.aws_secret_key, None, args.boto_profile)
+        self.set_default_region(region=ClientFactory().get_default_region(args.aws_access_key, args.aws_secret_key, None, args.boto_profile))
         if args.boto_profile:
             self._auth_mode = 'profile'
             self._boto_profile = args.boto_profile
