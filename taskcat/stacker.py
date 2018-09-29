@@ -1755,6 +1755,8 @@ class TaskCat(object):
             either profile name, access key and secret key or none.
         """
         print('\n')
+
+        self.set_default_region(region=ClientFactory().get_default_region(args.aws_access_key, args.aws_secret_key, None, args.boto_profile))
         if args.boto_profile:
             self._auth_mode = 'profile'
             self._boto_profile = args.boto_profile
@@ -1793,11 +1795,6 @@ class TaskCat(object):
                     print(PrintMsg.DEBUG + str(e))
         else:
             self._auth_mode = 'environment'
-            if os.environ.get('AWS_DEFAULT_REGION'):
-                self.set_default_region(os.environ.get('AWS_DEFAULT_REGION'))
-                print(PrintMsg.INFO + "Using environmental region set in $AWS_DEFAULT_REGION")
-            else:
-                self.set_default_region('us-east-1')
 
             try:
                 sts_client = self._boto_client.get('sts',
