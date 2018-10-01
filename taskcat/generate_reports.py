@@ -13,11 +13,12 @@ class ReportBuilder:
 
     """
 
-    def __init__(self, test_data, dashboard_filename, version, boto_client):
+    def __init__(self, test_data, dashboard_filename, version, boto_client, taskcat):
         self.dashboard_filename = dashboard_filename
         self.test_data = test_data
         self.version = version
         self._boto_client = boto_client
+        self.taskcat = taskcat
 
     def generate_report(self):
         doc = yattag.Doc()
@@ -46,8 +47,8 @@ class ReportBuilder:
                         status_css = 'class=test-green'
                     elif rstatus == 'CREATE_FAILED':
                         status_css = 'class=test-red'
-                        if self.retain_if_failed and (self.run_cleanup == True):
-                            self.run_cleanup = False
+                        if self.taskcat.retain_if_failed and (self.taskcat.run_cleanup == True):
+                            self.taskcat.run_cleanup = False
                     else:
                         status_css = 'class=test-red'
             except TaskCatException:

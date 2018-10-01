@@ -1925,7 +1925,7 @@ class TaskCat(object):
         cfn_logs.createcfnlogs(testdata_list, o_directory)
 
         # Generate html test dashboard
-        cfn_report = ReportBuilder(testdata_list, dashboard_filename, self.version, self._boto_client)
+        cfn_report = ReportBuilder(testdata_list, dashboard_filename, self.version, self._boto_client, self)
         cfn_report.generate_report()
 
     @property
