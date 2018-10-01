@@ -77,7 +77,7 @@ Given the url to PypI package info url returns the current live version
 
 # create logger
 logger = logging.getLogger('taskcat')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 def get_pip_version(url):
