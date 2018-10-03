@@ -44,6 +44,10 @@ jobs:
         - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       after_success:
         - python setup.py clean --all
+        - git checkout -b "release/v${RELEASE_ID}"
+        - git merge $TRAVIS_BRANCH
+        - TAG_BODY="taskcat release canidate → $NEW_VERSION"
+        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       deploy:
         - provider: releases
           skip_cleanup: true
@@ -59,11 +63,6 @@ jobs:
           on:
             branch: develop
             tags: false
-      after_deploy:
-        - git checkout -b "release/v${RELEASE_ID}"
-        - git merge $TRAVIS_BRANCH
-        - TAG_BODY="taskcat release canidate → $NEW_VERSION"
-        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
     - stage: "Create Production Builds"
       name: "Create Finalized Release"
       if: branch = master
