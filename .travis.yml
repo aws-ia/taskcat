@@ -28,7 +28,7 @@ jobs:
         - set -e
         - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
         - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
-        - echo "Creating new Release ${RELEASE_I}D"
+        - echo "Creating new Release ${RELEASE_ID}"
         - git config --global user.email "builds@travis-ci.com"
         - git config --global user.name "Travis CI"
         - git config --global push.followTags true
@@ -64,18 +64,34 @@ jobs:
         - git merge $TRAVIS_BRANCH
         - TAG_BODY="taskcat release canidate → $NEW_VERSION"
         - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
-
-deploy:
-  - provider: releases
-    skip_cleanup: true
-    api_key: "$GHT"
-    file: directory/*
-    on:
-      branch: master
-  - provider: pypi
-    skip_cleanup: true
-    user: $PYPI_USER
-    password: $PYPI_PASSWORD
-    on:
-      branch: master
-
+    - stage: "Create Production Builds"
+      name: "Create Finalized Release"
+      if: branch = master
+      script:
+        - set -e
+        - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
+        - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
+        - echo "Tag Release ${RELEASE_ID}"
+        - git config --global user.email "builds@travis-ci.com"
+        - git config --global user.name "Travis CI"
+        - git config --global push.followTags true
+        - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
+        - TAG_BODY="taskcat release version → $NEW_VERSION"
+        - git tag -a "v${NEW_VERSION}" -m "${TAG_BODY}"
+        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+      after_success:
+        - python setup.py clean --all
+      deploy:
+        - provider: releases
+          skip_cleanup: true
+          prerelease: true
+          api_key: "$GHT"
+          file: directory/*
+          on:
+            branch: master
+        - provider: pypi
+          user: $PYPI_USER
+          password: $PYPI_PASSWORD
+          on:
+            branch: master
+            tags: false
