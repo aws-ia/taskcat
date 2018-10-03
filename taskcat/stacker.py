@@ -77,7 +77,7 @@ Given the url to PypI package info url returns the current live version
 
 # create logger
 logger = logging.getLogger('taskcat')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 
 def get_pip_version(url):
@@ -1925,7 +1925,7 @@ class TaskCat(object):
         cfn_logs.createcfnlogs(testdata_list, o_directory)
 
         # Generate html test dashboard
-        cfn_report = ReportBuilder(testdata_list, dashboard_filename, self.version, self._boto_client)
+        cfn_report = ReportBuilder(testdata_list, dashboard_filename, self.version, self._boto_client, self)
         cfn_report.generate_report()
 
     @property
