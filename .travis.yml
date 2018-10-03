@@ -6,8 +6,6 @@ python:
 
 before_install:
   - pip install pipreqs
-  - pipreqs . --force
-  - pip install -r requirements.txt
   - pip install bumpversion
 
 install:
@@ -21,33 +19,34 @@ script:
 
 jobs:
   include:
+
     - stage: "Create Development Builds"
       name: "Create Release Candidate"
       if: branch = develop
-      script:
+      before_script:
         - set -e
         - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
         - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
-        - echo "Creating new Release ${RELEASE_ID}"
         - git config --global user.email "builds@travis-ci.com"
         - git config --global user.name "Travis CI"
         - git config --global push.followTags true
         - git fetch --all
-        - git checkout $TRAVIS_BRANCH
-        - pipreqs . --force
-        - export COMMIT_MSG="$(git log -1 --pretty=%B| xargs)"
-        - bumpversion patch --allow-dirty
-        - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
-        - git commit -a --amend -m "$COMMIT_MSG → Added to [$NEW_VERSION] [skip ci]"
-        - TAG_BODY="taskcat build version → $NEW_VERSION"
-        - git tag -a "v${NEW_VERSION}" -m "${TAG_BODY}"
-        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
-      after_success:
+      script:
+        - |
+          set -e
+          if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+            echo "Creating new development ${RELEASE_ID}"
+            git checkout $TRAVIS_BRANCH
+            pipreqs . --force
+            export COMMIT_MSG="$(git log -1 --pretty=%B| xargs)"
+            bumpversion patch --allow-dirty
+            export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
+            git commit -a --amend -m "$COMMIT_MSG → Added to [$NEW_VERSION] [skip ci]"
+            git push -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+          fi
+      before_deploy:
+        - set -e
         - python setup.py clean --all
-        - git checkout -b "release/v${RELEASE_ID}"
-        - git merge $TRAVIS_BRANCH
-        - TAG_BODY="taskcat release canidate → $NEW_VERSION"
-        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       deploy:
         - provider: releases
           skip_cleanup: true
@@ -62,24 +61,19 @@ jobs:
           server: https://test.pypi.org/legacy/
           on:
             branch: develop
-            tags: true
+      after_success::
+        - set -e
+        - git checkout -b "release/v${RELEASE_ID}"
+        - git merge $TRAVIS_BRANCH
+        - export COMMIT_MSG="$(git log -1 --pretty=%B| xargs | sed -e 's/\[skip ci\]//g')"
+        - git commit -a --amend -m "$COMMIT_MSG"
+        - git push  -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+
     - stage: "Create Production Builds"
       name: "Create Finalized Release"
       if: branch = master
-      script:
+      before_deploy:
         - set -e
-        - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
-        - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
-        - echo "Tag Release ${RELEASE_ID}"
-        - git config --global user.email "builds@travis-ci.com"
-        - git config --global user.name "Travis CI"
-        - git config --global push.followTags true
-        - git checkout $TRAVIS_BRANCH
-        - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
-        - TAG_BODY="taskcat release version → $NEW_VERSION"
-        - git tag -a "v${NEW_VERSION}" -m "${TAG_BODY}"
-        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
-      after_success:
         - python setup.py clean --all
       deploy:
         - provider: releases
