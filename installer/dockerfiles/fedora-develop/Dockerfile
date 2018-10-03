@@ -1,5 +1,5 @@
 ############################################################
-# taskcat Dockerfile
+# taskcat development Dockerfile
 # Based on Fedora
 ############################################################
 
@@ -20,7 +20,9 @@ RUN dnf install git -y
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip3 install --upgrade pip
 RUN ln -s /usr/local/bin/pip /usr/bin/pip
-RUN pip install --index-url https://test.pypi.org/simple/ taskcat --extra-index-url https://pypi.org/simple --no-cache-dir
+RUN pip install taskcat
+RUN pip install --index-url https://test.pypi.org/simple/ taskcat  --no-cache-dir --force --upgrade --no-deps
+
 
 # Set the work directory
 WORKDIR /mnt
