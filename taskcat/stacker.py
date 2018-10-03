@@ -1620,10 +1620,10 @@ class TaskCat(object):
         :return: TRUPrintMsg.ERROR if given yaml is valid, FALSE otherwise.
         """
         try:
-            parms = yaml.load(yamlin)
+            parms = yaml.safe_load(yaml)
             if self.verbose:
                 if not quiet:
-                    print(yaml.dump(parms))
+                    print(yaml.safe_dump(parms))
         except yaml.YAMLError as e:
             if strict:
                 raise TaskCatException(str(e))
@@ -1833,7 +1833,7 @@ class TaskCat(object):
             if os.path.isfile(yaml_file):
                 print(self.nametag + " :Reading Config form: {0}".format(yaml_file))
                 with open(yaml_file, 'r') as checkyaml:
-                    cfg_yml = yaml.load(checkyaml.read())
+                    cfg_yml = yaml.safe_load(checkyaml.read())
                     for key in required_global_keys:
                         if key in cfg_yml['global'].keys():
                             pass
