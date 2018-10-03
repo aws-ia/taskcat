@@ -10,7 +10,7 @@ MAINTAINER "Tony Vattathil" tonynv@amazon.com
 LABEL version=production
 
 # Operating Systems
-LABEL container-os: fedora
+LABEL container-os=fedora
 
 # Run as root
 USER root
