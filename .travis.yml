@@ -62,7 +62,7 @@ jobs:
           server: https://test.pypi.org/legacy/
           on:
             branch: develop
-            tags: false
+            tags: true
     - stage: "Create Production Builds"
       name: "Create Finalized Release"
       if: branch = master
@@ -94,4 +94,4 @@ jobs:
           password: $PYPI_PASSWORD
           on:
             branch: master
-            tags: false
+            tags: true
