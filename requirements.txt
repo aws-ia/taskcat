@@ -1,9 +1,9 @@
-botocore==1.12.16
 tabulate==0.8.2
-pyfiglet==0.7.5
+setuptools==40.0.0
+boto3==1.9.16
+botocore==1.12.16
 mock==2.0.0
 cfnlint==0.0.9
 yattag==1.10.0
-boto3==1.9.16
-setuptools==40.0.0
+pyfiglet==0.7.5
 PyYAML==3.13

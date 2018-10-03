@@ -20,7 +20,7 @@ setup(
     url='https://aws-quickstart.github.io/taskcat/',
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
-    version = '0.6.1',
+    version = '0.7.1',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -37,7 +37,8 @@ setup(
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=required,
-    test_suite='setup.test_suite'
+    test_suite='setup.test_suite',
+    include_package_data=True
 
 )
 
