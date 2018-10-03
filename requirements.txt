@@ -1,5 +1,5 @@
-setuptools==40.0.0
 mock==2.0.0
+setuptools==40.0.0
 boto3==1.9.16
 botocore==1.12.16
 cfnlint==0.0.9
