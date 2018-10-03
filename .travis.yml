@@ -49,6 +49,14 @@ jobs:
       before_deploy:
         - set -e
         - python setup.py clean --all
+        - git checkout -b "release/v${RELEASE_ID}"
+        - git merge $TRAVIS_BRANCH
+        - export COMMIT_MSG="$(git log -1 --pretty=%B| xargs | sed -e 's/\[skip ci\]//g')"
+        - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
+        - git commit -a --amend -m "$COMMIT_MSG"
+        - TAG_BODY="Build Version → $NEW_VERSION"
+        - git tag -a "v${NEW_VERSION}" -m "${TAG_BODY}"
+        - git push --follow-tags -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       deploy:
         - provider: releases
           skip_cleanup: true
