@@ -64,7 +64,7 @@ jobs:
     after_deploy:
     - git checkout -b "release/v${RELEASE_ID}"
     - git merge $TRAVIS_BRANCH
-    - export COMMIT_MSG="$(git log -1 --pretty=%B| xargs | sed -e 's/\[skip ci\]//g')"
+    - git reset --soft HEAD~1
     - git commit -a --amend -m "$COMMIT_MSG"
     - git push  -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
 
