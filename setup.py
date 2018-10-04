@@ -20,7 +20,7 @@ setup(
     url='https://aws-quickstart.github.io/taskcat/',
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
-    version = '0.7.10',
+    version = '0.7.12',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
