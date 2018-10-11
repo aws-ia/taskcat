@@ -1,9 +1,9 @@
-setuptools==40.0.0
 mock==2.0.0
+tabulate==0.8.2
+pyfiglet==0.7.5
+cfn_lint==0.7.4
+setuptools==40.4.3
 boto3==1.9.21
 botocore==1.12.21
-cfnlint==0.0.9
-pyfiglet==0.7.5
-tabulate==0.8.2
-PyYAML==3.13
 yattag==1.10.0
+PyYAML==3.13

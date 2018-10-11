@@ -5,7 +5,6 @@ python:
 - 3.6
 
 before_install:
-- pip install pipreqs
 - pip install bumpversion
 
 install:
@@ -34,12 +33,11 @@ jobs:
       if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
         echo "Creating new development ${RELEASE_ID}"
         git checkout $TRAVIS_BRANCH
-        pipreqs . --force
         export COMMIT_MSG="$(git log -1 --pretty=%B| xargs)"
         bumpversion patch --allow-dirty
         export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
         TAG_BODY="Build Version → $NEW_VERSION"
-        git commit -a --amend -m "Added to [$NEW_VERSION] [skip ci] : - ${COMMIT_MSG}"
+        git commit -a -m "Bump version to [$NEW_VERSION] [skip ci] : - ${COMMIT_MSG}"
         git push -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       fi
     before_deploy:
