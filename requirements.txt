@@ -1,7 +1,7 @@
 setuptools==40.0.0
 mock==2.0.0
-boto3==1.9.16
-botocore==1.12.16
+boto3==1.9.21
+botocore==1.12.21
 cfnlint==0.0.9
 pyfiglet==0.7.5
 tabulate==0.8.2
