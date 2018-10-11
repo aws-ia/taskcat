@@ -94,7 +94,6 @@ jobs:
     deploy:
     - provider: releases
       skip_cleanup: true
-      prerelease: true
       api_key: "$GHT"
       file: directory/*
       on:
@@ -104,4 +103,3 @@ jobs:
       password: $PYPI_PASSWORD
       on:
         branch: master
-        tags: true
