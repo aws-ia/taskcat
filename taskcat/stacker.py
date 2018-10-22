@@ -1095,7 +1095,6 @@ class TaskCat(object):
                             print(json.dumps(j_params, sort_keys=True, indent=11, separators=(',', ': ')))
 
                     try:
-                        print(PrintMsg.INFO + "|CFN Execution mode [create_stack]")
                         stackdata = cfn.create_stack(
                             StackName=stackname,
                             DisableRollback=True,
@@ -1104,9 +1103,10 @@ class TaskCat(object):
                             Capabilities=self.get_capabilities(),
                             Tags=self.tags
                         )
-                    except TaskCatException:
-                        raise
-                    except:
+                        print(PrintMsg.INFO + "|CFN Execution mode [create_stack]")
+                    except cfn.ecxeptions.ClientError as e:
+                        if not str(e).endswith('cannot be used with templates containing Transforms.'):
+                            raise
                         print(PrintMsg.INFO + "|CFN Execution mode [change_set]")
                         stack_cs_data = cfn.create_change_set(
                             StackName=stackname,
@@ -1127,7 +1127,7 @@ class TaskCat(object):
                                 'MaxAttempts': 26  # max lambda execute is 5 minutes
                             })
 
-                        stack_ex_data = cfn.execute_change_set(
+                        cfn.execute_change_set(
                             ChangeSetName=change_set_name
                         )
 
