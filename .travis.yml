@@ -1,6 +1,10 @@
 language: python
 
-branches: develop
+branches:
+  only:
+  - master
+  - develop
+  - /^release-.*$/
 
 python:
 - 3.5
