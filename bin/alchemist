@@ -20,6 +20,7 @@ cfn_alchemist = deployer.CFNAlchemist(
     target_bucket_name=args.target_bucket_name,
     source_bucket_name=args.source_bucket_name,
     target_key_prefix=args.target_key_prefix,
+    source_key_prefix=args.source_key_prefix,
     output_directory=args.output_directory,
     rewrite_mode=deployer.CFNAlchemist.BASIC_REWRITE_MODE if args.basic_rewrite else deployer.CFNAlchemist.OBJECT_REWRITE_MODE,
     verbose=args.verbose,
@@ -29,7 +30,8 @@ cfn_alchemist = deployer.CFNAlchemist(
 cfn_alchemist.aws_api_init(
     aws_profile=args.aws_profile,
     aws_access_key_id=args.aws_access_key_id,
-    aws_secret_access_key=args.aws_secret_access_key
+    aws_secret_access_key=args.aws_secret_access_key,
+    aws_session_token=args.aws_session_token
 )
 
 if args.upload_only:
