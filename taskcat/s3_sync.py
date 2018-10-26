@@ -38,7 +38,7 @@ class S3Sync(object):
         "ci/"
     ]
 
-    def __init__(self, s3_client, bucket, prefix, path, acl=None):
+    def __init__(self, s3_client, bucket, prefix, path, acl="private"):
         """Syncronizes local file system with an s3 bucket/prefix
 
         """
