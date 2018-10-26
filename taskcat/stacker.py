@@ -1043,7 +1043,7 @@ class TaskCat(object):
                             Tags=self.tags
                         )
                         print(PrintMsg.INFO + "|CFN Execution mode [create_stack]")
-                    except cfn.ecxeptions.ClientError as e:
+                    except cfn.exceptions.ClientError as e:
                         if not str(e).endswith('cannot be used with templates containing Transforms.'):
                             raise
                         print(PrintMsg.INFO + "|CFN Execution mode [change_set]")
