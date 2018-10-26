@@ -48,6 +48,15 @@ def main():
                 taskcat_cfg = yaml.safe_load(cfg.read())
             cfg.close()
 
+            # If taskcat is being executed from the project root folder, cd out and update config path
+            try:
+                if os.path.basename(os.path.abspath(os.path.curdir)) == taskcat_cfg['global']['qsname']:
+                    config_path = tcat_instance.get_config()[2:] if tcat_instance.get_config().startswith(
+                        "./") else tcat_instance.get_config()
+                    os.chdir(os.path.abspath("../"))
+                    tcat_instance.set_config("%s/%s" % (taskcat_cfg['global']['qsname'], config_path))
+            except Exception as e:
+                print(taskcat.PrintMsg.ERROR + str(e))
             try:
                 project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
                 if project_path:

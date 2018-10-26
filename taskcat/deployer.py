@@ -31,6 +31,7 @@ class CFNAlchemist(object):
         target_bucket_name,
         source_bucket_name=None,
         target_key_prefix=None,
+        source_key_prefix=None,
         output_directory=None,
         rewrite_mode=OBJECT_REWRITE_MODE,
         verbose=False,
@@ -72,6 +73,7 @@ class CFNAlchemist(object):
         self._aws_profile = None
         self._aws_access_key_id = None
         self._aws_secret_access_key = None
+        self._aws_session_token = None
 
         # properties with setters/getters
         self._input_path = None
@@ -83,6 +85,7 @@ class CFNAlchemist(object):
         self._verbose = False
         self._dry_run = False
         self._prod_bucket_name = 'aws-quickstart'
+        self._prod_key_prefix = None
         self._default_region = 'us-east-1'
         self._file_list = None
 
@@ -98,6 +101,7 @@ class CFNAlchemist(object):
             self.set_rewrite_mode(rewrite_mode)
         self.set_verbose(verbose)
         self.set_dry_run(dry_run)
+        self.set_prod_key_prefix(source_key_prefix)
 
         return
 
@@ -120,6 +124,13 @@ class CFNAlchemist(object):
 
     def get_input_path(self):
         return self._input_path
+
+    def set_prod_key_prefix(self, source_key_prefix):
+        if source_key_prefix is not None:
+            self._prod_key_prefix = source_key_prefix.strip('/') + '/'
+
+    def get_prod_key_prefix(self):
+        return self._prod_key_prefix
 
     def set_target_bucket_name(self, target_bucket_name):
         self._target_bucket_name = target_bucket_name
@@ -285,6 +296,8 @@ class CFNAlchemist(object):
 
         self.logger.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
         self.logger.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
+        self.logger.info("Production S3 key prefix that we are looking for [{}]".format(self._prod_key_prefix))
+        self.logger.info("Replacement S3 key prefix that we are rewriting with [{}]".format(self._target_key_prefix))
 
         # Rewrite files
         for current_file in file_list:
@@ -360,7 +373,7 @@ class CFNAlchemist(object):
                         file_data = f.readlines()
 
                     for index, line in enumerate(file_data):
-                        file_data[index] = self._string_rewriter(line, self._target_bucket_name)
+                        file_data[index] = self._string_rewriter(line)
 
                     # Write modified file
                     if self._dry_run:
@@ -407,14 +420,14 @@ class CFNAlchemist(object):
             self._file_list = _file_list
         return self._file_list
 
-    def _string_rewriter(self, current_string, replacement_bucket_name):
+    def _string_rewriter(self, current_string):
         if self._prod_bucket_name in current_string:
             # If the path is s3/http/https
             if any(x in current_string for x in ['s3:', 'http:', 'https:']):
                 # Make sure that it's part of the target key prefix (that is, part of this repo)
                 if self._target_key_prefix in current_string:
                     self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
-                    return current_string.replace(self._prod_bucket_name, replacement_bucket_name)
+                    return current_string.replace(self._prod_bucket_name, self._target_bucket_name)
                 # If it's not then, it's a reference that should not be touched
                 else:
                     self.logger.info("NOT rewriting [{}] because it's not part of this repo".format(current_string.rstrip('\n\r')))
@@ -422,7 +435,10 @@ class CFNAlchemist(object):
             # Else just replace the bucket name
             else:
                 self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
-                return current_string.replace(self._prod_bucket_name, replacement_bucket_name)
+                return current_string.replace(self._prod_bucket_name, self._target_bucket_name)
+        elif self._prod_key_prefix in current_string:
+            self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
+            return current_string.replace(self._prod_key_prefix, self._target_key_prefix)
         else:
             return current_string
 
@@ -445,7 +461,7 @@ class CFNAlchemist(object):
                 current_node[_index] = self._recurse_nodes(item)
             return current_node
         elif type(current_node) is str:
-            return self._string_rewriter(current_node, self._target_bucket_name)
+            return self._string_rewriter(current_node)
         elif type(current_node) is bool:
             self.logger.debug("Not much we can do with booleans. Skipping.")
         elif type(current_node) in [int, float]:
@@ -472,7 +488,7 @@ class CFNAlchemist(object):
         if in_file is not out_file:
             shutil.copyfile(in_file, out_file)
 
-    def aws_api_init(self, aws_profile=None, aws_access_key_id=None, aws_secret_access_key=None):
+    def aws_api_init(self, aws_profile=None, aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None):
         """
         This function reads the AWS credentials to ensure that the client has right credentials defined to successfully
         authenticate against an AWS account. It could be either profile name, access key and secret key or none.
@@ -491,6 +507,7 @@ class CFNAlchemist(object):
             self._auth_mode = 'keys'
             self._aws_access_key_id = aws_access_key_id
             self._aws_secret_access_key = aws_secret_access_key
+            self._aws_session_token = aws_session_token
         else:
             self._auth_mode = 'environment'
         try:
@@ -499,6 +516,7 @@ class CFNAlchemist(object):
                 credential_set='alchemist',
                 aws_access_key_id=self._aws_access_key_id,
                 aws_secret_access_key=self._aws_secret_access_key,
+                aws_session_token=self._aws_session_token,
                 profile_name=self._aws_profile,
                 region=self.get_default_region()
             )
@@ -514,6 +532,7 @@ class CFNAlchemist(object):
                     credential_set='alchemist',
                     aws_access_key_id=self._aws_access_key_id,
                     aws_secret_access_key=self._aws_secret_access_key,
+                    aws_session_token=self._aws_session_token,
                     profile_name=self._aws_profile,
                     region=self.get_default_region()
                 )
@@ -560,6 +579,12 @@ class CFNAlchemist(object):
             "--target-key-prefix",
             type=str,
             help="target S3 key prefix to use. This is required when uploading."
+        )
+        parser.add_argument(
+            "-sp",
+            "--source-key-prefix",
+            type=str,
+            help="source S3 key prefix name for rewrite."
         )
         parser.add_argument(
             "-o",
@@ -612,6 +637,12 @@ class CFNAlchemist(object):
         parser.add_argument(
             "-s",
             "--aws-secret-access-key",
+            type=str,
+            help="AWS secret access key."
+        )
+        parser.add_argument(
+            "-st",
+            "--aws-session-token",
             type=str,
             help="AWS secret access key."
         )
