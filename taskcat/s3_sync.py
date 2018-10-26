@@ -70,13 +70,17 @@ class S3Sync(object):
         return '"{}-{}"'.format(digests_md5.hexdigest(), len(md5s))
 
     def _get_local_file_list(self, path, include_checksums=True):
-        file_list = []
+        file_list = {}
+        # get absolute local path
         path = os.path.abspath(os.path.expanduser(path))
+        # recurse through directories
         for root, dirs, files in os.walk(path):
             relpath = os.path.relpath(root, path) + "/"
             exclude_path = False
+            # relative path should be blank if there are no sub directories
             if relpath == './':
                 relpath = ""
+            # exclude defined paths
             for p in S3Sync._exclude_path_prefixes:
                 if relpath.startswith(p):
                     exclude_path = True
@@ -84,6 +88,7 @@ class S3Sync(object):
             if not exclude_path:
                 for file in files:
                     exclude = False
+                    # exclude defined filename patterns
                     for p in S3Sync._exclude_files:
                         if fnmatch.fnmatch(file, p):
                             exclude = True
@@ -91,52 +96,62 @@ class S3Sync(object):
                     if not exclude:
                         full_path = root + "/" + file
                         if include_checksums:
+                            # get checksum
                             checksum = self._hash_file(full_path)
                         else:
                             checksum = ""
-                        file_list.append([full_path, relpath + file, checksum])
+                        file_list[relpath + file] = [full_path, checksum]
         return file_list
 
     def _get_s3_file_list(self, bucket, prefix):
-        objects = []
-        more_objects = True
+        objects = {}
+        is_paginated = True
         continuation_token = None
-        while more_objects:
+        # While there are more results, fetch them from S3
+        while is_paginated:
+            # if there's no token, this is the initial list_objects call
             if not continuation_token:
                 resp = self.s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)
+            # this is a query to get additional pages, add continuation token to get next page
             else:
                 resp = self.s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix, ContinuationToken=continuation_token)
             if 'Contents' in resp:
-                objects += [[i['Key'][len(prefix):], i['ETag']] for i in resp['Contents']]
+                for file in resp['Contents']:
+                    # strip the prefix from the path
+                    relpath = file['Key'][len(prefix):]
+                    objects[relpath] = file['ETag']
             if 'NextContinuationToken' in resp.keys():
                 continuation_token = resp['NextContinuationToken']
+            # If there's no toke in the response we've fetched all the objects
             else:
-                more_objects = False
+                is_paginated = False
         return objects
 
     def _sync(self, local_list, s3_list, bucket, prefix, acl, threads=16):
         # determine which files to remove from S3
         remove_from_s3 = []
-        for s3f in s3_list:
-            remove = True
-            for f in local_list:
-                if s3f[0] == f[1]:
-                    remove = False
-                    break
-            if remove:
-                remove_from_s3.append({"Key": prefix + s3f[0]})
+        for s3_file in s3_list.keys():
+            if s3_file not in local_list.keys():
+                print("{}[S3: DELETE ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + prefix + s3_file))
+                remove_from_s3.append({"Key": prefix + s3_file})
         # deleting objects, max 1k objects per s3 delete_objects call
         for d in [remove_from_s3[i:i + 1000] for i in range(0, len(remove_from_s3), 1000)]:
             self.s3_client.delete_objects(Bucket=bucket, Delete={'Objects': d})
         # build list of files to upload
         upload_to_s3 = []
-        for f in local_list:
-            upload = True
-            for s3f in s3_list:
-                if s3f[0] == f[1] and s3f[1] == f[2]:
-                    upload = False
+        for local_file in local_list:
+            upload = False
+            # If file is not present in S3
+            if local_file not in s3_list.keys():
+                upload = True
+            # If checksum is different
+            elif local_list[local_file][1] != s3_list[local_file]:
+                upload = True
             if upload:
-                upload_to_s3.append([f[0], bucket, f[1]])
+                absolute_path = local_list[local_file][0]
+                s3_path = local_file
+                upload_to_s3.append([absolute_path, bucket, s3_path])
+        # multithread the uploading of files
         pool = ThreadPool(threads)
         func = partial(self._s3_upload_file, prefix=prefix, s3_client=self.s3_client, acl=acl)
         pool.map(func, upload_to_s3)
@@ -146,6 +161,7 @@ class S3Sync(object):
     def _s3_upload_file(self, paths, prefix, s3_client, acl):
         local_filename, bucket, s3_path = paths
         retry = 0
+        # backoff and retry
         while retry < 5:
             try:
                 s3_client.upload_file(local_filename, bucket, prefix + s3_path, ExtraArgs={'ACL': acl})
