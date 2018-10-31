@@ -189,6 +189,7 @@ class TaskCat(object):
         self.version = get_installed_version()
         self.s3_url_prefix = ""
         self.upload_only = False
+        self._max_bucket_name_length = 63
 
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -406,8 +407,13 @@ class TaskCat(object):
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
             self.set_s3bucket_type('defined')
             print(PrintMsg.INFO + "Staging Bucket => " + self.get_s3bucket())
+            if len(self.get_s3bucket()) > self._max_bucket_name_length:
+                raise TaskCatException("The bucket name you provided is greater than 63 characters.")
         else:
             auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
+            auto_bucket = auto_bucket.lower()
+            if len(auto_bucket) > self._max_bucket_name_length:
+                auto_bucket = auto_bucket[:self._max_bucket_name_length]
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
