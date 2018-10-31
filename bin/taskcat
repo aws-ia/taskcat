@@ -15,7 +15,9 @@ import yaml
 import sys
 import os
 import traceback
+from taskcat.common_utils import exit0
 from taskcat.common_utils import exit1
+from taskcat.lambda_build import LambdaBuild
 
 
 if sys.version_info[0] < 3:
@@ -57,11 +59,21 @@ def main():
                     tcat_instance.set_config("%s/%s" % (taskcat_cfg['global']['qsname'], config_path))
             except Exception as e:
                 print(taskcat.PrintMsg.ERROR + str(e))
+            project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
+            project_name = '/'.join(tcat_instance.get_config().split('/')[-3:-2])
+            lambda_path = os.path.abspath(project_path) + "/" + project_name + "/functions/source"
             try:
-                project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
+                if os.path.isdir(lambda_path):
+                    LambdaBuild(lambda_path)
+            except Exception as e:
+                print("ERROR: Zipping lambda source failed: %s" % e)
+            if tcat_instance.lambda_build_only:
+                exit0("Lambda source zipped successfully")
+            print(os.path.abspath(os.curdir))
+            try:
                 if project_path:
                     os.chdir(os.path.abspath(project_path))
-                    tcat_instance.lint(args.lint, path='/'.join(tcat_instance.get_config().split('/')[-3:-2]))
+                tcat_instance.lint(args.lint, path=project_name)
             except taskcat.exceptions.TaskCatException as e:
                 print(taskcat.PrintMsg.ERROR + str(e))
                 exit1(str(e))
