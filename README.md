@@ -223,7 +223,7 @@ UseCase: Need to confirm a dynamically generated password
 Prerequisites: `docker`
 
 ```
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-install-master| sudo python -E
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-installer.sh | sh
 ```
 Note: (If you do not have root privileges Taskcat will install in the current directory)
 
@@ -285,4 +285,3 @@ Parameters defined in either file will supersede parameters within the normal pa
 
 Note: Keys defined in the Project override with supersede the same keys defined in the global override.
 [More info here](https://aws-quickstart.github.io/input-files.html#parm-override)
-
