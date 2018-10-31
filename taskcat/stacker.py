@@ -408,6 +408,7 @@ class TaskCat(object):
             print(PrintMsg.INFO + "Staging Bucket => " + self.get_s3bucket())
         else:
             auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
+            auto_bucket = auto_bucket.lower()
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
                 if self.get_default_region() == 'us-east-1':
