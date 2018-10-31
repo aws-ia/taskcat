@@ -409,6 +409,12 @@ class TaskCat(object):
             print(PrintMsg.INFO + "Staging Bucket => " + self.get_s3bucket())
             if len(self.get_s3bucket()) > self._max_bucket_name_length:
                 raise TaskCatException("The bucket name you provided is greater than 63 characters.")
+            try:
+                _ = s3_client.list_objects(Bucket=self.get_s3bucket())
+            except s3_client.exceptions.NoSuchBucket:
+                raise TaskCatException("The bucket you providedL [{}] does not exist. Exiting.".format(self.get_s3bucket()))
+            except Exception:
+                raise
         else:
             auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
             auto_bucket = auto_bucket.lower()
