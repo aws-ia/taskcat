@@ -549,7 +549,8 @@ class TaskCat(object):
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
         bucket_location = s3_client.get_bucket_location(Bucket=self.get_s3bucket())
         if bucket_location['LocationConstraint'] is not None:
-            hostname = "s3-{0}.{1}".format(bucket_location['LocationConstraint'], "amazonaws.com")
+            hostname = "s3-{0}.{1}/{2}".format(bucket_location['LocationConstraint'], "amazonaws.com",
+                                               self.get_s3bucket())
         else:
             hostname = "{0}.s3.amazonaws.com".format(self.get_s3bucket())
         return hostname
