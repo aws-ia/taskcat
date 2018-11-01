@@ -412,7 +412,7 @@ class TaskCat(object):
             try:
                 _ = s3_client.list_objects(Bucket=self.get_s3bucket())
             except s3_client.exceptions.NoSuchBucket:
-                raise TaskCatException("The bucket you providedL [{}] does not exist. Exiting.".format(self.get_s3bucket()))
+                raise TaskCatException("The bucket you provided [{}] does not exist. Exiting.".format(self.get_s3bucket()))
             except Exception:
                 raise
         else:
