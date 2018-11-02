@@ -61,13 +61,13 @@ def main():
                 print(taskcat.PrintMsg.ERROR + str(e))
             project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
             project_name = '/'.join(tcat_instance.get_config().split('/')[-3:-2])
-            lambda_path = os.path.abspath(project_path) + "/" + project_name + "/functions/source"
-            if "package-lambda" in taskcat_cfg['global']:
+            if "package-lambda" not in taskcat_cfg['global']:
                 taskcat_cfg['global']["package-lambda"] = False
             if tcat_instance.lambda_build_only and not taskcat_cfg['global']["package-lambda"]:
                 exit1("Lambda build not enabled for project. Add package-lambda: true to config.yaml global section")
             elif taskcat_cfg['global']["package-lambda"]:
                 try:
+                    lambda_path = os.path.abspath(project_path) + "/" + project_name + "/functions/source"
                     if os.path.isdir(lambda_path):
                         LambdaBuild(lambda_path)
                 except Exception as e:
