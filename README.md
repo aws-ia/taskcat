@@ -2,7 +2,7 @@
 ![TaskCat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)
 > This program requires python3
 
-Please Report bugs here [Issues](https://github.com/aws-quickstart/taskcat/issues)
+[Please Report bugs here ](https://github.com/aws-quickstart/taskcat/issues)
 
 For helpful information see [Frequently Asked Questions](FAQ.md)
 

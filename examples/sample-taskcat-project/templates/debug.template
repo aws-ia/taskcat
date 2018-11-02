@@ -37,7 +37,26 @@
         "AvailabilityZones": {
             "Description": "List of 3 Availability Zones ",
             "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+        },
+        "OverrideTest":{
+            "Description": "Test of the parameter override functionality",
+            "Type":"String",
+            "Default":"override"
+        },
+        "QSS3BucketName":{
+            "Default":"quickstart-foobar-bucket",
+            "Type":"String"
         }
+    },
+    "Rules":{
+      "VerifyOverrides":{
+        "Assertions":[
+          {
+            "Assert":{ "Fn::Not":[{ "Fn::Equals":[{"Ref":"OverrideTest"},"override"]}]},
+            "AssertDescription":"Param key 'OverrideTest' cannot equal 'override'"
+          }
+        ]
+      }
     },
     "Resources": {
         "LambdaExecutionRole": {

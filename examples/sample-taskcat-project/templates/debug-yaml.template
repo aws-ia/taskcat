@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: 2010-09-09
+AWSTemplateFormatVersion: '2010-09-09'
 Description: Lambda  Cluster Id generator
 Parameters:
   StackName:
@@ -27,53 +27,65 @@ Parameters:
     Type: Number
   AvailabilityZones:
     Description: 'List of 3 Availability Zones '
-    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  OverrideTest:
+    Description: Test of the parameter override functionality
+    Type: String
+    Default: override
+Rules:
+  VerifyOverrides:
+    Assertions:
+      - Assert: !Not
+          - !Equals
+            - !Ref 'OverrideTest'
+            - override
+        AssertDescription: Param key 'OverrideTest' cannot equal 'override'
 Resources:
   LambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       Path: /
       Policies:
         - PolicyName: lambda_policy
           PolicyDocument:
-            Version: 2012-10-17
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: 'arn:aws:logs:*:*:*'
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
               - Effect: Allow
                 Action:
-                  - 'cloudformation:DescribeStacks'
+                  - cloudformation:DescribeStacks
                 Resource: '*'
   GenID:
-    Type: 'AWS::Lambda::Function'
+    Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: !Join 
-          - |+
-
+        ZipFile: !Join
+          - "\n"
           - - import random
             - import json
             - import cfnresponse
-            - 'from cfnresponse import send, SUCCESS'
+            - from cfnresponse import send, SUCCESS
             - 'def handler(event, context):'
             - '   if event[''RequestType''] == ''Delete'':'
             - '       send(event, context, ''SUCCESS'', {})'
             - '       return'
             - '   if event[''RequestType''] == ''Create'':'
-            - '       token= "%0x.%0x" % (random.SystemRandom().getrandbits(3*8), random.SystemRandom().getrandbits(8*8))'
+            - '       token= "%0x.%0x" % (random.SystemRandom().getrandbits(3*8),
+              random.SystemRandom().getrandbits(8*8))'
             - '       responseData = {}'
             - '       responseData[''Data''] = token'
             - '       send(event, context, ''SUCCESS'', responseData)'
@@ -81,25 +93,21 @@ Resources:
       Handler: index.handler
       Runtime: python2.7
       Timeout: '5'
-      Role: !GetAtt 
-        - LambdaExecutionRole
-        - Arn
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
   GetID:
-    Type: 'Custom::GenerateID'
+    Type: Custom::GenerateID
     Version: '1.0'
     Properties:
-      ServiceToken: !GetAtt 
-        - GenID
-        - Arn
-      ResponseURL: !Join 
+      ServiceToken: !GetAtt 'GenID.Arn'
+      ResponseURL: !Join
         - ''
-        - - 'http://ResponseURL'
+        - - http://ResponseURL
           - !Ref 'AWS::StackId'
           - RequestId
       StackId: !Ref 'AWS::StackId'
       ResourceProperties:
         RequestType: Create
-        RequestId: !Join 
+        RequestId: !Join
           - ''
           - - !Ref 'AWS::StackId'
             - RequestId
@@ -108,7 +116,4 @@ Resources:
       - GenID
 Outputs:
   ClusterID:
-    Value: !GetAtt 
-      - GetID
-      - Data
-
+    Value: !GetAtt 'GetID.Data'

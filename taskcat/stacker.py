@@ -335,9 +335,9 @@ class TaskCat(object):
             if _kn in param_index:
                 _knidx = param_index[_kn]
                 param_bucket_name = original_keys[_knidx]['ParameterValue']
-                if param_bucket_name != bucket_name:
+                if param_bucket_name != bucket_name and param_bucket_name != '$[taskcat_autobucket]':
                     print(
-                        PrintMsg.INFO + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(
+                        PrintMsg.INFO + "Inconsistency detected between S3 Bucket Name provided in the TaskCat Config [{}] and QSS3BucketName Parameter Value within the template: [{}]".format(
                             bucket_name, param_bucket_name))
                     print(PrintMsg.INFO + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
                     original_keys[_knidx]['ParameterValue'] = bucket_name
