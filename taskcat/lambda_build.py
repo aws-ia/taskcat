@@ -12,7 +12,7 @@ from __future__ import print_function
 import os
 from shutil import make_archive
 from taskcat.colored_console import PrintMsg
-
+from taskcat.common_utils import make_dir
 
 class LambdaBuild(object):
     """Zips contents of lambda source files.
@@ -40,15 +40,8 @@ class LambdaBuild(object):
         try:
             print(PrintMsg.INFO + "Zipping lambda function %s" % name)
             output_path = "%s/%s" % (self.output_path, name)
-            self._make_dir(output_path)
+            make_dir(output_path)
             os.chdir(name)
             make_archive(output_path + "/" + self.zip_file_name, "zip", "./")
         finally:
             os.chdir(self.source_path)
-
-    @staticmethod
-    def _make_dir(path, ignore_exists=True):
-        path = os.path.abspath(path)
-        if ignore_exists and os.path.isdir(path):
-            return
-        os.makedirs(path)
