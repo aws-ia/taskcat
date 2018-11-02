@@ -62,14 +62,18 @@ def main():
             project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
             project_name = '/'.join(tcat_instance.get_config().split('/')[-3:-2])
             lambda_path = os.path.abspath(project_path) + "/" + project_name + "/functions/source"
-            try:
-                if os.path.isdir(lambda_path):
-                    LambdaBuild(lambda_path)
-            except Exception as e:
-                print("ERROR: Zipping lambda source failed: %s" % e)
-            if tcat_instance.lambda_build_only:
-                exit0("Lambda source zipped successfully")
-            print(os.path.abspath(os.curdir))
+            if "package-lambda" in taskcat_cfg['global']:
+                taskcat_cfg['global']["package-lambda"] = False
+            if tcat_instance.lambda_build_only and not taskcat_cfg['global']["package-lambda"]:
+                exit1("Lambda build not enabled for project. Add package-lambda: true to config.yaml global section")
+            elif taskcat_cfg['global']["package-lambda"]:
+                try:
+                    if os.path.isdir(lambda_path):
+                        LambdaBuild(lambda_path)
+                except Exception as e:
+                    print("ERROR: Zipping lambda source failed: %s" % e)
+                if tcat_instance.lambda_build_only:
+                    exit0("Lambda source zipped successfully")
             try:
                 if project_path:
                     os.chdir(os.path.abspath(project_path))

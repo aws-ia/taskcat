@@ -1,5 +1,6 @@
 import re
 import sys
+from taskcat.colored_console import PrintMsg
 
 
 class CommonTools:
@@ -38,8 +39,12 @@ class CommonTools:
 
 
 def exit1(msg=''):
+    if msg:
+        print(PrintMsg.ERROR + msg)
     sys.exit(1)
 
 
 def exit0(msg=''):
+    if msg:
+        print(PrintMsg.INFO + msg)
     sys.exit(0)
