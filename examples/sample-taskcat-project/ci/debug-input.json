@@ -38,5 +38,13 @@
     {
         "ParameterKey": "PasswordB",
         "ParameterValue": "$[taskcat_genpass_32S]"
+    },
+    {
+        "ParameterKey":"LocalOverrideTest",
+        "ParameterValue":"override"
+    }
+    {
+        "ParameterKey":"GlobalOverrideTest",
+        "ParameterValue":"override"
     }
 ]
