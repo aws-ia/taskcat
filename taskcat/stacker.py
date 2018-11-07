@@ -46,6 +46,7 @@ from taskcat.colored_console import PrintMsg
 from taskcat.generate_reports import ReportBuilder
 from taskcat.common_utils import CommonTools
 from taskcat.cfn_logutils import CfnLogTools
+from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
 from taskcat.common_utils import exit0
@@ -335,9 +336,9 @@ class TaskCat(object):
             if _kn in param_index:
                 _knidx = param_index[_kn]
                 param_bucket_name = original_keys[_knidx]['ParameterValue']
-                if param_bucket_name != bucket_name:
+                if param_bucket_name != bucket_name and param_bucket_name != '$[taskcat_autobucket]':
                     print(
-                        PrintMsg.INFO + "Data inconsistency between S3 Bucket Name [{}] and QSS3BucketName Parameter Value: [{}]".format(
+                        PrintMsg.INFO + "Inconsistency detected between S3 Bucket Name provided in the TaskCat Config [{}] and QSS3BucketName Parameter Value within the template: [{}]".format(
                             bucket_name, param_bucket_name))
                     print(PrintMsg.INFO + "Setting the value of QSS3BucketName to [{}]".format(bucket_name))
                     original_keys[_knidx]['ParameterValue'] = bucket_name
@@ -1344,7 +1345,8 @@ class TaskCat(object):
             region = stackdata['region']
             session = boto3.session.Session(region_name=region)
             s = Reaper(session)
-            failed_stacks = self.get_all_resources(failed_stack_ids, region)
+
+            failed_stacks = CfnResourceTools.get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:
                 print(PrintMsg.DEBUG + "Resources which failed to delete:\n")
