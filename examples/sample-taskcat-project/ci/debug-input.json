@@ -40,7 +40,11 @@
         "ParameterValue": "$[taskcat_genpass_32S]"
     },
     {
-        "ParameterKey":"OverrideTest",
+        "ParameterKey":"LocalOverrideTest",
+        "ParameterValue":"override"
+    }
+    {
+        "ParameterKey":"GlobalOverrideTest",
         "ParameterValue":"override"
     }
 ]

@@ -1,6 +1,6 @@
 [
     {
-        "ParameterKey":"OverrideTest",
+        "ParameterKey":"GlobalOverrideTest",
         "ParameterValue":"foobar"
     }
 ]
