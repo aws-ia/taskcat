@@ -278,3 +278,14 @@ Parameters defined in either file will supersede parameters within the normal pa
 
 Note: Keys defined in the Project override with supersede the same keys defined in the global override.
 [More info here](https://aws-quickstart.github.io/input-files.html#parm-override)
+
+### Packaging lambda functions
+Taskcat can automatically zip lambda function source found in `functions/source/*` folders. folders are zipped up and 
+placed in `functions/packages/FunctionName/lambda.zip`. To enable this functionality you will need to enable it in your 
+`taskcat.yaml` file by adding `package-lambda: true` to the `global` section:
+
+```yaml
+global:
+  package-lambda: true
+  ...
+```
