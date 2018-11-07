@@ -34,8 +34,7 @@ class S3Sync(object):
     ]
     _exclude_path_prefixes = [
         "functions/source/",
-        ".",
-        "ci/"
+        "."
     ]
 
     def __init__(self, s3_client, bucket, prefix, path, acl="private"):
