@@ -46,6 +46,7 @@ from taskcat.colored_console import PrintMsg
 from taskcat.generate_reports import ReportBuilder
 from taskcat.common_utils import CommonTools
 from taskcat.cfn_logutils import CfnLogTools
+from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
 from taskcat.common_utils import exit0
@@ -1344,7 +1345,8 @@ class TaskCat(object):
             region = stackdata['region']
             session = boto3.session.Session(region_name=region)
             s = Reaper(session)
-            failed_stacks = self.get_all_resources(failed_stack_ids, region)
+
+            failed_stacks = CfnResourceTools.get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:
                 print(PrintMsg.DEBUG + "Resources which failed to delete:\n")
