@@ -289,3 +289,6 @@ global:
   package-lambda: true
   ...
 ```
+
+Additionally, taskcat can be set to package zips and then exit without taking any other actions. This can be done by 
+setting the `-b` or `--lambda-build-only` flag.
