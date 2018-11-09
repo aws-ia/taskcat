@@ -168,7 +168,8 @@ class S3Sync(object):
                 break
             except Exception as e:
                 retry += 1
-                time.sleep(retry * 2)
-                print(PrintMsg.ERROR + "S3 upload error: %s" % e)
                 if retry == 5:
                     raise
+                time.sleep(retry * 2)
+                print(PrintMsg.ERROR + "S3 upload error: %s" % e)
+
