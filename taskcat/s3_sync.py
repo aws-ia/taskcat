@@ -41,7 +41,6 @@ class S3Sync(object):
         """Syncronizes local file system with an s3 bucket/prefix
 
         """
-        self.upload_issue = False
         if prefix != "" and not prefix.endswith('/'):
             prefix = prefix + '/'
         self.s3_client = s3_client
