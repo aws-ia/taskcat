@@ -15,6 +15,8 @@ import time
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from taskcat.colored_console import PrintMsg
+from boto3.exceptions import S3UploadFailedError
+from taskcat.exceptions import TaskCatException
 
 
 class S3Sync(object):
@@ -162,14 +164,15 @@ class S3Sync(object):
         retry = 0
         # backoff and retry
         while retry < 5:
+            print("{}[S3: -> ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + s3_path))
             try:
                 s3_client.upload_file(local_filename, bucket, prefix + s3_path, ExtraArgs={'ACL': acl})
-                print("{}[S3: -> ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + s3_path))
                 break
             except Exception as e:
                 retry += 1
-                if retry == 5:
-                    raise
-                time.sleep(retry * 2)
                 print(PrintMsg.ERROR + "S3 upload error: %s" % e)
+                # give up if we've exhausted retries, or if the error is not-retryable (ie AccessDenied)
+                if retry == 5 or (type(e) == S3UploadFailedError and '(AccessDenied)' in str(e)):
+                    raise TaskCatException("Failed to upload to S3")
+                time.sleep(retry * 2)
 

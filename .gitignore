@@ -5,6 +5,9 @@
 # Misc #
 .idea/
 .project
+.eggs/
+*.egg-info/
+venv/
 
 # Doc Site
 site/
