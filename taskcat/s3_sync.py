@@ -41,6 +41,7 @@ class S3Sync(object):
         """Syncronizes local file system with an s3 bucket/prefix
 
         """
+        self.upload_issue = False
         if prefix != "" and not prefix.endswith('/'):
             prefix = prefix + '/'
         self.s3_client = s3_client
@@ -170,3 +171,5 @@ class S3Sync(object):
                 retry += 1
                 time.sleep(retry * 2)
                 print(PrintMsg.ERROR + "S3 upload error: %s" % e)
+                if retry == 5:
+                    raise
