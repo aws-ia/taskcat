@@ -30,16 +30,16 @@ class S3Sync(object):
     Does not support buckets with versioning enabled
     """
 
-    _exclude_files = [
+    exclude_files = [
         ".*",
         "*.md"
     ]
-    _exclude_path_prefixes = [
+    exclude_path_prefixes = [
         "functions/source/",
         "."
     ]
 
-    _exclude_remote_path_prefixes = []
+    exclude_remote_path_prefixes = []
 
     def __init__(self, s3_client, bucket, prefix, path, acl="private"):
         """Syncronizes local file system with an s3 bucket/prefix
@@ -84,7 +84,7 @@ class S3Sync(object):
             if relpath == './':
                 relpath = ""
             # exclude defined paths
-            for p in S3Sync._exclude_path_prefixes:
+            for p in S3Sync.exclude_path_prefixes:
                 if relpath.startswith(p):
                     exclude_path = True
                     break
@@ -92,7 +92,7 @@ class S3Sync(object):
                 for file in files:
                     exclude = False
                     # exclude defined filename patterns
-                    for p in S3Sync._exclude_files:
+                    for p in S3Sync.exclude_files:
                         if fnmatch.fnmatch(file, p):
                             exclude = True
                             break
@@ -133,7 +133,7 @@ class S3Sync(object):
     @staticmethod
     def _exclude_remote(path):
         keep = False
-        for exclude in S3Sync._exclude_remote_path_prefixes:
+        for exclude in S3Sync.exclude_remote_path_prefixes:
             if path.startswith(exclude):
                 keep = True
                 break
