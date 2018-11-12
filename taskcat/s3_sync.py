@@ -30,14 +30,16 @@ class S3Sync(object):
     Does not support buckets with versioning enabled
     """
 
-    _exclude_files = [
+    exclude_files = [
         ".*",
         "*.md"
     ]
-    _exclude_path_prefixes = [
+    exclude_path_prefixes = [
         "functions/source/",
         "."
     ]
+
+    exclude_remote_path_prefixes = []
 
     def __init__(self, s3_client, bucket, prefix, path, acl="private"):
         """Syncronizes local file system with an s3 bucket/prefix
@@ -82,7 +84,7 @@ class S3Sync(object):
             if relpath == './':
                 relpath = ""
             # exclude defined paths
-            for p in S3Sync._exclude_path_prefixes:
+            for p in S3Sync.exclude_path_prefixes:
                 if relpath.startswith(p):
                     exclude_path = True
                     break
@@ -90,7 +92,7 @@ class S3Sync(object):
                 for file in files:
                     exclude = False
                     # exclude defined filename patterns
-                    for p in S3Sync._exclude_files:
+                    for p in S3Sync.exclude_files:
                         if fnmatch.fnmatch(file, p):
                             exclude = True
                             break
@@ -128,11 +130,20 @@ class S3Sync(object):
                 is_paginated = False
         return objects
 
+    @staticmethod
+    def _exclude_remote(path):
+        keep = False
+        for exclude in S3Sync.exclude_remote_path_prefixes:
+            if path.startswith(exclude):
+                keep = True
+                break
+        return keep
+
     def _sync(self, local_list, s3_list, bucket, prefix, acl, threads=16):
         # determine which files to remove from S3
         remove_from_s3 = []
         for s3_file in s3_list.keys():
-            if s3_file not in local_list.keys():
+            if s3_file not in local_list.keys() and not self._exclude_remote(s3_file):
                 print("{}[S3: DELETE ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + prefix + s3_file))
                 remove_from_s3.append({"Key": prefix + s3_file})
         # deleting objects, max 1k objects per s3 delete_objects call
