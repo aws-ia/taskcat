@@ -91,7 +91,7 @@ jobs:
         protocol: https
       EOL
     - cat ~/.config/hub
-    - hub pull-request -h master -m "taskcat [$NEW_VERSION]" 
+    - hub pull-request  -m "Release taskcat [$NEW_VERSION]"  -h "release/v${RELEASE_ID}"
 
   - stage: "Create Development Builds"
     name: "develop"
