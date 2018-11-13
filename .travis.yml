@@ -166,6 +166,5 @@ jobs:
     - provider: pypi
       user: $PYPI_USER
       password: $PYPI_PASSWORD
-      if: fork = false
       on:
         branch: master
