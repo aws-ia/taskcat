@@ -79,7 +79,7 @@ jobs:
     - git fetch --all
     - git checkout master
     - LAST_RELEASE_COMMIT=$(git rev-list --max-count=1 HEAD)
-    - TAG_BODY=$(echo "Change Log";git --no-pager log --no-merges --oneline $LAST_RELEASE_COMMIT..HEAD  --pretty='- %h %s')
+    - TAG_BODY=$(git --no-pager log --no-merges --oneline $LAST_RELEASE_COMMIT..HEAD  --pretty='- %h %s')
     - git checkout "release/v${RELEASE_ID}"
     - git tag -a "${NEW_VERSION}" -m "${TAG_BODY}"
     - git push --tags  "https://$GHT:@github.com/$TRAVIS_REPO_SLUG" 
@@ -92,7 +92,7 @@ jobs:
         protocol: https
       EOL
     - cat ~/.config/hub
-    - hub pull-request -h master -m "taskcat [$NEW_VERSION]" -b "release/v${RELEASE_ID}"
+    - hub pull-request -h master -m "taskcat [$NEW_VERSION]" 
 
   - stage: "Create Development Builds"
     name: "develop"
@@ -166,6 +166,5 @@ jobs:
     - provider: pypi
       user: $PYPI_USER
       password: $PYPI_PASSWORD
-      if: fork = false
       on:
         branch: master
