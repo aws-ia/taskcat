@@ -378,6 +378,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#packaging-lambda-functions" title="Packaging lambda functions" class="md-nav__link">
+    Packaging lambda functions
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -580,6 +587,13 @@
           <li class="md-nav__item">
   <a href="#local-parameter-overrides" title="Local Parameter Overrides." class="md-nav__link">
     Local Parameter Overrides.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packaging-lambda-functions" title="Packaging lambda functions" class="md-nav__link">
+    Packaging lambda functions
   </a>
   
 </li>
@@ -949,6 +963,20 @@ If you want to use a different account or profile
 - Project Directory (ci/taskcat_project_override.json)</p>
 <p>Note: Keys defined in the Project override with supersede the same keys defined in the global override.
 <a href="https://aws-quickstart.github.io/input-files.html#parm-override">More info here</a></p>
+<h3 id="packaging-lambda-functions">Packaging lambda functions<a class="headerlink" href="#packaging-lambda-functions" title="Permanent link">&para;</a></h3>
+<p>Taskcat can automatically zip lambda function source found in <code class="codehilite">functions/source/*</code> folders. folders are zipped up and 
+placed in <code class="codehilite">functions/packages/FunctionName/lambda.zip</code>. To enable this functionality you will need to enable it in your 
+<code class="codehilite">taskcat.yaml</code> file by adding <code class="codehilite">package-lambda: true</code> to the <code class="codehilite">global</code> section:</p>
+<table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="codehilite"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">global</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">package-lambda</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</td></tr></table>
+
+<p>Additionally, taskcat can be set to package zips and then exit without taking any other actions. This can be done by 
+setting the <code class="codehilite">-b</code> or <code class="codehilite">--lambda-build-only</code> flag.</p>
                 
                   
                 
