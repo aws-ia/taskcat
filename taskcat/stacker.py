@@ -191,6 +191,7 @@ class TaskCat(object):
         self.s3_url_prefix = ""
         self.upload_only = False
         self._max_bucket_name_length = 63
+        self.lambda_build_only = False
 
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -1960,6 +1961,11 @@ class TaskCat(object):
             '--upload-only',
             action='store_true',
             help="Sync local files with s3 and exit")
+        parser.add_argument(
+            '-b',
+            '--lambda-build-only',
+            action='store_true',
+            help="create lambda zips and exit")
 
         args = parser.parse_args()
 
@@ -1974,6 +1980,9 @@ class TaskCat(object):
 
         if args.upload_only:
             self.upload_only = True
+
+        if args.lambda_build_only:
+            self.lambda_build_only = True
 
         if not args.config_yml:
             parser.error("-c (--config_yml) not passed (Config File Required!)")

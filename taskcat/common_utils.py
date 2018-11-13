@@ -1,5 +1,7 @@
 import re
 import sys
+import os
+from taskcat.colored_console import PrintMsg
 
 
 class CommonTools:
@@ -38,8 +40,19 @@ class CommonTools:
 
 
 def exit1(msg=''):
+    if msg:
+        print(PrintMsg.ERROR + msg)
     sys.exit(1)
 
 
 def exit0(msg=''):
+    if msg:
+        print(PrintMsg.INFO + msg)
     sys.exit(0)
+
+
+def make_dir(path, ignore_exists=True):
+    path = os.path.abspath(path)
+    if ignore_exists and os.path.isdir(path):
+        return
+    os.makedirs(path)
