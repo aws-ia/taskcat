@@ -148,7 +148,11 @@ class S3Sync(object):
                 remove_from_s3.append({"Key": prefix + s3_file})
         # deleting objects, max 1k objects per s3 delete_objects call
         for d in [remove_from_s3[i:i + 1000] for i in range(0, len(remove_from_s3), 1000)]:
-            self.s3_client.delete_objects(Bucket=bucket, Delete={'Objects': d})
+            response = self.s3_client.delete_objects(Bucket=bucket, Delete={'Objects': d})
+            if "Errors" in response.keys():
+                for error in response["Errors"]:
+                    print(PrintMsg.ERROR + "S3 delete error: %s" % str(error))
+                raise TaskCatException("Failed to delete one or more files from S3")
         # build list of files to upload
         upload_to_s3 = []
         for local_file in local_list:
