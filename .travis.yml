@@ -40,7 +40,7 @@ script:
 jobs:
   include:
   - stage: "Merge to Release Branch "
-    name: "update release branch"
+    name: "stage to release branch"
     if: branch = develop AND commit_message =~ /(Bump)/ AND type = push
     before_script:
     - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
@@ -80,8 +80,10 @@ jobs:
     - LAST_RELEASE_COMMIT=$(git rev-list --max-count=1 HEAD)
     - TAG_BODY=$(git --no-pager log --no-merges --oneline $LAST_RELEASE_COMMIT..HEAD  --pretty='- %h %s')
     - git checkout "release/v${RELEASE_ID}" ||  git checkout -b "release/v${RELEASE_ID}"
+    - git fetch --tags
+    - git tag -l |grep $NEW_VERSION | xargs git tag -d && git push --tags -f
     - git tag -a "${NEW_VERSION}" -m "${TAG_BODY}"
-    - git push --tags  "https://$GHT:@github.com/$TRAVIS_REPO_SLUG" 
+    - git push --tags  -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
     - mkdir -p ~/.config/taskcat
     - |
       cat > ~/.config/hub << EOL
@@ -94,7 +96,7 @@ jobs:
     - hub pull-request  -m "Release taskcat [$NEW_VERSION]"  -h "release/v${RELEASE_ID}"
 
   - stage: "Create Development Builds"
-    name: "develop"
+    name: "build new develop version of pip module"
     if: branch = develop AND commit_message !~ /(Bump)/ AND type = push
     before_script:
     - export RELEASE_ID=$(grep version setup.py | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
@@ -132,7 +134,7 @@ jobs:
     - echo "Deployment complete"
 
   - stage: "Create Production Builds"
-    name: "master"
+    name: "build new production version (pip and docker)"
     before_script:
     - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
     - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
@@ -149,11 +151,11 @@ jobs:
         echo "Creating production release ${RELEASE_ID}"
         git checkout $TRAVIS_BRANCH
         export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
-        git tag -l |grep $RELEASE_ID | xargs git tag -d && git push 
-        # TODO Create Changelog using git log for $TAG_BODY 
         TAG_BODY="taskcat version → $NEW_VERSION"
-        git tag -a "v${NEW_VERSION}" -m "${TAG_BODY}"
-        git push --tags  "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+        git fetch --tags
+        git tag -l |grep $NEW_VERSION | xargs git tag -d && git push --tags -f
+        git tag -a "${NEW_VERSION}" -m "${TAG_BODY}"
+        git push --tags  -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
       fi
     deploy:
     - provider: releases
