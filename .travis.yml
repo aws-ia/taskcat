@@ -34,7 +34,7 @@ jobs:
   include:
   - stage: "Merge to Release Branch "
     name: "update release branch"
-    if: branch = develop AND commit_message =~ /(Bump)/
+    if: branch = develop AND commit_message =~ /(Bump)/ AND type = push
     before_script:
     - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
     - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
@@ -65,7 +65,7 @@ jobs:
 
   - stage: "Merge to Master"
     name: "merge to master"
-    if: branch =~ /(release.*)/
+    if: branch =~ /(release.*)/ AND type = push 
     script:
     - if [[ $MERGE_TO_MASTER == true ]]; then
     - echo "merging to master ..."
@@ -83,7 +83,7 @@ jobs:
 
   - stage: "Create Development Builds"
     name: "develop"
-    if: branch = develop AND commit_message !~ /(Bump)/
+    if: branch = develop AND commit_message !~ /(Bump)/ AND type = push
     before_script:
     - export RELEASE_ID=$(grep version setup.py | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
     - echo "TRAVIS_BRANCH = $TRAVIS_BRANCH  TRAVIS_TAG = $TRAVIS_TAG RELEASE = $RELEASE_ID "
@@ -128,7 +128,7 @@ jobs:
     - git config --global user.name "Travis CI"
     - git config --global push.followTags true
     - git fetch --all
-    if: branch = master
+    if: branch = master AND type = push
     before_deploy:
     - python setup.py clean --all
     script:
