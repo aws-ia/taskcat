@@ -6,6 +6,13 @@
 #  Create development builds (Triggered by commit to develop branch)
 #  - Builds pypi package to https://test.pypi.org/project/taskcat/
 #  - Tags development builds
+dist: xenial
+addons:
+  apt:
+    sources:
+    - sourceline: 'ppa:cpick/hub'
+    packages:
+    - hub
 language: python
 
 branches:
@@ -47,11 +54,8 @@ jobs:
     - GIT_FULL_CHECHOUT=$(mktemp -d)
     - git clone "https://github.com/$TRAVIS_REPO_SLUG" "$GIT_FULL_CHECHOUT" && cd "$GIT_FULL_CHECHOUT"
     - git fetch --all
-    - pwd; git checkout "release/v${RELEASE_ID}" ||  git checkout -b "release/v${RELEASE_ID}"
-    - LAST_RELEASE_COMMIT=$(git rev-list --max-count=1 HEAD)
-    - git rev-list --max-count=1 HEAD
-    - git --no-pager log --oneline --decorate | head -10
-    - pwd; git merge --no-edit "$TRAVIS_COMMIT"
+    - git checkout "release/v${RELEASE_ID}" ||  git checkout -b "release/v${RELEASE_ID}"
+    - git merge --no-edit "$TRAVIS_COMMIT"
     - git push "https://$GHT:@github.com/$TRAVIS_REPO_SLUG" "release/v${RELEASE_ID}"
 
   - stage: "Functional test"
@@ -63,23 +67,32 @@ jobs:
     - mkdir ~/.aws/ &&  cp sample-taskcat-project/ci/taskcat_global_override.json  ~/.aws/taskcat_global_override.json
     - taskcat -c sample-taskcat-project/ci/taskcat-autobucket.yml -A $AKEY -S $SKEY && export MERGE_TO_MASTER=true
 
-  - stage: "Merge to Master"
-    name: "merge to master"
+  - stage: "Pull Request to Release → Master"
+    name: "generate pull request"
     if: branch =~ /(release.*)/ AND type = push 
     script:
-    - if [[ $MERGE_TO_MASTER == true ]]; then
     - echo "merging to master ..."
     - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
+    - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
     - GIT_FULL_CHECHOUT=$(mktemp -d)
     - git clone "https://github.com/$TRAVIS_REPO_SLUG" "$GIT_FULL_CHECHOUT" && cd "$GIT_FULL_CHECHOUT"
     - git fetch --all
-    - pwd; git checkout "master"
+    - git checkout master
     - LAST_RELEASE_COMMIT=$(git rev-list --max-count=1 HEAD)
-    - pwd; git merge --no-edit "release/v${RELEASE_ID}"
-    - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
-    - TAG_BODY=$(git --no-pager log --no-merges --pretty=%B -10 |  sed -e 's/Bump v/##V/g'| sed -e 's/^/\- /g'  |  sed -e 's/\- $/ /g' | sed -e 's/\- ##/## /g')
-    - git tag -a "rc${NEW_VERSION}" -m "${TAG_BODY}"
-    - git push --tags  "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+    - TAG_BODY=$(echo "Change Log";git --no-pager log --no-merges --oneline $LAST_RELEASE_COMMIT..HEAD  --pretty='- %h %s')
+    - git checkout "release/v${RELEASE_ID}"
+    - git tag -a "${NEW_VERSION}" -m "${TAG_BODY}"
+    - git push --tags  "https://$GHT:@github.com/$TRAVIS_REPO_SLUG" 
+    - mkdir -p ~/.config/taskcat
+    - |
+      cat > ~/.config/hub << EOL
+      github.com:
+      - user: taskcat-ci
+        oauth_token: $GHT
+        protocol: https
+      EOL
+    - cat ~/.config/hub
+    - hub pull-request -h master -m "taskcat [$NEW_VERSION]" -b "release/v${RELEASE_ID}"
 
   - stage: "Create Development Builds"
     name: "develop"
