@@ -60,7 +60,7 @@ jobs:
 
   - stage: "Functional test"
     name: "taskcat (sample-taskcat-project/ci/taskcat-autobucket.yml)"
-    if: branch =~ /(release.*|develop|master)/ AND commit_message !~ /(Bump)/
+    if: branch =~ /(release.*|develop|master)/ AND commit_message !~ /(Bump)/ AND type = push
     before_script:
     script:
     - cd examples && pwd
