@@ -81,9 +81,15 @@ jobs:
     - TAG_BODY=$(git --no-pager log --no-merges --oneline $LAST_RELEASE_COMMIT..HEAD  --pretty='- %h %s')
     - git checkout "release/v${RELEASE_ID}" ||  git checkout -b "release/v${RELEASE_ID}"
     - git fetch --tags
-    - git tag -l |grep $NEW_VERSION | xargs git tag -d && git push --tags -f
+    - |
+      if [ $(git tag -l "$NEW_VERSION") ]; then
+        git tag --delete  $NEW_VERSION
+        git push --delete origin $NEW_VERSION
+      else
+          echo "No Tags to Purge"
+      fi
     - git tag -a "${NEW_VERSION}" -m "${TAG_BODY}"
-    - git push --tags  -f "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+    - git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
     - mkdir -p ~/.config/taskcat
     - |
       cat > ~/.config/hub << EOL
