@@ -1,7 +1,7 @@
 mock==2.0.0
 tabulate==0.8.2
 pyfiglet==0.7.5
-cfn_lint==0.7.4
+cfn_lint==0.9.0
 setuptools==40.4.3
 boto3==1.9.21
 botocore==1.12.21
