@@ -27,7 +27,6 @@ import os
 import random
 import re
 import sys
-import textwrap
 import time
 import uuid
 import boto3
@@ -35,6 +34,7 @@ import pyfiglet
 import yaml
 import logging
 import cfnlint.core
+import textwrap
 from argparse import RawTextHelpFormatter
 from botocore.vendored import requests
 
@@ -1605,96 +1605,6 @@ class TaskCat(object):
             return False
         return True
 
-    def lint(self, strict='warn', path=''):
-        """
-        Lints all templates (against each region to be tested) using cfn_python_lint
-
-        :param path:
-        :param strict: string, "error" outputs a log line for each warning and fails on errors, if set to "strict"
-        will exit on warnings and failures, if set to "warn" will only output warnings for errors
-        :return:
-        """
-        if strict not in ['error', 'strict', 'warn']:
-            raise TaskCatException("lint was set to an invalid value '%s', valid values are: 'error', 'strict', 'warn'" % strict)
-        lints = {}
-        templates = {}
-        config = yaml.safe_load(open(self.config))
-        rules = cfnlint.core.get_rules([], [])
-        for test in config['tests'].keys():
-            lints[test] = {}
-            if 'regions' in config['tests'][test].keys():
-                lints[test]['regions'] = config['tests'][test]['regions']
-            else:
-                lints[test]['regions'] = config['global']['regions']
-            if path:
-                template_file = '%s/templates/%s' % (path, config['tests'][test]['template_file'])
-            else:
-                template_file = 'templates/%s' % (config['tests'][test]['template_file'])
-            lints[test]['template_file'] = template_file
-            if template_file not in templates.keys():
-                templates[template_file] = self.get_child_templates(template_file, parent_path=path)
-            lints[test]['results'] = {}
-            templates[template_file].add(template_file)
-            for t in templates[template_file]:
-                template = cfnlint.decode.cfn_yaml.load(t)
-                lints[test]['results'][t] = cfnlint.core.run_checks(
-                    t,
-                    template,
-                    rules,
-                    lints[test]['regions'])
-        test_status = {"W": False, "E": False}
-        for test in lints.keys():
-            for t in lints[test]['results'].keys():
-                print(PrintMsg.INFO + "Lint results for test %s on template %s:" % (test, t))
-                for r in lints[test]['results'][t]:
-                    message = r.__str__().lstrip('[')
-                    sev = message[0]
-                    if sev == 'E':
-                        print(PrintMsg.ERROR + "    " + message)
-                        test_status[sev] = True
-                    elif sev == 'W':
-                        if 'E' + message[1:] not in [r.__str__().lstrip('[') for r in lints[test]['results'][t]]:
-                            print(PrintMsg.INFO + "    " + message)
-                            test_status[sev] = True
-                    else:
-                        print(PrintMsg.DEBUG + "linter produced unkown output: " + message)
-        if strict in ['error', 'strict'] and test_status['E']:
-            raise TaskCatException("Exiting due to lint errors")
-        elif strict == 'strict' and test_status['W']:
-            raise TaskCatException("Exiting due to lint warnings")
-
-    def get_child_templates(self, filename, parent_path=''):
-        """
-        recursively find nested templates given a template path
-
-        :param parent_path:
-        :param filename: string, path to template
-        :return: set of nested template paths
-        """
-        children = set()
-        template = cfnlint.decode.cfn_yaml.load(filename)
-        for resource in template['Resources'].keys():
-            child_name = ''
-            if template['Resources'][resource]['Type'] == "AWS::CloudFormation::Stack":
-                template_url = template['Resources'][resource]['Properties']['TemplateURL']
-                if type(template_url) == dict:
-                    if 'Fn::Sub' in template_url.keys():
-                        if type(template_url['Fn::Sub']) == str:
-                            child_name = template_url['Fn::Sub'].split('}')[-1]
-                        else:
-                            child_name = template_url['Fn::Sub'][0].split('}')[-1]
-                    elif 'Fn::Join' in template_url.keys()[0]:
-                        child_name = template_url['Fn::Join'][1][-1]
-                elif type(template_url) == str:
-                    if 'submodules/' not in template_url:
-                        child_name = '/'.join(template_url.split('/')[-2:])
-            if child_name and not child_name.startswith('submodules/'):
-                if parent_path:
-                    child_name = "%s/%s" % (parent_path, child_name)
-                children.add(child_name)
-                children.union(self.get_child_templates(child_name, parent_path=parent_path))
-        return children
-
     # Set AWS Credentials
     # Set AWS Credentials
     def aws_api_init(self, args):
@@ -1947,10 +1857,8 @@ class TaskCat(object):
         parser.add_argument(
             '-l',
             '--lint',
-            type=str,
-            default="warn",
-            help="set linting 'strict' - will fail on errors and warnings, 'error' will fail on errors or 'warn' will "
-                 "log errors to the console, but not fail")
+            action='store_true',
+            help="lint the templates and exit")
         parser.add_argument(
             '-V',
             '--version',

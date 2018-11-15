@@ -18,6 +18,7 @@ import traceback
 from taskcat.common_utils import exit0
 from taskcat.common_utils import exit1
 from taskcat.lambda_build import LambdaBuild
+from taskcat.cfn_lint import Lint
 
 
 if sys.version_info[0] < 3:
@@ -77,16 +78,15 @@ def main():
             try:
                 if project_path:
                     os.chdir(os.path.abspath(project_path))
-                tcat_instance.lint(args.lint, path=project_name)
+                Lint(config=tcat_instance.get_config(), path=project_name).output_results()
             except taskcat.exceptions.TaskCatException as e:
                 print(taskcat.PrintMsg.ERROR + str(e))
                 exit1(str(e))
             except Exception as e:
                 print("ERROR: Linting failed: %s" % e)
-                if args.lint in ['error', 'strict']:
-                    raise
-                else:
-                    traceback.print_exc()
+                traceback.print_exc()
+            if args.lint:
+                exit0("Linting completed")
             tcat_instance.stage_in_s3(taskcat_cfg)
             tcat_instance.validate_template(taskcat_cfg, test_list)
             tcat_instance.validate_parameters(taskcat_cfg, test_list)
@@ -100,5 +100,6 @@ def main():
         exit1(str(e))
 
 # --End
+
 
 main()
