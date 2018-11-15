@@ -30,9 +30,18 @@ class Lint(object):
 
     def _get_test_regions(self, test):
         if 'regions' in self._config['tests'][test].keys():
-            return self._config['tests'][test]['regions']
+            return self._filter_unsupported_regions(self._config['tests'][test]['regions'])
         else:
-            return self._config['global']['regions']
+            return self._filter_unsupported_regions(self._config['global']['regions'])
+
+    def _filter_unsupported_regions(self, regions):
+        lint_regions = set(cfnlint.core.REGIONS)
+        if set(regions).issubset(lint_regions):
+            return regions
+        supported = set(regions).intersection(lint_regions)
+        unsupported = set(regions).difference(lint_regions)
+        print(PrintMsg.ERROR + "The following regions are not supported by cfn-python-lint and will not be linted %s" % unsupported)
+        return list(supported)
 
     @staticmethod
     def _parse_template(template_path, quiet=False):
