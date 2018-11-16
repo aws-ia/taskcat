@@ -1,60 +1,81 @@
 # taskcat
 [![GitHub release](https://img.shields.io/github/release/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+[![taskcat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)](https://github.com/aws-quickstart/taskcat)
 [![GitHub stars](https://img.shields.io/github/stars/aws-quickstart/taskcat.svg?style=social&label=Stars)](https://github.com/aws-quickstart/taskcat)
-
-
-[![TaskCat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)](https://github.com/aws-quickstart/taskcat)
 
 [![Build Status](https://travis-ci.org/aws-quickstart/taskcat.svg?branch=master)](https://travis-ci.org/aws-quickstart/taskcat)
 [![Docker Build Status](https://img.shields.io/docker/build/taskcat/taskcat.svg)](https://hub.docker.com/r/taskcat/taskcat/builds)
 [![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat)
 
-
-[![Libraries.io for GitHub](https://img.shields.io/librariesio/github/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/network/dependencies)
-
-### Support
-[![Feature Request](https://img.shields.io/badge/Open%20Issues-Feature%20Request-green.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
-[![Report Bugs](https://img.shields.io/badge/Open%20Issue-Report%20Bug-red.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
-
-### Python Version:
-
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/taskcat.svg)](https://pypi.org/project/taskcat/#history)
-
-### GitHub Stats:
-
-
-[![GitHub issues](https://img.shields.io/github/issues/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/issues)
-[![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/issues?q=is%3Aissue+is%3Aclosed)
-
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls?q=is%3Apr+is%3Aclosed)
-
-
-### PyPi Stats:
-
-[![PyPI - Downloads](https://img.shields.io/pypi/dw/taskcat.svg)](https://pypi.org/project/taskcat/#history)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/taskcat.svg)](https://pypi.org/project/taskcat/#history)
-
-
-
-For helpful information see [Frequently Asked Questions](FAQ.md)
-
-## What is TaskCat?
-TaskCat is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. TaskCat is implemented as a Python class that you import, instantiate, and run.
+## What is taskcat?
+**taskcat** is a tool that tests AWS CloudFormation templates. It deploys your AWS CloudFormation template in multiple AWS Regions and generates a report with a pass/fail grade for each region. You can specify the regions and number of Availability Zones you want to include in the test, and pass in parameter values from your AWS CloudFormation template. taskcat is implemented as a Python class that you import, instantiate, and run.
 
 TestCat was developed by the AWS QuickStart team to test AWS CloudFormation templates that automatically deploy workloads on AWS. We’re pleased to make the tool available to all developers who want to validate their custom AWS CloudFormation
 templates across AWS Regions
 
-## Files you’ll need
+### Support
+[![Feature Request](https://img.shields.io/badge/Open%20Issues-Feature%20Request-green.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
+[![Report Bugs](https://img.shields.io/badge/Open%20Issue-Report%20Bug-red.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
+[![Frequently Asked Questions](https://img.shields.io/badge/%20-FAQ-yellowgreen.svg)](FAQ.md)
+
+## Installing taskcat
+**taskcat** can be install using `docker` or `pip`
+
+### Installing via docker
+![Docker Required](https://img.shields.io/badge/Prerequisites-docker-blue.svg)
+
+```
+curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-installer.sh | sh
+```
+Note: (If you do not have root privileges taskcat will install in the current directory)
+
+### Python Requirements:
+![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg)[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/taskcat.svg)](https://pypi.org/project/taskcat/#history)
+
+### Installing via pip3
+
+```
+pip3 install taskcat
+```
+
+### Installing via pip3 --user 
+__(for those who want to install taskcat into their homedir)__
+
+```
+pip3 install taskcat --user
+```
+
+Note: (the user install dir is platform specific)
+
+*For Example:* (On Mac: ~/Library/Python/3.x/bin/taskcat)
+
+*For Example:* (On Linux: ~/.local/bin)
+
+> **Warning:** Be sure to add the python bin dir to your **$PATH**
+
+### Running taskcat
+Note: If you have AWS credentials sourced (or default boto profile is available)
+
+```
+taskcat -c sample-taskcat-project/ci/config.yml
+```
+> If you need to pass ACCESS and SECRET keys
+```
+taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+```
+> If you want to use a different account or profile
+```
+taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
+```
+### Files you’ll need
 * **taskcat.yml** - This file contains the test cases
 * **JSON input** - This file contains the inputs that you want to pass to AWS CloudFormation template that is being tested
 
-* Step 1 Building your configuration file
-* Step 2 Building your JSON input file.
+* Step 1: Building your configuration file
+* Step 2: Building your JSON input file.
 
-#### Step 1 Creating a taskcat.yml
+## Step 1: Creating a taskcat.yml
 Open the taskcat.yml file with and editor and update the filenames to match your need.
 
 example here:
@@ -101,13 +122,12 @@ example here:
         ├── sample-cloudformation-project-novpc.template
         └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload
 
-### Step 2 Building a json input file using taskcat-tokens
+## Step 2: Building a json input file 
 The example below shows an input file for a stack that requires seven parameters `KeyPairName`,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
 
-Note: you can auto generate values at runtime using `taskcat runtime injection` (see example below).
+Note: you can auto generate values at runtime using **taskcat runtime injection** (see example below).
 
 > The following json will evaluate
-
 
 #### From:
 
@@ -169,7 +189,7 @@ Note: you can auto generate values at runtime using `taskcat runtime injection` 
 }]
 ```
 
-#### More information on `taskcat runtime injection`
+#### More information on taskcat runtime injection
 
 ### (Passwords)
 Value that matches the following pattern will be replaced:
@@ -177,7 +197,7 @@ Value that matches the following pattern will be replaced:
  * Parameters must end with` ]`
 
 To generate a random 8 character alpha-numeric password for testing use $[taskcat_genpass_8] as the value in the json input file
- * The number (8) in the injection string tells Taskcat you want a password that character long.
+ * The number (8) in the injection string tells taskcat you want a password that character long.
  * Changing the 8 to 12 would result in a 12 character string
 
 (Optionally - you can specify the type of password by adding A or S)
@@ -245,56 +265,10 @@ UseCase: Need to confirm a dynamically generated password
 
 > Generates: pI8zN4iX8
 
-## Installing TaskCat
-
-### Installing TaskCat (Docker install)
-Prerequisites: `docker`
-
-```
-curl -s https://raw.githubusercontent.com/aws-quickstart/taskcat/master/installer/docker-installer.sh | sh
-```
-Note: (If you do not have root privileges Taskcat will install in the current directory)
-
 [More info here](https://aws-quickstart.github.io/input-files.html)
 
-### Installing via pip3 (for those who do not want to use the docker installer)
-Prerequisites: `Python 3.5+ and pip3`
-
-```
-pip3 install taskcat
-```
-
-### Installing via pip3 --user (for those who want to install taskcat into their homedir)
-Prerequisites: `Python 3.5+ and pip3`
-
-Note: (the user install dir is platform specific)
-
-> For Example: (On Mac: ~/Library/Python/3.x/bin/taskcat)
-
-> For Example: (On Linux: ~/.local/bin)
-
-```
-pip3 install taskcat --user
-```
-> Warning: Be sure to add the python bin dir to your `$PATH`
-
-### Running TaskCat
-Note: If you have AWS credentials sourced (or default boto profile is available)
-
-```
-taskcat -c sample-taskcat-project/ci/config.yml
-```
-> If you need to pass ACCESS and SECRET keys
-```
-taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
-```
-> If you want to use a different account or profile
-```
-taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
-```
-
 ### Local Parameter Overrides.
-In certain situations it may be desirable to introduce local Parameter Override values. Taskcat supports this via two files.
+In certain situations it may be desirable to introduce local Parameter Override values. taskcat supports this via two files.
 
 The first is located .aws directory within the home-directory of the running user.
 
@@ -315,8 +289,8 @@ Note: Keys defined in the Project override with supersede the same keys defined 
 [More info here](https://aws-quickstart.github.io/input-files.html#parm-override)
 
 ### Packaging lambda functions
-Taskcat can automatically zip lambda function source found in `functions/source/*` folders. folders are zipped up and 
-placed in `functions/packages/FunctionName/lambda.zip`. To enable this functionality you will need to enable it in your 
+taskcat can automatically zip lambda function source found in `functions/source/*` folders. folders are zipped up and
+placed in `functions/packages/FunctionName/lambda.zip`. To enable this functionality you will need to enable it in your
 `taskcat.yaml` file by adding `package-lambda: true` to the `global` section:
 
 ```yaml
@@ -325,5 +299,26 @@ global:
   ...
 ```
 
-Additionally, taskcat can be set to package zips and then exit without taking any other actions. This can be done by 
+Additionally, taskcat can be set to package zips and then exit without taking any other actions. This can be done by
 setting the `-b` or `--lambda-build-only` flag.
+
+----
+**GitHub:**
+
+[![GitHub issues](https://img.shields.io/github/issues/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/issues)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls?q=is%3Apr+is%3Aclosed)
+
+**PyPi:**
+
+[![PyPI - Downloads](https://img.shields.io/pypi/dw/taskcat.svg)](https://pypi.org/project/taskcat/#history)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/taskcat.svg)](https://pypi.org/project/taskcat/#history)
+
+**Status**
+
+[![Libraries.io for GitHub](https://img.shields.io/librariesio/github/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/network/dependencies)
+
+**License:**
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
