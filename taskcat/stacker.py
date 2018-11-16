@@ -1347,7 +1347,7 @@ class TaskCat(object):
             session = boto3.session.Session(region_name=region)
             s = Reaper(session)
 
-            failed_stacks = CfnResourceTools.get_all_resources(failed_stack_ids, region)
+            failed_stacks = CfnResourceTools(self._boto_client).get_all_resources(failed_stack_ids, region)
             # print all resources which failed to delete
             if self.verbose:
                 print(PrintMsg.DEBUG + "Resources which failed to delete:\n")
@@ -1737,7 +1737,7 @@ class TaskCat(object):
                 stackinfo = CommonTools(stack['StackId']).parse_stack_info()
                 # Get stack resources
                 resource[stackinfo['region']] = (
-                    self.get_resources(
+                    CfnResourceTools(self._boto_client).get_resources(
                         str(stackinfo['stack_name']),
                         str(stackinfo['region'])
                     )
