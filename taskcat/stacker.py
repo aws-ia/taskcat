@@ -1682,7 +1682,6 @@ class TaskCat(object):
         required_global_keys = [
             'qsname',
             'owner',
-            'reporting',
             'regions'
         ]
 
