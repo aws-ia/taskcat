@@ -68,12 +68,18 @@ class Lint(object):
                 templates[template_file] = self._get_child_templates(template_file, set(), parent_path=self._path)
             lints[test]['results'] = {}
             templates[template_file].add(template_file)
+            lint_errors = set()
             for t in templates[template_file]:
                 template = self._parse_template(t, quiet=True)
                 if template:
-                    lints[test]['results'][t] = cfnlint.core.run_checks(
-                        t, template, self._rules, lints[test]['regions']
-                    )
+                    try:
+                        lints[test]['results'][t] = cfnlint.core.run_checks(
+                            t, template, self._rules, lints[test]['regions']
+                        )
+                    except cfnlint.core.CfnLintExitException as e:
+                        lint_errors.add(PrintMsg.ERROR + str(e))
+            for e in lint_errors:
+                print(e)
         return lints
 
     def output_results(self):
