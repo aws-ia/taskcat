@@ -13,7 +13,6 @@ global:
     - us-east-1
     - us-west-1
     - us-west-2
-  reporting: true
 tests:
   taskcat-json:
     parameter_input: debug-input.json
