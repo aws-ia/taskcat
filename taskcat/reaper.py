@@ -11,6 +11,11 @@ import botocore
 from botocore.exceptions import ClientError
 import logging
 
+log = logging.getLogger(__name__)
+###
+### TODO: Deprecate this module
+###
+
 debug = ''
 error = ''
 check = ''
@@ -31,27 +36,7 @@ P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
 F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
 I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
 
-# create logger
-logger = logging.getLogger('Reaper')
-logger.setLevel(logging.DEBUG)
-
-# create console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-# create formatter
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# add formatter to ch
-ch.setFormatter(formatter)
-
-# add ch to logger
-logger.addHandler(ch)
-
-
-# Reaper class provide functions to delete the AWS resources as per the
-# defined rules.
+log = logging.getLogger(__name__)
 
 
 # noinspection PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences,PyUnresolvedReferences
@@ -62,9 +47,9 @@ class Reaper(object):
 
     def __delete_s3_bucket(self, bucket_name):
         s3_resource = self.session.resource('s3')
-        logger.info('Working on bucket [%s]', bucket_name)
+        log.info('Working on bucket [%s]', bucket_name)
         bucket_resource = s3_resource.Bucket(bucket_name)
-        logger.info("Getting and deleting all object versions")
+        log.info("Getting and deleting all object versions")
         try:
             object_versions = bucket_resource.object_versions.all()
             for object_version in object_versions:
@@ -73,19 +58,19 @@ class Reaper(object):
                 object_version.delete()
         except ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
-                logger.warning("Unable to delete object versions. (AccessDenied)")
+                log.warning("Unable to delete object versions. (AccessDenied)")
             if e.response['Error']['Code'] == 'NoSuchBucket':
-                logger.warning("Unable to get versions. (NoSuchBucket)")
+                log.warning("Unable to get versions. (NoSuchBucket)")
             else:
-                print(e)
-        logger.info('Deleting bucket [%s]', bucket_name)
+                log.error(e)
+        log.info('Deleting bucket [%s]', bucket_name)
         try:
             bucket_resource.delete()
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchBucket':
-                logger.warning("Bucket was already deleted. (NoSuchBucket)")
+                log.warning("Bucket was already deleted. (NoSuchBucket)")
             else:
-                print(e)
+                log.error(e)
 
     # Given a volume id, this function deletes the volume with given id
     # Param:
@@ -93,14 +78,14 @@ class Reaper(object):
 
     def __delete_volume(self, volume_id):
         ec2_client = self.session.client('ec2')
-        logger.info('Deleting EBS Volume [%s]', volume_id)
+        log.info('Deleting EBS Volume [%s]', volume_id)
         try:
             ec2_client.delete_volume(VolumeId=volume_id)
         except ClientError as e:
             if e.response['Error']['Code'] == 'AccessDenied':
-                logger.warning("Unable to delete volume. (AccessDenied)")
+                log.warning("Unable to delete volume. (AccessDenied)")
             else:
-                print(e)
+                log.error(e)
 
     # Given a Security Group Id, this function deletes the security group with given Id.
     # Param:
@@ -108,17 +93,17 @@ class Reaper(object):
 
     def __delete_sg(self, sg_id):
         ec2_client = self.session.client('ec2')
-        logger.info('Deleting Security Group [%s]', sg_id)
+        log.info('Deleting Security Group [%s]', sg_id)
         try:
             ec2_client.delete_security_group(GroupId=sg_id)
         except ClientError as e:
             if e.response['Error']['Code'] == 'InvalidGroup.InUse':
-                logger.warning("Unable to delete Security group. It is in-use.")
+                log.warning("Unable to delete Security group. It is in-use.")
             if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
-                logger.warning(
+                log.warning(
                     "Unable to delete Security group. (not found).")
             else:
-                print(e)
+                log.error(e)
 
     # Given a list of dictionary items where each dictionary item contains a resource list,
     # this function deletes all the resources given.
@@ -139,7 +124,7 @@ class Reaper(object):
     #       ]
 
     def delete_all(self, stack_list):
-        logger.info("Deleting all resources")
+        log.info("Deleting all resources")
         for stack in stack_list:
             for resource in stack['resources']:
                 self.__delete_resource(
@@ -152,13 +137,13 @@ class Reaper(object):
 
     def __delete_resource(self, lid, rtype, pid):
         if rtype == "AWS::EC2::SecurityGroup":
-            logger.debug("Found Security Group resource")
+            log.debug("Found Security Group resource")
             self.__delete_sg(lid)
         if rtype == "AWS::EC2::Volume":
-            logger.debug("Found Volume resource")
+            log.debug("Found Volume resource")
             self.__delete_volume(lid)
         if rtype == "AWS::S3::Bucket":
-            logger.debug("Found Bucket resource")
+            log.debug("Found Bucket resource")
             self.__delete_s3_bucket(pid)
 
     # Constructor

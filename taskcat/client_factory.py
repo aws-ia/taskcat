@@ -11,10 +11,11 @@ from __future__ import print_function
 import boto3
 import botocore
 import logging
-import os
 from threading import Lock
 from time import sleep
 from taskcat.exceptions import TaskCatException
+
+log = logging.getLogger(__name__)
 
 
 class ClientFactory(object):
@@ -33,14 +34,11 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, logger=None, loglevel='error', botolevel='error', aws_access_key_id=None,
+    def __init__(self, aws_access_key_id=None,
                  aws_secret_access_key=None, aws_session_token=None, profile_name=None):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
-            logger (obj): a logging instance
-            loglevel (str): [optional] log verbosity, defaults to 'error'
-            botolevel (str): [optional] boto3 log verbosity, defaults to 'error'
             aws_access_key_id (str): [optional] IAM access key, defaults to None
             aws_secret_access_key (str): [optional] IAM secret key, defaults to None
             aws_session_token (str): [optional] IAM session token, defaults to None
@@ -49,20 +47,6 @@ class ClientFactory(object):
         self._clients = {"default": {}}
         self._credential_sets = {}
         self._lock = Lock()
-        if not logger:
-            loglevel = getattr(logging, loglevel.upper(), 20)
-            botolevel = getattr(logging, botolevel.upper(), 40)
-            mainlogger = logging.getLogger()
-            mainlogger.setLevel(loglevel)
-            logging.getLogger('boto3').setLevel(botolevel)
-            logging.getLogger('botocore').setLevel(botolevel)
-            logging.getLogger('nose').setLevel(botolevel)
-            logging.getLogger('s3transfer').setLevel(botolevel)
-            if len(mainlogger.handlers) == 0:
-                mainlogger.addHandler(logging.StreamHandler())
-            self.logger = mainlogger
-        else:
-            self.logger = logger
         self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
         return
 
@@ -75,6 +59,7 @@ class ClientFactory(object):
         :param profile_name:
         :return:
         """
+        region = 'us-east-1'
         try:
             if aws_access_key_id and aws_secret_access_key and aws_session_token:
                 session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
@@ -89,11 +74,10 @@ class ClientFactory(object):
                 session = boto3.session.Session()
             region = session.region_name
             if not region:
-                self.logger.warning("Region not set in credential chain, defaulting to us-east-1")
+                log.warning("Region not set in credential chain, defaulting to us-east-1")
                 region = 'us-east-1'
         except Exception as e:
-            self.logger.error('failed to get default region: %s' % str(e))
-            region = 'us-east-1'
+            log.error('failed to get default region: %s' % str(e))
         finally:
             return region
 
@@ -134,7 +118,7 @@ class ClientFactory(object):
             class: boto3 client
         """
         if not aws_access_key_id and not profile_name:
-            self.logger.debug(
+            log.debug(
                 "no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set
             )
             if credential_set not in self._credential_sets.keys():
@@ -145,15 +129,15 @@ class ClientFactory(object):
             region = self.get_default_region(aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
         s3v4 = 's3v4' if s3v4 else 'default_sig_version'
         try:
-            self.logger.debug("Trying to get [%s][%s][%s][%s]" % (credential_set, region, service, s3v4))
+            log.debug("Trying to get [%s][%s][%s][%s]" % (credential_set, region, service, s3v4))
             client = self._clients[credential_set][region][service][s3v4]
             if aws_access_key_id:
                 if self._clients[credential_set][region]['session'].get_credentials().access_key != aws_access_key_id:
-                    self.logger.debug("credentials changed, forcing update...")
+                    log.debug("credentials changed, forcing update...")
                     raise KeyError("New credentials for this credential_set, need a new session.")
             return client
         except KeyError:
-            self.logger.debug("Couldn't return an existing client, making a new one...")
+            log.debug("Couldn't return an existing client, making a new one...")
             if credential_set not in self._clients.keys():
                 self._clients[credential_set] = {}
             if region not in self._clients[credential_set].keys():
@@ -214,7 +198,7 @@ class ClientFactory(object):
             except Exception as e:
                 if "could not be found" in str(e):
                     raise
-                self.logger.debug("failed to create session", exc_info=1)
+                log.debug("failed to create session", exc_info=1)
                 retry += 1
                 if retry >= max_retries:
                     raise
@@ -248,7 +232,7 @@ class ClientFactory(object):
             except TaskCatException:
                 raise
             except Exception:
-                self.logger.debug("failed to create client", exc_info=1)
+                log.debug("failed to create client", exc_info=1)
                 retry += 1
                 if retry >= max_retries:
                     raise

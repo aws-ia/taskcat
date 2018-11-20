@@ -11,147 +11,13 @@ from __future__ import print_function
 import json
 import logging
 import os
-import sys
 import yaml
 import re
 from collections import OrderedDict
 from taskcat.exceptions import TaskCatException
+from taskcat.common_utils import exit1
 
-class Logger(object):
-    """Wrapper for a logging object that logs in json"""
-
-    def __init__(self, request_id=None, log_format='json', loglevel='warning', botolevel='critical'):
-        """Initializes logging with request_id"""
-        self.request_id = request_id
-        self.log_format = log_format
-        self.config(request_id, loglevel=loglevel, botolevel=botolevel)
-        return
-
-    def config(self, request_id=None, original_job_id=None, job_id=None,
-               artifact_revision_id=None, pipeline_execution_id=None, pipeline_action=None,
-               stage_name=None, pipeline_name=None, loglevel='warning', botolevel='critical'):
-        """Configures logging object
-
-        Args:
-            request_id (str): request id.
-            original_job_id (str): [optional] pipeline job_id from first request in this run.
-            job_id (str): [optional] pipeline job_id for the current invocation (differs from original_job_id if this is a continuation invocation).
-            artifact_revision_id (str): [optional] commit id for current revision.
-            pipeline_execution_id (str): [optional] pipeline execution id (same for all actions/stages in this pipeline run).
-            pipeline_action (str): [optional] pipeline action name.
-            stage_name (str): [optional] pipeline stage name.
-            pipeline_name (str): [optional] pipeline name.
-            loglevel (str): [optional] logging verbosity, defaults to warning.
-            botolevel (str): [optional] boto logging verbosity, defaults to critical.
-        """
-
-        loglevel = getattr(logging, loglevel.upper(), 20)
-        botolevel = getattr(logging, botolevel.upper(), 40)
-        mainlogger = logging.getLogger()
-        mainlogger.setLevel(loglevel)
-        logging.getLogger('boto3').setLevel(botolevel)
-        logging.getLogger('botocore').setLevel(botolevel)
-        logging.getLogger('nose').setLevel(botolevel)
-        logging.getLogger('s3transfer').setLevel(botolevel)
-        if self.log_format == 'json':
-            logfmt = '{"time_stamp": "%(asctime)s", "log_level": "%(levelname)s", "data": %(message)s}\n'
-        elif self.log_format == 'logfile':
-            logfmt = '%(asctime)s %(levelname)s %(message)s\n'
-        else:
-            logfmt = '%(message)s\n'
-        if len(mainlogger.handlers) == 0:
-            mainlogger.addHandler(logging.StreamHandler())
-        mainlogger.handlers[0].setFormatter(logging.Formatter(logfmt))
-        self.log = logging.LoggerAdapter(mainlogger, {})
-        self.request_id = request_id
-        self.original_job_id = original_job_id
-        self.job_id = job_id
-        self.pipeline_execution_id = pipeline_execution_id
-        self.artifact_revision_id = artifact_revision_id
-        self.pipeline_action = pipeline_action
-        self.stage_name = stage_name
-        self.pipeline_name = pipeline_name
-
-    def set_boto_level(self, botolevel):
-        """sets boto logging level
-
-        Args:
-        botolevel (str): boto3 logging verbosity (critical|error|warning|info|debug)
-        """
-
-        botolevel = getattr(logging, botolevel.upper(), 40)
-        logging.getLogger('boto3').setLevel(botolevel)
-        logging.getLogger('botocore').setLevel(botolevel)
-        logging.getLogger('nose').setLevel(botolevel)
-        logging.getLogger('s3transfer').setLevel(botolevel)
-        return
-
-    def _format(self, message):
-        if self.log_format == 'json':
-            message = self._format_json(message)
-        else:
-            message = str(message)
-        print(message)
-        return message
-
-    def _format_json(self, message):
-        """formats log message in json
-
-        Args:
-        message (str): log message, can be a dict, list, string, or json blob
-        """
-
-        metadata = {}
-        if self.request_id:
-            metadata["request_id"] = self.request_id
-        if self.original_job_id:
-            metadata["original_job_id"] = self.original_job_id
-        if self.pipeline_execution_id:
-            metadata["pipeline_execution_id"] = self.pipeline_execution_id
-        if self.pipeline_name:
-            metadata["pipeline_name"] = self.pipeline_name
-        if self.stage_name:
-            metadata["stage_name"] = self.stage_name
-        if self.artifact_revision_id:
-            metadata["artifact_revision_id"] = self.artifact_revision_id
-        if self.pipeline_action:
-            metadata["pipeline_action"] = self.pipeline_action
-        if self.job_id:
-            metadata["job_id"] = self.job_id
-        try:
-            message = json.loads(message)
-        except TaskCatException:
-            raise
-        except Exception:
-            pass
-        try:
-            metadata["message"] = message
-            return json.dumps(metadata)
-        except TaskCatException:
-            raise
-        except Exception:
-            metadata["message"] = str(message)
-            return json.dumps(metadata)
-
-    def debug(self, message, **kwargs):
-        """wrapper for logging.debug call"""
-        self.log.debug(self._format(message), **kwargs)
-
-    def info(self, message, **kwargs):
-        """wrapper for logging.info call"""
-        self.log.info(self._format(message), **kwargs)
-
-    def warning(self, message, **kwargs):
-        """wrapper for logging.warning call"""
-        self.log.warning(self._format(message), **kwargs)
-
-    def error(self, message, **kwargs):
-        """wrapper for logging.error call"""
-        self.log.error(self._format(message), **kwargs)
-
-    def critical(self, message, **kwargs):
-        """wrapper for logging.critical call"""
-        self.log.critical(self._format(message), **kwargs)
+log = logging.getLogger(__name__)
 
 
 class CFNYAMLHandler(object):
@@ -175,26 +41,7 @@ class CFNYAMLHandler(object):
             updated_template.close()
     """
 
-    def __init__(self, logger=None, loglevel='error', botolevel='error'):
-        """Sets up the logging object
-
-        Args:
-            logger (obj): a logging instance
-        """
-
-        if not logger:
-            loglevel = getattr(logging, loglevel.upper(), 20)
-            botolevel = getattr(logging, botolevel.upper(), 40)
-            mainlogger = logging.getLogger()
-            mainlogger.setLevel(loglevel)
-            logging.getLogger('boto3').setLevel(botolevel)
-            logging.getLogger('botocore').setLevel(botolevel)
-            logging.getLogger('nose').setLevel(botolevel)
-            logging.getLogger('s3transfer').setLevel(botolevel)
-            if len(mainlogger.handlers) == 0:
-                mainlogger.addHandler(logging.StreamHandler())
-        else:
-            self.logger = logger
+    def __init__(self):
         return
 
     @staticmethod
@@ -273,13 +120,12 @@ class CFNYAMLHandler(object):
         if os.path.isfile(directory):
             directory = os.path.split(directory)[0]
         if not os.path.isdir(directory):
-            # TODO: FIX LOG LINE
-            print("[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory))
-            # logger.info("[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory))
+            log.info("Directory [{}] does not exist. Trying to create it.".format(directory))
+            # log.info("[INFO]: Directory [{}] does not exist. Trying to create it.".format(directory))
             os.makedirs(directory)
         elif not os.access(directory, os.W_OK):
             pass
             # TODO: FIX LOG LINE AND EXITING. REMOVE PASS ABOVE.
-            print("[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory))
-            # logger.error("[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory))
-            sys.exit(1)
+            log.error("No write access allowed to output directory [{}]. Aborting.".format(directory))
+            # log.error("[ERROR]: No write access allowed to output directory [{}]. Aborting.".format(directory))
+            exit1()

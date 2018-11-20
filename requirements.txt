@@ -1,3 +1,4 @@
+requests
 mock==2.0.0
 tabulate==0.8.2
 pyfiglet==0.7.5
