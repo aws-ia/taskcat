@@ -49,7 +49,7 @@ from taskcat.cfn_logutils import CfnLogTools
 from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
-from taskcat.common_utils import exit0
+from taskcat.common_utils import exit0, param_list_to_dict
 
 
 # Version Tag
@@ -310,12 +310,7 @@ class TaskCat(object):
         except Exception as e:
             pass
 
-        # Setup a list index dictionary.
-        # - Used to give an Parameter => Index mapping for replacement.
-        param_index = {}
-        for (idx, param_dict) in enumerate(original_keys):
-            key = param_dict['ParameterKey']
-            param_index[key] = idx
+        param_index = param_list_to_dict(original_keys)
 
         template_params = self.extract_template_parameters()
         # Merge the two lists, overriding the original values if necessary.
@@ -1682,7 +1677,6 @@ class TaskCat(object):
         required_global_keys = [
             'qsname',
             'owner',
-            'reporting',
             'regions'
         ]
 

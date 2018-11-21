@@ -2,6 +2,7 @@ import re
 import sys
 import os
 from taskcat.colored_console import PrintMsg
+from taskcat.exceptions import TaskCatException
 
 
 class CommonTools:
@@ -56,3 +57,20 @@ def make_dir(path, ignore_exists=True):
     if ignore_exists and os.path.isdir(path):
         return
     os.makedirs(path)
+
+
+def param_list_to_dict(original_keys):
+    # Setup a list index dictionary.
+    # - Used to give an Parameter => Index mapping for replacement.
+    param_index = {}
+    if type(original_keys) != list:
+        raise TaskCatException('Invalid parameter file, outermost json element must be a list ("[]")')
+    for (idx, param_dict) in enumerate(original_keys):
+        if type(param_dict) != dict:
+            raise TaskCatException('Invalid parameter %s parameters must be of type dict ("{}")' % param_dict)
+        if 'ParameterKey' not in param_dict or 'ParameterValue' not in param_dict:
+            raise TaskCatException(
+                'Invalid parameter %s all items must have both ParameterKey and ParameterValue keys' % param_dict)
+        key = param_dict['ParameterKey']
+        param_index[key] = idx
+    return param_index
