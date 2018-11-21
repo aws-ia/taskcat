@@ -674,6 +674,9 @@ class TaskCat(object):
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
+        if len(password) > pass_length:
+            password = password[:pass_length]
+
         return ''.join(password)
 
     def generate_random(self, gtype, length):
