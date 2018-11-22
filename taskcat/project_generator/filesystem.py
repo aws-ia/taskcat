@@ -5,6 +5,19 @@ from os import path
 TEMPLATES_ROOT_DIR = 'templates'
 
 
+def traverse_project_templates(project_type):
+    '''
+    A wrapper around os.walk that returns the generator to traverse
+    the templates directory
+    '''
+    project_templates_root_path = templates_root_path() + os.sep + project_type
+    return os.walk(project_templates_root_path)
+
+
+def create_project_directory(project_path):
+    os.mkdir(project_path)
+
+
 def generate_file(content, destination_path):
     '''
     Given the generated content and a destination path, it will
@@ -22,15 +35,6 @@ def load_template(template_path):
     '''
     with open(template_path) as f:
         return Template(f.read())
-
-
-def traverse_project_templates(project_type):
-    '''
-    A wrapper around os.walk that returns the generator to traverse
-    the templates directory
-    '''
-    project_templates_root_path = templates_root_path() + os.sep + project_type
-    return os.walk(project_templates_root_path)
 
 
 def templates_root_path():
