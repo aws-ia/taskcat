@@ -1,0 +1,15 @@
+---
+global:
+  owner: {{ config.owner_email }}
+  qsname: {{ config.project_name }}
+  regions:
+  {% for region in config.supported_regions -%}
+    - {{ region }}
+  {% endfor -%}
+  reporting: true
+tests:
+  taskcat-json:
+    parameter_input: debug-input.json
+    regions:
+      - us-east-1
+    template_file: debug.template
