@@ -1030,12 +1030,12 @@ class TaskCat(object):
             testdata_list.append(testdata)
         for test in testdata_list:
             for stack in test.get_test_stacks():
-                log.warning(" |{}LAUNCHING STACKS{}".format(PrintMsg.header, PrintMsg.rst_color), extra={"nametag": self.nametag})
+                log.info(" |{}LAUNCHING STACKS{}".format(PrintMsg.header, PrintMsg.rst_color), extra={"nametag": self.nametag})
                 log.info("{}{} {} {}".format(
                     PrintMsg.header,
                     test.get_test_name(),
                     str(stack['StackId']).split(':stack', 1),
-                    PrintMsg.rst_color))
+                    PrintMsg.rst_color), extra={"nametag": ""})
         return testdata_list
 
     def validate_parameters(self, taskcat_cfg, test_list):
@@ -1189,7 +1189,7 @@ class TaskCat(object):
         log.warning("{}{} {} [{}]{}".format(
             PrintMsg.header,
             'AWS REGION'.ljust(15),
-            'CLOUDFORMATION STACK STATUS'.ljust(25),
+            'CLOUDFORMATION STACK STATUS'.ljust(26),
             'CLOUDFORMATION STACK NAME',
             PrintMsg.rst_color))
         latest_log = {}
