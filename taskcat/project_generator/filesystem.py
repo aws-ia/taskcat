@@ -6,15 +6,15 @@ TEMPLATES_ROOT_DIR = 'templates'
 
 
 class FilesystemService:
+    def project_templates_root(self, project_type):
+        return self._templates_root_path() + os.sep + project_type + os.sep
+
     def traverse_templates(self, project_type):
         '''
         A wrapper around os.walk that returns the generator to traverse
         the templates directory
         '''
-        project_templates_root_path = (
-            self._templates_root_path() + os.sep + project_type
-        )
-        return os.walk(project_templates_root_path)
+        return os.walk(self.project_templates_root(project_type))
 
     def create_project_directory(self, project_path):
         os.mkdir(project_path)
