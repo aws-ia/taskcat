@@ -1,0 +1,136 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Lambda  Cluster Id generator",
+    "Parameters": {
+        "StackName": {
+            "Description": "StackName",
+            "Type": "String"
+        },
+        "RandomString": {
+            "Description": "RandomString",
+            "Type": "String"
+        },
+        "RandomNumber": {
+            "Description": "RandomNumber",
+            "Type": "String"
+        },
+        "UUID": {
+            "Description": "UUID",
+            "Type": "String"
+        },
+        "PasswordA": {
+            "Description": "Password (Alpha)",
+            "Type": "String"
+        },
+        "PasswordAConfirm": {
+            "Description": "Password (Alpha)",
+            "Type": "String"
+        },
+        "PasswordB": {
+            "Description": "Password (Special)",
+            "Type": "String"
+        },
+        "ByteValue": {
+            "Description": "NumberValueInput",
+            "Type": "Number"
+        },
+        "AvailabilityZones": {
+            "Description": "List of 3 Availability Zones ",
+            "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+        }
+    },
+    "Resources": {
+        "LambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": ["lambda.amazonaws.com"]
+                        },
+                        "Action": ["sts:AssumeRole"]
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "lambda_policy",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": "arn:aws:logs:*:*:*"
+                        }, {
+                        "Effect": "Allow",
+                        "Action": [
+                            "cloudformation:DescribeStacks"
+                        ],
+                        "Resource": "*"
+                        }]
+                    }
+                }]
+            }
+        },
+        "GenID": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "ZipFile": {
+                        "Fn::Join": ["\n", [
+                            "import random",
+                            "import json",
+                            "import cfnresponse",
+                            "from cfnresponse import send, SUCCESS",
+                            "def handler(event, context):",
+                            "   if event['RequestType'] == 'Delete':",
+                            "       send(event, context, 'SUCCESS', {})",
+                            "       return",
+                            "   if event['RequestType'] == 'Create':",
+                            "       token= \"%0x.%0x\" % (random.SystemRandom().getrandbits(3*8), random.SystemRandom().getrandbits(8*8))",
+                            "       responseData = {}",
+                            "       responseData['Data'] = token",
+                            "       send(event, context, 'SUCCESS', responseData)",
+                            "       return token"
+                        ]]
+                    }
+                },
+                "Handler": "index.handler",
+                "Runtime": "python2.7",
+                "Timeout": "5",
+                "Role": {
+                    "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+                }
+            }
+        },
+        "GetID": {
+            "Type": "Custom::GenerateID",
+            "Version": "1.0",
+            "Properties": {
+                "ServiceToken": {
+                    "Fn::GetAtt": ["GenID", "Arn"]
+                },
+                "ResponseURL":  {"Fn::Join": ["", [ "http://ResponseURL",{ "Ref": "AWS::StackId" },"RequestId" ]]},
+                "StackId": { "Ref": "AWS::StackId" },
+                "ResourceProperties": {
+                    "RequestType": "Create",
+                    "RequestId":  {"Fn::Join": ["", [{ "Ref": "AWS::StackId" },"RequestId" ]]},
+                    "LogicalResourceId":  "GenIDLogicalResourceId"
+                }
+            },
+            "DependsOn": ["GenID"]
+        }
+    },
+    "Outputs": {
+        "ClusterID": {
+            "Value": {
+                "Fn::GetAtt": ["GetID", "Data"]
+            }
+        }
+    }
+}
