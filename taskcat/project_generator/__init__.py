@@ -1,1 +1,0 @@
-from taskcat.project_generator.generator import ProjectConfiguration, ProjectGenerator

@@ -4,8 +4,10 @@
 #
 
 import sys
-from generator import ProjectConfiguration, ProjectGenerator
-from filesystem import FilesystemService
+from taskcat.project_generator import (FilesystemService,
+                                       ProjectConfiguration,
+                                       ProjectGenerator)
+
 
 destination = sys.argv[1]
 config = ProjectConfiguration(
@@ -14,6 +16,7 @@ config = ProjectConfiguration(
     'quickstart',
     ['us-east-1', 'us-west-2']
 )
+
 ProjectGenerator(
     config,
     destination,

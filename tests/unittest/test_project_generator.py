@@ -1,9 +1,9 @@
 from jinja2 import Template
 from unittest import TestCase
 from unittest.mock import call, Mock
-from taskcat.project_generator.generator import (full_path,
-                                                 ProjectConfiguration,
-                                                 ProjectGenerator)
+from taskcat.project_generator import (full_path,
+                                       ProjectConfiguration,
+                                       ProjectGenerator)
 
 TEST_OWNER = 'owner@example.com'
 TEST_PROJECT_NAME = 'awesome_new_project'

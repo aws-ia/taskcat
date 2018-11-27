@@ -1,6 +1,11 @@
 import logging
 import os
 from collections import namedtuple
+from jinja2 import Template
+from os import path
+
+TEMPLATES_ROOT_DIR = 'project_templates'
+TEMPLATE_FILE_EXTENSION = '.jinja'
 
 
 def full_path(root, resource):
@@ -8,7 +13,10 @@ def full_path(root, resource):
 
 
 def template_paths(template_dir, templates):
-    return [template_dir + os.sep + t for t in templates]
+    return [
+        template_dir + os.sep + t
+        for t in templates
+        if t.endswith(TEMPLATE_FILE_EXTENSION)]
 
 
 ProjectConfiguration = namedtuple(
@@ -74,3 +82,41 @@ class ProjectGenerator:
 
     def _render_template_content(self, template):
         return template.render(config=self.config)
+
+
+class FilesystemService:
+    def project_templates_root(self, project_type):
+        root = self._templates_root_path() + os.sep + project_type + os.sep
+        return root
+
+    def traverse_templates(self, project_type):
+        '''
+        A wrapper around os.walk that returns the generator to traverse
+        the templates directory
+        '''
+        return os.walk(self.project_templates_root(project_type))
+
+    def create_project_directory(self, project_path):
+        os.mkdir(project_path)
+
+    def generate_file(self, content, destination_path):
+        '''
+        Given the generated content and a destination path, it will
+        write that content to a file in that path.
+        '''
+        with open(destination_path, 'w') as f:
+            f.write(content)
+
+    def load_template(self, template_path):
+        '''
+        Give a full path to a template file it will return a jinja2
+        Template object that responds to `render` method taking
+        the template parameters
+        '''
+        with open(template_path) as f:
+            return Template(f.read())
+
+    def _templates_root_path(self):
+        return (
+            path.dirname(path.realpath(__file__)) + os.sep + TEMPLATES_ROOT_DIR
+        )
