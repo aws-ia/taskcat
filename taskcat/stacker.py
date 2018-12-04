@@ -674,6 +674,9 @@ class TaskCat(object):
                 password.append(random.choice(uppercase))
                 password.append(random.choice(numbers))
 
+        if len(password) > pass_length:
+            password = password[:pass_length]
+
         return ''.join(password)
 
     def generate_random(self, gtype, length):
@@ -792,7 +795,7 @@ class TaskCat(object):
 
                 # Determines if random string  value was requested
                 gen_string_re = re.compile(
-                    '\$\[taskcat_random-string]$', re.IGNORECASE)
+                    '.*\$\[taskcat_random-string].*', re.IGNORECASE)
 
                 # Determines if random number value was requested
                 gen_numbers_re = re.compile(
@@ -844,6 +847,8 @@ class TaskCat(object):
                 if gen_string_re.search(param_value):
                     random_string = self.regxfind(gen_string_re, param_value)
                     param_value = self.generate_random('alpha', 20)
+
+                    param_value = random_string.replace("$[taskcat_random-string]", param_value)
 
                     if self.verbose:
                         print("{}Generating random string for {}".format(PrintMsg.DEBUG, random_string))
