@@ -490,6 +490,27 @@ class TaskCat(object):
             azs = ','.join(available_azs[:count])
             return azs
 
+    def get_single_az(self, region, az_id):
+        """
+        Get a single valid AZ for the region.
+
+        The number passed indicates the ordinal representing the AZ returned.
+        For instance, in the 'us-east-1' region, providing '1' as the ID would
+        return 'us-east-1a', providing '2' would return 'us-east-1b', etc.
+
+        In this way it's possible to get availability zones that are
+        guaranteed to be different without knowing their names.
+
+        :param region: Region of the availability zone
+        :param az_id: 0-based ordinal of the AZ to get
+
+        :return: The requested availability zone of the specified region.
+        """
+
+        regional_azs = self.get_available_azs(region, az_id)
+
+        return regional_azs.split(',')[-1]
+
     def get_content(self, bucket, object_key):
         """
         Returns the content of an object, given the bucket name and the key of the object
@@ -986,12 +1007,19 @@ class TaskCat(object):
                         _parameters['ParameterValue'] = param_value
 
                 if genaz_single_re.search(param_value):
-                    print(PrintMsg.DEBUG + "Selecting availability zones")
-                    print(PrintMsg.DEBUG + "Requested 1 az")
-                    param_value = self.get_available_azs(
-                        region,
-                        1)
-                    _parameters['ParameterValue'] = param_value
+                    az_id = int(
+                        self.regxfind(count_re, param_value))
+                    if az_id:
+                        print(PrintMsg.DEBUG + "Requested 1 az")
+                        print(PrintMsg.DEBUG + "Selecting availability zone %s" % az_id)
+                        param_value = self.get_single_az(region, az_id)
+                        _parameters['ParameterValue'] = param_value
+                    else:
+                        print(PrintMsg.INFO + "$[taskcat_getsingleaz_(!)]")
+                        print(PrintMsg.INFO + "Which az not specified!")
+                        print(PrintMsg.INFO + " - (Defaulting to az 1)")
+                        param_value = self.get_single_az(region, 1)
+                        _parameters['ParameterValue'] = param_value
 
                 self.set_parameter(param_key, param_value)
 
