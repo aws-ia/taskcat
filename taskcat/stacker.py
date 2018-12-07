@@ -830,7 +830,7 @@ class TaskCat(object):
                 genaz_re = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
 
                 # Determines if single AZ has been requested. This is added to support legacy templates
-                genaz_single_re = re.compile('\$\[\w+_ge[nt]singleaz_\d]', re.IGNORECASE)
+                genaz_single_re = re.compile('\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]', re.IGNORECASE)
 
                 # Determines if uuid has been requested
                 genuuid_re = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
@@ -1007,19 +1007,13 @@ class TaskCat(object):
                         _parameters['ParameterValue'] = param_value
 
                 if genaz_single_re.search(param_value):
-                    az_id = int(
-                        self.regxfind(count_re, param_value))
-                    if az_id:
-                        print(PrintMsg.DEBUG + "Requested 1 az")
-                        print(PrintMsg.DEBUG + "Selecting availability zone %s" % az_id)
-                        param_value = self.get_single_az(region, az_id)
-                        _parameters['ParameterValue'] = param_value
-                    else:
-                        print(PrintMsg.INFO + "$[taskcat_getsingleaz_(!)]")
-                        print(PrintMsg.INFO + "Which az not specified!")
-                        print(PrintMsg.INFO + " - (Defaulting to az 1)")
-                        param_value = self.get_single_az(region, 1)
-                        _parameters['ParameterValue'] = param_value
+                    re_match = genaz_single_re.search(param_value)
+                    az_id = int(re_match.group('az_id'))
+
+                    print(PrintMsg.DEBUG + "Requested 1 az")
+                    print(PrintMsg.DEBUG + "Selecting availability zone %s" % az_id)
+                    param_value = self.get_single_az(region, az_id)
+                    _parameters['ParameterValue'] = param_value
 
                 self.set_parameter(param_key, param_value)
 
