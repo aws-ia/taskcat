@@ -812,19 +812,18 @@ class TaskCat(object):
 
                 # Determines if _genpass has been requested
                 genpass_re = re.compile(
-                    '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$', re.IGNORECASE)
+                    '\$\[\w+_genpass?(\w)_\d{1,2}\w?]', re.IGNORECASE)
 
                 # Determines if random string  value was requested
                 gen_string_re = re.compile(
-                    '.*\$\[taskcat_random-string].*', re.IGNORECASE)
+                    '\$\[taskcat_random-string]', re.IGNORECASE)
 
                 # Determines if random number value was requested
                 gen_numbers_re = re.compile(
-                    '\$\[taskcat_random-numbers]$', re.IGNORECASE)
+                    '\$\[taskcat_random-numbers]', re.IGNORECASE)
 
                 # Determines if autobucket value was requested
-                autobucket_re = re.compile(
-                    '\$\[taskcat_autobucket]$', re.IGNORECASE)
+                autobucket_re = re.compile('\$\[taskcat_autobucket]', re.IGNORECASE)
 
                 # Determines if _genaz has been requested. This can return single or multiple AZs.
                 genaz_re = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
@@ -866,48 +865,43 @@ class TaskCat(object):
                     _parameters['ParameterValue'] = param_value
 
                 if gen_string_re.search(param_value):
-                    random_string = self.regxfind(gen_string_re, param_value)
-                    param_value = self.generate_random('alpha', 20)
-
-                    param_value = random_string.replace("$[taskcat_random-string]", param_value)
-
+                    random_string_pattern = self.regxfind(gen_string_re, param_value)
+                    param_value = gen_string_re.sub(self.generate_random('alpha', 20), param_value)
                     if self.verbose:
-                        print("{}Generating random string for {}".format(PrintMsg.DEBUG, random_string))
+                        print("{}Generating random string for {}".format(PrintMsg.DEBUG, random_string_pattern))
                     _parameters['ParameterValue'] = param_value
 
                 if gen_numbers_re.search(param_value):
-                    random_numbers = self.regxfind(gen_numbers_re, param_value)
-                    param_value = self.generate_random('number', 20)
-
+                    random_numbers_pattern = self.regxfind(gen_numbers_re, param_value)
+                    param_value = gen_numbers_re.sub(self.generate_random('number', 20), param_value)
                     if self.verbose:
-                        print("{}Generating numeric string for {}".format(PrintMsg.DEBUG, random_numbers))
+                        print("{}Generating numeric string for {}".format(PrintMsg.DEBUG, random_numbers_pattern))
                     _parameters['ParameterValue'] = param_value
 
                 if genuuid_re.search(param_value):
                     uuid_string = self.regxfind(genuuid_re, param_value)
-                    param_value = self.generate_uuid('A')
-
+                    param_value = genuuid_re.sub(self.generate_uuid('A'), param_value)
                     if self.verbose:
                         print("{}Generating random uuid string for {}".format(PrintMsg.DEBUG, uuid_string))
                     _parameters['ParameterValue'] = param_value
 
                 if autobucket_re.search(param_value):
                     bkt = self.regxfind(autobucket_re, param_value)
-                    param_value = self.get_s3bucket()
+					param_value = autobucket_re.sub(self.get_s3bucket(), param_value)
                     if self.verbose:
                         print("{}Setting value to {}".format(PrintMsg.DEBUG, bkt))
                     _parameters['ParameterValue'] = param_value
 
                 if gets3replace.search(param_value):
                     url = self.regxfind(geturl_re, param_value)
-                    param_value = self.get_s3contents(url)
+                    param_value =gets3replace.sub(self.get_s3contents(url),param_value)
                     if self.verbose:
                         print("{}Raw content of url {}".format(PrintMsg.DEBUG, url))
                     _parameters['ParameterValue'] = param_value
 
                 if getkeypair_re.search(param_value):
                     keypair = self.regxfind(getkeypair_re, param_value)
-                    param_value = 'cikey'
+                    param_value = getkeypair_re.sub('cikey',param_value)
                     if self.verbose:
                         print("{}Generating default Keypair {}".format(PrintMsg.DEBUG, keypair))
                     _parameters['ParameterValue'] = param_value
