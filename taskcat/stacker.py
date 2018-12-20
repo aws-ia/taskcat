@@ -887,14 +887,14 @@ class TaskCat(object):
 
                 if autobucket_re.search(param_value):
                     bkt = self.regxfind(autobucket_re, param_value)
-					param_value = autobucket_re.sub(self.get_s3bucket(), param_value)
+                    param_value = autobucket_re.sub(self.get_s3bucket(), param_value)
                     if self.verbose:
                         print("{}Setting value to {}".format(PrintMsg.DEBUG, bkt))
                     _parameters['ParameterValue'] = param_value
 
                 if gets3replace.search(param_value):
                     url = self.regxfind(geturl_re, param_value)
-                    param_value =gets3replace.sub(self.get_s3contents(url),param_value)
+                    param_value = gets3replace.sub(self.get_s3contents(url),param_value)
                     if self.verbose:
                         print("{}Raw content of url {}".format(PrintMsg.DEBUG, url))
                     _parameters['ParameterValue'] = param_value
