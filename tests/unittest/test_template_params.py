@@ -204,8 +204,9 @@ class TestParamGen(unittest.TestCase):
         self.assertRegex(generated_uuid, re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'))
 
     def test_all_regexes_tested(self):
+        regex_type = type(re.compile(''))
         tested_expressions = set([x.test_pattern_attribute for x in self.regex_patterns])
-        all_expressions = set([x for x in dir(ParamGen) if type(getattr(ParamGen, x)) == re.Pattern])
+        all_expressions = set([x for x in dir(ParamGen) if type(getattr(ParamGen, x)) == regex_type])
         self.assertEqual(all_expressions, tested_expressions)
 
     def test_regex_replace_param_value(self):
