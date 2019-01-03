@@ -281,7 +281,7 @@ class TestParamGen(unittest.TestCase):
         ]
         bclient = MockClientFactory()
         bclient.logger = logger
-        class_kwargs = copy.deepcopy(self.class_kwargs)
+        class_kwargs = self.class_kwargs
         class_kwargs['param_list'] = input_params
         class_kwargs['boto_client'] =  bclient
         pg = ParamGen(**class_kwargs)
