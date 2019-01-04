@@ -6,7 +6,7 @@ from taskcat.colored_console import PrintMsg
 from taskcat.exceptions import TaskCatException
 
 logger = logging.getLogger('taskcat')
-class ParamGen(object):
+class ParamGen:
 
     RE_GETURL = re.compile(
         '(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
@@ -342,7 +342,7 @@ class ParamGen(object):
                 print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(PrintMsg.DEBUG,
                     url_bucket, url_key, url_expire_seconds))
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-            param_value = self.s3.generate_presigned_url(
+            param_value = s3_client.generate_presigned_url(
                 'get_object',
                 Params={'Bucket': url_bucket, 'Key': url_key},
                 ExpiresIn=int(url_expire_seconds))

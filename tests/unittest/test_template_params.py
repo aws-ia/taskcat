@@ -18,7 +18,7 @@ def client_factory_instance():
     return aws_clients
 
 
-class MockClientFactory(object):
+class MockClientFactory:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -28,14 +28,14 @@ class MockClientFactory(object):
         else:
             return MockEC2(**self.kwargs)
 
-class MockS3(object):
+class MockS3:
     def  get_object(self, Key, **kwargs):
         objresp = {
             'Body': BytesIO(u'unicorns'.encode('utf-8'))
         }
         return objresp
 
-class MockEC2(object):
+class MockEC2:
     def __init__(self, **kwargs):
         self.describe_az_output = {
             "AvailabilityZones": [

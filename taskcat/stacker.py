@@ -670,8 +670,7 @@ class TaskCat(object):
         #
         # Example with 5 minute expiry:
         # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
-        x = ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region, verbose=True)
-        return x.param_list
+        return ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region, verbose=True).param_list
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
