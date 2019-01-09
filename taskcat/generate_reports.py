@@ -47,6 +47,7 @@ class ReportBuilder:
                         status_css = 'class=test-green'
                     elif rstatus == 'CREATE_FAILED':
                         status_css = 'class=test-red'
+                        self.taskcat.one_or_more_tests_failed = True
                         if self.taskcat.retain_if_failed and (self.taskcat.run_cleanup == True):
                             self.taskcat.run_cleanup = False
                     else:

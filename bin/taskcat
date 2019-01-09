@@ -95,6 +95,8 @@ def main():
             tcat_instance.get_stackstatus(testdata, 5)
             tcat_instance.createreport(testdata, 'index.html')
             tcat_instance.cleanup(testdata, 5)
+            if tcat_instance.one_or_more_tests_failed:
+                exit1("One or more tests failed. See the report for details.")
     except taskcat.exceptions.TaskCatException as e:
         print(taskcat.PrintMsg.ERROR + str(e))
         exit1(str(e))
