@@ -315,16 +315,14 @@ class TaskCat(object):
 
         template_params = self.extract_template_parameters()
         # Merge the two lists, overriding the original values if necessary.
-        for override in dict_squash_list:
-            for override_pd in override:
-                key = override_pd['ParameterKey']
-                if key in param_index.keys():
-                    idx = param_index[key]
-                    original_keys[idx] = override_pd
-                elif key in template_params:
-                    original_keys.append(override_pd)
-                else:
-                    print(PrintMsg.INFO + "Cannot override [{}]! It's not present within the template!".format(key))
+            for override in dict_squash_list:
+                for override_pd in override:
+                    key = override_pd['ParameterKey']
+                    if key in param_index.keys():
+                        idx = param_index[key]
+                        original_keys[idx] = override_pd
+                    else:
+                        print(PrintMsg.INFO + "Cannot apply overrides for the [{}] Parameter. You did not include this parameter in [{}]".format(key, self.get_parameter_file()))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
