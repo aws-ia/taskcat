@@ -466,6 +466,12 @@ class TaskCat(object):
         if self.upload_only:
             exit0("Upload completed successfully")
 
+    def remove_public_acl_from_bucket(self):
+        if self.public_s3_bucket:
+            print(PrintMsg.INFO + "The staging bucket [{}] should be only required during cfn bootstrapping. Removing public permission as they are no longer needed!".format(self.s3bucket))
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            s3_client.put_bucket_acl(Bucket=self.s3bucket, ACL='private')
+
     def get_content(self, bucket, object_key):
         """
         Returns the content of an object, given the bucket name and the key of the object
@@ -979,6 +985,7 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+        self.remove_public_acl_from_bucket()
 
         docleanup = self.get_docleanup()
         if self.verbose:
