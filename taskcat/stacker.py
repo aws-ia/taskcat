@@ -193,6 +193,7 @@ class TaskCat(object):
         self.upload_only = False
         self._max_bucket_name_length = 63
         self.lambda_build_only = False
+        self.one_or_more_tests_failed = False
 
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
