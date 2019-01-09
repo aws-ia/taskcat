@@ -193,6 +193,7 @@ class TaskCat(object):
         self.upload_only = False
         self._max_bucket_name_length = 63
         self.lambda_build_only = False
+        self.one_or_more_tests_failed = False
 
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -321,10 +322,8 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
-                elif key in template_params:
-                    original_keys.append(override_pd)
                 else:
-                    print(PrintMsg.INFO + "Cannot override [{}]! It's not present within the template!".format(key))
+                    print(PrintMsg.INFO + "Cannot apply overrides for the [{}] Parameter. You did not include this parameter in [{}]".format(key, self.get_parameter_file()))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
@@ -465,6 +464,12 @@ class TaskCat(object):
         self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project()
         if self.upload_only:
             exit0("Upload completed successfully")
+
+    def remove_public_acl_from_bucket(self):
+        if self.public_s3_bucket:
+            print(PrintMsg.INFO + "The staging bucket [{}] should be only required during cfn bootstrapping. Removing public permission as they are no longer needed!".format(self.s3bucket))
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            s3_client.put_bucket_acl(Bucket=self.s3bucket, ACL='private')
 
     def get_content(self, bucket, object_key):
         """
@@ -979,6 +984,7 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+        self.remove_public_acl_from_bucket()
 
         docleanup = self.get_docleanup()
         if self.verbose:
