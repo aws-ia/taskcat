@@ -1,6 +1,6 @@
 [
     {
-            "ParameterKey": "LocalOverrideTest",
+            "ParameterKey": "GlobalOverrideTest",
                 "ParameterValue": "success"
     }
 ]
