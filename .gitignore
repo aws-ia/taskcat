@@ -1,6 +1,7 @@
 # Compile Source #
 ##################
 *.pyc
+build/
 
 # Misc #
 .idea/

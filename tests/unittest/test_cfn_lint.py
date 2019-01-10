@@ -73,7 +73,7 @@ test_cases = [
         "expected_lints": {'test1': {'regions': ['eu-west-1'], 'template_file': 'templates/taskcat_test_template_test1',
                                      'results': {}}},
         "expected_output": "",
-        "expected_error_output": '[0;30;41m[ERROR  ][0m :Linter failed to load template templates/taskcat_test_template_test1 "found unknown escape character" line 3, column 31\n'
+        "expected_error_output": '[0;30;41m[ERROR  ][0m :Linter failed to load template templates/taskcat_test_template_test1 "found unknown escape character \'/\'" line 3, column 32\n'
     },
     {
         "config": {
