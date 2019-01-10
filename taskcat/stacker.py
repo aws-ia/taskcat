@@ -152,7 +152,8 @@ class TaskCat(object):
 
     def __init__(self, nametag='[taskcat]'):
         self.nametag = '{1}{0}{2}'.format(nametag, PrintMsg.name_color, PrintMsg.rst_color)
-        self.project = None
+        self._project_name = None
+        self._project_path = None
         self.owner = None
         self.banner = None
         self.capabilities = []
@@ -198,11 +199,17 @@ class TaskCat(object):
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
 
-    def set_project(self, project):
-        self.project = project
+    def set_project_name(self, project_name):
+        self._project_name = project_name
 
-    def get_project(self):
-        return self.project
+    def get_project_name(self):
+        return self._project_name
+
+    def get_project_path(self):
+        return self._project_path
+
+    def set_project_path(self, path):
+        self._project_path = path
 
     def set_owner(self, owner):
         self.owner = owner
@@ -294,16 +301,15 @@ class TaskCat(object):
             dict_squash_list.append(_homedir_override_json)
 
         # Now look for per-project override uploaded to S3.
-        override_file_key = "{}/ci/taskcat_project_override.json".format(self.project)
+        local_override_file_path = "{}/ci/taskcat_project_override.json".format(self.get_project_path())
         try:
             # Intentional duplication of self.get_content() here, as I don't want to break that due to
             # tweaks necessary here.
-            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-            dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
-            content = dict_object['Body'].read().decode('utf-8').strip()
+            with open(local_override_file_path, 'r') as f:
+                content = f.read()
             _obj = json.loads(content)
             dict_squash_list.append(_obj)
-            print(PrintMsg.DEBUG + "Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
+            print(PrintMsg.DEBUG + "Values loaded from {}".format(local_override_file_path))
             print(PrintMsg.DEBUG + str(_obj))
         except ValueError:
             raise TaskCatException("Unable to parse JSON (taskcat project overrides)")
@@ -398,14 +404,13 @@ class TaskCat(object):
         else:
             bucket_or_object_acl = 'bucket-owner-read'
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-        self.set_project(taskcat_cfg['global']['qsname'])
 
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
             self.set_s3bucket_type('defined')
             print(PrintMsg.INFO + "Staging Bucket => " + self.get_s3bucket())
             if len(self.get_s3bucket()) > self._max_bucket_name_length:
-                raise TaskCatException("The bucket name you provided is greater than 63 characters.")
+                raise TaskCatException("The bucket name you provided is greater than {} characters.".format(self._max_bucket_name_length))
             try:
                 _ = s3_client.list_objects(Bucket=self.get_s3bucket())
             except s3_client.exceptions.NoSuchBucket:
@@ -413,7 +418,7 @@ class TaskCat(object):
             except Exception:
                 raise
         else:
-            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + jobid[:8]
+            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project_name() + "-" + jobid[:8]
             auto_bucket = auto_bucket.lower()
             if len(auto_bucket) > self._max_bucket_name_length:
                 auto_bucket = auto_bucket[:self._max_bucket_name_length]
@@ -452,16 +457,8 @@ class TaskCat(object):
                     Tagging={"TagSet": self.tags}
                 )
 
-        if os.path.isdir(self.get_project()):
-            start_location = "{}/{}".format(".", self.get_project())
-        else:
-            print('''\t\t Hint: The name specfied as value of qsname ({})
-                    must match the root directory of your project'''.format(self.get_project()))
-            print("{0}!Cannot find directory [{1}] in {2}".format(PrintMsg.ERROR, self.get_project(), os.getcwd()))
-            raise TaskCatException("Please cd to where you project is located")
-
-        S3Sync(s3_client, self.get_s3bucket(), self.get_project(), start_location, bucket_or_object_acl)
-        self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project()
+        S3Sync(s3_client, self.get_s3bucket(), self.get_project_name(), self.get_project_path(), bucket_or_object_acl)
+        self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
         if self.upload_only:
             exit0("Upload completed successfully")
 
@@ -704,7 +701,7 @@ class TaskCat(object):
                 print(PrintMsg.INFO + "Preparing to launch in region [%s] " % region)
                 try:
                     cfn = self._boto_client.get('cloudformation', region=region)
-                    s_parmsdata = self.get_contents("./" + self.get_project() + "/ci/" + self.get_parameter_file())
+                    s_parmsdata = self.get_contents(self.get_project_path() + "/ci/" + self.get_parameter_file())
                     s_parms = json.loads(s_parmsdata)
                     s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
@@ -799,7 +796,8 @@ class TaskCat(object):
             if self.verbose:
                 print(PrintMsg.DEBUG + "parameter_path = %s" % self.get_parameter_path())
 
-            inputparms = self.get_contents("./" + self.get_project() + "/ci/" + self.get_parameter_file())
+            inputparms = self.get_contents(self.get_project_path() + "/ci/" + self.get_parameter_file())
+
             jsonstatus = self.check_json(inputparms)
 
             if self.verbose:
@@ -958,7 +956,7 @@ class TaskCat(object):
                         PrintMsg.rst_color))
                     print(logs)
                     if self._enable_dynamodb:
-                        table = self.db_initproject(self.get_project())
+                        table = self.db_initproject(self.get_project_name())
                         # Do not update when in cleanup start (preserves previous status)
                         skip_status = ['DELETE_IN_PROGRESS', 'STACK_DELETED']
                         if stackquery[2] not in skip_status:
@@ -1053,7 +1051,7 @@ class TaskCat(object):
 
             # Batch object processing by pages
             paginator = s3_client.get_paginator('list_objects')
-            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project_name()}
             s3_pages = paginator.paginate(**operation_parameters)
 
             # Load objects to delete
@@ -1145,7 +1143,6 @@ class TaskCat(object):
                             print(PrintMsg.INFO + " - (Defaulting to cleanup)")
 
                 # Load test setting
-                self.set_project(n)
                 self.set_owner(o)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
@@ -1170,7 +1167,7 @@ class TaskCat(object):
 
                 # Detect template type
 
-                cfntemplate = self.get_contents("./" + self.get_project() + '/templates/' + self.get_template_file())
+                cfntemplate = self.get_contents(self.get_project_path() + '/templates/' + self.get_template_file())
 
                 if self.check_json(cfntemplate, quiet=True, strict=False):
                     self.set_template_type('json')
@@ -1191,7 +1188,7 @@ class TaskCat(object):
                 if self.verbose:
                     print(PrintMsg.INFO + "|Acquiring tests assets for .......[%s]" % test)
                     print(PrintMsg.DEBUG + "|S3 Bucket     => [%s]" % self.get_s3bucket())
-                    print(PrintMsg.DEBUG + "|Project       => [%s]" % self.get_project())
+                    print(PrintMsg.DEBUG + "|Project       => [%s]" % self.get_project_name())
                     print(PrintMsg.DEBUG + "|Template      => [%s]" % self.get_template_path())
                     print(PrintMsg.DEBUG + "|Parameter     => [%s]" % self.get_parameter_path())
                     print(PrintMsg.DEBUG + "|TemplateType  => [%s]" % self.get_template_type())
