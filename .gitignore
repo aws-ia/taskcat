@@ -1,6 +1,15 @@
 # Compile Source #
 ##################
 *.pyc
+bin/
+!bin/taskcat
+!bin/alchemist
+build/
+include/
+share/
+lib/
+dist/
+.cache/
 
 # Misc #
 .idea/
@@ -8,6 +17,8 @@
 .eggs/
 *.egg-info/
 venv/
+
+examples/taskcat_outputs/
 
 # Doc Site
 site/

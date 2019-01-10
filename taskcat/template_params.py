@@ -17,11 +17,11 @@ class ParamGen:
     RE_GENPW = re.compile(
         '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$', re.IGNORECASE)
     RE_GENRANDSTR = re.compile(
-        '\$\[taskcat_random-string]$', re.IGNORECASE)
+        '\$\[taskcat_random-string]', re.IGNORECASE)
     RE_GENNUMB = re.compile(
-        '\$\[taskcat_random-numbers]$', re.IGNORECASE)
+        '\$\[taskcat_random-numbers]', re.IGNORECASE)
     RE_GENAUTOBUCKET = re.compile(
-        '\$\[taskcat_autobucket]$', re.IGNORECASE)
+        '\$\[taskcat_autobucket]', re.IGNORECASE)
     RE_GENAZ = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
     RE_GENAZ_SINGLE = re.compile('\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]', re.IGNORECASE)
     RE_GENUUID = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
