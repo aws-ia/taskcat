@@ -50,6 +50,7 @@ from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
 from taskcat.common_utils import exit0, param_list_to_dict
+from taskcat.template_params import ParamGen
 
 
 # Version Tag
@@ -156,7 +157,7 @@ class TaskCat(object):
         self.banner = None
         self.capabilities = []
         self.verbose = False
-        self.config = 'config.yml'
+        self.config = 'taskcat.yml'
         self.test_region = []
         self.s3bucket = None
         self.s3bucket_type = None
@@ -192,6 +193,7 @@ class TaskCat(object):
         self.upload_only = False
         self._max_bucket_name_length = 63
         self.lambda_build_only = False
+        self.one_or_more_tests_failed = False
 
         # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -320,10 +322,8 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
-                elif key in template_params:
-                    original_keys.append(override_pd)
                 else:
-                    print(PrintMsg.INFO + "Cannot override [{}]! It's not present within the template!".format(key))
+                    print(PrintMsg.INFO + "Cannot apply overrides for the [{}] Parameter. You did not include this parameter in [{}]".format(key, self.get_parameter_file()))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
@@ -465,51 +465,11 @@ class TaskCat(object):
         if self.upload_only:
             exit0("Upload completed successfully")
 
-    def get_available_azs(self, region, count):
-        """
-        Returns a list of availability zones in a given region.
-
-        :param region: Region for the availability zones
-        :param count: Minimum number of availability zones needed
-
-        :return: List of availability zones in a given region
-
-        """
-        available_azs = []
-        ec2_client = self._boto_client.get('ec2', region=region)
-        availability_zones = ec2_client.describe_availability_zones(
-            Filters=[{'Name': 'state', 'Values': ['available']}])
-
-        for az in availability_zones['AvailabilityZones']:
-            available_azs.append(az['ZoneName'])
-
-        if len(available_azs) < count:
-            print("{0}!Only {1} az's are available in {2}".format(PrintMsg.ERROR, len(available_azs), region))
-            quit(1)
-        else:
-            azs = ','.join(available_azs[:count])
-            return azs
-
-    def get_single_az(self, region, az_id):
-        """
-        Get a single valid AZ for the region.
-
-        The number passed indicates the ordinal representing the AZ returned.
-        For instance, in the 'us-east-1' region, providing '1' as the ID would
-        return 'us-east-1a', providing '2' would return 'us-east-1b', etc.
-
-        In this way it's possible to get availability zones that are
-        guaranteed to be different without knowing their names.
-
-        :param region: Region of the availability zone
-        :param az_id: 0-based ordinal of the AZ to get
-
-        :return: The requested availability zone of the specified region.
-        """
-
-        regional_azs = self.get_available_azs(region, az_id)
-
-        return regional_azs.split(',')[-1]
+    def remove_public_acl_from_bucket(self):
+        if self.public_s3_bucket:
+            print(PrintMsg.INFO + "The staging bucket [{}] should be only required during cfn bootstrapping. Removing public permission as they are no longer needed!".format(self.s3bucket))
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            s3_client.put_bucket_acl(Bucket=self.s3bucket, ACL='private')
 
     def get_content(self, bucket, object_key):
         """
@@ -646,85 +606,6 @@ class TaskCat(object):
         print('\n')
         return True
 
-    def genpassword(self, pass_length, pass_type):
-        """
-        Returns a password of given length and type.
-
-        :param pass_length: Length of the desired password
-        :param pass_type: Type of the desired password - String only OR Alphanumeric
-            * A = AlphaNumeric, Example 'vGceIP8EHC'
-        :return: Password of given length and type
-        """
-        if self.verbose:
-            print(PrintMsg.DEBUG + "Auto generating password")
-            print(PrintMsg.DEBUG + "Pass size => {0}".format(pass_length))
-
-        password = []
-        numbers = "1234567890"
-        lowercase = "abcdefghijklmnopqrstuvwxyz"
-        uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        specialchars = "!#$&{*:[=,]-_%@+"
-
-        # Generates password string with:
-        # lowercase,uppercase and numeric chars
-        if pass_type == 'A':
-            print(PrintMsg.DEBUG + "Pass type => {0}".format('alpha-numeric'))
-
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-
-        # Generates password string with:
-        # lowercase,uppercase, numbers and special chars
-        elif pass_type == 'S':
-            print(PrintMsg.DEBUG + "Pass type => {0}".format('specialchars'))
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-                password.append(random.choice(specialchars))
-        else:
-            # If no passtype is defined (None)
-            # Defaults to alpha-numeric
-            # Generates password string with:
-            # lowercase,uppercase, numbers and special chars
-            print(PrintMsg.DEBUG + "Pass type => default {0}".format('alpha-numeric'))
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-
-        if len(password) > pass_length:
-            password = password[:pass_length]
-
-        return ''.join(password)
-
-    def generate_random(self, gtype, length):
-        random_string = []
-        numbers = "1234567890"
-        lowercase = "abcdefghijklmnopqrstuvwxyz"
-        if gtype == 'alpha':
-            print(PrintMsg.DEBUG + "Random String => {0}".format('alpha'))
-
-            while len(random_string) < length:
-                random_string.append(random.choice(lowercase))
-
-        # Generates password string with:
-        # lowercase,uppercase, numbers and special chars
-        elif gtype == 'number':
-            print(PrintMsg.DEBUG + "Random String => {0}".format('numeric'))
-            while len(random_string) < length:
-                random_string.append(random.choice(numbers))
-
-        return ''.join(random_string)
-
-    def generate_uuid(self, uuid_type):
-        if uuid_type is 'A':
-            return str(uuid.uuid4())
-        else:
-            return str(uuid.uuid4())
-
     def generate_input_param_values(self, s_parms, region):
         """
         Given a cloudformation input parameter file as JSON, this function generates the values
@@ -794,231 +675,7 @@ class TaskCat(object):
         #
         # Example with 5 minute expiry:
         # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
-
-        for _parameters in s_parms:
-            for _ in _parameters:
-
-                param_key = _parameters['ParameterKey']
-                param_value = _parameters['ParameterValue']
-                self.set_parameter(param_key, param_value)
-
-                # Determines the size of the password to generate
-                count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
-
-                # Determines the type of password to generate, partially. Additional computation
-                # is required on the result returned by the matching string.
-                gentype_re = re.compile(
-                    '(?<=_genpass_)((\d+)(\w)(\]))', re.IGNORECASE)
-
-                # Determines if _genpass has been requested
-                genpass_re = re.compile(
-                    '\$\[\w+_genpass?(\w)_\d{1,2}\w?]', re.IGNORECASE)
-
-                # Determines if random string  value was requested
-                gen_string_re = re.compile(
-                    '\$\[taskcat_random-string]', re.IGNORECASE)
-
-                # Determines if random number value was requested
-                gen_numbers_re = re.compile(
-                    '\$\[taskcat_random-numbers]', re.IGNORECASE)
-
-                # Determines if autobucket value was requested
-                autobucket_re = re.compile('\$\[taskcat_autobucket]', re.IGNORECASE)
-
-                # Determines if _genaz has been requested. This can return single or multiple AZs.
-                genaz_re = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
-
-                # Determines if single AZ has been requested. This is added to support legacy templates
-                genaz_single_re = re.compile('\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]', re.IGNORECASE)
-
-                # Determines if uuid has been requested
-                genuuid_re = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default KeyPair name has been requested
-                getkeypair_re = re.compile('\$\[\w+_getkeypair]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default license bucket name has been requested
-                getlicensebucket_re = re.compile('\$\[\w+_getlicensebucket]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default media bucket name has been requested
-                getmediabucket_re = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
-
-                # Determines if license content has been requested
-                licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
-
-                # Determines if a presigned URL has been requested.
-                presignedurl_re = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
-
-                # Determines if s3 replacement was requested
-                gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
-                geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
-
-                # Determines if getval has been requested (Matches parameter key)
-                getval_re = re.compile('(?<=._getval_)(\w+)(?=]$)', re.IGNORECASE)
-
-                # If Number is found as Parameter Value convert it to String ( ex: 1 to "1")
-                if type(param_value) == int:
-                    param_value = str(param_value)
-                    if self.verbose:
-                        (PrintMsg.INFO + "Converting byte values in stack input file({}) to [string value]".format(
-                            self.get_parameter_file()))
-                    _parameters['ParameterValue'] = param_value
-
-                if gen_string_re.search(param_value):
-                    random_string_pattern = self.regxfind(gen_string_re, param_value)
-                    param_value = gen_string_re.sub(self.generate_random('alpha', 20), param_value)
-                    if self.verbose:
-                        print("{}Generating random string for {}".format(PrintMsg.DEBUG, random_string_pattern))
-                    _parameters['ParameterValue'] = param_value
-
-                if gen_numbers_re.search(param_value):
-                    random_numbers_pattern = self.regxfind(gen_numbers_re, param_value)
-                    param_value = gen_numbers_re.sub(self.generate_random('number', 20), param_value)
-                    if self.verbose:
-                        print("{}Generating numeric string for {}".format(PrintMsg.DEBUG, random_numbers_pattern))
-                    _parameters['ParameterValue'] = param_value
-
-                if genuuid_re.search(param_value):
-                    uuid_string = self.regxfind(genuuid_re, param_value)
-                    param_value = genuuid_re.sub(self.generate_uuid('A'), param_value)
-                    if self.verbose:
-                        print("{}Generating random uuid string for {}".format(PrintMsg.DEBUG, uuid_string))
-                    _parameters['ParameterValue'] = param_value
-
-                if autobucket_re.search(param_value):
-                    bkt = self.regxfind(autobucket_re, param_value)
-                    param_value = autobucket_re.sub(self.get_s3bucket(), param_value)
-                    if self.verbose:
-                        print("{}Setting value to {}".format(PrintMsg.DEBUG, bkt))
-                    _parameters['ParameterValue'] = param_value
-
-                if gets3replace.search(param_value):
-                    url = self.regxfind(geturl_re, param_value)
-                    param_value = gets3replace.sub(self.get_s3contents(url),param_value)
-                    if self.verbose:
-                        print("{}Raw content of url {}".format(PrintMsg.DEBUG, url))
-                    _parameters['ParameterValue'] = param_value
-
-                if getkeypair_re.search(param_value):
-                    keypair = self.regxfind(getkeypair_re, param_value)
-                    param_value = getkeypair_re.sub('cikey',param_value)
-                    if self.verbose:
-                        print("{}Generating default Keypair {}".format(PrintMsg.DEBUG, keypair))
-                    _parameters['ParameterValue'] = param_value
-
-                if getlicensebucket_re.search(param_value):
-                    licensebucket = self.regxfind(getlicensebucket_re, param_value)
-                    param_value = 'override_this'
-                    if self.verbose:
-                        print("{}Generating default license bucket {}".format(PrintMsg.DEBUG, licensebucket))
-                    _parameters['ParameterValue'] = param_value
-
-                if getmediabucket_re.search(param_value):
-                    media_bucket = self.regxfind(getmediabucket_re, param_value)
-                    param_value = 'override_this'
-                    if self.verbose:
-                        print("{}Generating default media bucket {}".format(PrintMsg.DEBUG, media_bucket))
-                    _parameters['ParameterValue'] = param_value
-
-                if licensecontent_re.search(param_value):
-                    license_str = self.regxfind(licensecontent_re, param_value)
-                    license_bucket = license_str.split('/')[1]
-                    licensekey = '/'.join(license_str.split('/')[2:])
-                    param_value = self.get_content(license_bucket, licensekey)
-                    if self.verbose:
-                        print("{}Getting license content for {}/{}".format(PrintMsg.DEBUG, license_bucket, licensekey))
-                    _parameters['ParameterValue'] = param_value
-
-                if presignedurl_re.search(param_value):
-                    if len(param_value) < 2:
-                        print("{}Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.".format(D))
-                        print("{}Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT".format(D))
-                        quit(1)
-                    paramsplit = self.regxfind(presignedurl_re, param_value).split(',')[1:]
-                    url_bucket, url_key = paramsplit[:2]
-                    if len(paramsplit) == 3:
-                        url_expire_seconds = paramsplit[2]
-                    else:
-                        url_expire_seconds = 3600
-                    if self.verbose:
-                        print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(PrintMsg.DEBUG,
-                                                                                                       url_bucket,
-                                                                                                       url_key,
-                                                                                                       url_expire_seconds))
-                    s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-                    param_value = s3_client.generate_presigned_url(
-                        'get_object',
-                        Params={'Bucket': url_bucket, 'Key': url_key},
-                        ExpiresIn=int(url_expire_seconds))
-                    _parameters['ParameterValue'] = param_value
-
-                # Autogenerated value to password input in runtime
-                if genpass_re.search(param_value):
-                    passlen = int(
-                        self.regxfind(count_re, param_value))
-                    gentype = self.regxfind(
-                        gentype_re, param_value)
-                    # Additional computation to identify if the gentype is one of the desired values.
-                    # Sample gentype values would be '8A]' or '24S]' or '2]'
-                    # To get the correct gentype, get 2nd char from the last and check if its A or S
-                    gentype = gentype[-2]
-                    if gentype in ('a', 'A', 's', 'S'):
-                        gentype = gentype.upper()
-                    else:
-                        gentype = None
-                    if not gentype:
-                        # Set default password type
-                        # A value of PrintMsg.DEBUG will generate a simple alpha
-                        # aplha numeric password
-                        gentype = 'D'
-
-                    if passlen:
-                        if self.verbose:
-                            print("{}AutoGen values for {}".format(PrintMsg.DEBUG, param_value))
-                        param_value = self.genpassword(
-                            passlen, gentype)
-                        _parameters['ParameterValue'] = param_value
-
-                if genaz_re.search(param_value):
-                    numazs = int(
-                        self.regxfind(count_re, param_value))
-                    if numazs:
-                        if self.verbose:
-                            print(PrintMsg.DEBUG + "Selecting availability zones")
-                            print(PrintMsg.DEBUG + "Requested %s az's" % numazs)
-
-                        param_value = self.get_available_azs(
-                            region,
-                            numazs)
-                        _parameters['ParameterValue'] = param_value
-                    else:
-                        print(PrintMsg.INFO + "$[taskcat_genaz_(!)]")
-                        print(PrintMsg.INFO + "Number of az's not specified!")
-                        print(PrintMsg.INFO + " - (Defaulting to 1 az)")
-                        param_value = self.get_available_azs(
-                            region,
-                            1)
-                        _parameters['ParameterValue'] = param_value
-
-                if genaz_single_re.search(param_value):
-                    re_match = genaz_single_re.search(param_value)
-                    az_id = int(re_match.group('az_id'))
-
-                    print(PrintMsg.DEBUG + "Requested 1 az")
-                    print(PrintMsg.DEBUG + "Selecting availability zone %s" % az_id)
-                    param_value = self.get_single_az(region, az_id)
-                    _parameters['ParameterValue'] = param_value
-
-                self.set_parameter(param_key, param_value)
-
-                if getval_re.search(param_value):
-                    requested_key = self.regxfind(getval_re, param_value)
-                    print("{}Getting previously assigned value for {}".format(PrintMsg.DEBUG, requested_key))
-                    param_value = self.get_parameter(requested_key)
-                    print("{}Loading {} as value for {} ".format(PrintMsg.DEBUG, param_value, requested_key))
-                    _parameters['ParameterValue'] = param_value
-
-        return s_parms
+        return ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region, verbose=True).results
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
@@ -1109,9 +766,10 @@ class TaskCat(object):
                 except TaskCatException:
                     raise
                 except Exception as e:
-                    if self.verbose:
-                        print(PrintMsg.ERROR + str(e))
-                    raise TaskCatException("Cannot launch %s" % self.get_template_file())
+                    raise
+#                    if self.verbose:
+#                        print(PrintMsg.ERROR + str(e))
+#                    raise TaskCatException("Cannot launch %s" % self.get_template_file())
 
             testdata_list.append(testdata)
         print('\n')
@@ -1326,6 +984,7 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+        self.remove_public_acl_from_bucket()
 
         docleanup = self.get_docleanup()
         if self.verbose:
