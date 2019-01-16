@@ -49,7 +49,7 @@ def main():
     # Load yaml into local taskcat config
             with open(tcat_instance.get_config(), 'r') as cfg:
                 taskcat_cfg = yaml.safe_load(cfg.read())
-            project_path = os.path.abspath(args.config_yml).split('ci/')[0][:-1]
+            project_path = os.path.abspath(args.config_yml).rsplit('ci/',1)[0][:-1]
             tcat_instance.set_config(args.config_yml)
             tcat_cfg_glbl = taskcat_cfg['global']
             if 'qsname' in tcat_cfg_glbl.keys():
