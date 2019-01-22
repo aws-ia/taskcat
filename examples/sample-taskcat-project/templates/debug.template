@@ -47,6 +47,11 @@
             "Description": "Test of the global parameter override functionality",
             "Type": "String",
             "Default": "override"
+        },
+        "LicenseContentTest": {
+            "Description": "Test the Get License Content functionality.",
+            "Type": "String",
+            "Default": "AWS::NoValue"
         }
     },
     "Rules": {
@@ -81,6 +86,38 @@
                         ]
                     },
                     "AssertDescription": "Param key 'GlobalOverrideTest' cannot equal 'override'"
+                }
+            ]
+        },
+        "VerifyLicenseContent": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Equals": [
+                            {
+                                "Ref": "LicenseContentTest"
+                            },
+                            "pass"
+                        ]
+                    },
+                    "AssertDescription": "Param key 'LicenseContentTest' did not pass."
+                }
+            ]
+        },
+        "VerifyPasswordsMatch": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::Equals": [
+                            {
+                                "Ref": "PasswordA"
+                            },
+                            {
+                                "Ref": "PasswordAConfirm"
+                            }
+                        ]
+                    },
+                    "AssertionDescription": "Params PasswordA and PasswordAConfirm must match"
                 }
             ]
         }
