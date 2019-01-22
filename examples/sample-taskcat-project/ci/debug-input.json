@@ -46,5 +46,9 @@
     {
         "ParameterKey":"GlobalOverrideTest",
         "ParameterValue":"override"
+    },
+    {
+        "ParameterKey":"LicenseContentTest",
+        "ParameterValue": "$[taskcat_getlicensecontent]/aws-quickstart-datasets/taskcat-license-param-test/example.txt"
     }
 ]
