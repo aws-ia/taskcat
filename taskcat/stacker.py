@@ -687,6 +687,7 @@ class TaskCat(object):
 
         """
         testdata_list = []
+        self.set_capabilities('CAPABILITY_AUTO_EXPAND')
         self.set_capabilities('CAPABILITY_NAMED_IAM')
         for test in test_list:
             testdata = TestData()
@@ -1363,7 +1364,7 @@ class TaskCat(object):
         ]
         try:
             if os.path.isfile(yaml_file):
-                print(self.nametag + " :Reading Config form: {0}".format(yaml_file))
+                print(self.nametag + " :Reading Config from: {0}".format(yaml_file))
                 with open(yaml_file, 'r') as checkyaml:
                     cfg_yml = yaml.safe_load(checkyaml.read())
                     for key in required_global_keys:
