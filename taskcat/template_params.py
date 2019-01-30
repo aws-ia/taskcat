@@ -324,7 +324,7 @@ class ParamGen:
             param_value = self.get_content(license_bucket, licensekey)
             if self.verbose:
                 print("{}Getting license content for {}/{}".format(PrintMsg.DEBUG, license_bucket, licensekey))
-            self._regex_replace_param_value('*', param_value)
+            self._regex_replace_param_value(re.compile('^.*$'), param_value)
 
     def _get_presigned_url_wrapper(self, presigned_url_regex):
         if presigned_url_regex.search(self.param_value):
