@@ -13,6 +13,7 @@ import fnmatch
 import os
 import time
 from functools import partial
+from taskcat.common_utils import get_file_list
 from multiprocessing.dummy import Pool as ThreadPool
 from taskcat.colored_console import PrintMsg
 from boto3.exceptions import S3UploadFailedError
@@ -22,7 +23,8 @@ from taskcat.exceptions import TaskCatException
 class S3Sync(object):
     """Syncronizes local project files with S3 based on checksums.
 
-    Excludes hidden files, unpackaged lambda source and taskcat /ci/ files.
+    Excludes hidden files, unpackaged lambda source and other paths and
+    files matching the optional "exclude" parameter(s).
     Uses the Etag as an md5 which introduces the following limitations
         * Uses undocumented etag algorithm for multipart uploads
         * Does not work wil files uploaded in the console that use SSE encryption
@@ -30,25 +32,28 @@ class S3Sync(object):
     Does not support buckets with versioning enabled
     """
 
-    exclude_files = [
-        ".*",
+    hidden_files_and_folders =  "*/.*"
+    lambdas_source = "functions/source/"
+
+    exclude_defaults = [
+        hidden_files_and_folders,
+        lambdas_source,
         "*.md"
-    ]
-    exclude_path_prefixes = [
-        "functions/source/",
-        "."
     ]
 
     exclude_remote_path_prefixes = []
 
-    def __init__(self, s3_client, bucket, prefix, path, acl="private"):
+    def __init__(self, s3_client, bucket, prefix, path, excludes, acl="private"):
         """Syncronizes local file system with an s3 bucket/prefix
 
         """
+        for exclude in S3Sync.exclude_defaults:
+            excludes.append(exclude)
+
         if prefix != "" and not prefix.endswith('/'):
             prefix = prefix + '/'
         self.s3_client = s3_client
-        fl = self._get_local_file_list(path)
+        fl = self._get_local_file_list(path, excludes)
         s3fl = self._get_s3_file_list(bucket, prefix)
         self._sync(fl, s3fl, bucket, prefix, acl=acl)
         return
@@ -72,38 +77,17 @@ class S3Sync(object):
         digests_md5 = hashlib.md5(digests)
         return '"{}-{}"'.format(digests_md5.hexdigest(), len(md5s))
 
-    def _get_local_file_list(self, path, include_checksums=True):
-        file_list = {}
-        # get absolute local path
+    def _get_local_file_list(self, path, excludes, include_checksums=True):
         path = os.path.abspath(os.path.expanduser(path))
-        # recurse through directories
-        for root, dirs, files in os.walk(path):
-            relpath = os.path.relpath(root, path) + "/"
-            exclude_path = False
-            # relative path should be blank if there are no sub directories
-            if relpath == './':
-                relpath = ""
-            # exclude defined paths
-            for p in S3Sync.exclude_path_prefixes:
-                if relpath.startswith(p):
-                    exclude_path = True
-                    break
-            if not exclude_path:
-                for file in files:
-                    exclude = False
-                    # exclude defined filename patterns
-                    for p in S3Sync.exclude_files:
-                        if fnmatch.fnmatch(file, p):
-                            exclude = True
-                            break
-                    if not exclude:
-                        full_path = root + "/" + file
-                        if include_checksums:
-                            # get checksum
-                            checksum = self._hash_file(full_path)
-                        else:
-                            checksum = ""
-                        file_list[relpath + file] = [full_path, checksum]
+        file_list = {}
+        for file in get_file_list(os.path.relpath(path, '.'), excludes):
+            fullpath = os.path.abspath(file)
+            relpath = os.path.relpath(file, path)
+            if include_checksums:
+                checksum = self._hash_file(fullpath)
+            else:
+                checksum = ""
+            file_list[relpath] = [fullpath, checksum]
         return file_list
 
     def _get_s3_file_list(self, bucket, prefix):

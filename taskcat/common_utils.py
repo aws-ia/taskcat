@@ -1,3 +1,4 @@
+import fnmatch
 import re
 import sys
 import os
@@ -50,6 +51,31 @@ def exit0(msg=''):
     if msg:
         print(PrintMsg.INFO + msg)
     sys.exit(0)
+
+
+def normalize_paths(paths):
+  result = set()
+  for path in paths:
+    if(os.path.isdir(path)):
+      if not path.startswith('./'):
+        path = './' + path
+      if not path.endswith('*'):
+        path = path + '*'
+    result.add(path)
+  return list(result)
+
+
+def get_file_list(basepath, exclusions):
+  files = set()
+  to_exclude = set()
+  for root, dirnames, filenames in os.walk(basepath):
+    for filename in filenames:
+      files.add(os.path.join(root, filename))
+
+  for exclusion in normalize_paths(exclusions):
+    for filename in fnmatch.filter(list(files), exclusion):
+      to_exclude.add(filename)
+  return [x for x in files if x not in to_exclude]
 
 
 def make_dir(path, ignore_exists=True):

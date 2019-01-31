@@ -195,8 +195,9 @@ class TaskCat(object):
         self._max_bucket_name_length = 63
         self.lambda_build_only = False
         self.one_or_more_tests_failed = False
+        self.exclude = []
 
-        # SETTERS ANPrintMsg.DEBUG GETTERS
+    # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
 
     def set_project_name(self, project_name):
@@ -265,6 +266,9 @@ class TaskCat(object):
 
     def set_parameter_file(self, parameter):
         self._parameter_file = parameter
+
+    def get_exclude(self):
+        return self.exclude
 
     def get_parameter_file(self):
         return self._parameter_file
@@ -457,7 +461,7 @@ class TaskCat(object):
                     Tagging={"TagSet": self.tags}
                 )
 
-        S3Sync(s3_client, self.get_s3bucket(), self.get_project_name(), self.get_project_path(), bucket_or_object_acl)
+        S3Sync(s3_client, self.get_s3bucket(), self.get_project_name(), self.get_project_path(), self.get_exclude(), bucket_or_object_acl)
         self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
         if self.upload_only:
             exit0("Upload completed successfully")
@@ -1546,6 +1550,12 @@ class TaskCat(object):
             '--lambda-build-only',
             action='store_true',
             help="create lambda zips and exit")
+        parser.add_argument(
+            '-e',
+            '--exclude',
+            action='append',
+            help="Exclude directory or files from s3 sync"
+        )
 
         args = parser.parse_args()
 
@@ -1571,6 +1581,11 @@ class TaskCat(object):
 
         try:
             self.tags = args.tags
+        except AttributeError:
+            pass
+
+        try:
+            self.exclude = args.exclude
         except AttributeError:
             pass
 
