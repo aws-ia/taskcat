@@ -558,11 +558,15 @@ class TaskCat(object):
 
     def extract_template_parameters(self):
         """
-        Returns a dictionary of the parameters in the template entrypoint.
+        Returns a dictionary of the parameters in the template entrypoint, if it exist.
+        Otherwise, return empty {} dictionary if there are no parameters in the template.
 
         :return: list of parameters for the template.
         """
-        return self.template_data['Parameters'].keys()
+        if 'Parameters' in self.template_data:
+            return self.template_data['Parameters'].keys()
+        else:
+            return {}
 
     def validate_template(self, taskcat_cfg, test_list):
         """
