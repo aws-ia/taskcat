@@ -67,15 +67,13 @@ def normalize_paths(paths):
 
 def get_file_list(basepath, exclusions):
   files = set()
-  to_exclude = set()
   for root, dirnames, filenames in os.walk(basepath):
-    for filename in filenames:
-      files.add(os.path.join(root, filename))
-
-  for exclusion in normalize_paths(exclusions):
-    for filename in fnmatch.filter(list(files), exclusion):
-      to_exclude.add(filename)
-  return [x for x in files if x not in to_exclude]
+    filepaths = [os.path.join(root, filename) for filename in filenames]
+    to_exclude = set()
+    for exclusion in normalize_paths(exclusions):
+      to_exclude.update(fnmatch.filter(filepaths, exclusion))
+    files.update([x for x in filepaths if x not in to_exclude])
+  return list(files)
 
 
 def make_dir(path, ignore_exists=True):
