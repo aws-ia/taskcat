@@ -1,4 +1,3 @@
-import fnmatch
 import re
 import sys
 import os

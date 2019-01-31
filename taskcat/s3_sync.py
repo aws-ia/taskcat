@@ -104,8 +104,6 @@ class S3Sync(object):
                         else:
                             checksum = ""
                         file_list[relpath + file] = [full_path, checksum]
-        print(len(file_list))
-        sys.exit(1)
         return file_list
 
     def _get_s3_file_list(self, bucket, prefix):
