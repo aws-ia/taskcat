@@ -1564,7 +1564,8 @@ class TaskCat(object):
             '-e',
             '--exclude',
             action='append',
-            help="Exclude directory or files from s3 sync"
+            help="Exclude directories or files from s3 sync\n"
+                 "Example: --exclude foo --exclude bar --exclude *.txt"
         )
 
         args = parser.parse_args()
