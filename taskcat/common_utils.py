@@ -53,29 +53,6 @@ def exit0(msg=''):
     sys.exit(0)
 
 
-def normalize_paths(paths):
-  result = set()
-  for path in paths:
-    if(os.path.isdir(path)):
-      if not path.startswith('./'):
-        path = './' + path
-      if not path.endswith('*'):
-        path = path + '*'
-    result.add(path)
-  return list(result)
-
-
-def get_file_list(basepath, exclusions):
-  files = set()
-  for root, dirnames, filenames in os.walk(basepath):
-    filepaths = [os.path.join(root, filename) for filename in filenames]
-    to_exclude = set()
-    for exclusion in normalize_paths(exclusions):
-      to_exclude.update(fnmatch.filter(filepaths, exclusion))
-    files.update([x for x in filepaths if x not in to_exclude])
-  return list(files)
-
-
 def make_dir(path, ignore_exists=True):
     path = os.path.abspath(path)
     if ignore_exists and os.path.isdir(path):
