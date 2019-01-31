@@ -1596,7 +1596,8 @@ class TaskCat(object):
             pass
 
         try:
-            self.exclude = args.exclude
+            if args.exclude is not None:
+                self.exclude = args.exclude
         except AttributeError:
             pass
 
