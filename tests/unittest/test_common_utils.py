@@ -67,11 +67,11 @@ class TestGetFileList(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_get_exclude_normalized_folder_with_wildcard_and_hidden_files(self):
-        result = execute(['./foo/baz/*', '*/.*'], [True, False])
+        result = execute(['./foo/baz/*', '*/.*'], [False, False])
         expected = ['./foo/bar']
         self.assertEqual(result, expected)
 
     def test_get_exclude_folder_and_js_files(self):
-        result = execute(['foo/.git*', '*.js'], [True, False])
+        result = execute(['foo/.git*', '*.js'], [False, False])
         expected = ['./foo/bar', './foo/baz/.hidden', './foo/baz/b.yaml', './foo/baz/c.txt']
         self.assertEqual(result, expected)
