@@ -22,14 +22,15 @@ setup(
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
     version = '0.9.0',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Testing',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X '
     ],
     scripts=[
         'bin/taskcat-v9'
@@ -40,4 +41,3 @@ setup(
     include_package_data=True
 
 )
-
