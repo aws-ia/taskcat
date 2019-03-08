@@ -8,7 +8,7 @@ or want the bleeding edge then this repo is what you seek.
 
 ## Install
 
-Can be runn side-by-side with stable taskcat, as it has a different package name and binary (`taskcat-v9`).
+Can be installed side-by-side with stable taskcat, as it has a different package name and binary (`taskcat-v9`).
 
 recommend using pyenv and/or virtualenv to ensure you're installing into a clean environment
 
