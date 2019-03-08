@@ -52,36 +52,28 @@ def main():
             # Load yaml into local taskcat config
             with open(tcat_instance.get_config(), 'r') as cfg:
                 taskcat_cfg = yaml.safe_load(cfg.read())
-            cfg.close()
-
-            # If taskcat is being executed from the project root folder, cd out and update config path
-            try:
-                if os.path.basename(os.path.abspath(os.path.curdir)) == taskcat_cfg['global']['qsname']:
-                    config_path = tcat_instance.get_config()[2:] if tcat_instance.get_config().startswith(
-                        "./") else tcat_instance.get_config()
-                    os.chdir(os.path.abspath("../"))
-                    tcat_instance.set_config("%s/%s" % (taskcat_cfg['global']['qsname'], config_path))
-            except Exception as e:
-                log.error(str(e))
-            project_path = '/'.join(tcat_instance.get_config().split('/')[0:-3])
-            project_name = '/'.join(tcat_instance.get_config().split('/')[-3:-2])
+            project_path = os.path.abspath(args.config_yml).rsplit('ci/',1)[0][:-1]
+            tcat_instance.set_config(args.config_yml)
+            tcat_cfg_glbl = taskcat_cfg['global']
+            if 'qsname' in tcat_cfg_glbl.keys():
+                project_name = tcat_cfg_glbl['qsname']
+            elif 'project' in tcat_cfg_glbl.keys():
+                project_name = tcat_cfg_glbl['project']
             if "package-lambda" not in taskcat_cfg['global']:
                 taskcat_cfg['global']["package-lambda"] = False
             if tcat_instance.lambda_build_only and not taskcat_cfg['global']["package-lambda"]:
-                exit1("Lambda build not enabled for project. Add package-lambda: true to config.yaml global section")
+                exit1("Lambda build not enabled for project. Add package-lambda: true to taskcat.yaml global section")
             elif taskcat_cfg['global']["package-lambda"]:
                 try:
-                    lambda_path = os.path.abspath(project_path) + "/" + project_name + "/functions/source"
+                    lambda_path = project_path + "/functions/source"
                     if os.path.isdir(lambda_path):
                         LambdaBuild(lambda_path)
                 except Exception as e:
-                    log.error("Zipping lambda source failed: %s" % e)
+                    print("ERROR: Zipping lambda source failed: %s" % e)
                 if tcat_instance.lambda_build_only:
                     exit0("Lambda source zipped successfully")
             try:
-                if project_path:
-                    os.chdir(os.path.abspath(project_path))
-                Lint(config=tcat_instance.get_config(), path=project_name).output_results()
+                Lint(config=tcat_instance.get_config(), path=project_path).output_results()
             except taskcat.exceptions.TaskCatException as e:
                 log.error(str(e))
                 exit1(str(e))
@@ -90,6 +82,8 @@ def main():
                 traceback.print_exc()
             if args.lint:
                 exit0("Linting completed")
+            tcat_instance.set_project_name(project_name)
+            tcat_instance.set_project_path(project_path)
             tcat_instance.stage_in_s3(taskcat_cfg)
             tcat_instance.validate_template(taskcat_cfg, test_list)
             tcat_instance.validate_parameters(taskcat_cfg, test_list)
@@ -98,9 +92,10 @@ def main():
             tcat_instance.get_stackstatus(testdata, 5)
             tcat_instance.createreport(testdata, 'index.html')
             tcat_instance.cleanup(testdata, 5)
-    except taskcat.TaskCatException as e:
-        log.error(str(e))
-        exit1(str(e))
+            if tcat_instance.one_or_more_tests_failed:
+                exit1("One or more tests failed. See the report for details.")
+    except taskcat.exceptions.TaskCatException as e:
+        exit1("Unexpected error: %s" % str(e))
 
 
 def _parse_args():
