@@ -428,12 +428,12 @@ class TaskCat(object):
                     Tagging={"TagSet": self.tags}
                 )
 
-        if os.path.isdir(self.get_project()):
-            start_location = "{}/{}".format(".", self.get_project())
+        if os.path.isdir(self.get_project_name()):
+            start_location = "{}/{}".format(".", self.get_project_name())
         else:
             log.info('''\t\t Hint: The name specfied as value of qsname ({})
-                    must match the root directory of your project'''.format(self.get_project()))
-            log.error("!Cannot find directory [{0}] in {1}".format(self.get_project(), os.getcwd()))
+                    must match the root directory of your project'''.format(self.get_project_name()))
+            log.error("!Cannot find directory [{0}] in {1}".format(self.get_project_name(), os.getcwd()))
             raise TaskCatException("Please cd to where you project is located")
 
         for exclude in self.get_exclude():
