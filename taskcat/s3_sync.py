@@ -193,4 +193,3 @@ class S3Sync(object):
                 if retry == 5 or (type(e) == S3UploadFailedError and '(AccessDenied)' in str(e)):
                     raise TaskCatException("Failed to upload to S3")
                 time.sleep(retry * 2)
-

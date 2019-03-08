@@ -188,6 +188,13 @@ def _parse_args():
         '--lambda-build-only',
         action='store_true',
         help="create lambda zips and exit")
+    parser.add_argument(
+        '-e',
+        '--exclude',
+        action='append',
+        help="Exclude directories or files from s3 sync\n"
+             "Example: --exclude foo --exclude bar --exclude *.txt"
+    )
 
     args = parser.parse_args()
 

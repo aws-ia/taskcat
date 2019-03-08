@@ -85,12 +85,13 @@ class TaskCat(object):
 
     def __init__(self, args, nametag='[taskcat]'):
         self.nametag = '{1}{0}{2}'.format(nametag, PrintMsg.name_color, PrintMsg.rst_color)
-        self.project = None
+        self._project_name = None
+        self._project_path = None
         self.owner = None
         self.banner = None
         self.capabilities = []
         self.verbose = False
-        self.config = 'config.yml'
+        self.config = 'taskcat.yml'
         self.test_region = []
         self.s3bucket = None
         self.s3bucket_type = None
@@ -150,20 +151,35 @@ class TaskCat(object):
         if args.no_cleanup:
             self.run_cleanup = False
 
+        try:
+            if args.exclude is not None:
+                self.exclude = args.exclude
+        except AttributeError:
+            ## TODO: Figure out why we're swallowing an exception with 0 feedback here
+            pass
+
         if args.public_s3_bucket:
             self.public_s3_bucket = True
 
         if args.no_cleanup_failed:
             self.retain_if_failed = True
+        self.one_or_more_tests_failed = False
+        self.exclude = []
 
-        # SETTERS ANPrintMsg.DEBUG GETTERS
+    # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
 
-    def set_project(self, project):
-        self.project = project
+    def set_project_name(self, project_name):
+        self._project_name = project_name
 
-    def get_project(self):
-        return self.project
+    def get_project_name(self):
+        return self._project_name
+
+    def get_project_path(self):
+        return self._project_path
+
+    def set_project_path(self, path):
+        self._project_path = path
 
     def set_owner(self, owner):
         self.owner = owner
@@ -219,6 +235,9 @@ class TaskCat(object):
     def set_parameter_file(self, parameter):
         self._parameter_file = parameter
 
+    def get_exclude(self):
+        return self.exclude
+
     def get_parameter_file(self):
         return self._parameter_file
 
@@ -254,16 +273,15 @@ class TaskCat(object):
             dict_squash_list.append(_homedir_override_json)
 
         # Now look for per-project override uploaded to S3.
-        override_file_key = "{}/ci/taskcat_project_override.json".format(self.project)
+        local_override_file_path = "{}/ci/taskcat_project_override.json".format(self.get_project_path())
         try:
             # Intentional duplication of self.get_content() here, as I don't want to break that due to
             # tweaks necessary here.
-            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-            dict_object = s3_client.get_object(Bucket=self.s3bucket, Key=override_file_key)
-            content = dict_object['Body'].read().decode('utf-8').strip()
+            with open(local_override_file_path, 'r') as f:
+                content = f.read()
             _obj = json.loads(content)
             dict_squash_list.append(_obj)
-            log.debug("Values loaded from {}/ci/taskcat_project_override.json".format(self.project))
+            log.debug("Values loaded from {}".format(local_override_file_path))
             log.debug(str(_obj))
         except ValueError:
             raise TaskCatException("Unable to parse JSON (taskcat project overrides)")
@@ -282,10 +300,8 @@ class TaskCat(object):
                 if key in param_index.keys():
                     idx = param_index[key]
                     original_keys[idx] = override_pd
-                elif key in template_params:
-                    original_keys.append(override_pd)
                 else:
-                    log.info("Cannot override [{}]! It's not present within the template!".format(key))
+                    log.info("Cannot apply overrides for the [{}] Parameter. You did not include this parameter in [{}]".format(key, self.get_parameter_file()))
 
         # check if s3 bucket and QSS3BucketName param match. fix if they dont.
         bucket_name = self.get_s3bucket()
@@ -359,14 +375,13 @@ class TaskCat(object):
         else:
             bucket_or_object_acl = 'bucket-owner-read'
         s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-        self.set_project(taskcat_cfg['global']['qsname'])
 
         if 's3bucket' in taskcat_cfg['global'].keys():
             self.set_s3bucket(taskcat_cfg['global']['s3bucket'])
             self.set_s3bucket_type('defined')
             log.info("Staging Bucket => " + self.get_s3bucket())
             if len(self.get_s3bucket()) > self._max_bucket_name_length:
-                raise TaskCatException("The bucket name you provided is greater than 63 characters.")
+                raise TaskCatException("The bucket name you provided is greater than {} characters.".format(self._max_bucket_name_length))
             try:
                 _ = s3_client.list_objects(Bucket=self.get_s3bucket())
             except s3_client.exceptions.NoSuchBucket:
@@ -374,7 +389,7 @@ class TaskCat(object):
             except Exception:
                 raise
         else:
-            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project() + "-" + self._jobid[:8]
+            auto_bucket = 'taskcat-' + self.stack_prefix + '-' + self.get_project_name() + "-" + self._jobid[:8]
             auto_bucket = auto_bucket.lower()
             if len(auto_bucket) > self._max_bucket_name_length:
                 auto_bucket = auto_bucket[:self._max_bucket_name_length]
@@ -421,8 +436,15 @@ class TaskCat(object):
             log.error("!Cannot find directory [{0}] in {1}".format(self.get_project(), os.getcwd()))
             raise TaskCatException("Please cd to where you project is located")
 
-        S3Sync(s3_client, self.get_s3bucket(), self.get_project(), start_location, bucket_or_object_acl)
-        self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project()
+        for exclude in self.get_exclude():
+            if(os.path.isdir(exclude)):
+                S3Sync.exclude_path_prefixes.append(exclude)
+            else:
+                S3Sync.exclude_files.append(exclude)
+
+
+        S3Sync(s3_client, self.get_s3bucket(), self.get_project_name(), self.get_project_path(), bucket_or_object_acl)
+        self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
         if self.upload_only:
             exit0("Upload completed successfully")
 
@@ -449,6 +471,12 @@ class TaskCat(object):
         else:
             azs = ','.join(available_azs[:count])
             return azs
+
+    def remove_public_acl_from_bucket(self):
+        if self.public_s3_bucket:
+            print(PrintMsg.INFO + "The staging bucket [{}] should be only required during cfn bootstrapping. Removing public permission as they are no longer needed!".format(self.s3bucket))
+            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            s3_client.put_bucket_acl(Bucket=self.s3bucket, ACL='private')
 
     def get_content(self, bucket, object_key):
         """
@@ -536,11 +564,15 @@ class TaskCat(object):
 
     def extract_template_parameters(self):
         """
-        Returns a dictionary of the parameters in the template entrypoint.
+        Returns a dictionary of the parameters in the template entrypoint, if it exist.
+        Otherwise, return empty {} dictionary if there are no parameters in the template.
 
         :return: list of parameters for the template.
         """
-        return self.template_data['Parameters'].keys()
+        if 'Parameters' in self.template_data:
+            return self.template_data['Parameters'].keys()
+        else:
+            return {}
 
     def validate_template(self, taskcat_cfg, test_list):
         """
@@ -578,81 +610,6 @@ class TaskCat(object):
                 self.delete_autobucket()
                 raise TaskCatException("Cannot validate %s" % self.get_template_file())
         return True
-
-    def genpassword(self, pass_length, pass_type):
-        """
-        Returns a password of given length and type.
-
-        :param pass_length: Length of the desired password
-        :param pass_type: Type of the desired password - String only OR Alphanumeric
-            * A = AlphaNumeric, Example 'vGceIP8EHC'
-        :return: Password of given length and type
-        """
-        log.debug("Auto generating password")
-        log.debug("Pass size => {0}".format(pass_length))
-
-        password = []
-        numbers = "1234567890"
-        lowercase = "abcdefghijklmnopqrstuvwxyz"
-        uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        specialchars = "!#$&{*:[=,]-_%@+"
-
-        # Generates password string with:
-        # lowercase,uppercase and numeric chars
-        if pass_type == 'A':
-            log.debug("Pass type => {0}".format('alpha-numeric'))
-
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-
-        # Generates password string with:
-        # lowercase,uppercase, numbers and special chars
-        elif pass_type == 'S':
-            log.debug("Pass type => {0}".format('specialchars'))
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-                password.append(random.choice(specialchars))
-        else:
-            # If no passtype is defined (None)
-            # Defaults to alpha-numeric
-            # Generates password string with:
-            # lowercase,uppercase, numbers and special chars
-            log.debug("Pass type => default {0}".format('alpha-numeric'))
-            while len(password) < pass_length:
-                password.append(random.choice(lowercase))
-                password.append(random.choice(uppercase))
-                password.append(random.choice(numbers))
-
-        return ''.join(password)
-
-    def generate_random(self, gtype, length):
-        random_string = []
-        numbers = "1234567890"
-        lowercase = "abcdefghijklmnopqrstuvwxyz"
-        if gtype == 'alpha':
-            log.debug("Random String => {0}".format('alpha'))
-
-            while len(random_string) < length:
-                random_string.append(random.choice(lowercase))
-
-        # Generates password string with:
-        # lowercase,uppercase, numbers and special chars
-        elif gtype == 'number':
-            log.debug("Random String => {0}".format('numeric'))
-            while len(random_string) < length:
-                random_string.append(random.choice(numbers))
-
-        return ''.join(random_string)
-
-    def generate_uuid(self, uuid_type):
-        if uuid_type is 'A':
-            return str(uuid.uuid4())
-        else:
-            return str(uuid.uuid4())
 
     def generate_input_param_values(self, s_parms, region):
         """
@@ -724,219 +681,7 @@ class TaskCat(object):
         # Example with 5 minute expiry:
         # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
 
-        for _parameters in s_parms:
-            for _ in _parameters:
-
-                param_key = _parameters['ParameterKey']
-                param_value = _parameters['ParameterValue']
-                self.set_parameter(param_key, param_value)
-
-                # Determines the size of the password to generate
-                count_re = re.compile('(?!\w+_)\d{1,2}', re.IGNORECASE)
-
-                # Determines the type of password to generate, partially. Additional computation
-                # is required on the result returned by the matching string.
-                gentype_re = re.compile(
-                    '(?<=_genpass_)((\d+)(\w)(\]))', re.IGNORECASE)
-
-                # Determines if _genpass has been requested
-                genpass_re = re.compile(
-                    '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$', re.IGNORECASE)
-
-                # Determines if random string  value was requested
-                gen_string_re = re.compile(
-                    '\$\[taskcat_random-string]$', re.IGNORECASE)
-
-                # Determines if random number value was requested
-                gen_numbers_re = re.compile(
-                    '\$\[taskcat_random-numbers]$', re.IGNORECASE)
-
-                # Determines if autobucket value was requested
-                autobucket_re = re.compile(
-                    '\$\[taskcat_autobucket]$', re.IGNORECASE)
-
-                # Determines if _genaz has been requested. This can return single or multiple AZs.
-                genaz_re = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
-
-                # Determines if single AZ has been requested. This is added to support legacy templates
-                genaz_single_re = re.compile('\$\[\w+_ge[nt]singleaz_\d]', re.IGNORECASE)
-
-                # Determines if uuid has been requested
-                genuuid_re = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default KeyPair name has been requested
-                getkeypair_re = re.compile('\$\[\w+_getkeypair]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default license bucket name has been requested
-                getlicensebucket_re = re.compile('\$\[\w+_getlicensebucket]', re.IGNORECASE)
-
-                # Determines if AWS QuickStart default media bucket name has been requested
-                getmediabucket_re = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
-
-                # Determines if license content has been requested
-                licensecontent_re = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
-
-                # Determines if a presigned URL has been requested.
-                presignedurl_re = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
-
-                # Determines if s3 replacement was requested
-                gets3replace = re.compile('\$\[\w+_url_.+]$', re.IGNORECASE)
-                geturl_re = re.compile('(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
-
-                # Determines if getval has been requested (Matches parameter key)
-                getval_re = re.compile('(?<=._getval_)(\w+)(?=]$)', re.IGNORECASE)
-
-                # If Number is found as Parameter Value convert it to String ( ex: 1 to "1")
-                if type(param_value) == int:
-                    param_value = str(param_value)
-                    log.debug("Converting byte values in stack input file({}) to [string value]".format(
-                                 self.get_parameter_file()))
-                    _parameters['ParameterValue'] = param_value
-
-                if gen_string_re.search(param_value):
-                    random_string = self.regxfind(gen_string_re, param_value)
-                    param_value = self.generate_random('alpha', 20)
-
-                    log.debug("Generating random string for {}".format(random_string))
-                    _parameters['ParameterValue'] = param_value
-
-                if gen_numbers_re.search(param_value):
-                    random_numbers = self.regxfind(gen_numbers_re, param_value)
-                    param_value = self.generate_random('number', 20)
-
-                    log.debug("Generating numeric string for {}".format(random_numbers))
-                    _parameters['ParameterValue'] = param_value
-
-                if genuuid_re.search(param_value):
-                    uuid_string = self.regxfind(genuuid_re, param_value)
-                    param_value = self.generate_uuid('A')
-
-                    log.debug("Generating random uuid string for {}".format(uuid_string))
-                    _parameters['ParameterValue'] = param_value
-
-                if autobucket_re.search(param_value):
-                    bkt = self.regxfind(autobucket_re, param_value)
-                    param_value = self.get_s3bucket()
-                    log.debug("Setting value to {}".format(bkt))
-                    _parameters['ParameterValue'] = param_value
-
-                if gets3replace.search(param_value):
-                    url = self.regxfind(geturl_re, param_value)
-                    param_value = self.get_s3contents(url)
-                    log.debug("Raw content of url {}".format(url))
-                    _parameters['ParameterValue'] = param_value
-
-                if getkeypair_re.search(param_value):
-                    keypair = self.regxfind(getkeypair_re, param_value)
-                    param_value = 'cikey'
-                    log.debug("Generating default Keypair {}".format(keypair))
-                    _parameters['ParameterValue'] = param_value
-
-                if getlicensebucket_re.search(param_value):
-                    licensebucket = self.regxfind(getlicensebucket_re, param_value)
-                    param_value = 'override_this'
-                    log.debug("Generating default license bucket {}".format(licensebucket))
-                    _parameters['ParameterValue'] = param_value
-
-                if getmediabucket_re.search(param_value):
-                    media_bucket = self.regxfind(getmediabucket_re, param_value)
-                    param_value = 'override_this'
-                    log.debug("Generating default media bucket {}".format(media_bucket))
-                    _parameters['ParameterValue'] = param_value
-
-                if licensecontent_re.search(param_value):
-                    license_str = self.regxfind(licensecontent_re, param_value)
-                    license_bucket = license_str.split('/')[1]
-                    licensekey = '/'.join(license_str.split('/')[2:])
-                    param_value = self.get_content(license_bucket, licensekey)
-                    log.debug("Getting license content for {}/{}".format(license_bucket, licensekey))
-                    _parameters['ParameterValue'] = param_value
-
-                if presignedurl_re.search(param_value):
-                    if len(param_value) < 2:
-                        log.error("Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.")
-                        log.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
-                        exit1()
-                    paramsplit = self.regxfind(presignedurl_re, param_value).split(',')[1:]
-                    url_bucket, url_key = paramsplit[:2]
-                    if len(paramsplit) == 3:
-                        url_expire_seconds = paramsplit[2]
-                    else:
-                        url_expire_seconds = 3600
-                    log.debug("Generating a presigned URL for {}/{} with a {} second timeout".format(url_bucket,
-                                                                                                        url_key,
-                                                                                                        url_expire_seconds))
-                    s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
-                    param_value = s3_client.generate_presigned_url(
-                        'get_object',
-                        Params={'Bucket': url_bucket, 'Key': url_key},
-                        ExpiresIn=int(url_expire_seconds))
-                    _parameters['ParameterValue'] = param_value
-
-                # Autogenerated value to password input in runtime
-                if genpass_re.search(param_value):
-                    passlen = int(
-                        self.regxfind(count_re, param_value))
-                    gentype = self.regxfind(
-                        gentype_re, param_value)
-                    # Additional computation to identify if the gentype is one of the desired values.
-                    # Sample gentype values would be '8A]' or '24S]' or '2]'
-                    # To get the correct gentype, get 2nd char from the last and check if its A or S
-                    gentype = gentype[-2]
-                    if gentype in ('a', 'A', 's', 'S'):
-                        gentype = gentype.upper()
-                    else:
-                        gentype = None
-                    if not gentype:
-                        # Set default password type
-                        # A value of PrintMsg.DEBUG will generate a simple alpha
-                        # aplha numeric password
-                        gentype = 'D'
-
-                    if passlen:
-                        log.debug("AutoGen values for {}".format(param_value))
-                        param_value = self.genpassword(
-                            passlen, gentype)
-                        _parameters['ParameterValue'] = param_value
-
-                if genaz_re.search(param_value):
-                    numazs = int(
-                        self.regxfind(count_re, param_value))
-                    if numazs:
-                        log.debug("Selecting availability zones")
-                        log.debug("Requested %s az's" % numazs)
-
-                        param_value = self.get_available_azs(
-                            region,
-                            numazs)
-                        _parameters['ParameterValue'] = param_value
-                    else:
-                        log.info("$[taskcat_genaz_(!)]")
-                        log.info("Number of az's not specified!")
-                        log.info(" - (Defaulting to 1 az)")
-                        param_value = self.get_available_azs(
-                            region,
-                            1)
-                        _parameters['ParameterValue'] = param_value
-
-                if genaz_single_re.search(param_value):
-                    log.debug("Selecting availability zones")
-                    log.debug("Requested 1 az")
-                    param_value = self.get_available_azs(
-                        region,
-                        1)
-                    _parameters['ParameterValue'] = param_value
-
-                self.set_parameter(param_key, param_value)
-
-                if getval_re.search(param_value):
-                    requested_key = self.regxfind(getval_re, param_value)
-                    log.debug("Getting previously assigned value for {}".format(requested_key))
-                    param_value = self.get_parameter(requested_key)
-                    log.debug("Loading {} as value for {} ".format(param_value, requested_key))
-                    _parameters['ParameterValue'] = param_value
-
-        return s_parms
+        return ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region, verbose=True).results
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """
@@ -951,6 +696,7 @@ class TaskCat(object):
 
         """
         testdata_list = []
+        self.set_capabilities('CAPABILITY_AUTO_EXPAND')
         self.set_capabilities('CAPABILITY_NAMED_IAM')
         for test in test_list:
             testdata = TestData()
@@ -964,7 +710,7 @@ class TaskCat(object):
                 log.info("Preparing to launch in region [%s] " % region)
                 try:
                     cfn = self._boto_client.get('cloudformation', region=region)
-                    s_parmsdata = self.get_contents("./" + self.get_project() + "/ci/" + self.get_parameter_file())
+                    s_parmsdata = self.get_contents(self.get_project_path() + "/ci/" + self.get_parameter_file())
                     s_parms = json.loads(s_parmsdata)
                     s_include_params = self.get_param_includes(s_parms)
                     if s_include_params:
@@ -1052,7 +798,8 @@ class TaskCat(object):
             log.info(" |Validate JSON input in test[%s]" % test, extra={"nametag": self.nametag})
             log.debug("parameter_path = %s" % self.get_parameter_path())
 
-            inputparms = self.get_contents("./" + self.get_project() + "/ci/" + self.get_parameter_file())
+            inputparms = self.get_contents(self.get_project_path() + "/ci/" + self.get_parameter_file())
+
             jsonstatus = self.check_json(inputparms)
 
             log.debug("jsonstatus = %s" % jsonstatus)
@@ -1217,7 +964,7 @@ class TaskCat(object):
                         log.info(logs)
                     latest_log[test][stack_id] = logs
                     if self._enable_dynamodb:
-                        table = self.db_initproject(self.get_project())
+                        table = self.db_initproject(self.get_project_name())
                         # Do not update when in cleanup start (preserves previous status)
                         skip_status = ['DELETE_IN_PROGRESS', 'STACK_DELETED']
                         if stackquery[2] not in skip_status:
@@ -1242,6 +989,7 @@ class TaskCat(object):
             while deleting the stacks.
 
         """
+        self.remove_public_acl_from_bucket()
 
         docleanup = self.get_docleanup()
         log.debug("clean-up = %s " % str(docleanup))
@@ -1308,7 +1056,7 @@ class TaskCat(object):
 
             # Batch object processing by pages
             paginator = s3_client.get_paginator('list_objects')
-            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project()}
+            operation_parameters = {'Bucket': self.get_s3bucket(), 'Prefix': self.get_project_name()}
             s3_pages = paginator.paginate(**operation_parameters)
 
             # Load objects to delete
@@ -1394,7 +1142,6 @@ class TaskCat(object):
                         log.info(" - (Defaulting to cleanup)")
 
                 # Load test setting
-                self.set_project(n)
                 self.set_owner(o)
                 self.set_template_file(t)
                 self.set_parameter_file(p)
@@ -1417,7 +1164,7 @@ class TaskCat(object):
 
                 # Detect template type
 
-                cfntemplate = self.get_contents("./" + self.get_project() + '/templates/' + self.get_template_file())
+                cfntemplate = self.get_contents(self.get_project_path() + '/templates/' + self.get_template_file())
 
                 if self.check_json(cfntemplate, quiet=True, strict=False):
                     self.set_template_type('json')
@@ -1437,7 +1184,7 @@ class TaskCat(object):
 
                 log.info("|Acquiring tests assets for .......[%s]" % test)
                 log.debug("|S3 Bucket     => [%s]" % self.get_s3bucket())
-                log.debug("|Project       => [%s]" % self.get_project())
+                log.debug("|Project       => [%s]" % self.get_project_name())
                 log.debug("|Template      => [%s]" % self.get_template_path())
                 log.debug("|Parameter     => [%s]" % self.get_parameter_path())
                 log.debug("|TemplateType  => [%s]" % self.get_template_type())

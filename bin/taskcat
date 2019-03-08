@@ -19,4 +19,3 @@ if __name__ == '__main__':
     if sys.version_info[0] < 3:
         raise TaskCatException("Please use Python 3")
     taskcat.cli.main()
-

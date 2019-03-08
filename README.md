@@ -65,15 +65,15 @@ Note: (the user install dir is platform specific)
 Note: If you have AWS credentials sourced (or default boto profile is available)
 
 ```
-taskcat -c sample-taskcat-project/ci/config.yml
+taskcat -c /path/to/your_project/ci/taskcat.yml
 ```
 > If you need to pass ACCESS and SECRET keys
 ```
-taskcat -c sample-taskcat-project/ci/config.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
+taskcat -c /path/to/your_project/ci/taskcat.yml -A YOUR_ACCESS_KEY -S YOUR_SECRET_KEY
 ```
 > If you want to use a different account or profile
 ```
-taskcat -c sample-taskcat-project/ci/config.yml -P boto-profile-name
+taskcat -c /path/to/your_project/ci/taskcat.yml -P boto-profile-name
 ```
 ### Files you’ll need
 * **taskcat.yml** - This file contains the test cases
