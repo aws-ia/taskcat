@@ -15,11 +15,13 @@ import shutil
 import hashlib
 import datetime
 import logging
-import sys
 from collections import OrderedDict
 from taskcat.client_factory import ClientFactory
 from taskcat.utils import CFNYAMLHandler
 from taskcat.exceptions import TaskCatException
+
+log = logging.getLogger(__name__)
+
 
 class CFNAlchemist(object):
     OBJECT_REWRITE_MODE = 10
@@ -49,18 +51,6 @@ class CFNAlchemist(object):
         :param verbose: Set to True to log debug messages
         :param dry_run: Set to True to perform a dry run
         """
-        # create logger
-        self.logger = logging.getLogger('alchemist')
-        self.logger.setLevel(logging.INFO)
-        # create console handler and set level to debug
-        self.ch = logging.StreamHandler()
-        self.ch.setLevel(logging.INFO)
-        # create formatter
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        # add formatter to ch
-        self.ch.setFormatter(self.formatter)
-        # add ch to logger
-        self.logger.addHandler(self.ch)
 
         # Constants
         self._TEMPLATE_EXT = ['.template', '.json', '.yaml', '.yml']
@@ -96,7 +86,7 @@ class CFNAlchemist(object):
         self.set_target_key_prefix(target_key_prefix)
         self.set_output_directory(output_directory)
         if rewrite_mode not in [self.OBJECT_REWRITE_MODE, self.BASIC_REWRITE_MODE]:
-            self.logger.error("Invalid rewrite_mode.")
+            self.log.error("Invalid rewrite_mode.")
         else:
             self.set_rewrite_mode(rewrite_mode)
         self.set_verbose(verbose)
@@ -107,7 +97,7 @@ class CFNAlchemist(object):
 
     def set_verbose(self, verbose):
         self._verbose = verbose
-        self.logger.setLevel(logging.DEBUG if self._verbose else logging.INFO)
+        self.log.setLevel(logging.DEBUG if self._verbose else logging.INFO)
         self.ch.setLevel(logging.DEBUG if self._verbose else logging.INFO)
 
     def get_verbose(self):
@@ -214,19 +204,19 @@ class CFNAlchemist(object):
         s3_resource = boto_session.resource('s3')
         upload_bucket = s3_resource.Bucket(self._target_bucket_name)
 
-        self.logger.info("Gathering remote S3 bucket keys {}*".format(self._target_key_prefix))
+        self.log.info("Gathering remote S3 bucket keys {}*".format(self._target_key_prefix))
         remote_key_dict = {}
         for obj in upload_bucket.objects.filter(Prefix='{}'.format(self._target_key_prefix)):
             if any(x not in obj.key for x in self._get_excluded_key_prefixes()):
                 remote_key_dict[obj.key] = obj
-        self.logger.debug(remote_key_dict.keys())
+        self.log.debug(remote_key_dict.keys())
 
         # Gather file list
         # NOTE: We only use the output directory if it's been set (that is, a rewrite was expected to have happened to
         #       an output directory. We ensure that is not the case when parsing the args, but care must be taken
         #       when initializing all the properties of this class. If it's only an upload that's meant to happen
         #       without a previous rewrite, then output directory should never be set.
-        self.logger.info("Gathering local keys {}*".format(self._target_key_prefix))
+        self.log.info("Gathering local keys {}*".format(self._target_key_prefix))
         if self._file_list:
             file_list = self._file_list
         else:
@@ -236,37 +226,37 @@ class CFNAlchemist(object):
         for current_file in file_list:
             local_key_dict[os.path.join(self._target_key_prefix, current_file.replace(self._input_path, '', 1).lstrip('\/')).replace('\\', '/')] = \
                 os.path.join(self._output_directory if self._output_directory and not self._dry_run else self._input_path, current_file.replace(self._input_path, '', 1).lstrip('\/'))
-        self.logger.debug(local_key_dict.keys())
+        self.log.debug(local_key_dict.keys())
 
         remote_to_local_diff = list(set(remote_key_dict.keys()) - set(local_key_dict.keys()))
-        self.logger.info("Keys in remote S3 bucket but not in local:")
-        self.logger.info(remote_to_local_diff)
+        self.log.info("Keys in remote S3 bucket but not in local:")
+        self.log.info(remote_to_local_diff)
 
         local_to_remote_diff = list(set(local_key_dict.keys()) - set(remote_key_dict.keys()))
-        self.logger.info("Keys in local but not in remote S3 bucket:")
-        self.logger.info(local_to_remote_diff)
+        self.log.info("Keys in local but not in remote S3 bucket:")
+        self.log.info(local_to_remote_diff)
 
-        self.logger.info("Syncing objects to S3 bucket [{}]".format(self._target_bucket_name))
+        self.log.info("Syncing objects to S3 bucket [{}]".format(self._target_bucket_name))
         for _key in local_key_dict.keys():
             if _key in remote_key_dict:
-                self.logger.debug("File [{0}] exists in S3 bucket [{1}]. Verifying MD5 checksum for difference.".format(_key, self._target_bucket_name))
+                self.log.debug("File [{0}] exists in S3 bucket [{1}]. Verifying MD5 checksum for difference.".format(_key, self._target_bucket_name))
                 s3_hash = remote_key_dict[_key].e_tag.strip('"')
                 local_hash = hashlib.md5(open(local_key_dict[_key], 'rb').read()).hexdigest()
-                self.logger.debug("S3 MD5 checksum (etag) [{0}]=>[{1}]".format(s3_hash, remote_key_dict[_key]))
-                self.logger.debug("Local MD5 checksum     [{0}]=>[{1}]".format(local_hash, local_key_dict[_key]))
+                self.log.debug("S3 MD5 checksum (etag) [{0}]=>[{1}]".format(s3_hash, remote_key_dict[_key]))
+                self.log.debug("Local MD5 checksum     [{0}]=>[{1}]".format(local_hash, local_key_dict[_key]))
                 if s3_hash != local_hash:
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: UPDATE [{0}]".format(_key))
+                        self.log.info("[WHAT IF DRY RUN]: UPDATE [{0}]".format(_key))
                     else:
-                        self.logger.info("UPDATE [{0}]".format(_key))
+                        self.log.info("UPDATE [{0}]".format(_key))
                         s3_resource.Object(self._target_bucket_name, _key).upload_file(local_key_dict[_key])
                 else:
-                    self.logger.debug("MD5 checksums are the same. Skipping [{}]".format(_key))
+                    self.log.debug("MD5 checksums are the same. Skipping [{}]".format(_key))
             else:
                 if self._dry_run:
-                    self.logger.info("[WHAT IF DRY RUN]: CREATE [{0}]".format(_key))
+                    self.log.info("[WHAT IF DRY RUN]: CREATE [{0}]".format(_key))
                 else:
-                    self.logger.info("CREATE [{0}]".format(_key))
+                    self.log.info("CREATE [{0}]".format(_key))
                     # Upload local file not present in S3 bucket
                     s3_resource.Object(self._target_bucket_name, _key).upload_file(local_key_dict[_key])
 
@@ -274,9 +264,9 @@ class CFNAlchemist(object):
         for _key in remote_to_local_diff:
             if not any(x in _key for x in self._get_excluded_key_prefixes()):
                 if self._dry_run:
-                    self.logger.info("[WHAT IF DRY RUN]: DELETE [{0}]".format(_key))
+                    self.log.info("[WHAT IF DRY RUN]: DELETE [{0}]".format(_key))
                 else:
-                    self.logger.info("DELETE [{0}]".format(_key))
+                    self.log.info("DELETE [{0}]".format(_key))
                     remote_key_dict[_key].delete()
 
     def rewrite_only(self):
@@ -287,17 +277,17 @@ class CFNAlchemist(object):
         """
         # Create file list and recurse if args._input_path is directory
         file_list = self._get_file_list(self._input_path)
-        self.logger.info("Files to be worked on:")
-        self.logger.info(file_list)
+        self.log.info("Files to be worked on:")
+        self.log.info(file_list)
 
         # Validate output
         if self._output_directory is not None:
             CFNYAMLHandler.validate_output_dir(self._output_directory)
 
-        self.logger.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
-        self.logger.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
-        self.logger.info("Production S3 key prefix that we are looking for [{}]".format(self._prod_key_prefix))
-        self.logger.info("Replacement S3 key prefix that we are rewriting with [{}]".format(self._target_key_prefix))
+        self.log.info("Production S3 bucket name that we are looking for [{}]".format(self._prod_bucket_name))
+        self.log.info("Replacement S3 bucket name that we are rewriting with [{}]".format(self._target_bucket_name))
+        self.log.info("Production S3 key prefix that we are looking for [{}]".format(self._prod_key_prefix))
+        self.log.info("Replacement S3 key prefix that we are rewriting with [{}]".format(self._target_key_prefix))
 
         # Rewrite files
         for current_file in file_list:
@@ -314,18 +304,18 @@ class CFNAlchemist(object):
             if self._rewrite_mode != self.BASIC_REWRITE_MODE \
                     and current_file.endswith(tuple(self._TEMPLATE_EXT)) \
                     and os.path.dirname(current_file).endswith('/templates'):
-                self.logger.info("Opening file [{}]".format(current_file))
+                self.log.info("Opening file [{}]".format(current_file))
                 with open(current_file, 'r', newline=None) as template:
                     template_raw_data = template.read()
                     template.close()
                 template_raw_data = template_raw_data.strip()
 
                 if template_raw_data[0] in ['{', '['] and template_raw_data[-1] in ['}', ']']:
-                    self.logger.info('Detected JSON. Loading file.')
+                    self.log.info('Detected JSON. Loading file.')
                     FILE_FORMAT = 'JSON'
                     template_data = json.load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
                 else:
-                    self.logger.info('Detected YAML. Loading file.')
+                    self.log.info('Detected YAML. Loading file.')
                     FILE_FORMAT = 'YAML'
                     template_data = CFNYAMLHandler.ordered_safe_load(open(current_file, 'r', newline=None), object_pairs_hook=OrderedDict)
 
@@ -334,23 +324,23 @@ class CFNAlchemist(object):
                     # This was only added in case we need to examine only parts of the template
                     if type(template_data) in [OrderedDict, dict]:
                         for node_key in template_data.keys():
-                            self.logger.debug("Working on node [{}]".format(node_key))
+                            self.log.debug("Working on node [{}]".format(node_key))
                             self._recurse_nodes(template_data[node_key])
                     elif type(template_data) is list:
                         self._recurse_nodes(template_data)
                     else:
                         if self._dry_run:
-                            self.logger.warning("[WHAT IF DRY RUN]: [{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
+                            self.log.warning("[WHAT IF DRY RUN]: [{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
                         else:
-                            self.logger.warning("[{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
+                            self.log.warning("[{0}] Unsupported {1} structure. Skipping but copying.".format(current_file, FILE_FORMAT))
                             if current_file is not output_file:
                                 shutil.copyfile(current_file, output_file)
 
                     # Write modified template
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
+                        self.log.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
                     else:
-                        self.logger.info("Writing file [{}]".format(output_file))
+                        self.log.info("Writing file [{}]".format(output_file))
                         CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
                         with open(output_file, 'w') as updated_template:
                             if FILE_FORMAT == 'JSON':
@@ -361,13 +351,13 @@ class CFNAlchemist(object):
                         updated_template.close()
                 else:
                     if self._dry_run:
-                        self.logger.warning("[WHAT IF DRY RUN]: [{}] Unsupported file format. Skipping but copying.".format(current_file))
+                        self.log.warning("[WHAT IF DRY RUN]: [{}] Unsupported file format. Skipping but copying.".format(current_file))
                     else:
-                        self.logger.warning("[{}] Unsupported file format. Skipping but copying.".format(current_file))
+                        self.log.warning("[{}] Unsupported file format. Skipping but copying.".format(current_file))
                         if current_file is not output_file:
                             shutil.copyfile(current_file, output_file)
             else:
-                self.logger.info("Opening file [{}]".format(current_file))
+                self.log.info("Opening file [{}]".format(current_file))
                 try:
                     with open(current_file, 'r', newline=None) as f:
                         file_data = f.readlines()
@@ -377,18 +367,18 @@ class CFNAlchemist(object):
 
                     # Write modified file
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
+                        self.log.info("[WHAT IF DRY RUN]: Writing file [{}]".format(output_file))
                     else:
-                        self.logger.info("Writing file [{}]".format(output_file))
+                        self.log.info("Writing file [{}]".format(output_file))
                         CFNYAMLHandler.validate_output_dir(os.path.split(output_file)[0])
                         with open(output_file, 'w') as updated_file:
                             updated_file.writelines(file_data)
                         updated_file.close()
                 except UnicodeDecodeError:
                     if self._dry_run:
-                        self.logger.info("[WHAT IF DRY RUN]: Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
+                        self.log.info("[WHAT IF DRY RUN]: Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
                     else:
-                        self.logger.warning("Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
+                        self.log.warning("Ran into a (UnicodeDecodeError) problem trying to read the file [{}]. Skipping but copying.".format(current_file))
                         self._copy_file(current_file, output_file)
                 except TaskCatException:
                     raise
@@ -426,18 +416,18 @@ class CFNAlchemist(object):
             if any(x in current_string for x in ['s3:', 'http:', 'https:']):
                 # Make sure that it's part of the target key prefix (that is, part of this repo)
                 if self._target_key_prefix in current_string:
-                    self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
+                    self.log.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
                     return current_string.replace(self._prod_bucket_name, self._target_bucket_name)
                 # If it's not then, it's a reference that should not be touched
                 else:
-                    self.logger.info("NOT rewriting [{}] because it's not part of this repo".format(current_string.rstrip('\n\r')))
+                    self.log.info("NOT rewriting [{}] because it's not part of this repo".format(current_string.rstrip('\n\r')))
                     return current_string
             # Else just replace the bucket name
             else:
-                self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
+                self.log.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
                 return current_string.replace(self._prod_bucket_name, self._target_bucket_name)
         elif self._prod_key_prefix in current_string:
-            self.logger.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
+            self.log.info("Rewriting [{}]".format(current_string.rstrip('\n\r')))
             return current_string.replace(self._prod_key_prefix, self._target_key_prefix)
         else:
             return current_string
@@ -445,40 +435,40 @@ class CFNAlchemist(object):
     def _recurse_nodes(self, current_node):
         if type(current_node) in [OrderedDict, dict]:
             for key in current_node.keys():
-                self.logger.debug("Key: ")
-                self.logger.debug(key)
-                self.logger.debug("Type: ")
-                self.logger.debug(type(current_node[key]))
-                self.logger.debug("Value: ")
-                self.logger.debug(current_node[key])
+                self.log.debug("Key: ")
+                self.log.debug(key)
+                self.log.debug("Type: ")
+                self.log.debug(type(current_node[key]))
+                self.log.debug("Value: ")
+                self.log.debug(current_node[key])
                 current_node[key] = self._recurse_nodes(current_node[key])
         elif type(current_node) is list:
             for _index, item in enumerate(current_node):
-                self.logger.debug("Type: ")
-                self.logger.debug(type(item))
-                self.logger.debug("Value: ")
-                self.logger.debug(item)
+                self.log.debug("Type: ")
+                self.log.debug(type(item))
+                self.log.debug("Value: ")
+                self.log.debug(item)
                 current_node[_index] = self._recurse_nodes(item)
             return current_node
         elif type(current_node) is str:
             return self._string_rewriter(current_node)
         elif type(current_node) is bool:
-            self.logger.debug("Not much we can do with booleans. Skipping.")
+            self.log.debug("Not much we can do with booleans. Skipping.")
         elif type(current_node) in [int, float]:
-            self.logger.debug("Not much we can do with numbers. Skipping.")
+            self.log.debug("Not much we can do with numbers. Skipping.")
         elif type(current_node) in [datetime.date, datetime.time, datetime.datetime, datetime.timedelta]:
-            self.logger.debug("Not much we can do with datetime. Skipping.")
+            self.log.debug("Not much we can do with datetime. Skipping.")
         elif type(current_node) is None:
-            self.logger.debug("Not much we can do with nulls. Skipping.")
+            self.log.debug("Not much we can do with nulls. Skipping.")
         else:
-            self.logger.error("Unsupported type.")
-            self.logger.error("Failing Type: ")
-            self.logger.error(type(current_node))
-            self.logger.error("Failing Value: ")
-            self.logger.error(current_node)
+            self.log.error("Unsupported type.")
+            self.log.error("Failing Type: ")
+            self.log.error(type(current_node))
+            self.log.error("Failing Value: ")
+            self.log.error(current_node)
             raise TaskCatException("Unsupported type.")
 
-        self.logger.debug("PARSED!")
+        self.log.debug("PARSED!")
 
         return current_node
 
@@ -498,7 +488,7 @@ class CFNAlchemist(object):
         """
         if aws_profile is not None:
             if not (aws_secret_access_key is None and aws_access_key_id is None):
-                self.logger.error("Cannot use aws_profile with aws_access_key_id or aws_secret_access_key")
+                self.log.error("Cannot use aws_profile with aws_access_key_id or aws_secret_access_key")
 
         if aws_profile:
             self._auth_mode = 'profile'
@@ -525,7 +515,7 @@ class CFNAlchemist(object):
             raise
         except Exception as e:
             try:
-                self.logger.warning('Trying GovCloud region.')
+                self.log.warning('Trying GovCloud region.')
                 self.set_default_region('us-gov-west-1')
                 sts_client = self._boto_clients.get(
                     'sts',
@@ -540,11 +530,11 @@ class CFNAlchemist(object):
             except TaskCatException:
                 raise
             except Exception as e:
-                self.logger.error("Credential Error - Please check you {}!".format(self._auth_mode))
-                self.logger.debug(str(e))
+                self.log.error("Credential Error - Please check you {}!".format(self._auth_mode))
+                self.log.debug(str(e))
                 raise TaskCatException("Credential Error - Please check you {}!".format(self._auth_mode))
-        self.logger.info("AWS AccountNumber: \t [%s]" % account)
-        self.logger.info("Authenticated via: \t [%s]" % self._auth_mode)
+        self.log.info("AWS AccountNumber: \t [%s]" % account)
+        self.log.info("Authenticated via: \t [%s]" % self._auth_mode)
 
     @staticmethod
     def interface():
@@ -693,5 +683,5 @@ class CFNAlchemist(object):
         repo_path = repo_path.replace('nist/high', 'nist-high', 1)
         # chef-server
         repo_path = repo_path.replace('chefserver', 'chef-server', 1)
-        print("[INFO]: Converted repo name [" + str(repo_name) + "] to S3 path [" + str(repo_path) + "]")
+        log.info("Converted repo name [" + str(repo_name) + "] to S3 path [" + str(repo_path) + "]")
         return repo_path

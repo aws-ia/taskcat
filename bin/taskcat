@@ -11,91 +11,11 @@
 
 from __future__ import print_function
 import taskcat
-import yaml
+from taskcat import TaskCatException
 import sys
-import os
-import traceback
-from taskcat.common_utils import exit0
-from taskcat.common_utils import exit1
-from taskcat.lambda_build import LambdaBuild
-from taskcat.cfn_lint import Lint
 
 
-if sys.version_info[0] < 3:
-    raise Exception("Please use Python 3")
-
-
-def main():
-    try:
-        tcat_instance = taskcat.TaskCat()
-        args = tcat_instance.interface
-        tcat_instance.welcome('taskcat')
-        # Initialize cli interface
-        # :TODO Add RestFull Interface
-
-        # Get configuration from command line arg (-c)
-        tcat_instance.set_config(args.config_yml)
-        # tcat_instance.set_config('ci/config.yml')
-        # Get API Handle - Try all know auth
-        tcat_instance.aws_api_init(args)
-        # Optional: Enables verbose output by default (DEBUG ON)
-        tcat_instance.verbose = True
-    # --Begin
-    # Check for valid ymal and required keys in config
-        if args.config_yml is not None:
-
-            test_list = tcat_instance.validate_yaml(args.config_yml)
-
-    # Load yaml into local taskcat config
-            with open(tcat_instance.get_config(), 'r') as cfg:
-                taskcat_cfg = yaml.safe_load(cfg.read())
-            project_path = os.path.abspath(args.config_yml).rsplit('ci/',1)[0][:-1]
-            tcat_instance.set_config(args.config_yml)
-            tcat_cfg_glbl = taskcat_cfg['global']
-            if 'qsname' in tcat_cfg_glbl.keys():
-                project_name = tcat_cfg_glbl['qsname']
-            elif 'project' in tcat_cfg_glbl.keys():
-                project_name = tcat_cfg_glbl['project']
-            if "package-lambda" not in taskcat_cfg['global']:
-                taskcat_cfg['global']["package-lambda"] = False
-            if tcat_instance.lambda_build_only and not taskcat_cfg['global']["package-lambda"]:
-                exit1("Lambda build not enabled for project. Add package-lambda: true to taskcat.yaml global section")
-            elif taskcat_cfg['global']["package-lambda"]:
-                try:
-                    lambda_path = project_path + "/functions/source"
-                    if os.path.isdir(lambda_path):
-                        LambdaBuild(lambda_path)
-                except Exception as e:
-                    print("ERROR: Zipping lambda source failed: %s" % e)
-                if tcat_instance.lambda_build_only:
-                    exit0("Lambda source zipped successfully")
-            try:
-                Lint(config=tcat_instance.get_config(), path=project_path).output_results()
-            except taskcat.exceptions.TaskCatException as e:
-                print(taskcat.PrintMsg.ERROR + str(e))
-                exit1(str(e))
-            except Exception as e:
-                print("ERROR: Linting failed: %s" % e)
-                traceback.print_exc()
-            if args.lint:
-                exit0("Linting completed")
-            tcat_instance.set_project_name(project_name)
-            tcat_instance.set_project_path(project_path)
-            tcat_instance.stage_in_s3(taskcat_cfg)
-            tcat_instance.validate_template(taskcat_cfg, test_list)
-            tcat_instance.validate_parameters(taskcat_cfg, test_list)
-            # instance.stackcreate returns testdata object
-            testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, args.stack_prefix)
-            tcat_instance.get_stackstatus(testdata, 5)
-            tcat_instance.createreport(testdata, 'index.html')
-            tcat_instance.cleanup(testdata, 5)
-            if tcat_instance.one_or_more_tests_failed:
-                exit1("One or more tests failed. See the report for details.")
-    except taskcat.exceptions.TaskCatException as e:
-        print(taskcat.PrintMsg.ERROR + str(e))
-        exit1(str(e))
-
-# --End
-
-
-main()
+if __name__ == '__main__':
+    if sys.version_info[0] < 3:
+        raise TaskCatException("Please use Python 3")
+    taskcat.cli.main()

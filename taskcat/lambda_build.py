@@ -8,11 +8,13 @@
 # Andrew Glenn <andglenn@amazon.com>
 from __future__ import print_function
 
-
+import logging
 import os
 from shutil import make_archive
-from taskcat.colored_console import PrintMsg
 from taskcat.common_utils import make_dir
+
+log = logging.getLogger(__name__)
+
 
 class LambdaBuild(object):
     """Zips contents of lambda source files.
@@ -38,7 +40,7 @@ class LambdaBuild(object):
 
     def _make_zip(self, name):
         try:
-            print(PrintMsg.INFO + "Zipping lambda function %s" % name)
+            log.info("Zipping lambda function %s" % name)
             output_path = "%s/%s" % (self.output_path, name)
             make_dir(output_path)
             os.chdir(name)

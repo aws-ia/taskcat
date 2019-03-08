@@ -1,10 +1,12 @@
 import time
 import yattag
+import logging
 
 from botocore.vendored import requests
-from taskcat.colored_console import PrintMsg
 from taskcat.common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
+
+log = logging.getLogger(__name__)
 
 
 class ReportBuilder:
@@ -55,8 +57,8 @@ class ReportBuilder:
             except TaskCatException:
                 raise
             except Exception as e:
-                print(PrintMsg.ERROR + "Error describing stack named [%s] " % stackname)
-                print(PrintMsg.DEBUG + str(e))
+                log.error("Error describing stack named [%s] " % stackname)
+                log.debug(str(e), exc_info=True)
                 rstatus = 'MANUALLY_DELETED'
                 status_css = 'class=test-orange'
 
@@ -133,10 +135,9 @@ class ReportBuilder:
                                         text('')
 
                                 testname = test.get_test_name()
-                                print(PrintMsg.INFO + "(Generating Reports)")
-                                print(PrintMsg.INFO + " - Processing {}".format(testname))
+                                log.info(" - Processing {}".format(testname))
                                 for stack in test.get_test_stacks():
-                                    print("Reporting on {}".format(str(stack['StackId'])))
+                                    log.info("Reporting on {}".format(str(stack['StackId'])))
                                     stack_id = CommonTools(stack['StackId']).parse_stack_info()
                                     status, css = get_teststate(
                                         stack_id['stack_name'],
@@ -176,7 +177,6 @@ class ReportBuilder:
                                     text(vtag)
 
                         doc.stag('p')
-                        print('\n')
 
             html_output = yattag.indent(doc.getvalue(),
                                         indentation='    ',

@@ -1,9 +1,12 @@
 import textwrap
 import cfnlint.core
 from yaml.scanner import ScannerError
-from taskcat.colored_console import PrintMsg
+from taskcat.logger import PrintMsg
 import yaml
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Lint(object):
@@ -40,7 +43,7 @@ class Lint(object):
             return regions
         supported = set(regions).intersection(lint_regions)
         unsupported = set(regions).difference(lint_regions)
-        print(PrintMsg.ERROR + "The following regions are not supported by cfn-python-lint and will not be linted %s" % unsupported)
+        log.error("The following regions are not supported by cfn-python-lint and will not be linted %s" % unsupported)
         return list(supported)
 
     @staticmethod
@@ -49,11 +52,11 @@ class Lint(object):
             return cfnlint.decode.cfn_yaml.load(template_path)
         except ScannerError as e:
             if not quiet:
-                print(PrintMsg.ERROR + 'Linter failed to load template %s "%s" line %s, column %s' % (
+                log.error('Linter failed to load template %s "%s" line %s, column %s' % (
                       template_path, e.problem, e.problem_mark.line, e.problem_mark.column))
         except FileNotFoundError as e:
             if not quiet:
-                print(PrintMsg.ERROR + 'Linter failed to load template %s "%s"' % (template_path, str(e)))
+                log.error('Linter failed to load template %s "%s"' % (template_path, str(e)))
 
     def _lint(self):
         lints = {}
@@ -77,9 +80,9 @@ class Lint(object):
                             t, template, self._rules, lints[test]['regions']
                         )
                     except cfnlint.core.CfnLintExitException as e:
-                        lint_errors.add(PrintMsg.ERROR + str(e))
+                        lint_errors.add(str(e))
             for e in lint_errors:
-                print(e)
+                log.error(e)
         return lints
 
     def output_results(self):
@@ -91,11 +94,23 @@ class Lint(object):
         for test in self.lints.keys():
             for t in self.lints[test]['results'].keys():
                 if len(self.lints[test]['results'][t]) == 0:
-                    print(PrintMsg.INFO + "Lint passed for test %s on template %s:" % (test, t))
+                    log.info("Lint passed for test %s on template %s:" % (test, t))
                 else:
-                    print(PrintMsg.ERROR + "Lint detected issues for test %s on template %s:" % (test, t))
+                    msg = "Lint detected issues for test %s on template %s:" % (test, t)
+                    if self._is_error(self.lints[test]['results'][t]):
+                        log.error(msg)
+                    else:
+                        log.warning(msg)
                 for r in self.lints[test]['results'][t]:
-                    print(self._format_message(r, test, t))
+                    self._format_message(r, test, t)
+
+    @staticmethod
+    def _is_error(messages):
+        for m in messages:
+            sev = m.__str__().lstrip('[')[0]
+            if sev == 'E':
+                return True
+        return False
 
     def _format_message(self, message, test, t):
         message = message.__str__().lstrip('[')
@@ -110,12 +125,12 @@ class Lint(object):
         message = indent.join(textwrap.wrap(" ".join(message.split(" ")[1:-2]), 141-(len(indent) + 11)))
         message = prefix + message
         if sev == 'E':
-            return PrintMsg.ERROR + message
+            log.error(message)
         elif sev == 'W':
             if 'E' + message[1:] not in [r.__str__().lstrip('[') for r in self.lints[test]['results'][t]]:
-                return PrintMsg.INFO + message
+                log.warning(message)
         else:
-            return PrintMsg.DEBUG + "linter produced unkown output: " + message
+            log.error("linter produced unkown output: " + message)
 
     def _get_child_templates(self, filename, children, parent_path=''):
         template = self._parse_template(filename)

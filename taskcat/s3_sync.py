@@ -12,11 +12,14 @@ import hashlib
 import fnmatch
 import os
 import time
+import logging
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
-from taskcat.colored_console import PrintMsg
+from taskcat.logger import PrintMsg
 from boto3.exceptions import S3UploadFailedError
 from taskcat.exceptions import TaskCatException
+
+log = logging.getLogger(__name__)
 
 
 class S3Sync(object):
@@ -144,14 +147,14 @@ class S3Sync(object):
         remove_from_s3 = []
         for s3_file in s3_list.keys():
             if s3_file not in local_list.keys() and not self._exclude_remote(s3_file):
-                print("{}[S3: DELETE ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + prefix + s3_file))
+                log.info("s3://{}/{}".format(bucket, prefix + prefix + s3_file), extra={"nametag": PrintMsg.S3DELETE})
                 remove_from_s3.append({"Key": prefix + s3_file})
         # deleting objects, max 1k objects per s3 delete_objects call
         for d in [remove_from_s3[i:i + 1000] for i in range(0, len(remove_from_s3), 1000)]:
             response = self.s3_client.delete_objects(Bucket=bucket, Delete={'Objects': d})
             if "Errors" in response.keys():
                 for error in response["Errors"]:
-                    print(PrintMsg.ERROR + "S3 delete error: %s" % str(error))
+                    log.error("S3 delete error: %s" % str(error))
                 raise TaskCatException("Failed to delete one or more files from S3")
         # build list of files to upload
         upload_to_s3 = []
@@ -179,13 +182,13 @@ class S3Sync(object):
         retry = 0
         # backoff and retry
         while retry < 5:
-            print("{}[S3: -> ]{} s3://{}/{}".format(PrintMsg.white, PrintMsg.rst_color, bucket, prefix + s3_path))
+            log.info("s3://{}/{}".format(bucket, prefix + s3_path), extra={"nametag": PrintMsg.S3})
             try:
                 s3_client.upload_file(local_filename, bucket, prefix + s3_path, ExtraArgs={'ACL': acl})
                 break
             except Exception as e:
                 retry += 1
-                print(PrintMsg.ERROR + "S3 upload error: %s" % e)
+                log.error("S3 upload error: %s" % e)
                 # give up if we've exhausted retries, or if the error is not-retryable (ie AccessDenied)
                 if retry == 5 or (type(e) == S3UploadFailedError and '(AccessDenied)' in str(e)):
                     raise TaskCatException("Failed to upload to S3")
