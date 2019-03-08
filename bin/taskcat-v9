@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+# authors:
+# Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
+# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
+# Shivansh Singh sshvans@amazon.com,
+# Jay McConnell, jmmccon@amazon.com
+"""
+ Program License: Amazon License
+ Python Class License: Apache 2.0
+"""
+
+from __future__ import print_function
+import taskcat
+from taskcat import TaskCatException
+import sys
+
+
+if __name__ == '__main__':
+    if sys.version_info[0] < 3:
+        raise TaskCatException("Please use Python 3")
+    taskcat.cli.main()
