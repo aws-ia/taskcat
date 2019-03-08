@@ -12,7 +12,7 @@ def test_suite():
     return test_suite
 
 setup(
-    name='taskcat',
+    name='taskcat-v9',
     packages=['taskcat'],
     description='An OpenSource Cloudformation Deployment Framework',
     author='Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell, Andrew Glenn' ,
@@ -32,8 +32,7 @@ setup(
         'Topic :: Software Development :: Libraries',
     ],
     scripts=[
-        'bin/taskcat',
-        'bin/alchemist'
+        'bin/taskcat-v9'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=required,
