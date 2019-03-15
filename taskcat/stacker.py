@@ -1632,7 +1632,8 @@ class TaskCat(object):
         return args
 
     @staticmethod
-    def checkforupdate():
+    def checkforupdate(silent=False):
+        update_needed = False
 
         def _print_upgrade_msg(newversion):
             print("version %s" % version)
@@ -1649,13 +1650,16 @@ class TaskCat(object):
             if 'dev' not in version:
                 current_version = get_pip_version(
                     'https://pypi.org/pypi/taskcat/json')
-                if version in current_version:
-                    print("version %s" % version)
-                else:
-                    _print_upgrade_msg(current_version)
-
+                if version not in current_version:
+                    update_needed = True
+            if not update_needed:
+                print("version %s" % version)
+            else:
+                _print_upgrade_msg(current_version)
         else:
             print(PrintMsg.INFO + "Using local source (development mode) \n")
+
+        return (update_needed, current_version)
 
     def welcome(self, prog_name='taskcat'):
 
