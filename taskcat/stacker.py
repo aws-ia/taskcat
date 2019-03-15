@@ -1378,7 +1378,7 @@ class TaskCat(object):
         ]
         try:
             if os.path.isfile(yaml_file):
-                print(self.nametag + " :Reading Config from: {0}".format(yaml_file))
+                print(self.nametag + " :Reading Config form: {0}".format(yaml_file))
                 with open(yaml_file, 'r') as checkyaml:
                     cfg_yml = yaml.safe_load(checkyaml.read())
                     for key in required_global_keys:
@@ -1632,7 +1632,8 @@ class TaskCat(object):
         return args
 
     @staticmethod
-    def checkforupdate():
+    def checkforupdate(silent=False):
+        update_needed = False
 
         def _print_upgrade_msg(newversion):
             print("version %s" % version)
@@ -1649,13 +1650,16 @@ class TaskCat(object):
             if 'dev' not in version:
                 current_version = get_pip_version(
                     'https://pypi.org/pypi/taskcat/json')
-                if version in current_version:
-                    print("version %s" % version)
-                else:
-                    _print_upgrade_msg(current_version)
-
+                if version not in current_version:
+                    update_needed = True
+            if not update_needed:
+                print("version %s" % version)
+            else:
+                _print_upgrade_msg(current_version)
         else:
             print(PrintMsg.INFO + "Using local source (development mode) \n")
+
+        return (update_needed, current_version)
 
     def welcome(self, prog_name='taskcat'):
 

@@ -20,7 +20,7 @@ setup(
     url='https://aws-quickstart.github.io/taskcat/',
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
-    version = '0.8.29',
+    version = '0.8.30',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -33,7 +33,8 @@ setup(
     ],
     scripts=[
         'bin/taskcat',
-        'bin/alchemist'
+        'bin/alchemist',
+        'bin/amiupdater'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
     install_requires=required,
