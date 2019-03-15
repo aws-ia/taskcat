@@ -1,2 +1,3 @@
 include requirements.txt
 recursive-include taskcat/project_templates *
+recursive-include taskcat/cfg *
