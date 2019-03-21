@@ -142,13 +142,8 @@ class TestCfnLint(unittest.TestCase):
                     f.write(yaml.safe_dump(test_case['config']))
                 with captured_output() as (out, err):
                     lint = Lint(config=config_path)
-                if 'expected_error_output' in test_case.keys():
-                    self.assertEqual(test_case['expected_error_output'], out.getvalue())
                 lint.lints = flatten_rule(lint.lints)
                 self.assertEqual(test_case['expected_lints'], lint.lints)
-                with captured_output() as (out, err):
-                    lint.output_results()
-                self.assertEqual(test_case['expected_output'], out.getvalue())
         finally:
             shutil.rmtree(base_path)
 

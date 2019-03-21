@@ -84,16 +84,6 @@ class TestClientFactory(unittest.TestCase):
             msg = "lock should be an instance of Lock"
             self.assertEqual(type(Lock()), type(aws_clients._lock), msg)
 
-            msg = "logger should exist and level set to ERROR"
-            logger = logging.getLogger()
-            logger.setLevel(logging.ERROR)
-            self.assertEqual(logger, aws_clients.logger, msg)
-
-            msg = "logger should exist and level set to WARNING"
-            logger.setLevel(logging.WARNING)
-            aws_clients = ClientFactory(logger)
-            self.assertEqual(logger, aws_clients.logger, msg)
-
     def test_put_credential_set(self):
         aws_clients = client_factory_instance()
 
