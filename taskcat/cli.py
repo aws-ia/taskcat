@@ -67,7 +67,7 @@ def main():
                     if os.path.isdir(lambda_path):
                         LambdaBuild(lambda_path)
                 except Exception as e:
-                    print("ERROR: Zipping lambda source failed: %s" % e)
+                    log.error("Zipping lambda source failed: %s" % e)
                 if tcat_instance.lambda_build_only:
                     exit0("Lambda source zipped successfully")
             try:

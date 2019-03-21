@@ -132,7 +132,7 @@ class ParamGen:
             available_azs.append(az['ZoneName'])
 
         if len(available_azs) < count:
-            print("{0}!Only {1} az's are available in {2}".format(PrintMsg.ERROR, len(available_azs), self.region))
+            logger.error("!Only {0} az's are available in {1}".format(len(available_azs), self.region))
             raise TaskCatException
         else:
             azs = ','.join(available_azs[:count])
@@ -170,7 +170,7 @@ class ParamGen:
         except TaskCatException:
             raise
         except Exception:
-            print("{} Attempted to fetch Bucket: {}, Key: {}".format(PrintMsg.ERROR, bucket, object_key))
+            logger.error("Attempted to fetch Bucket: {}, Key: {}".format(bucket, object_key))
             raise
         content = dict_object['Body'].read().decode('utf-8').strip()
         return content
@@ -196,7 +196,7 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase and numeric chars
         if pass_type == 'A':
-            print(PrintMsg.DEBUG + "Pass type => {0}".format('alpha-numeric'))
+            logger.debug("Pass type => {0}".format('alpha-numeric'))
 
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
@@ -206,7 +206,7 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == 'S':
-            print(PrintMsg.DEBUG + "Pass type => {0}".format('specialchars'))
+            logger.debug("Pass type => {0}".format('specialchars'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -217,7 +217,7 @@ class ParamGen:
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            print(PrintMsg.DEBUG + "Pass type => default {0}".format('alpha-numeric'))
+            logger.debug("Pass type => default {0}".format('alpha-numeric'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -241,7 +241,7 @@ class ParamGen:
     def _gen_rand_str(length):
         random_string_list = []
         lowercase = "abcdefghijklmnopqrstuvwxyz"
-        print(PrintMsg.DEBUG + "Generating a {}-character random string".format(length))
+        logger.debug("Generating a {}-character random string".format(length))
         while len(random_string_list) < length:
             random_string_list.append(random.choice(lowercase))
         return ''.join(random_string_list)
@@ -250,7 +250,7 @@ class ParamGen:
     def _gen_rand_num(length):
         random_number_list = []
         numbers = "1234567890"
-        print(PrintMsg.DEBUG + "Generating a {}-character random string of numbers".format(length))
+        logger.debug("Generating a {}-character random string of numbers".format(length))
         while len(random_number_list) < length:
             random_number_list.append(random.choice(numbers))
         return ''.join(random_number_list)
@@ -298,15 +298,15 @@ class ParamGen:
                 self._regex_replace_param_value(genaz_regex, self.get_available_azs(numazs))
 
             else:
-                print(PrintMsg.INFO + "$[taskcat_genaz_(!)]")
-                print(PrintMsg.INFO + "Number of az's not specified!")
-                print(PrintMsg.INFO + " - (Defaulting to 1 az)")
+                logger.info("$[taskcat_genaz_(!)]")
+                logger.info("Number of az's not specified!")
+                logger.info(" - (Defaulting to 1 az)")
                 self._regex_replace_param_value(genaz_regex, self.get_available_azs(1))
 
     def _gen_single_az_wrapper(self, genaz_regex):
         if genaz_regex.search(self.param_value):
-            print(PrintMsg.DEBUG + "Selecting availability zones")
-            print(PrintMsg.DEBUG + "Requested 1 az")
+            logger.debug("Selecting availability zones")
+            logger.debug("Requested 1 az")
             az_id = int(genaz_regex.search(self.param_value).group('az_id'))
             self._regex_replace_param_value(
                 genaz_regex, self.get_single_az(az_id))
@@ -323,8 +323,8 @@ class ParamGen:
     def _get_presigned_url_wrapper(self, presigned_url_regex):
         if presigned_url_regex.search(self.param_value):
             if len(self.param_value) < 2:
-                print(PrintMsg.ERROR + "Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.")
-                print(PrintMsg.ERROR+ "Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
+                logger.error("Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.")
+                logger.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
                 raise TaskCatException
             paramsplit = self.regxfind(presigned_url_regex, self.param_value).split(',')[1:]
             url_bucket, url_key = paramsplit[:2]
@@ -345,7 +345,7 @@ class ParamGen:
     def _getval_wrapper(self, getval_regex):
         if getval_regex.search(self.param_value):
             requested_key = self.regxfind(getval_regex, self.param_value)
-            print(PrintMsg.DEBUG + "Getting previously assigned value for " + requested_key)
+            logger.debug("Getting previously assigned value for " + requested_key)
             self._regex_replace_param_value(re.compile('^.*$'), self.mutated_params[requested_key])
 
     def _regex_replace_param_value(self, regex_pattern, func_output):
