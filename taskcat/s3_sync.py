@@ -39,7 +39,8 @@ class S3Sync(object):
     ]
     exclude_path_prefixes = [
         "functions/source/",
-        "."
+        ".",
+        "venv/"
     ]
 
     exclude_remote_path_prefixes = []

@@ -41,8 +41,6 @@ def main():
         # tcat_instance.set_config('ci/config.yml')
         # Get API Handle - Try all know auth
         tcat_instance.aws_api_init(args)
-        # Optional: Enables verbose output by default (DEBUG ON)
-        tcat_instance.verbose = True
         # --Begin
         # Check for valid ymal and required keys in config
         if args.config_yml is not None:
@@ -95,6 +93,7 @@ def main():
             if tcat_instance.one_or_more_tests_failed:
                 exit1("One or more tests failed. See the report for details.")
     except taskcat.exceptions.TaskCatException as e:
+
         exit1("Unexpected error: %s" % str(e))
 
 

@@ -90,7 +90,6 @@ class TaskCat(object):
         self.owner = None
         self.banner = None
         self.capabilities = []
-        self.verbose = False
         self.config = 'taskcat.yml'
         self.test_region = []
         self.s3bucket = None

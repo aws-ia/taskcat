@@ -38,7 +38,6 @@ class ParamGen:
         self.mutated_params = {}
         self.param_name = None
         self.param_value = None
-        self.verbose = verbose
         self.bucket_name = bucket_name
         self._boto_client = boto_client
         self.region = region
@@ -185,9 +184,8 @@ class ParamGen:
             * A = AlphaNumeric, Example 'vGceIP8EHC'
         :return: Password of given length and type
         """
-        if self.verbose:
-            print(PrintMsg.DEBUG + "Auto generating password")
-            print(PrintMsg.DEBUG + "Pass size => {0}".format(pass_length))
+        logger.debug("Auto generating password")
+        logger.debug("Pass size => {0}".format(pass_length))
 
         password = []
         numbers = "1234567890"
@@ -236,8 +234,7 @@ class ParamGen:
         No parameters. Operates on (ClassInstance).param_value
         """
         if (type(self.param_value) == int) or (type(self.param_value) == bytes):
-            if self.verbose:
-                print(PrintMsg.INFO + "Converting Parameter {} from integer/bytes to string".format(self.param_name))
+            logger.debug("Converting Parameter {} from integer/bytes to string".format(self.param_name))
             self.param_value = str(self.param_value)
 
     @staticmethod
@@ -285,8 +282,7 @@ class ParamGen:
                 gentype = 'D'
 
             if passlen:
-                if self.verbose:
-                    print("{}AutoGen values for {}".format(PrintMsg.DEBUG, self.param_value))
+                logger.debug("AutoGen values for {}".format(self.param_value))
                 param_value = self.genpassword(
                     passlen, gentype)
                 self._regex_replace_param_value(gen_regex, param_value)
@@ -296,9 +292,8 @@ class ParamGen:
             numazs = int(
                 self.regxfind(count_regex, self.param_value))
             if numazs:
-                if self.verbose:
-                    print(PrintMsg.DEBUG + "Selecting availability zones")
-                    print(PrintMsg.DEBUG + "Requested %s az's" % numazs)
+                logger.debug("Selecting availability zones")
+                logger.debug("Requested %s az's" % numazs)
 
                 self._regex_replace_param_value(genaz_regex, self.get_available_azs(numazs))
 
@@ -322,8 +317,7 @@ class ParamGen:
             license_bucket = license_str.split('/')[1]
             licensekey = '/'.join(license_str.split('/')[2:])
             param_value = self.get_content(license_bucket, licensekey)
-            if self.verbose:
-                print("{}Getting license content for {}/{}".format(PrintMsg.DEBUG, license_bucket, licensekey))
+            logger.debug("Getting license content for {}/{}".format(license_bucket, licensekey))
             self._regex_replace_param_value(re.compile('^.*$'), param_value)
 
     def _get_presigned_url_wrapper(self, presigned_url_regex):
@@ -338,8 +332,7 @@ class ParamGen:
                 url_expire_seconds = paramsplit[2]
             else:
                 url_expire_seconds = 3600
-            if self.verbose:
-                print("{}Generating a presigned URL for {}/{} with a {} second timeout".format(PrintMsg.DEBUG,
+            logger.debug("Generating a presigned URL for {}/{} with a {} second timeout".format(
                     url_bucket, url_key, url_expire_seconds))
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
             param_value = s3_client.generate_presigned_url(
