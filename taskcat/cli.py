@@ -31,9 +31,9 @@ log = logging.getLogger(__name__)
 
 
 def main():
+    args = _parse_args()
+    log = init_taskcat_cli_logger(loglevel=args.verbosity)
     try:
-        args = _parse_args()
-        log = init_taskcat_cli_logger(loglevel=args.verbosity)
         welcome('taskcat')
         tcat_instance = taskcat.TaskCat(args)
         # Get configuration from command line arg (-c)
@@ -93,8 +93,9 @@ def main():
             if tcat_instance.one_or_more_tests_failed:
                 exit1("One or more tests failed. See the report for details.")
     except taskcat.exceptions.TaskCatException as e:
-
-        exit1("Unexpected error: %s" % str(e))
+        tb = True if args.verbosity.upper() == "DEBUG" else False
+        log.error("Unexpected error: %s" % str(e), exc_info=tb)
+        exit1()
 
 
 def _parse_args():
