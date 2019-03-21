@@ -174,9 +174,13 @@ class S3Sync(object):
         # multithread the uploading of files
         pool = ThreadPool(threads)
         func = partial(self._s3_upload_file, prefix=prefix, s3_client=self.s3_client, acl=acl)
-        pool.map(func, upload_to_s3)
-        pool.close()
-        pool.join()
+        try:
+            pool.map(func, upload_to_s3)
+            pool.close()
+            pool.join()
+        except KeyboardInterrupt:
+            pool.terminate()
+            pool.join()
 
     def _s3_upload_file(self, paths, prefix, s3_client, acl):
         local_filename, bucket, s3_path = paths
@@ -186,6 +190,8 @@ class S3Sync(object):
             log.info("s3://{}/{}".format(bucket, prefix + s3_path), extra={"nametag": PrintMsg.S3})
             try:
                 s3_client.upload_file(local_filename, bucket, prefix + s3_path, ExtraArgs={'ACL': acl})
+                break
+            except KeyboardInterrupt:
                 break
             except Exception as e:
                 retry += 1

@@ -19,6 +19,7 @@ import argparse
 import pyfiglet
 import requests
 import logging
+import signal
 from argparse import RawTextHelpFormatter
 from pkg_resources import get_distribution
 from taskcat.common_utils import exit0, exit1
@@ -27,12 +28,14 @@ from taskcat.cfn_lint import Lint
 from taskcat.logger import init_taskcat_cli_logger, PrintMsg
 from taskcat.exceptions import TaskCatException
 
+
 log = logging.getLogger(__name__)
 
 
 def main():
     args = _parse_args()
     log = init_taskcat_cli_logger(loglevel=args.verbosity)
+    signal.signal(signal.SIGINT, sigint_handler)
     try:
         welcome('taskcat')
         tcat_instance = taskcat.TaskCat(args)
@@ -50,9 +53,10 @@ def main():
             # Load yaml into local taskcat config
             with open(tcat_instance.get_config(), 'r') as cfg:
                 taskcat_cfg = yaml.safe_load(cfg.read())
-            project_path = os.path.abspath(args.config_yml).rsplit('ci/',1)[0][:-1]
+            project_path = os.path.abspath(args.config_yml).rsplit('ci/', 1)[0][:-1]
             tcat_instance.set_config(args.config_yml)
             tcat_cfg_glbl = taskcat_cfg['global']
+            project_name = ''
             if 'qsname' in tcat_cfg_glbl.keys():
                 project_name = tcat_cfg_glbl['qsname']
             elif 'project' in tcat_cfg_glbl.keys():
@@ -63,7 +67,7 @@ def main():
                 exit1("Lambda build not enabled for project. Add package-lambda: true to taskcat.yaml global section")
             elif taskcat_cfg['global']["package-lambda"]:
                 try:
-                    lambda_path = project_path + "/functions/source"
+                    lambda_path = "{}/functions/source".format(project_path)
                     if os.path.isdir(lambda_path):
                         LambdaBuild(lambda_path)
                 except Exception as e:
@@ -92,7 +96,14 @@ def main():
             tcat_instance.cleanup(testdata, 5)
             if tcat_instance.one_or_more_tests_failed:
                 exit1("One or more tests failed. See the report for details.")
+    except KeyboardInterrupt:
+        log.info("Received SIGINT, exiting...")
+        exit1()
     except taskcat.exceptions.TaskCatException as e:
+        tb = True if args.verbosity.upper() == "DEBUG" else False
+        log.error(str(e), exc_info=tb)
+        exit1()
+    except Exception as e:
         tb = True if args.verbosity.upper() == "DEBUG" else False
         log.error("Unexpected error: %s" % str(e), exc_info=tb)
         exit1()
@@ -205,7 +216,8 @@ def _parse_args():
     if args.boto_profile is not None:
         if args.aws_access_key is not None or args.aws_secret_key is not None:
             print(parser.print_help())
-            raise TaskCatException("Cannot use boto profile -P (--boto_profile) with --aws_access_key or --aws_secret_key")
+            raise TaskCatException("Cannot use boto profile -P (--boto_profile) with --aws_access_key or --aws_secret_"
+                                   "key")
 
     if not args.config_yml:
         parser.error("-c (--config_yml) not passed (Config File Required!)")
@@ -260,6 +272,7 @@ def welcome(prog_name='taskcat'):
     banner = pyfiglet.Figlet(font='standard')
     banner = banner
     log.info("{0}".format(banner.renderText(prog_name), '\n'), extra={"nametag": ""})
+    # noinspection PyBroadException
     try:
         checkforupdate()
     except TaskCatException:
@@ -271,14 +284,20 @@ def welcome(prog_name='taskcat'):
 
 
 def get_pip_version(url):
-    '''
+    """
     Given the url to PypI package info url returns the current live version
-    '''
+    """
     return requests.get(url).json()["info"]["version"]
 
 
 def get_installed_version():
+    # noinspection PyBroadException
     try:
         return get_distribution('taskcat').version.replace('.0', '.')
     except Exception:
         return "[local source] no pip module installed"
+
+
+def sigint_handler(signum, frame):
+    log.debug("signum: {}, frame: {}".format(signum, frame))
+    exit1()
