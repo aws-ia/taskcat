@@ -96,9 +96,6 @@ def main():
             tcat_instance.cleanup(testdata, 5)
             if tcat_instance.one_or_more_tests_failed:
                 exit1("One or more tests failed. See the report for details.")
-    except KeyboardInterrupt:
-        log.info("Received SIGINT, exiting...")
-        exit1()
     except taskcat.exceptions.TaskCatException as e:
         tb = True if args.verbosity.upper() == "DEBUG" else False
         log.error(str(e), exc_info=tb)
@@ -299,5 +296,5 @@ def get_installed_version():
 
 
 def sigint_handler(signum, frame):
-    log.debug("signum: {}, frame: {}".format(signum, frame))
+    log.debug("SIGNAL {} caught at {}".format(signum, frame))
     exit1()

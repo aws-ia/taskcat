@@ -35,13 +35,9 @@ class LambdaBuild(object):
 
             dirs = [i for i in os.listdir("./") if os.path.isdir(i)]
             pool = Pool(threads)
-            try:
-                pool.map(self._make_zip, dirs)
-                pool.close()
-                pool.join()
-            except KeyboardInterrupt:
-                pool.terminate()
-                pool.join()
+            pool.map(self._make_zip, dirs)
+            pool.close()
+            pool.join()
         finally:
             os.chdir(cur_dir)
         return

@@ -433,7 +433,6 @@ class TaskCat(object):
             else:
                 S3Sync.exclude_files.append(exclude)
 
-
         S3Sync(s3_client, self.get_s3bucket(), self.get_project_name(), self.get_project_path(), bucket_or_object_acl)
         self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
         if self.upload_only:
