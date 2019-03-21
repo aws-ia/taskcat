@@ -76,10 +76,12 @@ class TestData(object):
     generate report.
 """
 
+
 log = logging.getLogger(__name__)
 
-# noinspection PyUnresolvedReferences
-class TaskCat(object):
+
+# This class should be split into smaller components, and entirely replaced by v9 stable release
+class LegacyTaskCat(object):
     # CONSTRUCTOR
     # ============
 
@@ -464,7 +466,7 @@ class TaskCat(object):
 
     def remove_public_acl_from_bucket(self):
         if self.public_s3_bucket:
-            logger.info('The staging bucket [{}] should be only required during cfn bootstrapping. Removing public '
+            log.info('The staging bucket [{}] should be only required during cfn bootstrapping. Removing public '
                         'permission as they are no longer needed!'.format(self.s3bucket))
             s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
             s3_client.put_bucket_acl(Bucket=self.s3bucket, ACL='private')
