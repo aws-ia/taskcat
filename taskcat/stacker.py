@@ -22,7 +22,6 @@ from __future__ import print_function
 import datetime
 import json
 import os
-import random
 import re
 import time
 import uuid
@@ -45,6 +44,7 @@ from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
 from taskcat.common_utils import exit0, exit1, param_list_to_dict
 from taskcat.cli import get_installed_version
+from taskcat.template_params import ParamGen
 
 
 class TestData(object):
@@ -673,7 +673,7 @@ class TaskCat(object):
         # Example with 5 minute expiry:
         # - $[taskcat_presignedurl],my-example-bucket,example/content.txt,300
 
-        return ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region, verbose=True).results
+        return ParamGen(param_list=s_parms, bucket_name=self.get_s3bucket(), boto_client=self._boto_client, region=region).results
 
     def stackcreate(self, taskcat_cfg, test_list, sprefix):
         """

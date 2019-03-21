@@ -2,37 +2,30 @@ import re
 import random
 import uuid
 import logging
-from taskcat.colored_console import PrintMsg
 from taskcat.exceptions import TaskCatException
 
-logger = logging.getLogger('taskcat')
+log = logging.getLogger(__name__)
+
+
 class ParamGen:
+    RE_GETURL = re.compile(r"(?<=._url_)(.+)(?=]$)", re.IGNORECASE)
+    RE_COUNT = re.compile(r"(?!\w+_)\d{1,2}", re.IGNORECASE)
+    RE_PWTYPE = re.compile(r"(?<=_genpass_)((\d+)(\w)(\]))", re.IGNORECASE)
+    RE_GENPW = re.compile(r"\$\[\w+_genpass?(\w)_\d{1,2}\w?]$", re.IGNORECASE)
+    RE_GENRANDSTR = re.compile(r"\$\[taskcat_random-string]", re.IGNORECASE)
+    RE_GENNUMB = re.compile(r"\$\[taskcat_random-numbers]", re.IGNORECASE)
+    RE_GENAUTOBUCKET = re.compile(r"\$\[taskcat_autobucket]", re.IGNORECASE)
+    RE_GENAZ = re.compile(r"\$\[\w+_ge[nt]az_\d]", re.IGNORECASE)
+    RE_GENAZ_SINGLE = re.compile(r"\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]", re.IGNORECASE)
+    RE_GENUUID = re.compile(r"\$\[\w+_gen[gu]uid]", re.IGNORECASE)
+    RE_QSKEYPAIR = re.compile(r"\$\[\w+_getkeypair]", re.IGNORECASE)
+    RE_QSLICBUCKET = re.compile(r"\$\[\w+_getlicensebucket]", re.IGNORECASE)
+    RE_QSMEDIABUCKET = re.compile(r"\$\[\w+_getmediabucket]", re.IGNORECASE)
+    RE_GETLICCONTENT = re.compile(r"\$\[\w+_getlicensecontent].*$", re.IGNORECASE)
+    RE_GETPRESIGNEDURL = re.compile(r"\$\[\w+_presignedurl],(.*?,){1,2}.*?$", re.IGNORECASE)
+    RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
 
-    RE_GETURL = re.compile(
-        '(?<=._url_)(.+)(?=]$)', re.IGNORECASE)
-    RE_COUNT = re.compile(
-        '(?!\w+_)\d{1,2}', re.IGNORECASE)
-    RE_PWTYPE = re.compile(
-        '(?<=_genpass_)((\d+)(\w)(\]))', re.IGNORECASE)
-    RE_GENPW = re.compile(
-        '\$\[\w+_genpass?(\w)_\d{1,2}\w?]$', re.IGNORECASE)
-    RE_GENRANDSTR = re.compile(
-        '\$\[taskcat_random-string]', re.IGNORECASE)
-    RE_GENNUMB = re.compile(
-        '\$\[taskcat_random-numbers]', re.IGNORECASE)
-    RE_GENAUTOBUCKET = re.compile(
-        '\$\[taskcat_autobucket]', re.IGNORECASE)
-    RE_GENAZ = re.compile('\$\[\w+_ge[nt]az_\d]', re.IGNORECASE)
-    RE_GENAZ_SINGLE = re.compile('\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]', re.IGNORECASE)
-    RE_GENUUID = re.compile('\$\[\w+_gen[gu]uid]', re.IGNORECASE)
-    RE_QSKEYPAIR = re.compile('\$\[\w+_getkeypair]', re.IGNORECASE)
-    RE_QSLICBUCKET = re.compile('\$\[\w+_getlicensebucket]', re.IGNORECASE)
-    RE_QSMEDIABUCKET = re.compile('\$\[\w+_getmediabucket]', re.IGNORECASE)
-    RE_GETLICCONTENT = re.compile('\$\[\w+_getlicensecontent].*$', re.IGNORECASE)
-    RE_GETPRESIGNEDURL = re.compile('\$\[\w+_presignedurl],(.*?,){1,2}.*?$', re.IGNORECASE)
-    RE_GETVAL = re.compile('(?<=._getval_)(\w+)(?=]$)', re.IGNORECASE)
-
-    def __init__(self, param_list, bucket_name, region, boto_client, verbose=False):
+    def __init__(self, param_list, bucket_name, region, boto_client):
         self._param_list = param_list
         self.results = []
         self.mutated_params = {}
@@ -96,7 +89,6 @@ class ParamGen:
 
             self.results.append({'ParameterKey': self.param_name, 'ParameterValue': self.param_value})
 
-
     @staticmethod
     def regxfind(re_object, data_line):
         """
@@ -117,7 +109,6 @@ class ParamGen:
         """
         Returns a list of availability zones in a given region.
 
-        :param region: Region for the availability zones
         :param count: Minimum number of availability zones needed
 
         :return: List of availability zones in a given region
@@ -132,7 +123,7 @@ class ParamGen:
             available_azs.append(az['ZoneName'])
 
         if len(available_azs) < count:
-            logger.error("!Only {0} az's are available in {1}".format(len(available_azs), self.region))
+            log.error("!Only {0} az's are available in {1}".format(len(available_azs), self.region))
             raise TaskCatException
         else:
             azs = ','.join(available_azs[:count])
@@ -146,7 +137,6 @@ class ParamGen:
         return 'us-east-1a', providing '2' would return 'us-east-1b', etc.
         In this way it's possible to get availability zones that are
         guaranteed to be different without knowing their names.
-        :param region: Region of the availability zone
         :param az_id: 0-based ordinal of the AZ to get
         :return: The requested availability zone of the specified region.
         """
@@ -170,12 +160,13 @@ class ParamGen:
         except TaskCatException:
             raise
         except Exception:
-            logger.error("Attempted to fetch Bucket: {}, Key: {}".format(bucket, object_key))
+            log.error("Attempted to fetch Bucket: {}, Key: {}".format(bucket, object_key))
             raise
         content = dict_object['Body'].read().decode('utf-8').strip()
         return content
 
-    def genpassword(self, pass_length, pass_type=None):
+    @staticmethod
+    def genpassword(pass_length, pass_type=None):
         """
         Returns a password of given length and type.
 
@@ -184,8 +175,8 @@ class ParamGen:
             * A = AlphaNumeric, Example 'vGceIP8EHC'
         :return: Password of given length and type
         """
-        logger.debug("Auto generating password")
-        logger.debug("Pass size => {0}".format(pass_length))
+        log.debug("Auto generating password")
+        log.debug("Pass size => {0}".format(pass_length))
 
         password = []
         numbers = "1234567890"
@@ -196,7 +187,7 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase and numeric chars
         if pass_type == 'A':
-            logger.debug("Pass type => {0}".format('alpha-numeric'))
+            log.debug("Pass type => {0}".format('alpha-numeric'))
 
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
@@ -206,7 +197,7 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == 'S':
-            logger.debug("Pass type => {0}".format('specialchars'))
+            log.debug("Pass type => {0}".format('specialchars'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -217,7 +208,7 @@ class ParamGen:
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            logger.debug("Pass type => default {0}".format('alpha-numeric'))
+            log.debug("Pass type => default {0}".format('alpha-numeric'))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -234,14 +225,14 @@ class ParamGen:
         No parameters. Operates on (ClassInstance).param_value
         """
         if (type(self.param_value) == int) or (type(self.param_value) == bytes):
-            logger.debug("Converting Parameter {} from integer/bytes to string".format(self.param_name))
+            log.debug("Converting Parameter {} from integer/bytes to string".format(self.param_name))
             self.param_value = str(self.param_value)
 
     @staticmethod
     def _gen_rand_str(length):
         random_string_list = []
         lowercase = "abcdefghijklmnopqrstuvwxyz"
-        logger.debug("Generating a {}-character random string".format(length))
+        log.debug("Generating a {}-character random string".format(length))
         while len(random_string_list) < length:
             random_string_list.append(random.choice(lowercase))
         return ''.join(random_string_list)
@@ -250,12 +241,13 @@ class ParamGen:
     def _gen_rand_num(length):
         random_number_list = []
         numbers = "1234567890"
-        logger.debug("Generating a {}-character random string of numbers".format(length))
+        log.debug("Generating a {}-character random string of numbers".format(length))
         while len(random_number_list) < length:
             random_number_list.append(random.choice(numbers))
         return ''.join(random_number_list)
 
-    def _gen_uuid(self):
+    @staticmethod
+    def _gen_uuid():
         return str(uuid.uuid1())
 
     def _gen_autobucket(self):
@@ -282,7 +274,7 @@ class ParamGen:
                 gentype = 'D'
 
             if passlen:
-                logger.debug("AutoGen values for {}".format(self.param_value))
+                log.debug("AutoGen values for {}".format(self.param_value))
                 param_value = self.genpassword(
                     passlen, gentype)
                 self._regex_replace_param_value(gen_regex, param_value)
@@ -292,21 +284,21 @@ class ParamGen:
             numazs = int(
                 self.regxfind(count_regex, self.param_value))
             if numazs:
-                logger.debug("Selecting availability zones")
-                logger.debug("Requested %s az's" % numazs)
+                log.debug("Selecting availability zones")
+                log.debug("Requested %s az's" % numazs)
 
                 self._regex_replace_param_value(genaz_regex, self.get_available_azs(numazs))
 
             else:
-                logger.info("$[taskcat_genaz_(!)]")
-                logger.info("Number of az's not specified!")
-                logger.info(" - (Defaulting to 1 az)")
+                log.info("$[taskcat_genaz_(!)]")
+                log.info("Number of az's not specified!")
+                log.info(" - (Defaulting to 1 az)")
                 self._regex_replace_param_value(genaz_regex, self.get_available_azs(1))
 
     def _gen_single_az_wrapper(self, genaz_regex):
         if genaz_regex.search(self.param_value):
-            logger.debug("Selecting availability zones")
-            logger.debug("Requested 1 az")
+            log.debug("Selecting availability zones")
+            log.debug("Requested 1 az")
             az_id = int(genaz_regex.search(self.param_value).group('az_id'))
             self._regex_replace_param_value(
                 genaz_regex, self.get_single_az(az_id))
@@ -317,14 +309,14 @@ class ParamGen:
             license_bucket = license_str.split('/')[1]
             licensekey = '/'.join(license_str.split('/')[2:])
             param_value = self.get_content(license_bucket, licensekey)
-            logger.debug("Getting license content for {}/{}".format(license_bucket, licensekey))
+            log.debug("Getting license content for {}/{}".format(license_bucket, licensekey))
             self._regex_replace_param_value(re.compile('^.*$'), param_value)
 
     def _get_presigned_url_wrapper(self, presigned_url_regex):
         if presigned_url_regex.search(self.param_value):
             if len(self.param_value) < 2:
-                logger.error("Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.")
-                logger.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
+                log.error("Syntax error when using $[taskcat_getpresignedurl]; Not enough parameters.")
+                log.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
                 raise TaskCatException
             paramsplit = self.regxfind(presigned_url_regex, self.param_value).split(',')[1:]
             url_bucket, url_key = paramsplit[:2]
@@ -332,9 +324,9 @@ class ParamGen:
                 url_expire_seconds = paramsplit[2]
             else:
                 url_expire_seconds = 3600
-            logger.debug("Generating a presigned URL for {}/{} with a {} second timeout".format(
-                    url_bucket, url_key, url_expire_seconds))
-            s3_client = self._boto_client.get('s3', region=self.get_default_region(), s3v4=True)
+            log.debug("Generating a presigned URL for {}/{} with a {} second timeout".format(
+                url_bucket, url_key, url_expire_seconds))
+            s3_client = self._boto_client.get('s3', region=self._boto_client.get_default_region(), s3v4=True)
             param_value = s3_client.generate_presigned_url(
                 'get_object',
                 Params={'Bucket': url_bucket, 'Key': url_key},
@@ -345,7 +337,7 @@ class ParamGen:
     def _getval_wrapper(self, getval_regex):
         if getval_regex.search(self.param_value):
             requested_key = self.regxfind(getval_regex, self.param_value)
-            logger.debug("Getting previously assigned value for " + requested_key)
+            log.debug("Getting previously assigned value for " + requested_key)
             self._regex_replace_param_value(re.compile('^.*$'), self.mutated_params[requested_key])
 
     def _regex_replace_param_value(self, regex_pattern, func_output):
