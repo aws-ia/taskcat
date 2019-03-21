@@ -11,7 +11,9 @@ from __future__ import print_function
 import logging
 import os
 from shutil import make_archive
+from multiprocessing import Pool
 from taskcat.common_utils import make_dir
+
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +25,7 @@ class LambdaBuild(object):
 
     zip_file_name = "lambda"
 
-    def __init__(self, source_path, output_path="../packages"):
+    def __init__(self, source_path, output_path="../packages", threads=4):
 
         cur_dir = os.path.abspath(os.curdir)
         try:
@@ -31,9 +33,15 @@ class LambdaBuild(object):
             os.chdir(self.source_path)
             self.output_path = os.path.abspath(output_path)
 
-            dirs = [ i for i in os.listdir("./") if os.path.isdir(i) ]
-            for dir in dirs:
-                self._make_zip(dir)
+            dirs = [i for i in os.listdir("./") if os.path.isdir(i)]
+            pool = Pool(threads)
+            try:
+                pool.map(self._make_zip, dirs)
+                pool.close()
+                pool.join()
+            except KeyboardInterrupt:
+                pool.terminate()
+                pool.join()
         finally:
             os.chdir(cur_dir)
         return
