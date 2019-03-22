@@ -62,7 +62,7 @@ test_cases = [
             }
         },
         "templates": {
-            "test1": """{
+            "test1": r"""{
     "Parameters": {
         "BadJson": {
             "AllowedPattern": "\/"

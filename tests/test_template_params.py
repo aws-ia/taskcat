@@ -169,7 +169,7 @@ class TestParamGen(unittest.TestCase):
         genpassword_criteria = [
             # A tuple of (func_call, length, flags, re.Pattern, description)
             (pg.genpassword, 15, None, re.compile('[0-9A-Za-z]'), 'Testing a 15 character password. Default PW type'),
-            (pg.genpassword, 15, 'S', re.compile("[!#\$&{\*:\[=,\]-_%@\+a-zA-Z0-9]+"), 'Testing a 15 character password, Special Characters Type'),
+            (pg.genpassword, 15, 'S', re.compile(r"[!#\$&{\*:\[=,\]-_%@\+a-zA-Z0-9]+"), 'Testing a 15 character password, Special Characters Type'),
             (pg.genpassword, 15, 'A', re.compile('[0-9A-Za-z]'), 'Testing a 15 character password, Alphanumeric Character Type')
         ]
         for func_call, pwlen, pwflags, re_pattern, test_desc in genpassword_criteria:
