@@ -3,16 +3,21 @@ from setuptools import setup
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
+    version='0.9.0',
     name='taskcat-v9',
     packages=['taskcat'],
     description='An OpenSource Cloudformation Deployment Framework',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell, Andrew Glenn',
     author_email='tonynv@amazon.com, sancard@amazon.com, sshvans@amazon.com, jmmccon@amazon.com, andglenn@amazon.com',
     url='https://aws-quickstart.github.io/taskcat/',
     license='Apache License 2.0',
     download_url='https://github.com/aws-quickstart/taskcat/tarball/master',
-    version='0.9.0',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
