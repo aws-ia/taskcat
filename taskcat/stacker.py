@@ -1652,10 +1652,11 @@ class TaskCat(object):
                     'https://pypi.org/pypi/taskcat/json')
                 if version not in current_version:
                     update_needed = True
-            if not update_needed:
-                print("version %s" % version)
-            else:
-                _print_upgrade_msg(current_version)
+            if not silent:
+                if not update_needed:
+                    print("version %s" % version)
+                else:
+                    _print_upgrade_msg(current_version)
         else:
             print(PrintMsg.INFO + "Using local source (development mode) \n")
 
