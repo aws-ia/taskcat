@@ -33,7 +33,6 @@ setup(
     ],
     scripts=[
         'bin/taskcat',
-        'bin/alchemist',
         'bin/amiupdater'
     ],
     keywords=['aws', 'cloudformation', 'cloud', 'cloudformation testing', 'cloudformation deploy', 'taskcat'],
