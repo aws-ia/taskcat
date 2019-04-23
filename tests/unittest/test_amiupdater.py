@@ -954,7 +954,6 @@ class TestAMIUpdater(unittest.TestCase):
             "path_to_templates": template_file,
             "client_factory": cf
         }
-        au.upstream_config_file = os.path.abspath('../../taskcat/cfg/amiupdater.cfg.yml')
         a = au(**amiupdater_args)
         a.update_amis()
 
