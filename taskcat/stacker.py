@@ -196,6 +196,7 @@ class TaskCat(object):
         self.lambda_build_only = False
         self.one_or_more_tests_failed = False
         self.exclude = []
+        self.enable_sig_v2 = False
 
     # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -460,7 +461,9 @@ class TaskCat(object):
                     Bucket=auto_bucket,
                     Tagging={"TagSet": self.tags}
                 )
-            policy = """{
+            if not self.enable_sig_v2:
+                print(PrintMsg.INFO + "Enforcing sigv4 requests for bucket %s" % auto_bucket)
+                policy = """{
    "Version": "2012-10-17",
    "Statement": [
          {
@@ -478,7 +481,7 @@ class TaskCat(object):
    ]
 }
 """ % auto_bucket
-            s3_client.put_bucket_policy(Bucket=auto_bucket, Policy=policy)
+                s3_client.put_bucket_policy(Bucket=auto_bucket, Policy=policy)
 
         for exclude in self.get_exclude():
             if(os.path.isdir(exclude)):
@@ -1586,6 +1589,10 @@ class TaskCat(object):
             help="Exclude directories or files from s3 sync\n"
                  "Example: --exclude foo --exclude bar --exclude *.txt"
         )
+        parser.add_argument(
+            '--enable-sig-v2',
+            action='store_true',
+            help="Allow sigv2 requests to auto generated buckets")
 
         args = parser.parse_args()
 
@@ -1597,6 +1604,9 @@ class TaskCat(object):
         if args.version:
             print(get_installed_version())
             exit0()
+
+        if args.enable_sig_v2:
+            self.enable_sig_v2 = True
 
         if args.upload_only:
             self.upload_only = True
