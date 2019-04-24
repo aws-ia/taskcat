@@ -460,6 +460,25 @@ class TaskCat(object):
                     Bucket=auto_bucket,
                     Tagging={"TagSet": self.tags}
                 )
+            policy = """{
+   "Version": "2012-10-17",
+   "Statement": [
+         {
+               "Sid": "Test",
+               "Effect": "Deny",
+               "Principal": "*",
+               "Action": "s3:*",
+               "Resource": "arn:aws:s3:::%s/*",
+               "Condition": {
+                     "StringEquals": {
+                           "s3:signatureversion": "AWS"
+                     }
+               }
+         }
+   ]
+}
+""" % auto_bucket
+            s3_client.put_bucket_policy(Bucket=auto_bucket, Policy=policy)
 
         for exclude in self.get_exclude():
             if(os.path.isdir(exclude)):
