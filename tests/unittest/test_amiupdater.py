@@ -8,6 +8,7 @@ import os
 import sys
 import mock
 from taskcat.client_factory import ClientFactory
+from datetime import datetime
 logger = logging.getLogger("taskcat")
 
 
@@ -1044,3 +1045,69 @@ class TestAMIUpdater(unittest.TestCase):
         }
         a = au(**amiupdater_args)
         self.assertRaises(AMIUpdaterException, a.update_amis)
+
+    def test_APIResults_lessthan_comparison_standard(self):
+        from taskcat.amiupdater import APIResultsData
+        instance_args = { 'codename':'foo',
+                'ami_id':'ami-12345abcde',
+                'creation_date': datetime(2010, 1, 23),
+                'region':'us-east-1',
+                'custom_comparisions': False
+            }
+        a = APIResultsData(**instance_args)
+
+        instance_args['ami_id'] = 'ami-abcde12345'
+        instance_args['creation_date'] = datetime(2012, 1, 23)
+        b = APIResultsData(**instance_args)
+
+        self.assertRaises(TypeError, a < b)
+
+
+    def test_APIResults_greaterthan_comparison_standard(self):
+        from taskcat.amiupdater import APIResultsData
+        APIResultsData.custom_comparisons = False
+        instance_args = { 'codename':'foo',
+                'ami_id':'ami-12345abcde',
+                'creation_date': datetime(2010, 1, 23),
+                'region':'us-east-1',
+                'custom_comparisions': False
+            }
+        a = APIResultsData(**instance_args)
+
+        instance_args['ami_id'] = 'ami-abcde12345'
+        instance_args['creation_date'] = datetime(2012, 1, 23)
+        b = APIResultsData(**instance_args)
+
+        self.assertRaises(TypeError, a > b)
+
+
+    def test_APIResults_lessthan_comparison_custom(self):
+        from taskcat.amiupdater import APIResultsData
+        instance_args = { 'codename':'foo',
+                'ami_id':'ami-12345abcde',
+                'creation_date': datetime(2010, 1, 23),
+                'region':'us-east-1'
+            }
+        a = APIResultsData(**instance_args)
+
+        instance_args['ami_id'] = 'ami-abcde12345'
+        instance_args['creation_date'] = datetime(2012, 1, 23)
+        b = APIResultsData(**instance_args)
+
+        self.assertTrue(a < b)
+
+
+    def test_APIResults_greaterthan_comparison_custom(self):
+        from taskcat.amiupdater import APIResultsData
+        instance_args = { 'codename':'foo',
+                'ami_id':'ami-12345abcde',
+                'creation_date': datetime(2012, 1, 23),
+                'region':'us-east-1'
+            }
+        a = APIResultsData(**instance_args)
+
+        instance_args['ami_id'] = 'ami-abcde12345'
+        instance_args['creation_date'] = datetime(2010, 1, 23)
+        b = APIResultsData(**instance_args)
+
+        self.assertTrue(a > b)

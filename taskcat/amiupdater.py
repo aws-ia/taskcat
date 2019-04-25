@@ -20,14 +20,14 @@ class AMIUpdaterException(Exception):
     pass
 
 class APIResultsData(object):
-    custom_comparisons = True
     results = []
 
-    def __init__(self, codename, ami_id, creation_date, region, *args, **kwargs):
+    def __init__(self, codename, ami_id, creation_date, region, custom_comparisons=True, *args, **kwargs):
         self.codename = codename
         self.ami_id = ami_id
         self._creation_date = creation_date
         self.region = region
+        self.custom_comparisons = custom_comparisons
 
     def __lt__(self, other):
         # See Codenames.parse_api_results for notes on why this is here.
@@ -142,12 +142,11 @@ class Codenames:
             else:
                 raw_ami_names.update({rcn.cn: {rcn.region: [APIResultsData(rcn.cn, x['ImageId'], int(datetime.datetime.strptime(x['CreationDate'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()), rcn.region) for x in rcn._results]}})
 
-        APIResultsData.custom_comparisons = True
         for codename, regions in raw_ami_names.items():
             for region, results_list in regions.items():
                 latest_ami = sorted(results_list, reverse=True)[0]
+                latest_ami.custom_comparisons = False
                 region_codename_result_list.append(latest_ami)
-        APIResultsData.custom_comparisons = False
 
         APIResultsData.results = region_codename_result_list
 
@@ -192,13 +191,13 @@ class TemplateClass(object):
     _regions = set()
     _codenames = set()
 
-    @classmethod
-    def deep_get(cls, dictionary, keys, default=None):
+    @staticmethod
+    def deep_get(dictionary, keys, default=None):
         zulu = reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("/"), dictionary)
         return zulu
 
-    @classmethod
-    def deep_set(cls, dictionary, keys, value):
+    @staticmethod
+    def deep_set(dictionary, keys, value):
         for key in keys.split('/')[:-1]:
             dic = dictionary.setdefault(key, {})
         dictionary[keys[-1]] = value
@@ -207,8 +206,8 @@ class TemplateClass(object):
     def regions(cls):
         return [x for x in list(cls._regions) if x is not 'AMI']
 
-    @classmethod
-    def _fetch_contents(cls, filename):
+    @staticmethod
+    def _fetch_contents(filename):
         """Loads the template to inspect"""
         with open(filename) as f:
             tfdata = f.read()
@@ -220,10 +219,6 @@ class TemplateClass(object):
             filetype = 'yaml'
             loaded_template_data = cfy.ordered_safe_load(open(filename, 'rU'), object_pairs_hook=collections.OrderedDict)
         return (filetype, loaded_template_data, tfdata)
-
-    def write(self):
-        #(qs-skldfjlskdf) // (AMI IDs updated by taskcat v0.8.23 180110/v1.2)
-        pass
 
 
 class TemplateObject(TemplateClass):
@@ -239,28 +234,25 @@ class TemplateObject(TemplateClass):
         self.filetype, self._contents, self._raw = self._fetch_contents(filename)
         self._mapping_root = self.deep_get(self._contents, self.mapping_path)
         self.filter_metadata = self.deep_get(self._contents, self.metadata_path)
+        self.all_regions = all_regions
         self.filters = None
-        self._region_list = list()
-        _ec2_regions = AMIUpdater.client_factory.get('ec2', 'us-east-1').describe_regions()['Regions']
-        for _ec2r in _ec2_regions:
-            self._region_list.append(_ec2r['RegionName'])
-        if all_regions:
-            for region in self._region_list:
-                self._regions.add(region)
-        else:
-            # Use the regions that are in Mappings/AWSAMIRegionMap
-            for region in self._mapping_root.keys():
-                if region not in self._region_list:
-                    raise AMIUpdaterException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
-                self._regions.add(region)
-                
         self.codename = None
+
+        # Sort out what regions are being used. 
+        self._determine_regions()
+
         # Looking for Mappings/AWSAMIRegionMap
         if not self._mapping_root:
             return None
+
         # This is where we know the instantation is good (we've passed sanity checks).
         # Appending the object so it can be referenced later.
         self._objs.append(self)
+
+        # Generate RegionalCodename filters based on what's in the template. 
+        self._generate_regional_codenames()
+
+    def _generate_regional_codenames(self):
         if self.filter_metadata:
             for k in self.filter_metadata.keys():
                 for region in self._regions:
@@ -280,6 +272,21 @@ class TemplateObject(TemplateClass):
                 #   - This is done in the Codenames class, so check that out.
                 for k in self._mapping_root[region].keys():
                     RegionalCodename(cn=k, region=region)
+
+    def _determine_regions(self):
+        self._region_list = list()
+        _ec2_regions = AMIUpdater.client_factory.get('ec2', 'us-east-1').describe_regions()['Regions']
+        for _ec2r in _ec2_regions:
+            self._region_list.append(_ec2r['RegionName'])
+        if self.all_regions:
+            for region in self._region_list:
+                self._regions.add(region)
+        else:
+            # Use the regions that are in Mappings/AWSAMIRegionMap
+            for region in self._mapping_root.keys():
+                if region not in self._region_list:
+                    raise AMIUpdaterException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
+                self._regions.add(region)
 
     def set_region_ami(self, cn, region, ami_id):
         currvalue = self._contents['Mappings']['AWSAMIRegionMap'].get(region, None).get(cn, None)
