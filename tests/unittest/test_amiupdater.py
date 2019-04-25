@@ -794,13 +794,17 @@ class MockEC2:
 
 class TestAMIUpdater(unittest.TestCase):
 
-    def _module_loader(self):
+    def _module_loader(self, return_module=False):
         try:
             del sys.modules['taskcat.amiupdater']
         except KeyError:
             pass
         from taskcat.amiupdater import AMIUpdater, AMIUpdaterException
-        return AMIUpdater, AMIUpdaterException
+        if return_module:
+            import taskcat.amiupdater
+            return AMIUpdater, AMIUpdaterException, taskcat.amiupdater
+        else:
+            return AMIUpdater, AMIUpdaterException
 
     generic_skeleton_template = {
         "Mappings":{
@@ -947,7 +951,7 @@ class TestAMIUpdater(unittest.TestCase):
         return MockClientFactory()
 
     def test_upstream_config_ALAMI(self):
-        au, AMIUpdaterException = self._module_loader()
+        au, AMIUpdaterException, tcau = self._module_loader(return_module=True)
         cf = self.client_factory_handler()
         mapping_name = "AMZNLINUXHVM"
         template_file = self.create_ephemeral_template()
@@ -955,6 +959,7 @@ class TestAMIUpdater(unittest.TestCase):
             "path_to_templates": template_file,
             "client_factory": cf
         }
+        au.upstream_config_file = "{}/{}".format(os.path.dirname(tcau.__file__), "cfg/amiupdater.cfg.yml")
         a = au(**amiupdater_args)
         a.update_amis()
 

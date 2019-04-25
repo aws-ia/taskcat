@@ -96,8 +96,8 @@ class Codenames:
         if self._filters:
             cnfilter = self._filters
         if cnfilter:
-            self.filters = [{'Name': k, 'Values': [v]} for k, v in cnfilter.items()]
-            self.filters.append({'Name': 'state', 'Values': ['available']})
+            self.filters = [{'Name':k, 'Values': [v]} for k, v in cnfilter.items()]
+            self.filters.append({'Name':'state', 'Values':['available']})
         if not self.filters:
             return None
         return True
@@ -155,7 +155,7 @@ class Codenames:
                 latest_ami = sorted(results_list, reverse=True)[0]
                 latest_ami.custom_comparisons = False
                 region_codename_result_list.append(latest_ami)
-
+                
         APIResultsData.results = region_codename_result_list
 
 
@@ -210,7 +210,6 @@ class TemplateClass(object):
     def deep_set(dictionary, keys, value):
         for key in keys.split('/')[:-1]:
             dictionary = dictionary.setdefault(key, {})
-        dictionary[keys[-1]] = value
 
     @classmethod
     def regions(cls):
@@ -229,6 +228,7 @@ class TemplateClass(object):
             filetype = 'yaml'
             loaded_template_data = cfy.ordered_safe_load(open(filename, 'rU'), object_pairs_hook=collections.OrderedDict)
         return filetype, loaded_template_data, tfdata
+
 
 
 class TemplateObject(TemplateClass):
@@ -263,6 +263,28 @@ class TemplateObject(TemplateClass):
         self._generate_regional_codenames()
 
     def _generate_regional_codenames(self):
+        self.filters = None
+        self._region_list = list()
+        _ec2_regions = AMIUpdater.client_factory.get('ec2', 'us-east-1').describe_regions()['Regions']
+        for _ec2r in _ec2_regions:
+            self._region_list.append(_ec2r['RegionName'])
+        if all_regions:
+            for region in self._region_list:
+                self._regions.add(region)
+        else:
+            # Use the regions that are in Mappings/AWSAMIRegionMap
+            for region in self._mapping_root.keys():
+                if region not in self._region_list:
+                    raise AMIUpdaterException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
+                self._regions.add(region)
+                
+        self.codename = None
+        # Looking for Mappings/AWSAMIRegionMap
+        if not self._mapping_root:
+            return None
+        # This is where we know the instantation is good (we've passed sanity checks).
+        # Appending the object so it can be referenced later.
+        self._objs.append(self)
         if self.filter_metadata:
             for k in self.filter_metadata.keys():
                 for region in self._regions:
