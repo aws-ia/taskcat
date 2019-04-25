@@ -268,7 +268,7 @@ class TemplateObject(TemplateClass):
         _ec2_regions = AMIUpdater.client_factory.get('ec2', 'us-east-1').describe_regions()['Regions']
         for _ec2r in _ec2_regions:
             self._region_list.append(_ec2r['RegionName'])
-        if all_regions:
+        if self.all_regions:
             for region in self._region_list:
                 self._regions.add(region)
         else:
