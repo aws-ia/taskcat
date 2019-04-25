@@ -4,7 +4,6 @@ import json
 import datetime
 import pkg_resources
 import requests
-import sys
 import yaml
 import re
 from functools import reduce
@@ -19,33 +18,34 @@ class AMIUpdaterException(Exception):
     """Raised when AMIUpdater experiences a fatal error"""
     pass
 
+
 class APIResultsData(object):
     results = []
 
     def __init__(self, codename, ami_id, creation_date, region, custom_comparisons=True, *args, **kwargs):
         self.codename = codename
         self.ami_id = ami_id
-        self._creation_date = creation_date
+        self.creation_date = creation_date
         self.region = region
         self.custom_comparisons = custom_comparisons
 
     def __lt__(self, other):
         # See Codenames.parse_api_results for notes on why this is here.
         if self.custom_comparisons:
-            return self._creation_date < other._creation_date
+            return self.creation_date < other.creation_date
         else:
             return object.__lt__(self, other)
 
     def __gt__(self, other):
         # See Codenames.parse_api_results for notes on why this is here.
         if self.custom_comparisons:
-            return self._creation_date > other._creation_date
+            return self.creation_date > other.creation_date
         else:
             return object.__gt__(self, other)
 
 
 class Config:
-    raw_dict = {'global':{'AMIs':{}}}
+    raw_dict = {'global': {'AMIs':{}}}
     codenames = set()
 
     @classmethod
@@ -55,7 +55,7 @@ class Config:
                 cls.raw_dict = yaml.safe_load(f)
             except yaml.YAMLError as e:
                 print("{} [{}] - YAML Syntax Error!").format(PrintMsg.ERROR, fn)
-                print("{} {}".format(PrintMsg.ERROR, e.msg))
+                print("{} {}".format(PrintMsg.ERROR, e))
         try:
             for x in cls.raw_dict.get('global').get('AMIs').keys():
                 cls.codenames.add(x)
@@ -81,7 +81,7 @@ class Codenames:
             instance = super(Codenames).__init__(cls)
         return instance
 
-    def __init__(self, cn, region=None, *args, **kwargs):
+    def __init__(self, cn, *args, **kwargs):
         self.cn = cn
         self._regions = set()
         self._region_data = set()
@@ -96,8 +96,8 @@ class Codenames:
         if self._filters:
             cnfilter = self._filters
         if cnfilter:
-            self.filters = [{'Name':k, 'Values': [v]} for k, v in cnfilter.items()]
-            self.filters.append({'Name':'state', 'Values':['available']})
+            self.filters = [{'Name': k, 'Values': [v]} for k, v in cnfilter.items()]
+            self.filters.append({'Name': 'state', 'Values': ['available']})
         if not self.filters:
             return None
         return True
@@ -124,7 +124,7 @@ class Codenames:
 
     @classmethod
     def _per_rcn_ami_fetch(cls, rcn):
-        rcn._results = AMIUpdater.client_factory.get('ec2', rcn.region).describe_images(Filters=rcn.filters)['Images']
+        rcn.results = AMIUpdater.client_factory.get('ec2', rcn.region).describe_images(Filters=rcn.filters)['Images']
 
     @classmethod
     def parse_api_results(cls):
@@ -138,9 +138,17 @@ class Codenames:
         #           [{RAW_API_RESULTS_1}, {RAW_API_RESULTS_2}, {RAW_API_RESULTS_N}]
         for rcn in RegionalCodename.objects():
             if rcn.cn in raw_ami_names.keys():
-                raw_ami_names[rcn.cn][rcn.region] = [APIResultsData(rcn.cn, x['ImageId'], int(datetime.datetime.strptime(x['CreationDate'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()), rcn.region) for x in rcn._results]
+                raw_ami_names[rcn.cn][rcn.region] = [
+                    APIResultsData(rcn.cn, x['ImageId'],
+                                   int(datetime.datetime.strptime(x['CreationDate'],
+                                                                  "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()), rcn.region)
+                    for x in rcn.results]
             else:
-                raw_ami_names.update({rcn.cn: {rcn.region: [APIResultsData(rcn.cn, x['ImageId'], int(datetime.datetime.strptime(x['CreationDate'], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()), rcn.region) for x in rcn._results]}})
+                raw_ami_names.update({rcn.cn:
+                                          {rcn.region: [APIResultsData(rcn.cn, x['ImageId'],
+                                                                       int(datetime.datetime.strptime(x['CreationDate'],
+                                                                                                      "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()), rcn.region)
+                                                        for x in rcn.results]}})
 
         for codename, regions in raw_ami_names.items():
             for region, results_list in regions.items():
@@ -180,9 +188,10 @@ class RegionalCodename(Codenames):
 
     def __init__(self, cn, region, filters=None, *args, **kwargs):
         self.region = region
-        self._results = None
+        self.results = None
         self._filters = filters
         super(RegionalCodename, self).__init__(cn, region, *args, **kwargs)
+
 
 class TemplateClass(object):
     mapping_path = "Mappings/AWSAMIRegionMap"
@@ -193,13 +202,14 @@ class TemplateClass(object):
 
     @staticmethod
     def deep_get(dictionary, keys, default=None):
-        zulu = reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("/"), dictionary)
+        zulu = reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("/"),
+                      dictionary)
         return zulu
 
     @staticmethod
     def deep_set(dictionary, keys, value):
         for key in keys.split('/')[:-1]:
-            dic = dictionary.setdefault(key, {})
+            dictionary = dictionary.setdefault(key, {})
         dictionary[keys[-1]] = value
 
     @classmethod
@@ -218,7 +228,7 @@ class TemplateClass(object):
         else:
             filetype = 'yaml'
             loaded_template_data = cfy.ordered_safe_load(open(filename, 'rU'), object_pairs_hook=collections.OrderedDict)
-        return (filetype, loaded_template_data, tfdata)
+        return filetype, loaded_template_data, tfdata
 
 
 class TemplateObject(TemplateClass):
@@ -309,7 +319,8 @@ class AMIUpdater:
     upstream_config_file = pkg_resources.resource_filename('taskcat', '/cfg/amiupdater.cfg.yml')
     upstream_config_file_url = "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/cfg/amiupdater.cfg.yml"
 
-    def __init__(self, path_to_templates, user_config_file=None, use_upstream_mappings=True, client_factory=None):
+    def __init__(self, path_to_templates, user_config_file=None,
+                 use_upstream_mappings=True, client_factory=None):
         if client_factory:
             AMIUpdater.client_factory = client_factory
         else:
@@ -354,7 +365,7 @@ class AMIUpdater:
     def update_amis(self):
         for template_file in self._fetch_template_files():
             # Loads each template as an object.
-              TemplateObject(template_file)
+            TemplateObject(template_file)
         print("{} Created all filters necessary for the API calls".format(PrintMsg.INFO))
         # Fetches latest AMI IDs from the API.
         # Determines the most common AMI names across all regions
