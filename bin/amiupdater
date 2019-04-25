@@ -12,7 +12,7 @@ if __name__ == "__main__":
     muex.add_argument('-d', '--disable-upstream', action='store_true', help="Don't use the upstream config file.")
     muex.add_argument('-u', '--update-upstream', action='store_true', help="Update the AMIUpdater spec file from upstream")
 
-
+    parser.add_argument('-l', '--list-unknown-mappings', action='store_true', help="List the mapping IDs that AMIUpdater cannot handle")
     parser.add_argument('template_location', type=str, help='Path to the template directory/file')
     parsed_args = parser.parse_args()
 
@@ -35,4 +35,7 @@ if __name__ == "__main__":
         AMIUpdater.update_upstream_mapping_spec()
 
     a = AMIUpdater(**amiupdater_args)
-    a.update_amis()
+    if parsed_args.list_unknown_mappings:
+        a.list_unknown_mappings()
+    else:
+        a.update_amis()
