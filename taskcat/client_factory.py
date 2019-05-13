@@ -34,7 +34,7 @@ class ClientFactory(object):
     """
 
     def __init__(self, logger=None, loglevel='error', botolevel='error', aws_access_key_id=None,
-                 aws_secret_access_key=None, aws_session_token=None, profile_name=None):
+                 aws_secret_access_key=None, aws_session_token=None, profile_name=None, region_map={}):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
@@ -64,6 +64,8 @@ class ClientFactory(object):
         else:
             self.logger = logger
         self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
+        for region in region_map.keys():
+            self.put_credential_set(region, **region_map[region])
         return
 
     def get_default_region(self, aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name):
