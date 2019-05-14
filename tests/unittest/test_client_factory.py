@@ -302,6 +302,16 @@ class TestClientFactory(unittest.TestCase):
         s = aws_clients.get_session("default", "us-east-2")
         self.assertEqual(ue2_session, s, msg)
 
+    @mock.patch("taskcat.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
+    @mock.patch("taskcat.ClientFactory._create_session", mock.MagicMock(return_value=MockBotoSessionClass()))
+    def test_regional_cred_map(self):
+        aws_clients = ClientFactory(regional_cred_map={'ap-east-1': {'profile_name': 'blah'}})
+        self.assertEquals(aws_clients._credential_sets['ap-east-1'], [None, None, None, 'blah'])
+        self.assertEquals(aws_clients._credential_sets['default'], [None, None, None, None])
+
+        ClientFactory._create_client.reset_mock()
+        aws_clients.get("test_service", region='ap-east-1')
+        ClientFactory._create_client.assert_called_once_with('ap-east-1', 'ap-east-1', 'test_service', 'default_sig_version')
 
 if __name__ == '__main__':
     unittest.main()
