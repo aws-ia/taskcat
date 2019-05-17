@@ -198,6 +198,10 @@ def _parse_args():
         help="Exclude directories or files from s3 sync\n"
              "Example: --exclude foo --exclude bar --exclude *.txt"
     )
+    parser.add_argument(
+        '--enable-sig-v2',
+        action='store_true',
+        help="Allow sigv2 requests to auto generated buckets")
 
     args = parser.parse_args()
 

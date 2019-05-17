@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+import os
+import argparse
+from taskcat.amiupdater import AMIUpdater
+from taskcat.colored_console import PrintMsg
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='AMIUpdater')
+
+    parser.add_argument('-c', '--config', type=str, help='Custom config file')
+    muex = parser.add_mutually_exclusive_group()
+    muex.add_argument('-d', '--disable-upstream', action='store_true', help="Don't use the upstream config file.")
+    muex.add_argument('-u', '--update-upstream', action='store_true', help="Update the AMIUpdater spec file from upstream")
+
+    parser.add_argument('-l', '--list-unknown-mappings', action='store_true', help="List the mapping IDs that AMIUpdater cannot handle")
+    parser.add_argument('template_location', type=str, help='Path to the template directory/file')
+    parsed_args = parser.parse_args()
+
+    amiupdater_args = {
+        'path_to_templates':parsed_args.template_location,
+    }
+
+    if parsed_args.disable_upstream:
+        amiupdater_args['use_upstream_mappings'] = False
+    else:
+        upstream_version = AMIUpdater.check_updated_upstream_mapping_spec()
+        if upstream_version:
+            print("{} A new version of the AMIUpdater spec is available for download (v. {})".format(PrintMsg.INFO, upstream_version))
+            print("{} To update your definitions, run: ".format(PrintMsg.INFO))
+            print("{} \t {} -u".format(PrintMsg.INFO, os.path.basename(__file__)))
+            print("\n")
+    if parsed_args.config:
+        amiupdater_args['user_config_file'] = parsed_args.config
+    if parsed_args.update_upstream:
+        AMIUpdater.update_upstream_mapping_spec()
+
+    a = AMIUpdater(**amiupdater_args)
+    if parsed_args.list_unknown_mappings:
+        a.list_unknown_mappings()
+    else:
+        a.update_amis()

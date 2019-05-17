@@ -81,7 +81,7 @@ class CFNYAMLHandler(object):
         OrderedSafeLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping)
         OrderedSafeLoader.add_multi_constructor('!', _construct_cfn_tag)
 
-        return yaml.safe_load(stream, OrderedSafeLoader)
+        return yaml.load(stream, OrderedSafeLoader)
 
     @staticmethod
     def ordered_safe_dump(data, stream=None, **kwds):
@@ -105,7 +105,7 @@ class CFNYAMLHandler(object):
         OrderedSafeDumper.add_representer(str, _str_representer)
         OrderedSafeDumper.ignore_aliases = lambda self, data: True
 
-        yaml_dump = yaml.safe_dump(data, stream, OrderedSafeDumper, **kwds)
+        yaml_dump = yaml.dump(data, Dumper=OrderedSafeDumper, **kwds)
 
         # CloudFormation !Tag quote/colon cleanup
         keyword = re.search('\'!.*\':?', yaml_dump)
