@@ -6,12 +6,14 @@ import pkg_resources
 import requests
 import yaml
 import re
+import logging
 from functools import reduce
 from taskcat.client_factory import ClientFactory
 from taskcat.utils import CFNYAMLHandler as cfy
-from taskcat.colored_console import PrintMsg
-from taskcat.stacker import TaskCat as tc
+from taskcat.stacker import LegacyTaskCat as tc
 from multiprocessing.dummy import Pool as ThreadPool
+
+log = logging.getLogger(__name__)
 
 
 class AMIUpdaterException(Exception):
@@ -54,14 +56,14 @@ class Config:
             try:
                 cls.raw_dict = yaml.safe_load(f)
             except yaml.YAMLError as e:
-                print("{} [{}] - YAML Syntax Error!").format(PrintMsg.ERROR, fn)
-                print("{} {}".format(PrintMsg.ERROR, e))
+                log.error("[{}] - YAML Syntax Error!", fn)
+                log.error("{}", e)
         try:
             for x in cls.raw_dict.get('global').get('AMIs').keys():
                 cls.codenames.add(x)
         except Exception as e:
-            print("{} {} config file [{}] is not structured properly!".format(PrintMsg.ERROR, configtype, fn))
-            print("{}\t{}".format(PrintMsg.ERROR, e))
+            log.error("{} config file [{}] is not structured properly!", configtype, fn)
+            log.error("{}", e)
             raise AMIUpdaterException
 
 
@@ -172,7 +174,7 @@ class Codenames:
                 region_codename_result_list.append(latest_ami)
         if missing_results_list:
             for code_reg in missing_results_list:
-                print("{} The following Codename / Region  had no results from the EC2 API. {}".format(PrintMsg.ERROR, code_reg))
+                log.error("The following Codename / Region  had no results from the EC2 API. {}", code_reg)
             raise AMIUpdaterException("One or more filters returns no results from the EC2 API.")
         APIResultsData.results = region_codename_result_list
 
@@ -314,7 +316,7 @@ class TemplateObject(TemplateClass):
                     continue
                 if region not in self._region_list:
                     if region in AMIUpdater.EXCLUDED_REGIONS:
-                        print("{} The {} region is currently unsupported. AMI IDs will not be updated for this region.".format(PrintMsg.ERROR, region))
+                        log.error("The {} region is currently unsupported. AMI IDs will not be updated for this region.", region)
                     else:
                         raise AMIUpdaterException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
                 self._regions.add(region)
@@ -395,7 +397,7 @@ class AMIUpdater:
 
         unknown_mappings = Codenames.unknown_mappings()
         if unknown_mappings:
-            print("{} The following mappings are unknown to AMIUpdater. Please investigate".format(PrintMsg.INFO))
+            log.warning("The following mappings are unknown to AMIUpdater. Please investigate")
             for unknown_map in unknown_mappings:
                 print(unknown_map)
 
@@ -403,15 +405,15 @@ class AMIUpdater:
         for template_file in self._fetch_template_files():
             # Loads each template as an object.
             TemplateObject(template_file)
-        print("{} Created all filters necessary for the API calls".format(PrintMsg.INFO))
+        log.info("Created all filters necessary for the API calls")
         # Fetches latest AMI IDs from the API.
         # Determines the most common AMI names across all regions
         # Sorts the AMIs by creation date, results go into APIResultsData.results.
         # - See APIResultsData class and Codenames.parse_api_results function for details.
         Codenames.fetch_latest_amis()
-        print("{} Latest AMI IDs fetched".format(PrintMsg.INFO))
+        log.info("Latest AMI IDs fetched")
         Codenames.parse_api_results()
-        print("{} API results parsed".format(PrintMsg.INFO))
+        log.info("API results parsed")
 
         for template_object in TemplateObject.objects():
             for result in APIResultsData.results:
@@ -420,5 +422,5 @@ class AMIUpdater:
         # For each template, write it to disk.
         for template_object in TemplateObject.objects():
             template_object.write()
-        print("{} Templates updated as necessary".format(PrintMsg.INFO))
-        print("{} Complete!".format(PrintMsg.INFO))
+        log.info("{} Templates updated as necessary")
+        log.info("{} Complete!")
