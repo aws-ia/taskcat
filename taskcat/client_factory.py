@@ -34,8 +34,9 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, aws_access_key_id=None,
-                 aws_secret_access_key=None, aws_session_token=None, profile_name=None):
+    def __init__(self, logger=None, loglevel='error', botolevel='error', aws_access_key_id=None,
+                 aws_secret_access_key=None, aws_session_token=None, profile_name=None,
+                 regional_cred_map={}):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
@@ -48,6 +49,9 @@ class ClientFactory(object):
         self._credential_sets = {}
         self._lock = Lock()
         self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
+        for region_name, credential_dict in regional_cred_map.items():
+            self.put_credential_set(region_name, **credential_dict)
+
         return
 
     def get_default_region(self, aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name):
@@ -123,6 +127,8 @@ class ClientFactory(object):
             )
             if credential_set not in self._credential_sets.keys():
                 raise KeyError('credential set %s does not exist' % credential_set)
+            if region and region in self._credential_sets.keys():
+                credential_set = region
             aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[
                 credential_set]
         if not region:

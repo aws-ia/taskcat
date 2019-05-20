@@ -137,6 +137,9 @@ class LegacyTaskCat(object):
         if args.lambda_build_only:
             self.lambda_build_only = True
 
+        if args.enable_sig_v2:
+            self.enable_sig_v2 = True
+
         try:
             self.tags = args.tags
         except AttributeError:
@@ -166,6 +169,7 @@ class LegacyTaskCat(object):
             self.retain_if_failed = True
         self.one_or_more_tests_failed = False
         self.exclude = []
+        self.enable_sig_v2 = False
 
     # SETTERS ANPrintMsg.DEBUG GETTERS
     # ===================
@@ -428,6 +432,27 @@ class LegacyTaskCat(object):
                     Bucket=auto_bucket,
                     Tagging={"TagSet": self.tags}
                 )
+            if not self.enable_sig_v2:
+                print(PrintMsg.INFO + "Enforcing sigv4 requests for bucket %s" % auto_bucket)
+                policy = """{
+   "Version": "2012-10-17",
+   "Statement": [
+         {
+               "Sid": "Test",
+               "Effect": "Deny",
+               "Principal": "*",
+               "Action": "s3:*",
+               "Resource": "arn:aws:s3:::%s/*",
+               "Condition": {
+                     "StringEquals": {
+                           "s3:signatureversion": "AWS"
+                     }
+               }
+         }
+   ]
+}
+""" % auto_bucket
+                s3_client.put_bucket_policy(Bucket=auto_bucket, Policy=policy)
 
         for exclude in self.get_exclude():
             if os.path.isdir(exclude):
