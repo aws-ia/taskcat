@@ -154,15 +154,15 @@ class Stack:
 
     @classmethod
     def create(cls, stack_name: str, template: Template, region: str, parameters: List[Parameter] = None,
-               tags: List[Tag] = None, disable_rollback: bool = True, test_name: str = '', uuid: UUID = uuid4(),
-               client_factory_instance: ClientFactory = ClientFactory()) -> 'Stack':
-        cfn_client = client_factory_instance.get('cloudformation', region=region)
+               tags: List[Tag] = None, disable_rollback: bool = True, test_name: str = '',
+               uuid: UUID = uuid4()) -> 'Stack':
+        cfn_client = template.client_factory_instance.get('cloudformation', region=region)
         parameters = [p.dump() for p in parameters] if parameters else []
         tags = [t.dump() for t in tags] if tags else []
         stack_id = cfn_client.create_stack(
             StackName=stack_name, TemplateURL=template.url, Parameters=parameters, DisableRollback=disable_rollback,
             Tags=tags, Capabilities=Capabilities.ALL)['StackId']
-        stack = cls(stack_id, template, test_name, uuid, client_factory_instance)
+        stack = cls(stack_id, template, test_name, uuid, template.client_factory_instance)
         # fetch property values from cfn
         stack.refresh()
 
