@@ -1,7 +1,7 @@
 import cfnlint
 from pathlib import Path
 from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import s3_url_maker
+from taskcat.common_utils import s3_url_maker, s3_bucket_name_from_url, s3_key_from_url
 from typing import List, Set
 import logging
 import random
@@ -39,8 +39,8 @@ class Template:
     def _delete_s3_object(self, url):
         if not url:
             return
-        bucket_name = url.split('//')[1].split('.')[0]
-        path = '/'.join(url.split('//')[1].split('/')[1:])
+        bucket_name = s3_bucket_name_from_url(url)
+        path = s3_key_from_url(url)
         s3_client = self.client_factory_instance.get('s3')
         s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': [{'Key': path}], 'Quiet': True})
 

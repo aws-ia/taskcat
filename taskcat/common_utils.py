@@ -23,6 +23,14 @@ def s3_url_maker(bucket, key, client):
     return url
 
 
+def s3_bucket_name_from_url(url):
+    return url.split('//')[1].split('.')[0]
+
+
+def s3_key_from_url(url):
+    return '/'.join(url.split('//')[1].split('/')[1:])
+
+
 class CommonTools:
 
     def __init__(self, stack_name):
