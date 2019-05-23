@@ -48,10 +48,10 @@ class Event:
         self.properties: dict = json.loads(raw_event.get('ResourceProperties', '{}'))
 
     def __str__(self):
-        return "{} {} {}".format(self.timestamp, self.logical_id, self.status)
+        return f"{self.timestamp} {self.logical_id} {self.status}"
 
     def __repr__(self):
-        return "<Event object {} at {}>".format(self.event_id, hex(id(self)))
+        return f"<Event object {self.event_id} at {hex(id(self))}>"
 
 
 class Resource:
@@ -66,7 +66,7 @@ class Resource:
         self.last_updated_timestamp: datetime = raw_resource.get('LastUpdatedTimestamp', datetime.fromtimestamp(0))
 
     def __str__(self):
-        return "<Resource {} {}>".format(self.logical_id, self.status)
+        return f"<Resource {self.logical_id} {self.status}>"
 
 
 class Parameter:
@@ -144,7 +144,7 @@ class Stack:
         return self.id
 
     def __repr__(self):
-        return "<Stack object {} at {}>".format(self.name, hex(id(self)))
+        return f"<Stack object {self.name} at {hex(id(self))}>"
 
     def _get_region(self) -> str:
         return self.id.split(':')[3]

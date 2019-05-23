@@ -29,7 +29,7 @@ class Template:
         return str(self.template)
 
     def __repr__(self):
-        return "<Template {} at {}>".format(self.template_path, hex(id(self)))
+        return f"<Template {self.template_path} at {hex(id(self))}>"
 
     def _upload(self, bucket_name: str, prefix: str = '') -> str:
         s3_client = self.client_factory_instance.get('s3')
@@ -64,7 +64,7 @@ class Template:
         except cfn_client.exceptions.ClientError as e:
             self._delete_s3_object(tmpurl)
             if e.response["Error"]["Code"] == "ValidationError":
-                return "{} - {} - {}".format(self.template_path, region, e.response["Error"]["Message"])
+                return f"{self.template_path} - {region} - {e.response['Error']['Message']}"
             raise
         self._delete_s3_object(tmpurl)
         return None
