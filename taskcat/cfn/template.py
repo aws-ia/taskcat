@@ -37,11 +37,12 @@ class Template:
         return s3_url_maker(bucket_name, f'{prefix}{self.template_path.name}', self.client_factory_instance.get('s3'))
 
     def _delete_s3_object(self, url):
-        if url:
-            bucket_name = url.split('//')[1].split('.')[0]
-            path = '/'.join(url.split('//')[1].split('/')[1:])
-            s3_client = self.client_factory_instance.get('s3')
-            s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': [{'Key': path}], 'Quiet': True})
+        if not url:
+            return
+        bucket_name = url.split('//')[1].split('.')[0]
+        path = '/'.join(url.split('//')[1].split('/')[1:])
+        s3_client = self.client_factory_instance.get('s3')
+        s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': [{'Key': path}], 'Quiet': True})
 
     def write(self):
         """writes raw_template back to file, and reloads decoded template, useful if the template has been modified"""
