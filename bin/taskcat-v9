@@ -10,12 +10,13 @@
 """
 
 from __future__ import print_function
-import taskcat
-from taskcat import TaskCatException
 import sys
 
 
 if __name__ == '__main__':
-    if sys.version_info[0] < 3:
-        raise TaskCatException("Please use Python 3")
-    taskcat.cli.main()
+    py_ver = float(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))
+    if py_ver < 3.6:
+        print("taskcat requires python 3.6 or higher")
+        sys.exit(1)
+    from taskcat.cli import main
+    main()

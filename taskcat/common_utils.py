@@ -2,9 +2,52 @@ import re
 import sys
 import os
 import logging
+from pathlib import Path
+import json
+from jsonschema import RefResolver, validate
 from taskcat.exceptions import TaskCatException
 
 log = logging.getLogger(__name__)
+
+S3_PARTITION_MAP = {
+    'aws': 'amazonaws.com',
+    'aws-cn': 'amazonaws.com.cn',
+    'aws-us-gov': 'amazonaws.com'
+}
+
+
+def region_from_stack_id(stack_id):
+    return stack_id.split(':')[3]
+
+
+def name_from_stack_id(stack_id):
+    return stack_id.split(':')[5].split('/')[1]
+
+
+def s3_url_maker(bucket, key, client_factory):
+    s3_client = client_factory.get('s3')
+    location = s3_client.get_bucket_location(Bucket=bucket)['LocationConstraint']
+    url = f'https://{bucket}.s3.amazonaws.com/{key}'  # default case for us-east-1 which returns no location
+    if location:
+        domain = get_s3_domain(location, client_factory)
+        url = f'https://{bucket}.s3-{location}.{domain}/{key}'
+    return url
+
+
+def get_s3_domain(region, client_factory):
+    ssm_client = client_factory.get('ssm')
+    partition = ssm_client.get_parameter(
+        Name=f'/aws/service/global-infrastructure/regions/{region}/partition'
+    )["Parameter"]["Value"]
+    return S3_PARTITION_MAP[partition]
+
+
+def s3_bucket_name_from_url(url):
+    return url.split('//')[1].split('.')[0]
+
+
+def s3_key_from_url(url):
+    return '/'.join(url.split('//')[1].split('/')[1:])
 
 
 class CommonTools:
@@ -12,7 +55,8 @@ class CommonTools:
     def __init__(self, stack_name):
         self.stack_name = stack_name
 
-    def regxfind(self, re_object, data_line):
+    @staticmethod
+    def regxfind(re_object, data_line):
         """
         Returns the matching string.
 
@@ -35,8 +79,8 @@ class CommonTools:
 
         """
         stack_info = dict()
-        region_re = re.compile('(?<=:)(.\w-.+(\w*)-\d)(?=:)')
-        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
+        region_re = re.compile(r'(?<=:)(.\w-.+(\w*)-\d)(?=:)')
+        stack_name_re = re.compile(r'(?<=:stack/)(tCaT.*.)(?=/)')
         stack_info['region'] = self.regxfind(region_re, self.stack_name)
         stack_info['stack_name'] = self.regxfind(stack_name_re, self.stack_name)
         return stack_info
@@ -99,5 +143,39 @@ def buildmap(start_location, map_string, partial_match=True):
             fs_path_to_file = (os.path.join(fs_path, fs_file))
             if map_string in fs_path_to_file and '.git' not in fs_path_to_file:
                 fs_map.append(fs_path_to_file)
-
     return fs_map
+
+
+def absolute_path(path: [str, Path]):
+    if path is None:
+        return None
+    path = Path(path).expanduser().resolve()
+    if not path.exists():
+        return None
+    return path
+
+
+def schema_validate(instance, schema_name):
+    instance_copy = instance.copy()
+    if isinstance(instance_copy, dict):
+        if "tests" in instance_copy.keys():
+            instance_copy["tests"] = tests_to_dict(instance_copy["tests"])
+    schema_path = Path(__file__).parent.absolute() / "cfg"
+    schema = json.load(open(schema_path / f"schema_{schema_name}.json", "r"))
+    validate(
+        instance_copy,
+        schema,
+        resolver=RefResolver(str(schema_path.as_uri()) + "/", None),
+    )
+
+
+def tests_to_dict(tests):
+    rendered_tests = {}
+    for test in tests.keys():
+        rendered_tests[test] = {}
+        for k, v in tests[test].__dict__.items():
+            if not k.startswith("_"):
+                if isinstance(v, Path):
+                    v = str(v)
+                rendered_tests[test][k] = v
+    return rendered_tests
