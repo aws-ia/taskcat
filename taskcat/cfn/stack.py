@@ -97,6 +97,16 @@ class Parameter:
         if 'ResolvedValue' in param_dict.keys():
             self.resolved_value = param_dict['ResolvedValue']
 
+    def dump(self):
+        param_dict = {
+            'ParameterKey': self.key
+        }
+        if self.value:
+            param_dict['ParameterValue'] = self.value
+        if self.use_previous_value:
+            param_dict['UsePreviousValue'] = self.use_previous_value
+        return param_dict
+
 
 class Output:
     def __init__(self, output_dict: dict):
@@ -114,6 +124,13 @@ class Tag:
     def __init__(self, tag_dict: dict):
         self.key: str = tag_dict['Key']
         self.value: str = tag_dict['Value']
+
+    def dump(self):
+        tag_dict = {
+            'Key': self.key,
+            'Value': self.value
+        }
+        return tag_dict
 
 
 class Stack:
@@ -161,10 +178,12 @@ class Stack:
         return self.id.split(':')[5].split('/')[1]
 
     @classmethod
-    def create(cls, stack_name: str, template: Template, parameters: list, tags: list, region: str,
-               disable_rollback: bool = True, test_name: str = '', uuid: UUID = uuid4(),
+    def create(cls, stack_name: str, template: Template, region: str, parameters: List[Parameter] = None,
+               tags: List[Tag] = None, disable_rollback: bool = True, test_name: str = '', uuid: UUID = uuid4(),
                client_factory_instance: ClientFactory = ClientFactory()) -> 'Stack':
         cfn_client = client_factory_instance.get('cloudformation', region=region)
+        parameters = [p.dump() for p in parameters] if parameters else []
+        tags = [t.dump() for t in tags] if tags else []
         stack_id = cfn_client.create_stack(
             StackName=stack_name, TemplateURL=template.url, Parameters=parameters, DisableRollback=disable_rollback,
             Tags=tags, Capabilities=Capabilities.ALL)['StackId']
@@ -180,9 +199,9 @@ class Stack:
         for event in parent_stack.events():
             if event.physical_id == stack_properties['StackId'] and event.properties:
                 url = event.properties['TemplateURL']
-        if url.startswith(parent_stack.template.url_prefix):
+        if url.startswith(parent_stack.template.url_prefix()):
             # Template is part of the project, discovering path
-            relative_path = url.replace(parent_stack.template.url_prefix, '')
+            relative_path = url.replace(parent_stack.template.url_prefix(), '').lstrip('/')
             absolute_path = parent_stack.template.project_root / relative_path
         else:
             # Assuming template is remote to project and downloading it

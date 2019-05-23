@@ -4,7 +4,7 @@ Parameters:
     Default: aws-quickstart
     Type: String
   QSS3KeyPrefix:
-    Default: nested-fail/
+    Default: nested_fail/
     Type: String
 Resources:
   ChildStack:

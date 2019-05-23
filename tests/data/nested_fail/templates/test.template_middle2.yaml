@@ -4,10 +4,13 @@ Parameters:
     Default: aws-quickstart
     Type: String
   QSS3KeyPrefix:
-    Default: nested-fail/
+    Default: nested_fail/
     Type: String
 Resources:
   ChildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/test.template_middle3.yaml'
+      Parameters:
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketName: !Ref QSS3BucketName

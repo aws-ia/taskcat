@@ -22,7 +22,6 @@ class Template:
         self.project_root = Path(project_root).absolute()
         self.client_factory_instance = client_factory_instance
         self.url = url
-        self.url_prefix = self._get_url_prefix()
         self.children: List[Template] = []
         self._find_children()
 
@@ -35,7 +34,7 @@ class Template:
     def _upload(self, bucket_name: str, prefix: str = '') -> str:
         s3_client = self.client_factory_instance.get('s3')
         s3_client.upload_file(str(self.template_path), bucket_name, prefix + self.template_path.name)
-        return s3_url_maker(bucket_name, f'{prefix}{self.template_path.name}')
+        return s3_url_maker(bucket_name, f'{prefix}{self.template_path.name}', self.client_factory_instance.get('s3'))
 
     def _delete_s3_object(self, url):
         if url:
@@ -97,7 +96,7 @@ class Template:
             url = url_prefix + suffix
         return url
 
-    def _get_url_prefix(self) -> str:
+    def url_prefix(self) -> str:
         url_prefix = ''
         if self.url:
             suffix = str(self.template_path).replace(str(self.project_root), '')
