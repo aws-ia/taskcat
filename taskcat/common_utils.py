@@ -7,6 +7,22 @@ from taskcat.exceptions import TaskCatException
 log = logging.getLogger(__name__)
 
 
+def region_from_stack_id(stack_id):
+    return stack_id.split(':')[3]
+
+
+def name_from_stack_id(stack_id):
+    return stack_id.split(':')[5].split('/')[1]
+
+
+def s3_url_maker(bucket, key, client):
+    location = client.get_bucket_location(Bucket=bucket)['LocationConstraint']
+    url = f'https://{bucket}.s3.amazonaws.com/{key}'
+    if location:
+        url = f'https://{bucket}.s3-{location}.amazonaws.com/{key}'
+    return url
+
+
 class CommonTools:
 
     def __init__(self, stack_name):
