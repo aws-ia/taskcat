@@ -33,27 +33,19 @@ class Capabilities:
 
 
 class Event:
-    def __init__(self, event_dict: dict, test_name: str = '', uuid: UUID = uuid4()):
-        self.stack_id: str = event_dict['StackId']
+    def __init__(self, raw_event: dict, test_name: str = '', uuid: UUID = uuid4()):
+        self.stack_id: str = raw_event['StackId']
         self.test_name: str = test_name
         self.uuid: UUID = uuid
-        self.event_id: str = event_dict['EventId']
-        self.stack_name: str = event_dict['StackName']
-        self.logical_id: str = event_dict['LogicalResourceId']
-        self.type: str = event_dict['ResourceType']
-        self.status: str = event_dict['ResourceStatus']
-        self.physical_id: str = ''
-        self.timestamp: datetime = datetime.fromtimestamp(0)
-        self.status_reason: str = ''
-        self.properties: dict = {}
-        if 'PhysicalResourceId' in event_dict.keys():
-            self.physical_id = event_dict['PhysicalResourceId']
-        if 'Timestamp' in event_dict.keys():
-            self.timestamp = event_dict['Timestamp']
-        if 'ResourceStatusReason' in event_dict.keys():
-            self.status_reason = event_dict['ResourceStatusReason']
-        if 'ResourceProperties' in event_dict.keys():
-            self.properties = json.loads(event_dict['ResourceProperties'])
+        self.event_id: str = raw_event['EventId']
+        self.stack_name: str = raw_event['StackName']
+        self.logical_id: str = raw_event['LogicalResourceId']
+        self.type: str = raw_event['ResourceType']
+        self.status: str = raw_event['ResourceStatus']
+        self.physical_id: str = raw_event.get('PhysicalResourceId', '')
+        self.timestamp: datetime = raw_event.get('Timestamp', datetime.fromtimestamp(0))
+        self.status_reason: str = raw_event.get('ResourceStatusReason', '')
+        self.properties: dict = json.loads(raw_event.get('ResourceProperties', '{}'))
 
     def __str__(self):
         return "{} {} {}".format(self.timestamp, self.logical_id, self.status)
@@ -63,39 +55,26 @@ class Event:
 
 
 class Resource:
-    def __init__(self, stack_id: str, resource_dict: dict, test_name: str = '', uuid: UUID = uuid4()):
+    def __init__(self, stack_id: str, raw_resource: dict, test_name: str = '', uuid: UUID = uuid4()):
         self.stack_id: str = stack_id
         self.test_name: str = test_name
         self.uuid: UUID = uuid
-        self.logical_id: str = resource_dict['LogicalResourceId']
-        self.type: str = resource_dict['ResourceType']
-        self.status: str = resource_dict['ResourceStatus']
-        self.physical_id: str = ''
-        self.last_updated_timestamp: datetime = datetime.fromtimestamp(0)
-        self.status_reason: str = ''
-        if 'PhysicalResourceId' in resource_dict.keys():
-            self.physical_id = resource_dict['PhysicalResourceId']
-        if 'LastUpdatedTimestamp' in resource_dict.keys():
-            self.last_updated_timestamp = resource_dict['LastUpdatedTimestamp']
-        if 'ResourceStatusReason' in resource_dict.keys():
-            self.status_reason = resource_dict['ResourceStatusReason']
+        self.logical_id: str = raw_resource['LogicalResourceId']
+        self.type: str = raw_resource['ResourceType']
+        self.status: str = raw_resource['ResourceStatus']
+        self.physical_id: str = raw_resource.get('PhysicalResourceId', '')
+        self.last_updated_timestamp: datetime = raw_resource.get('LastUpdatedTimestamp', datetime.fromtimestamp(0))
 
     def __str__(self):
         return "<Resource {} {}>".format(self.logical_id, self.status)
 
 
 class Parameter:
-    def __init__(self, param_dict: dict):
-        self.key: str = param_dict['ParameterKey']
-        self.value: str = ''
-        self.use_previous_value: bool = False
-        self.resolved_value: str = ''
-        if 'ParameterValue' in param_dict.keys():
-            self.value = param_dict['ParameterValue']
-        if 'UsePreviousValue' in param_dict.keys():
-            self.use_previous_value = param_dict['UsePreviousValue']
-        if 'ResolvedValue' in param_dict.keys():
-            self.resolved_value = param_dict['ResolvedValue']
+    def __init__(self, raw_param: dict):
+        self.key: str = raw_param['ParameterKey']
+        self.value: str = raw_param.get('ParameterValue', '')
+        self.use_previous_value: bool = raw_param.get('UsePreviousValue', False)
+        self.resolved_value: str = raw_param.get('ResolvedValue', '')
 
     def dump(self):
         param_dict = {
@@ -109,15 +88,11 @@ class Parameter:
 
 
 class Output:
-    def __init__(self, output_dict: dict):
-        self.key: str = output_dict['OutputKey']
-        self.value: str = output_dict['OutputValue']
-        self.description: str = ''
-        self.export_name: str = ''
-        if 'Description' in output_dict.keys():
-            self.description = output_dict['Description']
-        if 'ExportName' in output_dict.keys():
-            self.export_name: str = output_dict['ExportName']
+    def __init__(self, raw_output: dict):
+        self.key: str = raw_output['OutputKey']
+        self.value: str = raw_output['OutputValue']
+        self.description: str = raw_output.get('Description', '')
+        self.export_name: str = raw_output.get('ExportName', '')
 
 
 class Tag:
@@ -219,7 +194,8 @@ class Stack:
         stack._set_stack_properties(stack_properties)
         return stack
 
-    def refresh(self, properties: bool = True, events: bool = False, resources: bool = False, children: bool = False) -> None:
+    def refresh(self, properties: bool = True, events: bool = False, resources: bool = False,
+                children: bool = False) -> None:
         if properties:
             self._set_stack_properties()
         if events:
@@ -242,26 +218,16 @@ class Stack:
         if 'Tags' in stack_properties.keys():
             for tag in stack_properties['Tags']:
                 self.tags.append(Tag(tag))
-        if 'ChangeSetId' in stack_properties.keys():
-            self.change_set_id = stack_properties['ChangeSetId']
-        if 'CreationTime' in stack_properties.keys():
-            self.creation_time = stack_properties['CreationTime']
-        if 'DeletionTime' in stack_properties.keys():
-            self.deletion_time = stack_properties['DeletionTime']
-        if 'StackStatus' in stack_properties.keys():
-            self.status = stack_properties['StackStatus']
-        if 'StackStatusReason' in stack_properties.keys():
-            self.status_reason = stack_properties['StackStatusReason']
-        if 'DisableRollback' in stack_properties.keys():
-            self.disable_rollback = stack_properties['DisableRollback']
-        if 'TimeoutInMinutes' in stack_properties.keys():
-            self.timeout_in_minutes = stack_properties['TimeoutInMinutes']
-        if 'Capabilities' in stack_properties.keys():
-            self.capabilities = stack_properties['Capabilities']
-        if 'ParentId' in stack_properties.keys():
-            self.parent_id = stack_properties['ParentId']
-        if 'RootId' in stack_properties.keys():
-            self.root_id = stack_properties['RootId']
+        self.change_set_id = stack_properties.get('ChangeSetId', self.change_set_id)
+        self.creation_time = stack_properties.get('CreationTime', self.creation_time)
+        self.deletion_time = stack_properties.get('DeletionTime', self.deletion_time)
+        self.status = stack_properties.get('StackStatus', self.status)
+        self.status_reason = stack_properties.get('StackStatusReason', self.status_reason)
+        self.disable_rollback = stack_properties.get('DisableRollback', self.disable_rollback)
+        self.timeout_in_minutes = stack_properties.get('TimeoutInMinutes', self.timeout_in_minutes)
+        self.capabilities = stack_properties.get('Capabilities', self.capabilities)
+        self.parent_id = stack_properties.get('ParentId', self.parent_id)
+        self.root_id = stack_properties.get('RootId', self.root_id)
 
     def events(self, filter_status: [str] = None, refresh: bool = False, include_generic: bool = True) -> List[Event]:
         if refresh or not self._events:
@@ -329,7 +295,8 @@ class Stack:
         if refresh or not self._children:
             self._fetch_children()
 
-        def recurse(stack: Stack, descendants: List['Stack'] = []) -> ['Stack']:
+        def recurse(stack: Stack, descendants: List['Stack'] = None) -> ['Stack']:
+            descendants = [] if not descendants else descendants
             if stack.children():
                 descendants += stack.children()
                 for child in stack.children():
