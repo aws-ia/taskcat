@@ -51,24 +51,34 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
 
-    def validate(self, region, bucket_name: str = '', prefix: str = ''):
-        cfn_client = self.client_factory_instance.get('cloudformation', region)
-        if not self.url and not bucket_name:
-            raise ValueError("validate requires either the url instance variable, or bucket_name+prefix to be provided")
-        tmpurl = ''
-        if not self.url:
-            rand = ''.join(random.choice(string.ascii_lowercase) for i in range(8)) + '/'
-            tmpurl = self._upload(bucket_name, prefix+rand)
+    def _create_temporay_s3_object(self, bucket_name, prefix):
+        if self.url:
+            return ''
+        rand = ''.join(random.choice(string.ascii_lowercase) for _ in range(8)) + '/'
+        return self._upload(bucket_name, prefix + rand)
+
+    def _do_validate(self, tmpurl, region):
+        error = None
+        exception = None
         url = tmpurl if tmpurl else self.url
+        cfn_client = self.client_factory_instance.get('cloudformation', region)
         try:
             cfn_client.validate_template(TemplateURL=url)
         except cfn_client.exceptions.ClientError as e:
-            self._delete_s3_object(tmpurl)
-            if e.response["Error"]["Code"] == "ValidationError":
-                return f"{self.template_path} - {region} - {e.response['Error']['Message']}"
-            raise
+            if e.response["Error"]["Code"] != "ValidationError":
+                exception = e
+            error = f"{self.template_path} - {region} - {e.response['Error']['Message']}"
+        return error, exception
+
+    def validate(self, region, bucket_name: str = '', prefix: str = ''):
+        if not self.url and not bucket_name:
+            raise ValueError("validate requires either the url instance variable, or bucket_name+prefix to be provided")
+        tmpurl = self._create_temporay_s3_object(bucket_name, prefix)
+        error, exception = self._do_validate(tmpurl, region)
         self._delete_s3_object(tmpurl)
-        return None
+        if exception:
+            raise exception
+        return error
 
     def _template_url_to_path(self, template_url):
         if isinstance(template_url, dict):
