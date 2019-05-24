@@ -34,7 +34,7 @@ class Template:
     def _upload(self, bucket_name: str, prefix: str = '') -> str:
         s3_client = self.client_factory_instance.get('s3')
         s3_client.upload_file(str(self.template_path), bucket_name, prefix + self.template_path.name)
-        return s3_url_maker(bucket_name, f'{prefix}{self.template_path.name}', self.client_factory_instance.get('s3'))
+        return s3_url_maker(bucket_name, f'{prefix}{self.template_path.name}', self.client_factory_instance)
 
     def _delete_s3_object(self, url):
         if not url:
