@@ -108,11 +108,11 @@ class Template:
         return url
 
     def url_prefix(self) -> str:
-        url_prefix = ''
-        if self.url:
-            suffix = str(self.template_path).replace(str(self.project_root), '')
-            suffix_length = len(suffix.lstrip('/').split("/"))
-            url_prefix = '/'.join(self.url.split('/')[0:-suffix_length])
+        if not self.url:
+            return ''
+        suffix = str(self.template_path).replace(str(self.project_root), '')
+        suffix_length = len(suffix.lstrip('/').split("/"))
+        url_prefix = '/'.join(self.url.split('/')[0:-suffix_length])
         return url_prefix
 
     def _find_children(self) -> None:
