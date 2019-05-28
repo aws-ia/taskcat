@@ -18,11 +18,12 @@ dist/
 .eggs/
 *.egg-info/
 venv/
+.venv/
 .coverage
 coverage.xml
 /.pytest_cache/
 
-examples/taskcat_outputs/
+taskcat_outputs/
 
 # Doc Site
 site/
