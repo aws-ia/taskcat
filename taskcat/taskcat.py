@@ -1,4 +1,4 @@
-from taskcat import LegacyTaskCat
+from taskcat.stacker import LegacyTaskCat
 
 
 class TaskCat(object):

@@ -6,6 +6,46 @@ from taskcat.exceptions import TaskCatException
 
 log = logging.getLogger(__name__)
 
+S3_PARTITION_MAP = {
+    'aws': 'amazonaws.com',
+    'aws-cn': 'amazonaws.com.cn',
+    'aws-us-gov': 'amazonaws.com'
+}
+
+
+def region_from_stack_id(stack_id):
+    return stack_id.split(':')[3]
+
+
+def name_from_stack_id(stack_id):
+    return stack_id.split(':')[5].split('/')[1]
+
+
+def s3_url_maker(bucket, key, client_factory):
+    s3_client = client_factory.get('s3')
+    location = s3_client.get_bucket_location(Bucket=bucket)['LocationConstraint']
+    url = f'https://{bucket}.s3.amazonaws.com/{key}'  # default case for us-east-1 which returns no location
+    if location:
+        domain = get_s3_domain(location, client_factory)
+        url = f'https://{bucket}.s3-{location}.{domain}/{key}'
+    return url
+
+
+def get_s3_domain(region, client_factory):
+    ssm_client = client_factory.get('ssm')
+    partition = ssm_client.get_parameter(
+        Name=f'/aws/service/global-infrastructure/regions/{region}/partition'
+    )["Parameter"]["Value"]
+    return S3_PARTITION_MAP[partition]
+
+
+def s3_bucket_name_from_url(url):
+    return url.split('//')[1].split('.')[0]
+
+
+def s3_key_from_url(url):
+    return '/'.join(url.split('//')[1].split('/')[1:])
+
 
 class CommonTools:
 
