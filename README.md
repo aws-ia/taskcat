@@ -100,7 +100,7 @@ example here:
         template_file: sample-cloudformation-project-novpc.template
         parameter_input: sample-cloudformation-input-novpc.json
       # The following test will test in both all 4 region defined in the global region section using sample-cloudformation-input.json as inputs
-          scenario-all-regions:
+      scenario-all-regions:
         parameter_input: sample-cloudformation-input-withvpc.json
         template_file: sample-cloudformation-project-withvpc.template
 
