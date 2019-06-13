@@ -18,8 +18,6 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         with open(template_path, 'r') as fh:
             self.raw_template = fh.read()
-        with open(template_path, 'r') as fh:
-            self.raw_template_lines = fh.readlines()
         project_root = project_root if project_root else self.template_path.parent.parent
         self.project_root = Path(project_root).absolute()
         self.client_factory_instance = client_factory_instance
@@ -45,6 +43,10 @@ class Template:
         path = s3_key_from_url(url)
         s3_client = self.client_factory_instance.get('s3')
         s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': [{'Key': path}], 'Quiet': True})
+
+    @property
+    def linesplit(self):
+        return self.raw_template.split('\n')
 
     def write(self):
         """writes raw_template back to file, and reloads decoded template, useful if the template has been modified"""
