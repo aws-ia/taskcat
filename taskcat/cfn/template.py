@@ -44,6 +44,10 @@ class Template:
         s3_client = self.client_factory_instance.get('s3')
         s3_client.delete_objects(Bucket=bucket_name, Delete={'Objects': [{'Key': path}], 'Quiet': True})
 
+    @property
+    def linesplit(self):
+        return self.raw_template.split('\n')
+
     def write(self):
         """writes raw_template back to file, and reloads decoded template, useful if the template has been modified"""
         with open(str(self.template_path), 'w') as fh:
