@@ -1,4 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  taskcat:
+    project:
+      name: test-project
+    general:
+      enable_sig_v2: true
+    tests:
+      default: {}
 Parameters:
   QSS3BucketName:
     Default: aws-quickstart

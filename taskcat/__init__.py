@@ -8,7 +8,6 @@ from taskcat.utils import *
 from taskcat.logger import *
 from taskcat.cfn_lint import *
 from taskcat.common_utils import *
-from taskcat.cli import *
 from taskcat.taskcat import *
 from taskcat.client_factory import ClientFactory
 from taskcat.exceptions import TaskCatException

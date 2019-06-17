@@ -34,9 +34,8 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, logger=None, loglevel='error', botolevel='error', aws_access_key_id=None,
-                 aws_secret_access_key=None, aws_session_token=None, profile_name=None,
-                 regional_cred_map={}):
+    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None, profile_name=None,
+                 regional_cred_map=None):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
@@ -45,6 +44,7 @@ class ClientFactory(object):
             aws_session_token (str): [optional] IAM session token, defaults to None
             profile_name (str): [optional] credential profile to use, defaults to None
         """
+        regional_cred_map = regional_cred_map if regional_cred_map else {}
         self._clients = {"default": {}}
         self._credential_sets = {}
         self._lock = Lock()
