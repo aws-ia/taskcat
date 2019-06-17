@@ -5,6 +5,7 @@ import pyfiglet
 import requests
 import signal
 import importlib
+import argparse
 from pathlib import Path
 from typing import List
 from pkg_resources import get_distribution
@@ -19,10 +20,16 @@ log = init_taskcat_cli_logger(loglevel="ERROR")
 NAME = 'taskcat-v9'
 GLOBAL_FLAGS = ['-q', '--quiet', '--debug'] # these are processed before a config
 # object is built and stripped from the args before they are passed to config
-
+MODULE_PATH = Path('cli_modules')
+USAGE = f"{NAME} <command> [subcommand] [options]"
+DESCRIPTION = "taskcat is a tool that tests AWS CloudFormation templates. It deploys " \
+              "your AWS CloudFormation template in multiple AWS Regions and " \
+              "generates a report with a pass/fail grade for each region. You can " \
+              "specify the regions and number of Availability Zones you want to " \
+              "include in the test, and pass in parameter values from your AWS " \
+              "CloudFormation template."
 
 class Cli:
-    MODULE_PATH = Path('cli_modules')
 
     def __init__(self, args: List[str]):
         self.args: List[str] = args if args is not None else []
@@ -127,12 +134,18 @@ class Cli:
 
 
 def main():
-    args = sys.argv[1:]
-    log_level = _setup_logging(args)
     signal.signal(signal.SIGINT, _sigint_handler)
+    _setup_logging(sys.argv)
+    _welcome()
+    cli = CliCore(MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
+    cli.parser.add_argument('-d', '--debug', action=SetVerbosity, nargs=0)
+    cli.parser.add_argument('-q', '--quiet', action=SetVerbosity, nargs=0)
+    cli.parser.parse_args()
+    exit1("breakpoint")
+    args = sys.argv[1:]
+
     try:
         _welcome()
-        _remove_global_flags(args)
         cli = Cli(args)
         cli.run()
     except taskcat.exceptions.TaskCatException as e:
@@ -145,10 +158,15 @@ def main():
     exit0()
 
 
+class SetVerbosity(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.setLevel(_get_log_level([option_string]))
+        setattr(namespace, self.dest, values)
+
+
 def _setup_logging(args):
     log_level = _get_log_level(args)
     log.setLevel(log_level)
-    return log_level
 
 
 def _print_tracebacks(log_level):
@@ -157,21 +175,13 @@ def _print_tracebacks(log_level):
 
 def _get_log_level(args):
     log_level = "INFO"
-    if '--debug' in args and ('-q' in args or '--quiet' in args):
+    if ('-d' in args or '--debug' in args) and ('-q' in args or '--quiet' in args):
         exit1('--debug and --quiet cannot be specified simultaneously')
-    if '--debug' in args:
+    if '-d' in args or '--debug' in args:
         log_level = "DEBUG"
     if '-q' in args or '--quiet' in args:
         log_level = "ERROR"
     return log_level
-
-
-def _remove_global_flags(args):
-    for item in GLOBAL_FLAGS:
-        try:
-            args.remove(item)
-        except ValueError:
-            pass
 
 
 def check_for_update():
@@ -222,7 +232,7 @@ def get_pip_version(url):
 def get_installed_version():
     # noinspection PyBroadException
     try:
-        return get_distribution(NAME).version.replace('.0', '.')
+        return get_distribution(NAME).version
     except Exception:
         return "[local source] no pip module installed"
 

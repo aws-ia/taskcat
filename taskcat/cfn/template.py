@@ -131,7 +131,7 @@ class Template:
                     children.add(child_name)
         for child in children:
             child_template_instance = None
-            for d in self.descendents():
+            for d in self.descendents:
                 if str(d.template_path) == str(child):
                     child_template_instance = d
             if not child_template_instance:
@@ -139,6 +139,7 @@ class Template:
                                                    self.client_factory_instance)
             self.children.append(child_template_instance)
 
+    @property
     def descendents(self) -> Set['Template']:
 
         def recurse(template, descendants):

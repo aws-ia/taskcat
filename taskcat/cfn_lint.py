@@ -1,10 +1,8 @@
 import textwrap
 import cfnlint.core
-from yaml.scanner import ScannerError
-from taskcat.logger import PrintMsg
-import yaml
 import re
 import logging
+from taskcat.config import Config
 
 log = logging.getLogger(__name__)
 
@@ -13,29 +11,17 @@ class Lint(object):
 
     _code_regex = re.compile("^([WER][0-9]*:)")
 
-    def __init__(self, config, path=""):
+    def __init__(self, config: Config, strict: bool = False):
         """
-        Lints templates using cfn_python_lint. Uses config file to define regions and templates to test. Recurses into
+        Lints templates using cfn_python_lint. Uses config to define regions and templates to test. Recurses into
         child templates, excluding submodules.
 
         :param config: path to tascat ci config file
         """
-        self._config = yaml.safe_load(open(config))
+        self._config: Config = config
         self._rules = cfnlint.core.get_rules([], [], [])
-        self._path = path
         self.lints = self._lint()
-
-    def _get_template_path(self, test):
-        if self._path:
-            return '%s/templates/%s' % (self._path, self._config['tests'][test]['template_file'])
-        else:
-            return 'templates/%s' % (self._config['tests'][test]['template_file'])
-
-    def _get_test_regions(self, test):
-        if 'regions' in self._config['tests'][test].keys():
-            return self._filter_unsupported_regions(self._config['tests'][test]['regions'])
-        else:
-            return self._filter_unsupported_regions(self._config['global']['regions'])
+        self.strict: bool = strict
 
     def _filter_unsupported_regions(self, regions):
         lint_regions = set(cfnlint.core.REGIONS)
@@ -46,44 +32,30 @@ class Lint(object):
         log.error("The following regions are not supported by cfn-python-lint and will not be linted %s" % unsupported)
         return list(supported)
 
-    @staticmethod
-    def _parse_template(template_path, quiet=False):
-        try:
-            return cfnlint.decode.cfn_yaml.load(template_path)
-        except ScannerError as e:
-            if not quiet:
-                log.error('Linter failed to load template %s "%s" line %s, column %s' % (
-                      template_path, e.problem, e.problem_mark.line, e.problem_mark.column))
-        except FileNotFoundError as e:
-            if not quiet:
-                log.error('Linter failed to load template %s "%s"' % (template_path, str(e)))
-
     def _lint(self):
         lints = {}
-        templates = {}
 
-        for test in self._config['tests'].keys():
-            lints[test] = {}
-            lints[test]['regions'] = self._get_test_regions(test)
-            template_file = self._get_template_path(test)
-            lints[test]['template_file'] = template_file
-            if template_file not in templates.keys():
-                templates[template_file] = self._get_child_templates(template_file, set(), parent_path=self._path)
+        for _, test in self._config.tests.items():
+            lints[test.name] = {}
+            lints[test.name]['regions'] = self._filter_unsupported_regions(test.regions)
+            lints[test]['template_file'] = test.template_file
             lints[test]['results'] = {}
-            templates[template_file].add(template_file)
+
             lint_errors = set()
-            for t in templates[template_file]:
-                template = self._parse_template(t, quiet=True)
-                if template:
-                    try:
-                        lints[test]['results'][t] = cfnlint.core.run_checks(
-                            t, template, self._rules, lints[test]['regions']
-                        )
-                    except cfnlint.core.CfnLintExitException as e:
-                        lint_errors.add(str(e))
+            templates = {t for t in test.template.descendents}
+            templates.union(set(test.template))
+
+            for t in templates:
+                try:
+                    lints[test]['results'][t] = cfnlint.core.run_checks(
+                        t.template_path, t.template, self._rules,
+                        lints[test]['regions']
+                    )
+                except cfnlint.core.CfnLintExitException as e:
+                    lint_errors.add(str(e))
             for e in lint_errors:
                 log.error(e)
-        return lints
+        return lints, lint_errors
 
     def output_results(self):
         """
@@ -103,6 +75,15 @@ class Lint(object):
                         log.warning(msg)
                 for r in self.lints[test]['results'][t]:
                     self._format_message(r, test, t)
+
+    @property
+    def passed(self):
+        for test in self.lints.keys():
+            for t in self.lints[test]['results'].keys():
+                if len(self.lints[test]['results'][t]) != 0:
+                    if self._is_error(self.lints[test]['results'][t]) or self.strict:
+                        return False
+        return True
 
     @staticmethod
     def _is_error(messages):
@@ -131,29 +112,3 @@ class Lint(object):
                 log.warning(message)
         else:
             log.error("linter produced unkown output: " + message)
-
-    def _get_child_templates(self, filename, children, parent_path=''):
-        template = self._parse_template(filename)
-        if not template:
-            return children
-        for resource in template['Resources'].keys():
-            child_name = ''
-            if template['Resources'][resource]['Type'] == "AWS::CloudFormation::Stack":
-                template_url = template['Resources'][resource]['Properties']['TemplateURL']
-                if isinstance(template_url, dict):
-                    if 'Fn::Sub' in template_url.keys():
-                        if isinstance(template_url['Fn::Sub'], str):
-                            child_name = template_url['Fn::Sub'].split('}')[-1]
-                        else:
-                            child_name = template_url['Fn::Sub'][0].split('}')[-1]
-                    elif 'Fn::Join' in list(template_url.keys())[0]:
-                        child_name = template_url['Fn::Join'][1][-1]
-                elif isinstance(template_url, str):
-                    if 'submodules/' not in template_url:
-                        child_name = '/'.join(template_url.split('/')[-2:])
-            if child_name and not child_name.startswith('submodules/'):
-                if parent_path:
-                    child_name = "%s/%s" % (parent_path, child_name)
-                children.add(child_name)
-                children.union(self._get_child_templates(child_name, children, parent_path=parent_path))
-        return children
