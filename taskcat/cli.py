@@ -138,8 +138,10 @@ def main():
     _setup_logging(sys.argv)
     _welcome()
     cli = CliCore(MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
-    cli.parser.add_argument('-d', '--debug', action=SetVerbosity, nargs=0)
-    cli.parser.add_argument('-q', '--quiet', action=SetVerbosity, nargs=0)
+    cli.parser.add_argument('-d', '--debug', action=SetVerbosity, nargs=0,
+                            help="adds debug output and tracebacks")
+    cli.parser.add_argument('-q', '--quiet', action=SetVerbosity, nargs=0,
+                            help="reduce output to the minimum")
     cli.parser.parse_args()
     exit1("breakpoint")
     args = sys.argv[1:]
