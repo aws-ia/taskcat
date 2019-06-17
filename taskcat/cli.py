@@ -17,9 +17,12 @@ from taskcat.exceptions import TaskCatException
 log = init_taskcat_cli_logger(loglevel="ERROR")
 
 
+class SetVerbosity(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        log.setLevel(_get_log_level([option_string]))
+
+
 NAME = 'taskcat-v9'
-GLOBAL_FLAGS = ['-q', '--quiet', '--debug'] # these are processed before a config
-# object is built and stripped from the args before they are passed to config
 MODULE_PATH = Path('cli_modules')
 USAGE = f"{NAME} <command> [subcommand] [options]"
 DESCRIPTION = "taskcat is a tool that tests AWS CloudFormation templates. It deploys " \
@@ -28,6 +31,17 @@ DESCRIPTION = "taskcat is a tool that tests AWS CloudFormation templates. It dep
               "specify the regions and number of Availability Zones you want to " \
               "include in the test, and pass in parameter values from your AWS " \
               "CloudFormation template."
+GLOBAL_FLAGS = [
+    [
+        '-q', '--quiet',
+        {'action': SetVerbosity, 'nargs': 0, 'help': "reduce output to the minimum"}
+    ],
+    [
+        '-d', '--debug',
+        {'action': SetVerbosity, 'nargs': 0, 'help': "adds debug output and tracebacks"}
+    ]
+]
+
 
 class Cli:
 
@@ -135,21 +149,14 @@ class Cli:
 
 def main():
     signal.signal(signal.SIGINT, _sigint_handler)
-    _setup_logging(sys.argv)
-    _welcome()
-    cli = CliCore(MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
-    cli.parser.add_argument('-d', '--debug', action=SetVerbosity, nargs=0,
-                            help="adds debug output and tracebacks")
-    cli.parser.add_argument('-q', '--quiet', action=SetVerbosity, nargs=0,
-                            help="reduce output to the minimum")
-    cli.parser.parse_args()
-    exit1("breakpoint")
-    args = sys.argv[1:]
-
+    log_level = _setup_logging(sys.argv)
     try:
         _welcome()
-        cli = Cli(args)
-        cli.run()
+        cli = CliCore(MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
+        for flag in GLOBAL_FLAGS:
+            cli.parser.add_argument(flag[0], flag[1], **flag[2])
+        cli.parser.parse_args()
+        exit1("breakpoint")
     except taskcat.exceptions.TaskCatException as e:
         log.error(str(e), exc_info=_print_tracebacks(log_level))
         exit1()
@@ -160,15 +167,10 @@ def main():
     exit0()
 
 
-class SetVerbosity(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        log.setLevel(_get_log_level([option_string]))
-        setattr(namespace, self.dest, values)
-
-
 def _setup_logging(args):
     log_level = _get_log_level(args)
     log.setLevel(log_level)
+    return log_level
 
 
 def _print_tracebacks(log_level):
