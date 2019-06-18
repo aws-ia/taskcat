@@ -105,3 +105,11 @@ class Test:  # pylint: disable=too-few-public-methods
     @classmethod
     def from_dict(cls, raw_test: dict, project_root=Path("./")):
         return Test(**raw_test, project_root=project_root)
+
+
+class S3BucketConfig(str)
+      def __init__(self, public: bool = False, auto: bool = False)
+         self.region = ""
+         self.publc = public
+         self.auto = auto
+         self.max_name_len = 63
