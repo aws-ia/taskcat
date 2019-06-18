@@ -31,6 +31,7 @@ class ParamGen:
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
 
     def __init__(self, param_list, bucket_name, region, boto_client):
+        self.regxfind = CommonTools.regxfind
         self._param_list = param_list
         self.results = []
         self.mutated_params = {}
@@ -40,7 +41,6 @@ class ParamGen:
         self._boto_client = boto_client
         self.region = region
         self.transform_parameter()
-        self.regxfind = CommonTools.regxfind
 
     def transform_parameter(self):
         # Depreciated placeholders:
