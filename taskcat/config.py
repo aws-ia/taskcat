@@ -8,7 +8,7 @@ import yaml
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test
+from taskcat._config_types import Test, S3BucketConfig
 from taskcat.common_utils import absolute_path
 from taskcat.common_utils import schema_validate as validate
 
@@ -81,7 +81,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: str = ""
+        self.s3_bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[Test] = {}
         self.regions: Set[str] = set()
         self.env_vars = {}
