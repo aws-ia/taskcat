@@ -1,8 +1,6 @@
+---
 general:
-  profile_name: test
-  auth:
-    us-east-2:
-      profile_name: general_auth
+  boto_profile: test
 project:
   owner: owner@company.com
   name: nested-fail
@@ -11,11 +9,5 @@ project:
     - us-west-2
 tests:
   taskcat-json:
-    parameter_input: input.json
-    template_file: test.template.yaml
-    auth:
-      us-west-2:
-        profile_name: test_auth
-  no-auth:
     parameter_input: input.json
     template_file: test.template.yaml

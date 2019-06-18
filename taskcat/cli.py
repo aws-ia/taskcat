@@ -33,11 +33,11 @@ DESCRIPTION = "taskcat is a tool that tests AWS CloudFormation templates. It dep
               "CloudFormation template."
 GLOBAL_FLAGS = [
     [
-        '-q', '--quiet',
+        ['-q', '--quiet'],
         {'action': SetVerbosity, 'nargs': 0, 'help': "reduce output to the minimum"}
     ],
     [
-        '-d', '--debug',
+        ['-d', '--debug'],
         {'action': SetVerbosity, 'nargs': 0, 'help': "adds debug output and tracebacks"}
     ]
 ]
@@ -113,9 +113,9 @@ class Cli:
             return
 
         class_name = command.title()
-        module_name = f"taskcat.{Cli.MODULE_PATH}.{command}"
+        module_name = f"taskcat.{MODULE_PATH}.{command}"
         plugin = self._import_plugin_module(class_name, module_name)
-        cli_core = CliCore(plugin)
+        cli_core = CliCore(NAME, plugin)
         available_subcommands = [subcomm[0] for subcomm in cli_core.get_methods()]
         # print command help
         log.debug(available_subcommands)
@@ -152,9 +152,9 @@ def main():
     log_level = _setup_logging(sys.argv)
     try:
         _welcome()
-        cli = CliCore(MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
+        cli = CliCore(NAME, MODULE_PATH, DESCRIPTION, USAGE, get_installed_version())
         for flag in GLOBAL_FLAGS:
-            cli.parser.add_argument(flag[0], flag[1], **flag[2])
+            cli.parser.add_argument(*flag[0], **flag[1])
         cli.parser.parse_args()
         exit1("breakpoint")
     except taskcat.exceptions.TaskCatException as e:
