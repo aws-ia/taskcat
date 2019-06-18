@@ -1,4 +1,9 @@
+import logging
 from taskcat.exceptions import TaskCatException
+from taskcat.config import Config
+from taskcat.s3_sync import S3Sync
+
+log = logging.getLogger(__name__)
 
 class S3APIResponse:
     def __init__(self, x):
@@ -15,7 +20,7 @@ class S3BucketCreatorException(TaskCatException):
 
 class S3BucketCreator:
 
-    SIGV4_POLICY ="""{
+    SIGV4_POLICY = """{
             "Version": "2012-10-17",
             "Statement": [
                 {
@@ -32,7 +37,7 @@ class S3BucketCreator:
                 }
             ]
         }"""
- 
+
     def __init__(self, config: Config):
         self.name: str = ""
         self.public: bool = False
@@ -41,36 +46,38 @@ class S3BucketCreator:
         self.sigv4: bool = True
         self._config = config
         self._client = None
+        self._acl = None
+        self._policy = None
 
         if config.s3_bucket.name:
-          self.name = config.s3_bucket.name
+            self.name = config.s3_bucket.name
 
         if config.s3_bucket.public:
-          self.public = True
+            self.public = True
 
         if config.s3_bucket.tags:
-          self.tags = config.s3_bucket.tags
+            self.tags = config.s3_bucket.tags
 
         if config.default_region != 'us-east-1':
-          self.region = config.default_region
+            self.region = config.default_region
 
         if config.sigv4:
-          self.sigv4 = True
+            self.sigv4 = True
 
         if config.s3_bucket.name:
-          self.name = config.s3_bucket.name
+            self.name = config.s3_bucket.name
 
         if config.s3_bucket.public:
-          self.public = True
+            self.public = True
 
         if config.s3_bucket.tags:
-          self.tags = config.s3_bucket.tags
+            self.tags = config.s3_bucket.tags
 
         if config.default_region != 'us-east-1':
-          self.region = config.default_region
+            self.region = config.default_region
 
         if config.sigv4:
-          self.sigv4 = True
+            self.sigv4 = True
 
     @property
     def acl(self):
@@ -101,26 +108,26 @@ class S3BucketCreator:
 
         return S3APIResponse(response)
 
-    def _create_bucket(self, bucket_name,):
-       _create_resp = self._create_in_region(self.region):
+    def _create_bucket(self, bucket_name):
+        _create_resp = self._create_in_region()
         if _create_resp.ok:
-            log.info(f"Staging Bucket: [{auto_bucket_name}]")
+            log.info(f"Staging Bucket: [{bucket_name}]")
 
         if self.tags:
             self._client.put_bucket_tagging(
-                Bucket=auto_bucket,
+                Bucket=bucket_name,
                 Tagging={"TagSet": self.tags}
             )
 
         if self.sigv4:
-            log.info(f"Enforcing sigv4 requests for bucket ${auto_bucket}")
+            log.info(f"Enforcing sigv4 requests for bucket ${bucket_name}")
             policy = self.SIGV4_POLICY.format(bucket=self.name)
             self._client.put_bucket_policy(Bucket=self.name, Policy=policy)
 
 
 
     def _assert_bucket_exists(self, bucket_name):
-        if not config.s3_bucket.name:
+        if not self._config.s3_bucket.name:
 
             # Verify bucket exists.
             try:
@@ -131,19 +138,19 @@ class S3BucketCreator:
 
     def create(self):
         # Verify bucket name length
-        if len(self.name) > self.config.s3_bucket.max_name_len:
-            raise S3BucketCreatorException(f"The bucket you provided [{config.s3_bucket.name}] is greater than {config.s3_bucket.max_name_len} characters.")
-        self._client =  config.client_factory.get('s3', region=config.default_region, s3v4=self.sigv4)
+        if len(self.name) > self._config.s3_bucket.max_name_len:
+            raise S3BucketCreatorException(f"The bucket you provided [{self._config.s3_bucket.name}] is greater than {self._config.s3_bucket.max_name_len} characters.")
+        self._client =  self._config.client_factory.get('s3', region=self._config.default_region, s3v4=self.sigv4)
 
         if self._config.s3_bucket.name:
             self._assert_bucket_exists(self._config.s3_bucket.name)
             self.name = self._config.s3_bucket.name
             return
 
-        auto_bucket_name = f"taskcat-{self.stack_prefix}-{self.name}-{self.uuid}".lower()
+        auto_bucket_name = f"taskcat-{self._config.stack_prefix}-{self.name}-{self._config.uuid}".lower()
         log.info(f"Creating bucket {auto_bucket_name} in {self.region}")
         self._create_bucket(auto_bucket_name)
-        config.s3_bucket.auto = True
+        self._config.s3_bucket.auto = True
         self.name = auto_bucket_name
 
 
@@ -161,9 +168,9 @@ def stage_in_s3(self, config: Config):
     S3Bucket = S3BucketCreator(config)
 
     try:
-      S3Bucket.create()
+        S3Bucket.create()
     except Exception as e:
-      raise TaskCatException(e)
+        raise TaskCatException(e)
 
     S3Sync(S3Bucket.client,
            S3Bucket.name,
