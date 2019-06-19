@@ -1,12 +1,15 @@
 from taskcat.config import Config
 
+
 class Test:
     """
     Performs functional tests on CloudFormation templates.
     """
 
-    def run(self, entry_point, project_root='./'):
-        config = Config(entry_point, project_root=project_root)
+    def run(self, entry_point, project_root="./"):  # pylint: disable=no-self-use
+        config = Config(
+            entry_point, project_root=project_root
+        )  # pylint: disable=unused-variable
         # 1. build lambdas
         # 2. lint
         # 3. s3 sync
@@ -16,6 +19,6 @@ class Test:
         # 7. delete stacks
         # 8. create report
 
-    def resume(self, run_id):
+    def resume(self, run_id):  # pylint: disable=no-self-use
         # do some stuff
         raise NotImplementedError()

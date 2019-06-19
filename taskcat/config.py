@@ -8,7 +8,7 @@ import yaml
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test
+from taskcat._config_types import Test, S3BucketConfig
 from taskcat.common_utils import absolute_path
 from taskcat.common_utils import schema_validate as validate
 
@@ -75,13 +75,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.lambda_build_only: bool = False
         self.exclude: str = ""
         self.enable_sig_v2: bool = False
-        self.auth: Dict[str: dict] = {}
+        self.auth: Dict[str:dict] = {}
 
         # project config
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: str = ""
+        self.s3_bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[Test] = {}
         self.regions: Set[str] = set()
         self.env_vars = {}
@@ -113,7 +113,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             test.template = Template(
                 template_path=test.template_file,
                 project_root=self.project_root,
-                client_factory_instance=test.client_factory
+                client_factory_instance=test.client_factory,
             )
 
     def _build_cred_dict(self):
@@ -126,30 +126,30 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _cred_merge(creds, regional):
-        if 'regional_cred_map' not in creds:
-            creds['regional_cred_map'] = {}
-        if 'default' in regional:
-            creds = regional['default']
-            del regional['default']
-        creds['regional_cred_map'].update(regional)
+        if "regional_cred_map" not in creds:
+            creds["regional_cred_map"] = {}
+        if "default" in regional:
+            creds = regional["default"]
+            del regional["default"]
+        creds["regional_cred_map"].update(regional)
         return creds
 
     def _build_boto_factories(self):
         instance_cache = []
 
-        def get_instance(creds):
-            for c, i in instance_cache:
-                if creds == c:
-                    return i
-            instance = self._client_factory_class(**creds)
-            instance_cache.append([creds, instance])
+        def get_instance(provided_creds):
+            for creds, instance in instance_cache:
+                if provided_creds == creds:
+                    return instance
+            instance = self._client_factory_class(**provided_creds)
+            instance_cache.append([provided_creds, instance])
             return instance
 
         default_creds = self._cred_merge(self._build_cred_dict(), self.auth.copy())
 
         for _, test in self.tests.items():
             test_creds = default_creds.copy()
-            test_creds['regional_cred_map'] = default_creds['regional_cred_map'].copy()
+            test_creds["regional_cred_map"] = default_creds["regional_cred_map"].copy()
             if test.auth:
                 test_creds = self._cred_merge(test_creds, test.auth.copy())
             test.client_factory = get_instance(test_creds)
@@ -196,9 +196,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self._set(k, v)
 
     def _propagate_regions(self, test: Test):
-        default_region = test.client_factory.get_default_region(
-            None, None, None, None
-        )
+        default_region = test.client_factory.get_default_region(None, None, None, None)
         if not test.regions and not default_region and not self.regions:
             raise TaskCatException(
                 f"unable to define region for test {test.name}, you must define "
@@ -206,9 +204,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 f"or set a default region in the aws cli"
             )
         if not test.regions:
-            test.regions = (
-                self.regions if self.regions else [default_region]
-            )
+            test.regions = self.regions if self.regions else [default_region]
 
     def _process_global_config(self):
         if self.global_config_path is None:

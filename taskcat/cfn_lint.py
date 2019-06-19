@@ -1,13 +1,16 @@
+import logging
+import re
 import textwrap
+
 import cfnlint.core
 import re
 import logging
 from taskcat.config import Config
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
-class Lint(object):
+class Lint:
 
     _code_regex = re.compile("^([WER][0-9]*:)")
 
@@ -23,13 +26,18 @@ class Lint(object):
         self.lints = self._lint()
         self.strict: bool = strict
 
-    def _filter_unsupported_regions(self, regions):
+    @staticmethod
+    def _filter_unsupported_regions(regions):
         lint_regions = set(cfnlint.core.REGIONS)
         if set(regions).issubset(lint_regions):
             return regions
         supported = set(regions).intersection(lint_regions)
         unsupported = set(regions).difference(lint_regions)
-        log.error("The following regions are not supported by cfn-python-lint and will not be linted %s" % unsupported)
+        LOG.error(
+            "The following regions are not supported by cfn-python-lint and will "
+            "not be linted %s",
+            unsupported,
+        )
         return list(supported)
 
     def _lint(self):
@@ -54,7 +62,7 @@ class Lint(object):
                 except cfnlint.core.CfnLintExitException as e:
                     lint_errors.add(str(e))
             for e in lint_errors:
-                log.error(e)
+                LOG.error(e)
         return lints, lint_errors
 
     def output_results(self):
@@ -63,18 +71,18 @@ class Lint(object):
 
         :return:
         """
-        for test in self.lints.keys():
-            for t in self.lints[test]['results'].keys():
-                if len(self.lints[test]['results'][t]) == 0:
-                    log.info("Lint passed for test %s on template %s:" % (test, t))
+        for test in self.lints:
+            for result in self.lints[test]["results"]:
+                if not self.lints[test]["results"][result]:
+                    LOG.info(f"Lint passed for test {test} on template {result}")
                 else:
-                    msg = "Lint detected issues for test %s on template %s:" % (test, t)
-                    if self._is_error(self.lints[test]['results'][t]):
-                        log.error(msg)
+                    msg = f"Lint detected issues for test {test} on template {result}:"
+                    if self._is_error(self.lints[test]["results"][result]):
+                        LOG.error(msg)
                     else:
-                        log.warning(msg)
-                for r in self.lints[test]['results'][t]:
-                    self._format_message(r, test, t)
+                        LOG.warning(msg)
+                for inner_result in self.lints[test]["results"][result]:
+                    self._format_message(result, test, inner_result)
 
     @property
     def passed(self):
@@ -87,14 +95,14 @@ class Lint(object):
 
     @staticmethod
     def _is_error(messages):
-        for m in messages:
-            sev = m.__str__().lstrip('[')[0]
-            if sev == 'E':
+        for message in messages:
+            sev = message.__str__().lstrip("[")[0]
+            if sev == "E":
                 return True
         return False
 
-    def _format_message(self, message, test, t):
-        message = message.__str__().lstrip('[')
+    def _format_message(self, message, test, result):
+        message = message.__str__().lstrip("[")
         sev = message[0]
         code = Lint._code_regex.findall(message)[0][:-1]
         path = message.split(" ")[-1]
@@ -103,12 +111,17 @@ class Lint(object):
             line_no = path.split(":")[1]
         prefix = "    line " + line_no + " [" + code + "] ["
         indent = "\n" + " " * (2 + len(prefix))
-        message = indent.join(textwrap.wrap(" ".join(message.split(" ")[1:-2]), 141-(len(indent) + 11)))
+        message = indent.join(
+            textwrap.wrap(" ".join(message.split(" ")[1:-2]), 141 - (len(indent) + 11))
+        )
         message = prefix + message
-        if sev == 'E':
-            log.error(message)
-        elif sev == 'W':
-            if 'E' + message[1:] not in [r.__str__().lstrip('[') for r in self.lints[test]['results'][t]]:
-                log.warning(message)
+        if sev == "E":
+            LOG.error(message)
+        elif sev == "W":
+            if "E" + message[1:] not in [
+                r.__str__().lstrip("[") for r in self.lints[test]["results"][result]
+            ]:
+                LOG.warning(message)
         else:
-            log.error("linter produced unkown output: " + message)
+            LOG.error("linter produced unkown output: " + message)
+

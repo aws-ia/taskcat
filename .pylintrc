@@ -11,7 +11,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=deployer,amiupdater,stacker,reaper,cli_core,cfn_resources,cfn_logutils
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -141,6 +141,11 @@ disable=print-statement,
         comprehension-escape,
         bad-continuation, # black conflict, see https://github.com/PyCQA/pylint/issues/289
         missing-docstring, # not everything NEEDS a docstring
+        logging-not-lazy, # f-strings are awesome
+        logging-fstring-interpolation, # f-strings are awesome
+        logging-format-interpolation, # format is ok
+        too-few-public-methods,
+        fixme, # allow things with missing features to get merged
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -423,7 +428,9 @@ good-names=i,
            ex,
            Run,
            _,
-           e
+           e,
+           ok,
+           az
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no
@@ -536,10 +543,10 @@ valid-metaclass-classmethod-first-arg=cls
 [DESIGN]
 
 # Maximum number of arguments for function / method.
-max-args=8
+max-args=10
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=10
 
 # Maximum number of boolean expressions in an if statement.
 max-bool-expr=5

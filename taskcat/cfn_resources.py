@@ -37,47 +37,65 @@ class CfnResourceTools:
         This is a helper function of get_resources function. Check get_resources function for details.
 
         """
-        if stackname != 'None':
+        if stackname != "None":
             try:
-                cfn = self._boto_client.get('cloudformation', region=region)
+                cfn = self._boto_client.get("cloudformation", region=region)
                 result = cfn.describe_stack_resources(StackName=stackname)
-                stack_resources = result.get('StackResources')
+                stack_resources = result.get("StackResources")
                 for resource in stack_resources:
                     log.info("Resources: for {}".format(stackname))
-                    log.info("{0} = {1}, {2} = {3}, {4} = {5}".format(
-                        '\n\t\tLogicalId',
-                        resource.get('LogicalResourceId'),
-                        '\n\t\tPhysicalId',
-                        resource.get('PhysicalResourceId'),
-                        '\n\t\tType',
-                        resource.get('ResourceType')
-                        ))
+                    log.info(
+                        "{0} = {1}, {2} = {3}, {4} = {5}".format(
+                            "\n\t\tLogicalId",
+                            resource.get("LogicalResourceId"),
+                            "\n\t\tPhysicalId",
+                            resource.get("PhysicalResourceId"),
+                            "\n\t\tType",
+                            resource.get("ResourceType"),
+                        )
+                    )
                     # if resource is a stack and has a physical resource id
                     # (NOTE: physical id will be missing if stack creation is failed)
-                    if resource.get(
-                            'ResourceType') == 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
+                    if (
+                        resource.get("ResourceType") == "AWS::CloudFormation::Stack"
+                        and "PhysicalResourceId" in resource
+                    ):
                         if include_stacks:
-                            d = {'logicalId': resource.get('LogicalResourceId'),
-                                 'physicalId': resource.get('PhysicalResourceId'),
-                                 'resourceType': resource.get('ResourceType')}
+                            d = {
+                                "logicalId": resource.get("LogicalResourceId"),
+                                "physicalId": resource.get("PhysicalResourceId"),
+                                "resourceType": resource.get("ResourceType"),
+                            }
                             l_resources.append(d)
-                        stackdata = CommonTools(str(resource.get('PhysicalResourceId'))).parse_stack_info()
-                        region = stackdata['region']
-                        self.get_resources_helper(resource.get('PhysicalResourceId'), region, l_resources,
-                                                  include_stacks)
+                        stackdata = CommonTools(
+                            str(resource.get("PhysicalResourceId"))
+                        ).parse_stack_info()
+                        region = stackdata["region"]
+                        self.get_resources_helper(
+                            resource.get("PhysicalResourceId"),
+                            region,
+                            l_resources,
+                            include_stacks,
+                        )
                     # else if resource is not a stack and has a physical resource id
                     # (NOTE: physical id will be missing if stack creation is failed)
-                    elif resource.get(
-                            'ResourceType') != 'AWS::CloudFormation::Stack' and 'PhysicalResourceId' in resource:
-                        d = {'logicalId': resource.get('LogicalResourceId'),
-                             'physicalId': resource.get('PhysicalResourceId'),
-                             'resourceType': resource.get('ResourceType')}
+                    elif (
+                        resource.get("ResourceType") != "AWS::CloudFormation::Stack"
+                        and "PhysicalResourceId" in resource
+                    ):
+                        d = {
+                            "logicalId": resource.get("LogicalResourceId"),
+                            "physicalId": resource.get("PhysicalResourceId"),
+                            "resourceType": resource.get("ResourceType"),
+                        }
                         l_resources.append(d)
             except TaskCatException:
                 raise
             except Exception as e:
                 log.error(str(e))
-                raise TaskCatException("Unable to get resources for stack %s" % stackname)
+                raise TaskCatException(
+                    "Unable to get resources for stack %s" % stackname
+                )
 
     def get_all_resources(self, stackids, region):
         """
@@ -103,9 +121,6 @@ class CfnResourceTools:
         """
         l_all_resources = []
         for anId in stackids:
-            d = {
-                'stackId': anId,
-                'resources': self.get_resources(anId, region)
-            }
+            d = {"stackId": anId, "resources": self.get_resources(anId, region)}
             l_all_resources.append(d)
         return l_all_resources
