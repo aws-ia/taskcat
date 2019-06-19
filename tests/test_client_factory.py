@@ -139,7 +139,7 @@ class TestClientFactory(unittest.TestCase):
         os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
 
         msg = "should add additional key if profile/key is provided and credential set does not exist"
-        aws_clients.get("test_service", profile_name="test", credential_set="nonexistant")
+        aws_clients.get("test_service", profile="test", credential_set="nonexistant")
         self.assertIn("nonexistant", aws_clients._clients.keys(), msg)
 
         ClientFactory._create_client.reset_mock()
@@ -174,7 +174,7 @@ class TestClientFactory(unittest.TestCase):
 
         # should return a new client instance if credentials for an existing session have changed
         ClientFactory._create_client.reset_mock()
-        aws_clients.get("test_service", aws_access_key_id="test")
+        aws_clients.get("test_service", key="test")
         ClientFactory._create_client.assert_called_once()
 
         # should use cached client if one exists

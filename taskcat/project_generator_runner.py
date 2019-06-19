@@ -4,21 +4,16 @@
 #
 
 import sys
-from taskcat.project_generator import (FilesystemService,
-                                       ProjectConfiguration,
-                                       ProjectGenerator)
-
-
-destination = sys.argv[1]
-config = ProjectConfiguration(
-    'owner@example.com',
-    'awesome_quickstart',
-    'quickstart',
-    ['us-east-1', 'us-west-2']
+from taskcat.project_generator import (
+    FilesystemService,
+    ProjectConfiguration,
+    ProjectGenerator,
 )
 
-ProjectGenerator(
-    config,
-    destination,
-    FilesystemService()
-).generate()
+
+DESTINATION = sys.argv[1]
+CONFIG = ProjectConfiguration(
+    "owner@example.com", "awesome_quickstart", "quickstart", ["us-east-1", "us-west-2"]
+)
+
+ProjectGenerator(CONFIG, DESTINATION, FilesystemService()).generate()

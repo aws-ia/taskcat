@@ -6,19 +6,19 @@
 # Shivansh Singh <sshvans@amazon.com>,
 # Jay McConnell <jmmccon@amazon.com>,
 # Andrew Glenn <andglenn@amazon.com>
-from __future__ import print_function
-
-import boto3
-import botocore
 import logging
 from threading import Lock
 from time import sleep
+
+import boto3
+import botocore
+
 from taskcat.exceptions import TaskCatException
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
-class ClientFactory(object):
+class ClientFactory:
     """Manages creating and caching boto3 clients, helpful when creating lots of
     clients in different regions or functions.
 
@@ -34,8 +34,14 @@ class ClientFactory(object):
             return s3_client.list_buckets()
     """
 
-    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None, profile_name=None,
-                 regional_cred_map=None):
+    def __init__(
+        self,
+        aws_access_key_id=None,
+        aws_secret_access_key=None,
+        aws_session_token=None,
+        profile_name=None,
+        regional_cred_map=None,
+    ):
         """Sets up the cache dict, a locking mechanism and the logging object
 
         Args:
@@ -48,13 +54,20 @@ class ClientFactory(object):
         self._clients = {"default": {}}
         self._credential_sets = {}
         self._lock = Lock()
-        self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
+        self.put_credential_set(
+            "default",
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_session_token,
+            profile_name,
+        )
         for region_name, credential_dict in regional_cred_map.items():
             self.put_credential_set(region_name, **credential_dict)
 
-        return
-
-    def get_default_region(self, aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name):
+    @staticmethod
+    def get_default_region(
+        aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name
+    ):
         """returns the default region for the credentials provided
 
         :param aws_access_key_id:
@@ -63,104 +76,156 @@ class ClientFactory(object):
         :param profile_name:
         :return:
         """
-        region = 'us-east-1'
+        region = "us-east-1"
         try:
             if aws_access_key_id and aws_secret_access_key and aws_session_token:
-                session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
-                                                aws_secret_access_key=aws_secret_access_key,
-                                                aws_session_token=aws_session_token)
+                session = boto3.session.Session(
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                    aws_session_token=aws_session_token,
+                )
             elif aws_access_key_id and aws_secret_access_key:
-                session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
-                                                aws_secret_access_key=aws_secret_access_key)
+                session = boto3.session.Session(
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                )
             elif profile_name:
                 session = boto3.session.Session(profile_name=profile_name)
             else:
                 session = boto3.session.Session()
             region = session.region_name
             if not region:
-                log.warning("Region not set in credential chain, defaulting to us-east-1")
-                region = 'us-east-1'
-        except Exception as e:
-            log.error('failed to get default region: %s' % str(e))
-        finally:
-            return region
+                LOG.warning(
+                    "Region not set in credential chain, defaulting to us-east-1"
+                )
+                region = "us-east-1"
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.error("failed to get default region: %s" % str(e))
+        return region
 
-    def put_credential_set(self, credential_set_name, aws_access_key_id=None, aws_secret_access_key=None,
-                           aws_session_token=None, profile_name=None):
+    def put_credential_set(
+        self,
+        credential_set_name,
+        aws_access_key_id=None,
+        aws_secret_access_key=None,
+        aws_session_token=None,
+        profile_name=None,
+    ):
         """Adds or updates a credential set to be re-used when creating clients
 
-                    aws_access_key_id (str): [optional] IAM access key, defaults to None
-                    aws_secret_access_key (str): [optional] IAM secret key, defaults to None
-                    aws_session_token (str): [optional] IAM session token, defaults to None
-                    profile_name (str): [optional] credential profile to use, defaults to None
+            aws_access_key_id (str): [optional] IAM access key, defaults to None
+            aws_secret_access_key (str): [optional] IAM secret key, defaults to None
+            aws_session_token (str): [optional] IAM session token, defaults to None
+            profile_name (str): [optional] credential profile to use, defaults to None
         """
-        if (aws_access_key_id and not aws_secret_access_key) or (not aws_access_key_id and aws_secret_access_key):
-            raise ValueError('"aws_access_key_id" and "aws_secret_access_key" must both be set')
-        elif profile_name and (aws_access_key_id or aws_secret_access_key or aws_session_token):
+        if (aws_access_key_id and not aws_secret_access_key) or (
+            not aws_access_key_id and aws_secret_access_key
+        ):
             raise ValueError(
-                '"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token')
-        self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token,
-                                                      profile_name]
+                '"aws_access_key_id" and "aws_secret_access_key" must both be set'
+            )
+        if profile_name and (
+            aws_access_key_id or aws_secret_access_key or aws_session_token
+        ):
+            raise ValueError(
+                '"profile_name" cannot be used with aws_access_key_id, aws_secret_'
+                "access_key or aws_session_token"
+            )
+        self._credential_sets[credential_set_name] = [
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_session_token,
+            profile_name,
+        ]
 
-    def get(self, service, region=None, credential_set='default', aws_access_key_id=None,
-            aws_secret_access_key=None, aws_session_token=None, s3v4=False, profile_name=None):
-        """get a client for a given service and region, optionally with specific role, credentials and/or sig version
+    def get(
+        self,
+        service,
+        region=None,
+        credential_set="default",
+        key=None,
+        secret=None,
+        token=None,
+        s3v4=False,
+        profile=None,
+    ):
+        """get a client for a given service and region, optionally with specific role,
+        credentials and/or sig version
 
         Args:
             service (str): service name
             region (str): [optional] region name, defaults to current region
             credential_set (str): [optional] name used to seperate different sets of
-                        credentials, defaults to "default" which uses either the auto-discovered
-                        role, or the credentials configured when this class is instantiated
-            aws_access_key_id (str): [optional] IAM access key, defaults to None
-            aws_secret_access_key (str): [optional] IAM secret key, defaults to None
-            aws_session_token (str): [optional] IAM session token, defaults to None
-            s3v4 (bool): [optional] when True enables signature_version=s3v4 which is required for SSE
-                         protected buckets/objects
-            profile_name (str): [optional] credential profile to use, defaults to None
+                credentials, defaults to "default" which uses either the auto-discovered
+                role, or the credentials configured when this class is instantiated
+            key (str): [optional] IAM access key, defaults to None
+            secret (str): [optional] IAM secret key, defaults to None
+            token (str): [optional] IAM session token, defaults to None
+            s3v4 (bool): [optional] when True enables signature_version=s3v4 which is
+                required for SSE protected buckets/objects
+            profile (str): [optional] credential profile to use, defaults to None
         Returns:
             class: boto3 client
         """
-        if not aws_access_key_id and not profile_name:
-            log.debug(
-                "no explicit keys or profile for this client, fetching the credentials from the %s set" % credential_set
+        if not key and not profile:
+            LOG.debug(
+                f"no explicit keys or profile for this client, fetching the "
+                f"credentials from the {credential_set} set"
             )
             if credential_set not in self._credential_sets.keys():
-                raise KeyError('credential set %s does not exist' % credential_set)
+                raise KeyError("credential set %s does not exist" % credential_set)
             if region and region in self._credential_sets.keys():
                 credential_set = region
-            aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name = self._credential_sets[
-                credential_set]
+            key, secret, token, profile = self._credential_sets[credential_set]
         if not region:
-            region = self.get_default_region(aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
-        s3v4 = 's3v4' if s3v4 else 'default_sig_version'
+            region = self.get_default_region(key, secret, token, profile)
+        s3v4 = "s3v4" if s3v4 else "default_sig_version"
         try:
-            log.debug("Trying to get [%s][%s][%s][%s]" % (credential_set, region, service, s3v4))
+            LOG.debug(
+                "Trying to get [%s][%s][%s][%s]"
+                % (credential_set, region, service, s3v4)
+            )
             client = self._clients[credential_set][region][service][s3v4]
-            if aws_access_key_id:
-                if self._clients[credential_set][region]['session'].get_credentials().access_key != aws_access_key_id:
-                    log.debug("credentials changed, forcing update...")
-                    raise KeyError("New credentials for this credential_set, need a new session.")
+            if key:
+                if (
+                    self._clients[credential_set][region]["session"]
+                    .get_credentials()
+                    .access_key
+                    != key
+                ):
+                    LOG.debug("credentials changed, forcing update...")
+                    raise KeyError(
+                        "New credentials for this credential_set, need a new session."
+                    )
             return client
         except KeyError:
-            log.debug("Couldn't return an existing client, making a new one...")
+            LOG.debug("Couldn't return an existing client, making a new one...")
             if credential_set not in self._clients.keys():
                 self._clients[credential_set] = {}
             if region not in self._clients[credential_set].keys():
                 self._clients[credential_set][region] = {}
             if service not in self._clients[credential_set].keys():
                 self._clients[credential_set][region][service] = {}
-            if 'session' not in self._clients[credential_set][region].keys():
-                self._clients[credential_set][region]['session'] = self._create_session(
-                    region, aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name
+            if "session" not in self._clients[credential_set][region].keys():
+                self._clients[credential_set][region]["session"] = self._create_session(
+                    region, key, secret, token, profile
                 )
             self._clients[credential_set][region][service][s3v4] = self._create_client(
                 credential_set, region, service, s3v4
             )
             return self._clients[credential_set][region][service][s3v4]
 
-    def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None,
-                        max_retries=4, delay=5, backoff_factor=2):
+    def _create_session(
+        self,
+        region,
+        access_key=None,
+        secret_key=None,
+        session_token=None,
+        profile_name=None,
+        max_retries=4,
+        delay=5,
+        backoff_factor=2,
+    ):
         """creates a boto3 session object
 
         Args:
@@ -183,41 +248,50 @@ class ClientFactory(object):
                             aws_access_key_id=access_key,
                             aws_secret_access_key=secret_key,
                             aws_session_token=session_token,
-                            region_name=region
+                            region_name=region,
                         )
                     elif access_key and secret_key:
                         session = boto3.session.Session(
                             aws_access_key_id=access_key,
                             aws_secret_access_key=secret_key,
-                            region_name=region
+                            region_name=region,
                         )
                     elif profile_name:
                         session = boto3.session.Session(
-                            profile_name=profile_name,
-                            region_name=region
+                            profile_name=profile_name, region_name=region
                         )
                     else:
                         session = boto3.session.Session(region_name=region)
                 return session
             except TaskCatException:
                 raise
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 if "could not be found" in str(e):
                     raise
-                log.debug("failed to create session", exc_info=1)
+                LOG.debug("failed to create session", exc_info=1)
                 retry += 1
                 if retry >= max_retries:
                     raise
                 sleep(delay * (retry ** backoff_factor))
 
-    def _create_client(self, credential_set, region, service, s3v4, max_retries=4, delay=5, backoff_factor=2):
+    def _create_client(
+        self,
+        credential_set,
+        region,
+        service,
+        s3v4,
+        max_retries=4,
+        delay=5,
+        backoff_factor=2,
+    ):
         """creates (or fetches from cache) a boto3 client object
 
         Args:
             credential_set (str): session name
             region (str): region name
             service (str): AWS service name
-            s3v4 (str): when set to "s3v4" enables signature version 4, required for SSE protected buckets/objects
+            s3v4 (str): when set to "s3v4" enables signature version 4, required for
+                SSE protected buckets/objects
             max_retries (int): [optional] number of retries, defaults to 4
             delay (int): [optional] retry delay in seconds, defaults to 5
             backoff_factor (int): [optional] retry delay exponent, defaults to 2
@@ -227,18 +301,22 @@ class ClientFactory(object):
         while not client:
             try:
                 with self._lock:
-                    if s3v4 == 's3v4':
-                        client = self._clients[credential_set][region]['session'].client(
+                    if s3v4 == "s3v4":
+                        client = self._clients[credential_set][region][
+                            "session"
+                        ].client(
                             service,
-                            config=botocore.client.Config(signature_version='s3v4')
+                            config=botocore.client.Config(signature_version="s3v4"),
                         )
                     else:
-                        client = self._clients[credential_set][region]['session'].client(service)
+                        client = self._clients[credential_set][region][
+                            "session"
+                        ].client(service)
                 return client
             except TaskCatException:
                 raise
-            except Exception:
-                log.debug("failed to create client", exc_info=1)
+            except Exception:  # pylint: disable=broad-except
+                LOG.debug("failed to create client", exc_info=1)
                 retry += 1
                 if retry >= max_retries:
                     raise
@@ -254,10 +332,12 @@ class ClientFactory(object):
             list: aws region name strings
         """
 
-        for credential_set in self._clients.keys():
+        for credential_set in self._clients:
             for region in self._clients[credential_set].keys():
-                if 'session' in self._clients[credential_set][region].keys():
-                    return self._clients[credential_set][region]['session'].get_available_regions(service)
+                if "session" in self._clients[credential_set][region].keys():
+                    return self._clients[credential_set][region][
+                        "session"
+                    ].get_available_regions(service)
         session = boto3.session.Session()
         return session.get_available_regions(service)
 
@@ -265,7 +345,8 @@ class ClientFactory(object):
         """fetches existing session for credential set in a region
 
         Args:
-            credential_set (str): name of credential set from a previously created client
+            credential_set (str): name of credential set from a previously created
+                client
             region (str): region name, defaults to current region
 
         Returns:
@@ -274,4 +355,4 @@ class ClientFactory(object):
         if not region:
             region = self.get_default_region(None, None, None, None)
 
-        return self._clients[credential_set][region]['session']
+        return self._clients[credential_set][region]["session"]

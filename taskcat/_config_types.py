@@ -9,22 +9,22 @@ from taskcat.client_factory import ClientFactory
 from taskcat.common_utils import absolute_path
 from taskcat.exceptions import TaskCatException
 from taskcat.common_utils import schema_validate as validate
-from taskcat.cfn.template import Template
 
 LOG = logging.getLogger(__name__)
 
 
-class Test:  # pylint: disable=too-few-public-methods
+class Test:
     def __init__(
         self,
         template_file: Path,
-        name: str = 'default',
+        name: str = "default",
         parameter_input: Path = None,
         parameters: dict = None,
         regions: set = None,
         project_root: Path = Path("./"),
-        auth: dict = {}
+        auth: dict = None,
     ):
+        auth = auth if auth is not None else {}
         self._project_root: Path = project_root
         self.template_file: Path = self._guess_path(template_file)
         self.parameter_input_file: Path = self._guess_path(parameter_input)
@@ -107,9 +107,12 @@ class Test:  # pylint: disable=too-few-public-methods
         return Test(**raw_test, project_root=project_root)
 
 
-class S3BucketConfig(str)
-      def __init__(self, public: bool = False, auto: bool = False)
-         self.region = ""
-         self.publc = public
-         self.auto = auto
-         self.max_name_len = 63
+class S3BucketConfig(str):
+    def __init__(self, public: bool = False, auto: bool = False):
+        self.region = ""
+        self.public = public
+        self.auto = auto
+        self.max_name_len = 63
+        self.name = self.__str__()
+        self.tags: list = []
+        super().__init__()
