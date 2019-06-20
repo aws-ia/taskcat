@@ -168,10 +168,12 @@ def stage_in_s3(self, config: Config):
     S3Bucket = S3BucketCreator(config)
 
     try:
+        # TODO: this moves into __init__ of Config object
         S3Bucket.create()
     except Exception as e:
         raise TaskCatException(e)
 
+    # TODO: sync to each bucket needed
     S3Sync(S3Bucket.client,
            S3Bucket.name,
            config.project_name,

@@ -83,6 +83,9 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.package_lambda: bool = True
         self.s3_bucket: str = ""
         self.tests: Dict[Test] = {}
+        # TODO: convert the regions set of strings to a set of regions objects that
+        #  contain bucket_name and a boto3 session instance. Both of which should be
+        #  None at this point.
         self.regions: Set[str] = set()
         self.env_vars = {}
 
@@ -105,6 +108,15 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         # build client_factory_instances
         self._build_boto_factories()
 
+        # TODO: now that we have a fully setup config object we add a meethod that
+        #  iterates through tests and adds boto sessions to the region objects
+
+        # TODO: using a utility function/method we establish a set of distinct
+        #  buckets reqiuired. One for each unique accountid. With this we create the
+        #  buckets (not sure how to decide which region to place the bucket in the
+        #  case where there is a choice of more than 1 region).
+        #  Then we iterate through test regions and attach the bucket names to the
+        #  region objects
         # build and attach template objects
         self._get_templates()
 
