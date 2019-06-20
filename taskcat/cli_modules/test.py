@@ -6,9 +6,15 @@ class Test:
     Performs functional tests on CloudFormation templates.
     """
 
-    def run(self, entry_point, project_root="./"):  # pylint: disable=no-self-use
+    # pylint: disable=no-self-use, line-too-long, unused-variable
+    def run(self, input_file, project_root="./"):
+        """tests whether CloudFormation templates are able to successfully launch
+
+        :param input_file: path to either a taskat project config file or a CloudFormation template
+        :param project_root: root path of the project relative to input_file
+        """
         config = Config(
-            entry_point, project_root=project_root
+            input_file, project_root=project_root
         )  # pylint: disable=unused-variable
         # 1. build lambdas
         # 2. lint
@@ -20,5 +26,6 @@ class Test:
         # 8. create report
 
     def resume(self, run_id):  # pylint: disable=no-self-use
+        """resumes a monitoring of a previously started test run"""
         # do some stuff
         raise NotImplementedError()

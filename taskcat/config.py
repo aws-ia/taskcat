@@ -226,9 +226,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             instance["tests"] = tests
         try:
             validate(instance, "project_config")
-        except exceptions.ValidationError:
-            if self._process_legacy_project(instance) is not None:
-                validate(instance, "project_config")
+        except exceptions.ValidationError as exc:
+            e = self._process_legacy_project(instance)
+            if e is not None:
+                raise exc
+            validate(instance, "project_config")
         self._set_all(instance)
 
     def _process_legacy_project(self, instance) -> [None, Exception]:
@@ -251,7 +253,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             for item in ["marketplace-ami", "reporting"]:
                 del instance["project"][item]
             # rename items with new keys
-            for item in [["qsname", "name"]]:
+            for item in [["qsname", "name"], ["package-lambda", "package_lambda"]]:
                 instance["project"][item[1]] = instance["project"][item[0]]
                 del instance["project"][item[0]]
         return None

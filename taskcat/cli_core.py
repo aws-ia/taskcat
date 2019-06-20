@@ -5,8 +5,7 @@ import argparse
 import inspect
 import logging
 import importlib
-from typing import List
-from pathlib import Path
+import types
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -24,134 +23,205 @@ class InvalidActionError(TaskCatException):
 
 
 class CliCore:
+    USAGE = "{prog}{global_opts}{command}{command_opts}{subcommand}{subcommand_opts}"
 
-    def __init__(self, prog_name, module_path: Path, description, usage, version=None):
+    def __init__(self, prog_name, module_package, description, version=None, args=None):
         self.name = prog_name
-        self.module_path = module_path
-        self._module_list: List[str] = self._get_plugin_module_names()
-        self.parser = self._build_base_parser(description, usage, version)
+        self.module_package = module_package
+        self._modules = self._get_plugin_modules()
+        self.args = {"global": args if args is not None else [], "commands": {}}
+        self._build_args()
+        self.command_parser = None
+        self.subcommand_parsers = {}
+        self.parser = self._build_parser(description, version)
+        self.parsed_args = []
 
-    def _build_base_parser(self, description, usage, version):
+    def _build_args(self):
+        for name, module in self._modules.items():
+            params = self._get_params(module)
+            self.args["commands"][name] = {"args": params, "subcommands": {}}
+            for method_name, method_function in self._get_class_methods(module):
+                if not method_name.startswith("_"):
+                    params = self._get_params(method_function)
+                    self.args["commands"][name]["subcommands"][method_name] = params
+
+    @staticmethod
+    def _get_class_methods(module):
+        methods = inspect.getmembers(module, predicate=inspect.isfunction)
+        return methods
+
+    @staticmethod
+    def _get_params(item):
+        params = []
+        for param in inspect.signature(item).parameters.values():
+            if param.name == "self":
+                continue
+            required = param.default == param.empty
+            default = param.default if not required else None
+            val_type = param.annotation if param.annotation in [str, int, bool] else str
+            action = "store_true" if val_type == bool else "store"
+            param_help = CliCore._get_param_help(item, param.name)
+            name = param.name.lower()
+            kwargs = {"action": action, "help": param_help}
+            if not required:
+                name = name.replace("_", "-")
+                kwargs.update(
+                    {"required": required, "default": default, "dest": param.name}
+                )
+            if action == "store":
+                kwargs.update({"type": val_type})
+            params.append(
+                [[name] if required else [f"-{name[0]}", f"--{name}"], kwargs]
+            )
+        return params
+
+    @staticmethod
+    def _get_param_help(item, param):
+        help_str = ""
+        docstring = (
+            item.__doc__
+            if isinstance(item, types.FunctionType)
+            else item.__init__.__doc__
+        )
+        if docstring is None:
+            return help_str
+        for line in docstring.split("\n"):
+            if line.strip().startswith(f":param {param}:"):
+                help_str = line.strip()[len(f":param {param}:") :].strip()
+                break
+        return help_str
+
+    @staticmethod
+    def _get_help(item):
+        help_str = ""
+        if item.__doc__ is None:
+            return help_str
+        for line in item.__doc__.split("\n"):
+            if not line.strip().startswith(":"):
+                help_str += line.strip()
+        return help_str.strip()
+
+    def _get_command_help(self, commands):
+        help_str = ""
+        for name, mod in commands.items():
+            mod_help = self._get_help(mod)
+            if not mod_help:
+                help_str += f"{name}\n"
+            else:
+                help_str += f"{name} - {mod_help}\n"
+        return help_str.strip()
+
+    def _add_subparser(self, usage, description, mod, parser, args):
+        sub_parser = parser.add_parser(
+            mod,
+            usage=usage,
+            description=description,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
+        self._add_arguments(args, sub_parser)
+        return sub_parser
+
+    @staticmethod
+    def _add_arguments(args, parser):
+        for args, kwargs in args:
+            parser.add_argument(*args, **kwargs)
+
+    def _build_parser(self, description, version):
         parser = argparse.ArgumentParser(
             description=description,
-            usage=usage,
-            formatter_class=argparse.RawDescriptionHelpFormatter
+            usage=self._build_usage(),
+            formatter_class=argparse.RawDescriptionHelpFormatter,
         )
         if version:
-            parser.add_argument('-v', '--version', action='version', version=version)
-        command_parser = parser.add_subparsers(help='Commands')
-        for mod in self._module_list:
-            mod_parser = command_parser.add_parser(mod)
-            class_name = mod.title()
-            module_name = f"taskcat.{self.module_path}.{mod}"
-            mod_class = self._import_plugin_module(class_name, module_name)
-            CliModule(mod_class).create_argparse(mod_class, arg_parser=mod_parser)
+            parser.add_argument("-v", "--version", action="version", version=version)
+        # Add global arguments
+        self._add_arguments(self.args["global"], parser)
+
+        description = self._get_command_help(self._modules)
+        command_parser = parser.add_subparsers(
+            title="commands",
+            description=description,
+            required=True,
+            metavar="",
+            dest="_command",
+        )
+        self.command_parser = command_parser
+        for mod in self._modules:
+            usage = self._build_usage({"command": mod})
+            description = self._get_help(self._modules[mod])
+            mod_parser = self._add_subparser(
+                usage,
+                description,
+                mod,
+                command_parser,
+                self.args["commands"][mod]["args"],
+            )
+            self.subcommand_parsers[mod] = mod_parser
+            # add subcommand parser if subcommands exist
+            subcommands = self.args["commands"][mod]["subcommands"]
+            if subcommands:
+                class_methods = {
+                    m[0]: m[1] for m in self._get_class_methods(self._modules[mod])
+                }
+                description = self._get_command_help(class_methods)
+                subcommand_parser = mod_parser.add_subparsers(
+                    title="subcommands",
+                    description=description,
+                    required=True,
+                    metavar="",
+                    dest="_subcommand",
+                )
+                for subcommand_name, subcommand_args in subcommands.items():
+                    usage = self._build_usage({"subcommand": subcommand_name})
+                    description = self._get_help(class_methods[subcommand_name])
+                    self._add_subparser(
+                        usage,
+                        description,
+                        subcommand_name,
+                        subcommand_parser,
+                        subcommand_args,
+                    )
         return parser
 
-    def _get_plugin_module_names(self):
-        module_list = []
-        full_path: Path = (Path(__file__).parent / self.module_path).resolve()
-        if not full_path.exists():
-            raise TaskCatException(
-                f"{self.name} cli_modules folder {full_path} does not "
-                f"exist")
-        files = [
-            path for path in full_path.glob('*.py')
-            if not path.stem.startswith('__')
-               and path.is_file()
-        ]
-        if not files:
-            raise TaskCatException(
-                f"{self.name} cli_modules folder {full_path} does not "
-                f"contain any modules")
-        [module_list.append(file.stem) for file in files]
-        return module_list
+    def _build_usage(self, args=None):
+        args = args if args is not None else {}
+        args["prog"] = self.name
+        if "command" not in args:
+            args["command"] = "<command>"
+        if "subcommand" not in args:
+            args["subcommand"] = "[subcommand]"
+        if "global_opts" not in args:
+            args["global_opts"] = "[args]"
+        if "command_opts" not in args:
+            args["command_opts"] = "[args]"
+        if "subcommand_opts" not in args:
+            args["subcommand_opts"] = "[args]"
+        for key, val in args.items():
+            if val and not val.endswith(" "):
+                args[key] = f"{val} "
+        return self.USAGE.format(**args)
+
+    def _get_plugin_modules(self):
+        members = inspect.getmembers(self.module_package, predicate=inspect.isclass)
+        return {name.lower(): cls for name, cls in members}
 
     @staticmethod
     def _import_plugin_module(class_name, module_name):
         return getattr(importlib.import_module(module_name), class_name)
 
+    def parse(self, args=None):
+        if not args:
+            args = []
+        self.parsed_args = self.parser.parse_args(args)
+        return self.parsed_args
 
-class CliModule:
-
-    def __init__(self, module):
-        self.module_name = module.__name__
-        self.module = module
-
-    def call_method(self, action, arguments):
-        """Call method named action from self.module, with arguments containing cli
-        options/flags"""
-        for name, method in inspect.getmembers(self.module(),
-                                               predicate=inspect.ismethod):
-            if name == action:
-                # If method with name 'action' found in the module,
-                # create argparser for that method, parse cli arguments,
-                # and invoke method
-                LOG.debug("Creating parser for function {}".format(name))
-                parser = self.create_argparse(method)
-                kwargs = vars(parser.parse_args(arguments))
-                LOG.debug(kwargs)
-                method(**kwargs)
-                return
-        # Invalid action provided, raise InvalidActionError
-        raise InvalidActionError(
-            "Invalid sub-subcommand {} for module {}".format(
-                action, self.module_name.lower()
-            )
-        )
-
-    def get_methods(self):
-        """Return list of available methods"""
-        LOG.debug("Returns list of methods for module " + self.module_name)
-        return inspect.getmembers(self.module, predicate=inspect.ismethod)
-
-    def create_argparse(self, method, arg_parser=None):
-        LOG.debug("Method doc string -> " + str(method.__doc__))
-        LOG.debug("whose signature is -> {}".format(inspect.signature(method)))
-        # Create arg parser for module.method with parameters as options
-        # By default, all method parameters are required
-        if arg_parser is None:
-            arg_parser = argparse.ArgumentParser(
-                description=str(method.__doc__),
-                usage=f'%(prog)s {self.module_name.lower()} {method.__name__} [options]'
-            )
-
-        optional_group = arg_parser._action_groups.pop()
-        required_group = arg_parser.add_argument_group("required arguments")
-
-        arg_type = type("str")
-        required_switch = True
-
-        sig = inspect.signature(method)
-        for param in sig.parameters.values():
-            LOG.debug(
-                "{} is of type {} with default value {}".format(
-                    param.name, param.annotation, param.default
-                )
-            )
-            # Check if parameter type is explicitly defined
-            if param.annotation != param.empty:
-                arg_type = param.annotation
-
-            # check if parameter has default value.
-            # if yes, add it as optional flag
-            if param.default != param.empty:
-                required_switch = False
-                group = optional_group
-            else:
-                group = required_group
-
-            LOG.debug("type -> {}".format(arg_type))
-            group.add_argument(
-                str("--" + str(param.name)),
-                type=arg_type,
-                required=required_switch,
-                default=argparse.SUPPRESS,
-            )
-
-        arg_parser._action_groups.append(optional_group)
-        return arg_parser
-
-    def get_module(self):
-        """Getter - module"""
-        return self.module()
+    def run(self):
+        args = self.parsed_args.__dict__
+        command = self._modules[args["_command"]]
+        subcommand = ""
+        if "_subcommand" in args:
+            subcommand = args["_subcommand"]
+        args = {k: v for k, v in args.items() if not k.startswith("_")}
+        if not subcommand:
+            return command(**args)
+        return getattr(command(), subcommand)(**args)

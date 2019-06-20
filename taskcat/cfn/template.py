@@ -2,7 +2,7 @@ import logging
 import random
 import string
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Set
 
 import cfnlint
 
@@ -32,7 +32,6 @@ class Template:
         self.url = url
         self.children: List[Template] = []
         self._find_children()
-        self.template: Optional[Template] = None
 
     def __str__(self):
         return str(self.template)
@@ -148,6 +147,8 @@ class Template:
 
     def _find_children(self) -> None:
         children = set()
+        if "Resources" not in self.template:
+            LOG.debug(f"did not receive a valid template: {self.template}")
         for resource in self.template["Resources"].keys():
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
@@ -171,8 +172,7 @@ class Template:
             self.children.append(child_template_instance)
 
     @property
-    def descendents(self) -> Set['Template']:
-
+    def descendents(self) -> Set["Template"]:
         def recurse(template, descendants):
             descendants = descendants.union(set(template.children))
             for child in template.children:

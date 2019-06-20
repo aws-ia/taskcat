@@ -3,8 +3,6 @@ import re
 import textwrap
 
 import cfnlint.core
-import re
-import logging
 from taskcat.config import Config
 
 LOG = logging.getLogger(__name__)
@@ -16,8 +14,8 @@ class Lint:
 
     def __init__(self, config: Config, strict: bool = False):
         """
-        Lints templates using cfn_python_lint. Uses config to define regions and templates to test. Recurses into
-        child templates, excluding submodules.
+        Lints templates using cfn_python_lint. Uses config to define regions and
+        templates to test. Recurses into child templates, excluding submodules.
 
         :param config: path to tascat ci config file
         """
@@ -41,26 +39,28 @@ class Lint:
         return list(supported)
 
     def _lint(self):
-        lints = {}
+        lints = dict()
+        lint_errors = set()
 
-        for _, test in self._config.tests.items():
-            lints[test.name] = {}
-            lints[test.name]['regions'] = self._filter_unsupported_regions(test.regions)
-            lints[test]['template_file'] = test.template_file
-            lints[test]['results'] = {}
+        for name, test in self._config.tests.items():
+            lints[name] = {"regions": self._filter_unsupported_regions(test.regions)}
+            lints[name]["template_file"] = test.template.template_path
+            lints[name]["results"] = dict()
 
-            lint_errors = set()
-            templates = {t for t in test.template.descendents}
-            templates.union(set(test.template))
+            templates: set = {t for t in test.template.descendents}
+            templates.union({test.template})
 
-            for t in templates:
+            for template in templates:
+                tpath = str(template.template_path)
+                results = []
                 try:
-                    lints[test]['results'][t] = cfnlint.core.run_checks(
-                        t.template_path, t.template, self._rules,
-                        lints[test]['regions']
+                    results = cfnlint.core.run_checks(
+                        tpath, template.template, self._rules, lints[name]["regions"]
                     )
+                    lints[name]["results"][tpath] = results
                 except cfnlint.core.CfnLintExitException as e:
                     lint_errors.add(str(e))
+                lints[name]["results"][tpath] = results
             for e in lint_errors:
                 LOG.error(e)
         return lints, lint_errors
@@ -71,25 +71,27 @@ class Lint:
 
         :return:
         """
-        for test in self.lints:
-            for result in self.lints[test]["results"]:
-                if not self.lints[test]["results"][result]:
+        lints = self.lints[0]
+        for test in lints:
+            for result in lints[test]["results"]:
+                if not lints[test]["results"][result]:
                     LOG.info(f"Lint passed for test {test} on template {result}")
                 else:
                     msg = f"Lint detected issues for test {test} on template {result}:"
-                    if self._is_error(self.lints[test]["results"][result]):
+                    if self._is_error(lints[test]["results"][result]):
                         LOG.error(msg)
                     else:
                         LOG.warning(msg)
-                for inner_result in self.lints[test]["results"][result]:
-                    self._format_message(result, test, inner_result)
+                for inner_result in lints[test]["results"][result]:
+                    self._format_message(inner_result, test, result)
 
     @property
     def passed(self):
-        for test in self.lints.keys():
-            for t in self.lints[test]['results'].keys():
-                if len(self.lints[test]['results'][t]) != 0:
-                    if self._is_error(self.lints[test]['results'][t]) or self.strict:
+        for test in self.lints[0]:
+            for template in self.lints[0][test]["results"]:
+                results = self.lints[0][test]["results"][template]
+                if not results:
+                    if self._is_error(results) or self.strict:
                         return False
         return True
 
@@ -102,26 +104,18 @@ class Lint:
         return False
 
     def _format_message(self, message, test, result):
-        message = message.__str__().lstrip("[")
-        sev = message[0]
-        code = Lint._code_regex.findall(message)[0][:-1]
-        path = message.split(" ")[-1]
-        line_no = ""
-        if len(path.split(":")) == 2:
-            line_no = path.split(":")[1]
-        prefix = "    line " + line_no + " [" + code + "] ["
+        sev = message.rule.id[0]
+        code = message.rule.id[1:]
+        prefix = f"    line {message.linenumber} [{code}] [{message.rule.shortdesc}] "
         indent = "\n" + " " * (2 + len(prefix))
-        message = indent.join(
-            textwrap.wrap(" ".join(message.split(" ")[1:-2]), 141 - (len(indent) + 11))
-        )
+        message = indent.join(textwrap.wrap(message.message, 141 - (len(indent) + 11)))
         message = prefix + message
         if sev == "E":
             LOG.error(message)
         elif sev == "W":
-            if "E" + message[1:] not in [
-                r.__str__().lstrip("[") for r in self.lints[test]["results"][result]
+            if "E" + code not in [
+                r.__str__().lstrip("[") for r in self.lints[0][test]["results"][result]
             ]:
                 LOG.warning(message)
         else:
             LOG.error("linter produced unkown output: " + message)
-
