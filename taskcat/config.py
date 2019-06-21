@@ -1,9 +1,10 @@
 import logging
 import os
-from typing import Set, List, Dict
+from typing import Set, List, Dict, Optional
 from pathlib import Path
 from jsonschema import exceptions
 import yaml
+import cfnlint
 
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
@@ -39,7 +40,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self,
         args: dict = None,
         global_config_path: str = "~/.taskcat.yml",
-        template_path: str = None,
         project_config_path: str = None,
         project_root: str = "./",
         override_file: str = None,
@@ -47,16 +47,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         client_factory=ClientFactory,
     ):  # #pylint: disable=too-many-arguments
         # inputs
-        if template_path:
-            if not Path(template_path).exists():
-                raise TaskCatException(
-                    f"failed adding config from template file "
-                    f"{template_path} file not found"
-                )
+        if absolute_path(project_config_path) and not Path(project_root).is_absolute():
+            project_root = absolute_path(project_config_path).parent / project_root
         self.project_root: [Path, None] = absolute_path(project_root)
         self.args: dict = args if args else {}
         self.global_config_path: [Path, None] = absolute_path(global_config_path)
-        self.template_path: [Path, None] = self._absolute_path(template_path)
         self.override_file: Path = self._absolute_path(override_file)
         self._client_factory_class = client_factory
 
@@ -85,15 +80,25 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.tests: Dict[Test] = {}
         self.regions: Set[str] = set()
         self.env_vars = {}
+        self.project_config_path: Optional[Path] = None
+        self.template_path: Optional[Path] = None
 
-        # clever processors, not well liked
         self._harvest_env_vars(all_env_vars)
-        self._parse_project_config(project_config_path)
-
-        # build config object from gathered entries
         self._process_global_config()
-        self._process_project_config()
-        self._process_template_config()
+
+        if not self._absolute_path(project_config_path):
+            raise (
+                f"failed to load project config file {project_config_path}. file "
+                f"does not exist"
+            )
+
+        if self._is_template(self._absolute_path(project_config_path)):
+            self.template_path = self._absolute_path(project_config_path)
+            self._process_template_config()
+        else:
+            self._parse_project_config(project_config_path)
+            self._process_project_config()
+
         self._process_env_vars()
         self._process_args()
         if not self.template_path and not self.tests:
@@ -107,6 +112,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
         # build and attach template objects
         self._get_templates()
+
+    @staticmethod
+    def _is_template(path):
+        parsed_file = cfnlint.decode.cfn_yaml.load(path)
+        return "Resources" in parsed_file
 
     def _get_templates(self):
         for _, test in self.tests.items():
@@ -156,13 +166,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self._propagate_regions(test)
 
     def _parse_project_config(self, project_config_path):
-        self.project_config_path: [Path, None] = self._absolute_path(
-            project_config_path
-        )
+        self.project_config_path = self._absolute_path(project_config_path)
         if self.project_config_path is None:
             for path in Config.DEFAULT_PROJECT_PATHS:
                 try:
-                    self.project_config_path: [Path, None] = self._absolute_path(path)
+                    self.project_config_path = self._absolute_path(path)
                     LOG.debug("found project config in default location %s", path)
                     break
                 except TaskCatException:
@@ -265,10 +273,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         try:
             template_config = template["Metadata"]["taskcat"]
         except KeyError:
-            raise TaskCatException(
-                f"failed adding config from template file {str(self.template_path)} "
-                f"Metadata['taskcat'] not present"
+            region = self._client_factory_class().get_default_region(
+                None, None, None, None
             )
+            name = self.template_path.name.split(".")[0]
+            template_config = {
+                "project": {"name": name},
+                "tests": {name: {"regions": [region]}, "parameters": {}},
+            }
         self._add_template_path(template_config)
         validate(template_config, "project_config")
         self._set_all(template_config)
@@ -276,6 +288,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
     def _add_template_path(self, template_config):
         if "tests" in template_config.keys():
             for test in template_config["tests"].keys():
+                print(self.project_root)
                 if "template_file" not in template_config["tests"][test].keys():
                     rel_path = str(self.template_path.relative_to(self.project_root))
                     template_config["tests"][test]["template_file"] = rel_path

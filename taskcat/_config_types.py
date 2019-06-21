@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 import yaml
 from jsonschema import exceptions
@@ -27,7 +27,9 @@ class Test:
         auth = auth if auth is not None else {}
         self._project_root: Path = project_root
         self.template_file: Path = self._guess_path(template_file)
-        self.parameter_input_file: Path = self._guess_path(parameter_input)
+        self.parameter_input_file: Optional[Path] = None
+        if parameter_input:
+            self.parameter_input_file: Path = self._guess_path(parameter_input)
         self.parameters: Dict[
             str, int, bool
         ] = self._params_from_file() if parameter_input else {}
@@ -41,6 +43,7 @@ class Test:
 
     def _guess_path(self, path):
         abs_path = absolute_path(path)
+        print([path, abs_path, self._project_root])
         if not abs_path:
             abs_path = absolute_path(self._project_root / path)
         if not abs_path:
