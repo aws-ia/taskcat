@@ -10,12 +10,16 @@ from functools import reduce
 from taskcat.client_factory import ClientFactory
 from taskcat.utils import CFNYAMLHandler as cfy
 from taskcat.colored_console import PrintMsg
+from taskcat.exceptions import TaskCatException
 from taskcat.stacker import TaskCat as tc
 from multiprocessing.dummy import Pool as ThreadPool
 
 
-class AMIUpdaterException(Exception):
+class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
+    pass
+
+class AMIUpdaterCommitNeededException(TaskCatException):
     pass
 
 
@@ -62,7 +66,7 @@ class Config:
         except Exception as e:
             print("{} {} config file [{}] is not structured properly!".format(PrintMsg.ERROR, configtype, fn))
             print("{}\t{}".format(PrintMsg.ERROR, e))
-            raise AMIUpdaterException
+            raise AMIUpdaterFatalException
 
 
     @classmethod
@@ -127,7 +131,7 @@ class Codenames:
         # Create a ThreadPool, size is the number of regions.
 
         if len(RegionalCodename.objects()) == 0:
-            raise AMIUpdaterException("No AMI filters were found. Nothing to fetch from the EC2 API.")
+            raise AMIUpdaterFatalException("No AMI filters were found. Nothing to fetch from the EC2 API.")
 
         pool = ThreadPool(len(TemplateClass.regions()))
         # For reach RegionalCodename that we've generated....
@@ -173,7 +177,7 @@ class Codenames:
         if missing_results_list:
             for code_reg in missing_results_list:
                 print("{} The following Codename / Region  had no results from the EC2 API. {}".format(PrintMsg.ERROR, code_reg))
-            raise AMIUpdaterException("One or more filters returns no results from the EC2 API.")
+            raise AMIUpdaterFatalException("One or more filters returns no results from the EC2 API.")
         APIResultsData.results = region_codename_result_list
 
 
@@ -252,6 +256,7 @@ class TemplateClass(object):
 class TemplateObject(TemplateClass):
     _objs = []
     replacement_ami_map = {}
+    updates = False
 
     @classmethod
     def objects(cls):
@@ -279,6 +284,11 @@ class TemplateObject(TemplateClass):
 
         # Generate RegionalCodename filters based on what's in the template. 
         self._generate_regional_codenames()
+
+
+    @classmethod
+    def set_updates(cls, value):
+        cls.updates = value
 
     def _generate_regional_codenames(self):
         for region in self._regions:
@@ -316,12 +326,14 @@ class TemplateObject(TemplateClass):
                     if region in AMIUpdater.EXCLUDED_REGIONS:
                         print("{} The {} region is currently unsupported. AMI IDs will not be updated for this region.".format(PrintMsg.ERROR, region))
                     else:
-                        raise AMIUpdaterException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
+                        raise AMIUpdaterFatalException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
                 self._regions.add(region)
 
     def set_region_ami(self, cn, region, ami_id):
         currvalue = self._contents['Mappings']['AWSAMIRegionMap'].get(region, None).get(cn, None)
         if currvalue:
+            if currvalue != ami_id:
+                self.set_updates(True)
             self.replacement_ami_map[currvalue] = ami_id
 
     def rotate_ami_id(self, old_ami, new_ami):
@@ -413,6 +425,7 @@ class AMIUpdater:
         Codenames.parse_api_results()
         print("{} API results parsed".format(PrintMsg.INFO))
 
+        updates = False
         for template_object in TemplateObject.objects():
             for result in APIResultsData.results:
                 template_object.set_region_ami(result.codename, result.region, result.ami_id)
@@ -422,3 +435,6 @@ class AMIUpdater:
             template_object.write()
         print("{} Templates updated as necessary".format(PrintMsg.INFO))
         print("{} Complete!".format(PrintMsg.INFO))
+
+        if TemplateObject.updates:
+            raise AMIUpdaterCommitNeededException
