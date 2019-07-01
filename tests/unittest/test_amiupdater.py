@@ -794,17 +794,19 @@ class MockEC2:
 
 class TestAMIUpdater(unittest.TestCase):
 
-    def _module_loader(self, return_module=False):
+    def _module_loader(self, return_module=False, commit_needed=False):
         try:
             del sys.modules['taskcat.amiupdater']
         except KeyError:
             pass
-        from taskcat.amiupdater import AMIUpdater, AMIUpdaterException
+        from taskcat.amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterCommitNeededException
+        module_tuple = (AMIUpdater, AMIUpdaterFatalException)
+        if commit_needed:
+            module_tuple += (AMIUpdaterCommitNeededException,)
         if return_module:
             import taskcat.amiupdater
-            return AMIUpdater, AMIUpdaterException, taskcat.amiupdater
-        else:
-            return AMIUpdater, AMIUpdaterException
+            module_tuple += (taskcat.amiupdater,)
+        return module_tuple
 
     generic_skeleton_template = {
         "Mappings":{
@@ -951,7 +953,7 @@ class TestAMIUpdater(unittest.TestCase):
         return MockClientFactory()
 
     def test_upstream_config_ALAMI(self):
-        au, AMIUpdaterException, tcau = self._module_loader(return_module=True)
+        au, AMIUpdaterFatalException, AMIUpdaterCommitNeededException, tcau = self._module_loader(return_module=True, commit_needed=True)
         cf = self.client_factory_handler()
         mapping_name = "AMZNLINUXHVM"
         template_file = self.create_ephemeral_template()
@@ -960,8 +962,9 @@ class TestAMIUpdater(unittest.TestCase):
             "client_factory": cf
         }
         au.upstream_config_file = "{}/{}".format(os.path.dirname(tcau.__file__), "cfg/amiupdater.cfg.yml")
-        a = au(**amiupdater_args)
-        a.update_amis()
+        with self.assertRaises(AMIUpdaterCommitNeededException):
+            a = au(**amiupdater_args)
+            a.update_amis()
 
 
         template_result = self.load_modified_template(template_file)
@@ -972,7 +975,7 @@ class TestAMIUpdater(unittest.TestCase):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_local_config_ALAMI(self):
-        au, AMIUpdaterException = self._module_loader()
+        au, AMIUpdaterFatalException, AMIUpdaterCommitNeededException = self._module_loader(commit_needed=True)
         cf = self.client_factory_handler()
         config_file_dict = {
             "global":{
@@ -996,8 +999,9 @@ class TestAMIUpdater(unittest.TestCase):
             "user_config_file": user_config_file,
             "client_factory": cf
         }
-        a = au(**amiupdater_args)
-        a.update_amis()
+        with self.assertRaises(AMIUpdaterCommitNeededException):
+            a = au(**amiupdater_args)
+            a.update_amis()
 
         template_result = self.load_modified_template(template_file)
         for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
@@ -1007,7 +1011,7 @@ class TestAMIUpdater(unittest.TestCase):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_in_template_ALAMI(self):
-        au, AMIUpdaterException  = self._module_loader()
+        au, AMIUpdaterFatalException, AMIUpdaterCommitNeededException  = self._module_loader(commit_needed=True)
         cf = self.client_factory_handler()
         mapping_name = "NON_STANDARD_TEST"
         template_file = self.create_ephemeral_template(template_type="inline")
@@ -1016,8 +1020,9 @@ class TestAMIUpdater(unittest.TestCase):
             "use_upstream_mappings": False,
             "client_factory": cf
         }
-        a = au(**amiupdater_args)
-        a.update_amis()
+        with self.assertRaises(AMIUpdaterCommitNeededException):
+            a = au(**amiupdater_args)
+            a.update_amis()
 
         template_result = self.load_modified_template(template_file)
         for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
@@ -1027,7 +1032,7 @@ class TestAMIUpdater(unittest.TestCase):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_invalid_region_exception(self):
-        au, AMIUpdaterException = self._module_loader()
+        au, AMIUpdaterFatalException = self._module_loader()
         cf = self.client_factory_handler()
         template_file = self.create_ephemeral_template(template_type="invalid_region")
         amiupdater_args = {
@@ -1037,10 +1042,10 @@ class TestAMIUpdater(unittest.TestCase):
         }
         a = au(**amiupdater_args)
 
-        self.assertRaises(AMIUpdaterException, a.update_amis)
+        self.assertRaises(AMIUpdaterFatalException, a.update_amis)
 
     def test_no_filters_exception(self):
-        au, AMIUpdaterException = self._module_loader()
+        au, AMIUpdaterFatalException = self._module_loader()
         cf = self.client_factory_handler()
         template_file = self.create_ephemeral_template()
         amiupdater_args = {
@@ -1049,7 +1054,7 @@ class TestAMIUpdater(unittest.TestCase):
             "client_factory": cf
         }
         a = au(**amiupdater_args)
-        self.assertRaises(AMIUpdaterException, a.update_amis)
+        self.assertRaises(AMIUpdaterFatalException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
         from taskcat.amiupdater import APIResultsData
