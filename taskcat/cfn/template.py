@@ -22,7 +22,7 @@ class Template:
         client_factory_instance: ClientFactory = ClientFactory(),
     ):
         self.template_path: Path = Path(template_path).absolute()
-        self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
+        self.template = cfnlint.decode.cfn_yaml.load(str(self.template_path))
         with open(template_path, "r") as file_handle:
             self.raw_template = file_handle.read()
         project_root = (

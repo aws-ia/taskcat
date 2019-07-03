@@ -123,7 +123,9 @@ class TestCfnLint(unittest.TestCase):
                         f.write(test_case["templates"][test])
                 with open(config_path, "w") as f:
                     f.write(yaml.safe_dump(test_case["config"]))
-                config = Config(project_config_path=config_path, project_root="../")
+                config = Config(
+                    project_config_path=str(config_path), project_root="../"
+                )
                 lint = Lint(config=config)
                 self.assertEqual(
                     test_case["expected_lints"], flatten_rule(lint.lints[0])

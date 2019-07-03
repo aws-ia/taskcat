@@ -115,7 +115,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _is_template(path):
-        parsed_file = cfnlint.decode.cfn_yaml.load(path)
+        parsed_file = cfnlint.decode.cfn_yaml.load(str(path))
         return "Resources" in parsed_file
 
     def _get_templates(self):
