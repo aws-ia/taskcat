@@ -48,7 +48,7 @@ class CliCore:
     @staticmethod
     def _get_class_methods(module):
         methods = inspect.getmembers(module, predicate=inspect.isfunction)
-        return methods
+        return [method for method in methods if not method[0].startswith("_")]
 
     @staticmethod
     def _get_params(item):
