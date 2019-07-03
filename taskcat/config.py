@@ -224,7 +224,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
     def _process_project_config(self):
         if self.project_config_path is None:
             return
-        instance = yaml.safe_load(open(str(self.project_config_path), "r"))
+        with open(str(self.project_config_path), "r") as file_handle:
+            instance = yaml.safe_load(file_handle)
         if "tests" in instance.keys():
             tests = {}
             for test in instance["tests"].keys():
@@ -251,11 +252,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         if "project" in instance:
             # delete unneeded config items
             for item in ["marketplace-ami", "reporting"]:
-                del instance["project"][item]
+                if item in instance["project"]:
+                    del instance["project"][item]
             # rename items with new keys
             for item in [["qsname", "name"], ["package-lambda", "package_lambda"]]:
-                instance["project"][item[1]] = instance["project"][item[0]]
-                del instance["project"][item[0]]
+                if item[0] in instance["project"]:
+                    instance["project"][item[1]] = instance["project"][item[0]]
+                    del instance["project"][item[0]]
         return None
 
     def _process_template_config(self):

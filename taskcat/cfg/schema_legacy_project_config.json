@@ -20,7 +20,7 @@
                                 "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
                             }
                         },
-                        "parameter_input_file": {"type": "string" },
+                        "parameter_input_file": { "oneOf": [ {"type": "null"}, {"type": "string"} ] },
                         "parameters": { "$ref": "schema_definitions.json#/definitions/parameters" },
                         "auth": {"type": "object"},
                         "name": {"type": "string"},

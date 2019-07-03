@@ -47,9 +47,9 @@ class Lint:
             lints[name]["template_file"] = test.template.template_path
             lints[name]["results"] = dict()
 
-            templates: set = {t for t in test.template.descendents}
-            templates.union({test.template})
-
+            templates = [t for t in test.template.descendents]
+            templates.append(test.template)
+            templates = set(templates)
             for template in templates:
                 tpath = str(template.template_path)
                 results = []

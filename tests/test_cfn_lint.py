@@ -1,12 +1,8 @@
 from __future__ import print_function
 
 import os
-import shutil
-import sys
 import unittest
-from contextlib import contextmanager
-from io import StringIO
-
+from pathlib import Path
 import yaml
 
 from taskcat.cfn_lint import Lint
@@ -22,15 +18,22 @@ test_cases = [
         "expected_lints": {
             "test1": {
                 "regions": ["eu-west-1"],
-                "template_file": "templates/taskcat_test_template_test1",
-                "results": {"templates/taskcat_test_template_test1": []},
+                "template_file": Path(
+                    "/tmp/lint_test/test-config/templates/taskcat_test_template_test1"
+                ).resolve(),
+                "results": {
+                    str(
+                        Path(
+                            "/tmp/lint_test/test-config/templates/taskcat_test_template_test1"
+                        ).resolve()
+                    ): []
+                },
             }
         },
-        "expected_output": "\x1b[0;30;43m[INFO   ]\x1b[0m :Lint passed for test test1 on template templates/taskcat_test_template_test1:\n",
     },
     {
         "config": {
-            "global": {"qsname": "test-config2", "regions": ["eu-west-1"]},
+            "global": {"qsname": "test-config-two", "regions": ["eu-west-1"]},
             "tests": {"test1": {}},
         },
         "templates": {
@@ -40,45 +43,25 @@ test_cases = [
             "test1": {
                 "regions": ["eu-west-1"],
                 "results": {
-                    "templates/taskcat_test_template_test1": [
-                        "[E3001: Basic CloudFormation Resource Check] (Invalid or unsupported Type AWS::Not::Exist for resource Name in eu-west-1) matched templates/taskcat_test_template_test1:1"
+                    str(
+                        Path(
+                            "/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1"
+                        ).resolve()
+                    ): [
+                        f"[E3001: Basic CloudFormation Resource Check] (Invalid or "
+                        f"unsupported Type AWS::Not::Exist for resource Name in "
+                        f"eu-west-1) matched {str(Path('/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1').resolve())}:1"
                     ]
                 },
-                "template_file": "templates/taskcat_test_template_test1",
+                "template_file": Path(
+                    "/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1"
+                ).resolve(),
             }
         },
-        "expected_output": """[0;30;41m[ERROR  ][0m :Lint detected issues for test test1 on template templates/taskcat_test_template_test1:
-[0;30;41m[ERROR  ][0m :    line 1 [E3001] [Basic CloudFormation Resource Check] (Invalid or unsupported Type AWS::Not::Exist for resource Name in eu-
-                      west-1)
-""",
     },
     {
         "config": {
-            "global": {"qsname": "test-config3", "regions": ["eu-west-1"]},
-            "tests": {"test1": {}},
-        },
-        "templates": {
-            "test1": r"""{
-    "Parameters": {
-        "BadJson": {
-            "AllowedPattern": "\/"
-        }
-    }
-}"""
-        },
-        "expected_lints": {
-            "test1": {
-                "regions": ["eu-west-1"],
-                "template_file": "templates/taskcat_test_template_test1",
-                "results": {},
-            }
-        },
-        "expected_output": "",
-        "expected_error_output": '[0;30;41m[ERROR  ][0m :Linter failed to load template templates/taskcat_test_template_test1 "found unknown escape character" line 3, column 31\n',
-    },
-    {
-        "config": {
-            "global": {"qsname": "test-config4", "regions": ["eu-west-1"]},
+            "global": {"qsname": "test-config-three", "regions": ["eu-west-1"]},
             "tests": {"test1": {}},
         },
         "templates": {
@@ -87,25 +70,22 @@ test_cases = [
         "expected_lints": {
             "test1": {
                 "regions": ["eu-west-1"],
-                "template_file": "templates/taskcat_test_template_test1",
-                "results": {"templates/taskcat_test_template_test1": []},
+                "template_file": Path(
+                    "/tmp/lint_test/test-config-three/templates"
+                    "/taskcat_test_template_test1"
+                ).resolve(),
+                "results": {
+                    str(
+                        Path(
+                            "/tmp/lint_test/test-config-three/templates"
+                            "/taskcat_test_template_test1"
+                        ).resolve()
+                    ): []
+                },
             }
         },
-        "expected_output": "[0;30;43m[INFO   ][0m :Lint passed for test test1 on template templates/taskcat_test_template_test1:\n",
-        "expected_error_output": """[0;30;41m[ERROR  ][0m :Linter failed to load template broken "[Errno 2] No such file or directory: 'broken'"\n""",
     },
 ]
-
-
-@contextmanager
-def captured_output():
-    new_out, new_err = StringIO(), StringIO()
-    old_out, old_err = sys.stdout, sys.stderr
-    try:
-        sys.stdout, sys.stderr = new_out, new_err
-        yield sys.stdout, sys.stderr
-    finally:
-        sys.stdout, sys.stderr = old_out, old_err
 
 
 def mkdir(path, ignore_exists=True):
@@ -129,6 +109,7 @@ class TestCfnLint(unittest.TestCase):
         try:
             for test_case in test_cases:
                 qs_path = base_path + test_case["config"]["global"]["qsname"] + "/"
+                print(qs_path)
                 mkdir(qs_path)
                 mkdir(qs_path + "ci")
                 mkdir(qs_path + "templates")
@@ -142,10 +123,11 @@ class TestCfnLint(unittest.TestCase):
                         f.write(test_case["templates"][test])
                 with open(config_path, "w") as f:
                     f.write(yaml.safe_dump(test_case["config"]))
-                with captured_output() as (out, err):
-                    config = Config(project_config_path=config_path, project_root="../")
-                    lint = Lint(config=config)
-                lint.lints = flatten_rule(lint.lints)
-                self.assertEqual(test_case["expected_lints"], lint.lints)
+                config = Config(project_config_path=config_path, project_root="../")
+                lint = Lint(config=config)
+                self.assertEqual(
+                    test_case["expected_lints"], flatten_rule(lint.lints[0])
+                )
         finally:
-            shutil.rmtree(base_path)
+            # shutil.rmtree(base_path)
+            pass
