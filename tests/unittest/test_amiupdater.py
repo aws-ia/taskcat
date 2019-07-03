@@ -871,6 +871,37 @@ class TestAMIUpdater(unittest.TestCase):
             }
         }
     }
+    nonstandard_mapping_and_filter_skeleton_template = {
+        "Filters": {
+            "NON_STANDARD_TEST":{
+                "name": "amzn-ami-hvm-????.??.?.*-x86_64-gp2",
+                "owner-alias": "amazon"
+            }
+        },
+        "Images":{
+            "us-east-1":{
+                "AMZNLINUXHVM": "FOOBAR",
+                "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
+                "NON_STANDARD_TEST":"FOOBAR"
+            },
+            "us-east-2":{
+                "AMZNLINUXHVM": "FOOBAR",
+                "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
+                "NON_STANDARD_TEST":"FOOBAR"
+            },
+            "us-west-1":{
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR"
+            },
+            "us-west-2":{
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR"
+            }
+        }
+    }
+
 
     no_mapping_skeleton_template = {
         "Mappings":{
@@ -933,6 +964,8 @@ class TestAMIUpdater(unittest.TestCase):
             data = self.generic_skeleton_template
         elif template_type == "inline":
             data = self.inline_skeleton_template
+        elif template_type == "nonstandard_inline":
+            data = self.nonstandard_mapping_and_filter_skeleton_template
         elif template_type == "no_mapping":
             data = self.no_mapping_skeleton_template
         elif template_type == "invalid_region":
@@ -1005,6 +1038,29 @@ class TestAMIUpdater(unittest.TestCase):
 
         template_result = self.load_modified_template(template_file)
         for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
+            for codename, ami_id in mapping_data.items():
+                if codename == mapping_name:
+                    with self.subTest(i="Verifying Updated AMI: [{}] / [{}]".format(mapping_name, region)):
+                        self.assertRegex(ami_id, self.ami_regex_pattern)
+
+    def test_unconventional_roots(self):
+        au, AMIUpdaterFatalException, AMIUpdaterCommitNeededException, tcau  = self._module_loader(commit_needed=True, return_module=True)
+        cf = self.client_factory_handler()
+        mapping_name = "NON_STANDARD_TEST"
+        template_file = self.create_ephemeral_template(template_type="nonstandard_inline")
+        amiupdater_args = {
+            "path_to_templates": template_file,
+            "use_upstream_mappings": False,
+            "client_factory": cf
+        }
+        with self.assertRaises(AMIUpdaterCommitNeededException):
+            tcau.TemplateClass.mapping_path = "Images"
+            tcau.TemplateClass.metadata_path = "Filters"
+            a = au(**amiupdater_args)
+            a.update_amis()
+
+        template_result = self.load_modified_template(template_file)
+        for region, mapping_data in template_result["Images"].items():
             for codename, ami_id in mapping_data.items():
                 if codename == mapping_name:
                     with self.subTest(i="Verifying Updated AMI: [{}] / [{}]".format(mapping_name, region)):
