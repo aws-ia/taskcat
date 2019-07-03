@@ -8,6 +8,7 @@ import cfnlint
 
 from taskcat.client_factory import ClientFactory
 from taskcat.common_utils import s3_url_maker, s3_bucket_name_from_url, s3_key_from_url
+from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
@@ -148,7 +149,10 @@ class Template:
     def _find_children(self) -> None:
         children = set()
         if "Resources" not in self.template:
-            LOG.debug(f"did not receive a valid template: {self.template}")
+            raise TaskCatException(
+                f"did not receive a valid template: {self.template_path} does not "
+                f"have a Resources section"
+            )
         for resource in self.template["Resources"].keys():
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
