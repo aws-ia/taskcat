@@ -232,26 +232,18 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                     instance["tests"][test], project_root=self.project_root
                 )
             instance["tests"] = tests
-        try:
-            validate(instance, "project_config")
-        except exceptions.ValidationError as exc:
-            e = self._process_legacy_project(instance)
-            if e is not None:
-                raise exc
-            validate(instance, "project_config")
+        if "global" in instance.keys():
+            self._process_legacy_project(instance)
+        validate(instance, "project_config")
         self._set_all(instance)
 
     def _process_legacy_project(self, instance) -> [None, Exception]:
-        try:
-            validate(instance, "legacy_project_config")
-            LOG.warning(
-                "%s config file is in a format that will be deprecated in the next "
-                "version of taskcat",
-                str(self.project_config_path),
-            )
-        except exceptions.ValidationError as e:
-            LOG.debug("legacy config validation failed: %s", e)
-            return e
+        validate(instance, "legacy_project_config")
+        LOG.warning(
+            "%s config file is in a format that will be deprecated in the next "
+            "version of taskcat",
+            str(self.project_config_path),
+        )
         # rename global to project
         if "global" in instance:
             instance["project"] = instance["global"]
