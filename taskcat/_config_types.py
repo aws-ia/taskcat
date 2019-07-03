@@ -43,7 +43,6 @@ class Test:
 
     def _guess_path(self, path):
         abs_path = absolute_path(path)
-        print([path, abs_path, self._project_root])
         if not abs_path:
             abs_path = absolute_path(self._project_root / path)
         if not abs_path:

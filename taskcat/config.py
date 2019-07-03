@@ -280,7 +280,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
     def _add_template_path(self, template_config):
         if "tests" in template_config.keys():
             for test in template_config["tests"].keys():
-                print(self.project_root)
                 if "template_file" not in template_config["tests"][test].keys():
                     rel_path = str(self.template_path.relative_to(self.project_root))
                     template_config["tests"][test]["template_file"] = rel_path
