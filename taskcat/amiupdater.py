@@ -330,7 +330,7 @@ class TemplateObject(TemplateClass):
                 self._regions.add(region)
 
     def set_region_ami(self, cn, region, ami_id):
-        currvalue = self._contents['Mappings']['AWSAMIRegionMap'].get(region, None).get(cn, None)
+        currvalue = self._mapping_root.get(region, {}).get(cn, None)
         if currvalue:
             if currvalue != ami_id:
                 self.set_updates(True)
@@ -411,7 +411,7 @@ class AMIUpdater:
             for unknown_map in unknown_mappings:
                 print(unknown_map)
 
-    def update_amis(self):
+    def update_amis(self, write=True):
         for template_file in self._fetch_template_files():
             # Loads each template as an object.
             TemplateObject(template_file)
@@ -425,16 +425,16 @@ class AMIUpdater:
         Codenames.parse_api_results()
         print("{} API results parsed".format(PrintMsg.INFO))
 
-        updates = False
         for template_object in TemplateObject.objects():
             for result in APIResultsData.results:
                 template_object.set_region_ami(result.codename, result.region, result.ami_id)
 
         # For each template, write it to disk.
-        for template_object in TemplateObject.objects():
-            template_object.write()
-        print("{} Templates updated as necessary".format(PrintMsg.INFO))
-        print("{} Complete!".format(PrintMsg.INFO))
+        if write:
+            for template_object in TemplateObject.objects():
+                template_object.write()
+            print("{} Templates updated as necessary".format(PrintMsg.INFO))
+            print("{} Complete!".format(PrintMsg.INFO))
 
         if TemplateObject.updates:
             raise AMIUpdaterCommitNeededException
