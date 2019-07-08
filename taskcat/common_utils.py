@@ -86,16 +86,10 @@ class CommonTools:
         return stack_info
 
 
-def exit1(msg=""):
+def exit_with_code(code, msg=""):
     if msg:
         LOG.error(msg)
-    sys.exit(1)
-
-
-def exit0(msg=""):
-    if msg:
-        LOG.info(msg)
-    sys.exit(0)
+    sys.exit(code)
 
 
 def make_dir(path, ignore_exists=True):
@@ -169,7 +163,8 @@ def schema_validate(instance, schema_name):
         if "tests" in instance_copy.keys():
             instance_copy["tests"] = tests_to_dict(instance_copy["tests"])
     schema_path = Path(__file__).parent.absolute() / "cfg"
-    schema = json.load(open(schema_path / f"schema_{schema_name}.json", "r"))
+    with open(schema_path / f"schema_{schema_name}.json", "r") as file_handle:
+        schema = json.load(file_handle)
     validate(
         instance_copy,
         schema,

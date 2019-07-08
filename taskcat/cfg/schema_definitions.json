@@ -39,7 +39,7 @@
             "properties": {
                 "auth":             { "$ref": "#/definitions/auth" },
                 "template_file":    { "type": "string" },
-                "parameter_input":  { "type": "string" },
+                "parameter_input":  { "oneOf": [ {"type": "null"}, {"type": "string"} ] },
                 "regions":          { "$ref": "#/definitions/regions" },
                 "parameters": { "$ref": "schema_definitions.json#/definitions/parameters" }
             },

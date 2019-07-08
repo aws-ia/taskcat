@@ -15,7 +15,7 @@ from collections import OrderedDict
 
 import yaml
 
-from taskcat.common_utils import exit1
+from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
@@ -142,10 +142,5 @@ class CFNYAMLHandler:
             )
             os.makedirs(directory)
         elif not os.access(directory, os.W_OK):
-            pass  # pylint: disable=unnecessary-pass
-            # TODO: FIX LOG LINE AND EXITING. REMOVE PASS ABOVE.
-            LOG.error(
-                f"No write access allowed to output directory [{directory}]. "
-                f"Aborting."
-            )
-            exit1()
+            raise TaskCatException(f"No write access allowed to output directory "
+                                   f"[{directory}]. Aborting.")

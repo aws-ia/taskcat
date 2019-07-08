@@ -2,12 +2,13 @@ import logging
 import random
 import string
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Set
 
 import cfnlint
 
 from taskcat.client_factory import ClientFactory
 from taskcat.common_utils import s3_url_maker, s3_bucket_name_from_url, s3_key_from_url
+from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class Template:
         client_factory_instance: ClientFactory = ClientFactory(),
     ):
         self.template_path: Path = Path(template_path).absolute()
-        self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
+        self.template = cfnlint.decode.cfn_yaml.load(str(self.template_path))
         with open(template_path, "r") as file_handle:
             self.raw_template = file_handle.read()
         project_root = (
@@ -32,7 +33,6 @@ class Template:
         self.url = url
         self.children: List[Template] = []
         self._find_children()
-        self.template: Optional[Template] = None
 
     def __str__(self):
         return str(self.template)
@@ -148,6 +148,11 @@ class Template:
 
     def _find_children(self) -> None:
         children = set()
+        if "Resources" not in self.template:
+            raise TaskCatException(
+                f"did not receive a valid template: {self.template_path} does not "
+                f"have a Resources section"
+            )
         for resource in self.template["Resources"].keys():
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
@@ -158,7 +163,7 @@ class Template:
                     children.add(child_name)
         for child in children:
             child_template_instance = None
-            for descendent in self.descendents():
+            for descendent in self.descendents:
                 if str(descendent.template_path) == str(child):
                     child_template_instance = descendent
             if not child_template_instance:
@@ -170,6 +175,7 @@ class Template:
                 )
             self.children.append(child_template_instance)
 
+    @property
     def descendents(self) -> Set["Template"]:
         def recurse(template, descendants):
             descendants = descendants.union(set(template.children))

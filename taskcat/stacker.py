@@ -42,7 +42,7 @@ from taskcat.cfn_logutils import CfnLogTools
 from taskcat.cfn_resources import CfnResourceTools
 from taskcat.exceptions import TaskCatException
 from taskcat.s3_sync import S3Sync
-from taskcat.common_utils import exit0, exit1, param_list_to_dict
+from taskcat.common_utils import exit_with_code, param_list_to_dict
 from taskcat.cli import get_installed_version
 from taskcat.template_params import ParamGen
 
