@@ -87,7 +87,7 @@ class CFNYAMLHandler:
         )
         OrderedSafeLoader.add_multi_constructor("!", _construct_cfn_tag)
 
-        return yaml.load(stream, OrderedSafeLoader)
+        return yaml.safe_load(stream, OrderedSafeLoader)
 
     @staticmethod
     def ordered_safe_dump(data, _=None, **kwds):
@@ -142,5 +142,7 @@ class CFNYAMLHandler:
             )
             os.makedirs(directory)
         elif not os.access(directory, os.W_OK):
-            raise TaskCatException(f"No write access allowed to output directory "
-                                   f"[{directory}]. Aborting.")
+            raise TaskCatException(
+                f"No write access allowed to output directory "
+                f"[{directory}]. Aborting."
+            )

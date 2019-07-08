@@ -1,3 +1,4 @@
+# flake8: noqa B950,F841
 from taskcat.config import Config
 
 

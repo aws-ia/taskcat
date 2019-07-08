@@ -1,9 +1,9 @@
-import time
 import logging
+import time
 
 import yattag
-
 from botocore.vendored import requests
+
 from taskcat.common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 
@@ -24,7 +24,9 @@ class ReportBuilder:
         self.taskcat = taskcat
 
     # TODO: refactor for readability
-    def generate_report(self):  # pylint: disable=too-many-locals, too-many-statements
+    def generate_report(  # noqa: C901
+        self
+    ):  # pylint: disable=too-many-locals, too-many-statements
         doc = yattag.Doc()
 
         # Type of cfn log return cfn log file

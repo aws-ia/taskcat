@@ -19,31 +19,31 @@
 # --imports --
 from __future__ import print_function
 
+import base64
 import datetime
 import json
+import logging
 import os
 import re
+import textwrap
 import time
 import uuid
+
 import boto3
 import yaml
-import cfnlint.core
-import textwrap
-import base64
-import logging
 from botocore.vendored import requests
 
-from taskcat.reaper import Reaper
-from taskcat.client_factory import ClientFactory
-from taskcat.logger import PrintMsg
-from taskcat.generate_reports import ReportBuilder
-from taskcat.common_utils import CommonTools
+import cfnlint.core
 from taskcat.cfn_logutils import CfnLogTools
 from taskcat.cfn_resources import CfnResourceTools
-from taskcat.exceptions import TaskCatException
-from taskcat.s3_sync import S3Sync
-from taskcat.common_utils import exit_with_code, param_list_to_dict
 from taskcat.cli import get_installed_version
+from taskcat.client_factory import ClientFactory
+from taskcat.common_utils import CommonTools, param_list_to_dict
+from taskcat.exceptions import TaskCatException
+from taskcat.generate_reports import ReportBuilder
+from taskcat.logger import PrintMsg
+from taskcat.reaper import Reaper
+from taskcat.s3_sync import S3Sync
 from taskcat.template_params import ParamGen
 
 

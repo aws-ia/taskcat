@@ -1,42 +1,37 @@
-from jinja2 import Template
 from unittest import TestCase
-from unittest.mock import call, Mock
-from taskcat.project_generator import (full_path,
-                                       ProjectConfiguration,
-                                       ProjectGenerator)
+from unittest.mock import Mock, call
 
-TEST_OWNER = 'owner@example.com'
-TEST_PROJECT_NAME = 'awesome_new_project'
-TEST_PROJECT_TYPE = 'quickstart'
-TEST_PROJECT_REGIONS = ['us-west-2', 'us-east-1']
-TEST_TEMPLATES_ROOT = './'
-TEST_DESTINATION = '/tmp/new_project'
+from jinja2 import Template
+
+from taskcat.project_generator import ProjectConfiguration, ProjectGenerator, full_path
+
+TEST_OWNER = "owner@example.com"
+TEST_PROJECT_NAME = "awesome_new_project"
+TEST_PROJECT_TYPE = "quickstart"
+TEST_PROJECT_REGIONS = ["us-west-2", "us-east-1"]
+TEST_TEMPLATES_ROOT = "./"
+TEST_DESTINATION = "/tmp/new_project"
 
 
 class TestProjectGenerator(TestCase):
     def setUp(self):
         self.mocked_templates = {
-            './README.md.jinja': '### {{ config.name }}',
-            './ci/taskcat-autobucket.yml.jinja': 'project {{ config.name }}',
-            './template/some-template.json.jinja': 'owner {{ config.owner }}',
-            './nested/dir/some-file.txt.jinja': '{{ config.project_type }}'
+            "./README.md.jinja": "### {{ config.name }}",
+            "./ci/taskcat-autobucket.yml.jinja": "project {{ config.name }}",
+            "./template/some-template.json.jinja": "owner {{ config.owner }}",
+            "./nested/dir/some-file.txt.jinja": "{{ config.project_type }}",
         }
 
     def test_generate_project(self):
         mock_filesystem_service = self._mock_filesystem_service()
         ProjectGenerator(
-            self._quickstart_configuration(),
-            TEST_DESTINATION,
-            mock_filesystem_service
+            self._quickstart_configuration(), TEST_DESTINATION, mock_filesystem_service
         ).generate()
         self._verify_filesystem_calls(mock_filesystem_service)
 
     def _quickstart_configuration(self):
         return ProjectConfiguration(
-            TEST_OWNER,
-            TEST_PROJECT_NAME,
-            TEST_PROJECT_TYPE,
-            TEST_PROJECT_REGIONS
+            TEST_OWNER, TEST_PROJECT_NAME, TEST_PROJECT_TYPE, TEST_PROJECT_REGIONS
         )
 
     def _mock_filesystem_service(self):
@@ -50,11 +45,11 @@ class TestProjectGenerator(TestCase):
 
     def _mocked_template_list(self):
         return [
-            ('.', None, ['README.md.jinja']),
-            ('./ci', None, ['taskcat-autobucket.yml.jinja']),
-            ('./template', None, ['some-template.json.jinja']),
-            ('./nested', None, []),
-            ('./nested/dir', None, ['some-file.txt.jinja'])
+            (".", None, ["README.md.jinja"]),
+            ("./ci", None, ["taskcat-autobucket.yml.jinja"]),
+            ("./template", None, ["some-template.json.jinja"]),
+            ("./nested", None, []),
+            ("./nested/dir", None, ["some-file.txt.jinja"]),
         ]
 
     def _load_template(self, template):
@@ -72,10 +67,7 @@ class TestProjectGenerator(TestCase):
         fs_mock.create_project_directory.has_calls(calls)
 
     def _resolve_destination(self, dest):
-        return full_path(
-            TEST_DESTINATION,
-            dest.replace(TEST_TEMPLATES_ROOT, '')
-        )
+        return full_path(TEST_DESTINATION, dest.replace(TEST_TEMPLATES_ROOT, ""))
 
     def _verify_load_template_calls(self, fs_mock):
         calls = [call(template) for template in self.mocked_templates.keys()]
@@ -83,14 +75,13 @@ class TestProjectGenerator(TestCase):
 
     def _verify_generate_file_calls(self, fs_mock):
         calls = [
-            self._create_generate_call(k, v) for k, v
-            in self.mocked_templates.items()
+            self._create_generate_call(k, v) for k, v in self.mocked_templates.items()
         ]
         fs_mock.generate_file.has_calls(calls)
 
     def _create_generate_call(self, path, content):
         filepath = self._resolve_destination(path)
-        content = content.replace('{{ config.name }}', TEST_PROJECT_NAME)
-        content = content.replace('{{ config.owner }}', TEST_OWNER)
-        content = content.replace('{{ config.project_type }}', TEST_PROJECT_TYPE)
+        content = content.replace("{{ config.name }}", TEST_PROJECT_NAME)
+        content = content.replace("{{ config.owner }}", TEST_OWNER)
+        content = content.replace("{{ config.project_type }}", TEST_PROJECT_TYPE)
         return call(filepath, content)

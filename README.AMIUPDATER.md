@@ -4,7 +4,7 @@
 
 
 
-## General Usage. 
+## General Usage.
 
 `amiupdater <flags> </path/to/template_directory|template_file>`
 
@@ -59,21 +59,21 @@ _Note: The AMI IDs are here for example purposes. When first configuring the Map
 
 - YAML
 ```yaml
-Mappings: 
-  AWSAMIRegionMap: 
-    ap-northeast-1: 
+Mappings:
+  AWSAMIRegionMap:
+    ap-northeast-1:
       AMZNLINUXHVM: ami-00a5245b4816c38e6,
       CENTOS7HVM: ami-8e8847f1,
       US1404HVM: ami-0be9269b44d4b26c1,
       US1604HVM: ami-0d5e82481c5fd4ad5,
-      SLES15HVM: ami-09161bc9964f46a98          
-    ap-northeast-2: 
+      SLES15HVM: ami-09161bc9964f46a98
+    ap-northeast-2:
       AMZNLINUXHVM: ami-00dc207f8ba6dc919,
       CENTOS7HVM: ami-bf9c36d1,
       US1404HVM: ami-017332df4b882edd2,
       US1604HVM: ami-0507b772e2c9b8c15,
-      SLES15HVM: ami-04ecb44b7d8e8d354            
-    ap-south-1: 
+      SLES15HVM: ami-04ecb44b7d8e8d354
+    ap-south-1:
       AMZNLINUXHVM: ami-0ad42f4f66f6c1cc9,
       CENTOS7HVM: ami-1780a878,
       US1404HVM: ami-09dcf5653a185f5df,
@@ -83,7 +83,7 @@ Mappings:
 ## Defining your own AMI Mappings
 
 ### Custom Config File
-Functionally the same as the upstream config file, a local config file can be created and used in deployment pipelines. 
+Functionally the same as the upstream config file, a local config file can be created and used in deployment pipelines.
 
 For a full list of filters, available, [please see the AWS EC2 API Documentation](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeImages.html).
 

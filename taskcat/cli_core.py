@@ -2,10 +2,11 @@
 # utility.
 
 import argparse
+import importlib
 import inspect
 import logging
-import importlib
 import types
+
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

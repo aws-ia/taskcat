@@ -7,9 +7,11 @@
 # Jay McConnell <jmmccon@amazon.com>,
 # Andrew Glenn <andglenn@amazon.com>
 from __future__ import print_function
+
+import logging
+
 import botocore
 from botocore.exceptions import ClientError
-import logging
 
 log = logging.getLogger(__name__)
 ###

@@ -1,7 +1,7 @@
 import logging
 import os
-from os import path
 from collections import namedtuple
+from os import path
 
 from jinja2 import Template
 

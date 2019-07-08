@@ -1,2 +1,2 @@
-from .lint import Lint
-from .test import Test
+from .lint import Lint  # noqa: F401
+from .test import Test  # noqa: F401

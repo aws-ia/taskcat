@@ -39,13 +39,13 @@ class Lint:
         return list(supported)
 
     def _lint(self):
-        lints = dict()
+        lints = {}
         lint_errors = set()
 
         for name, test in self._config.tests.items():
             lints[name] = {"regions": self._filter_unsupported_regions(test.regions)}
             lints[name]["template_file"] = test.template.template_path
-            lints[name]["results"] = dict()
+            lints[name]["results"] = {}
 
             templates = [t for t in test.template.descendents]
             templates.append(test.template)

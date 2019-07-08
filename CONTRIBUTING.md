@@ -41,4 +41,3 @@ GitHub provides additional document on [forking a repository](https://help.githu
 
 ## Licensing
 We may ask you to affirm the Apache 2.0 agreement for larger changes.
-

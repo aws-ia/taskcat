@@ -1,10 +1,12 @@
+import json
+import logging
+import os
 import re
 import sys
-import os
-import logging
 from pathlib import Path
-import json
+
 from jsonschema import RefResolver, validate
+
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -78,7 +80,7 @@ class CommonTools:
         :return: Dictionary object containing the region and stack name
 
         """
-        stack_info = dict()
+        stack_info = {}
         region_re = re.compile(r"(?<=:)(.\w-.+(\w*)-\d)(?=:)")
         stack_name_re = re.compile(r"(?<=:stack/)(tCaT.*.)(?=/)")
         stack_info["region"] = self.regxfind(region_re, self.stack_name)

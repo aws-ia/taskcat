@@ -8,17 +8,18 @@
 # Andrew Glenn <andglenn@amazon.com>
 from __future__ import print_function
 
-import json
 import argparse
+import datetime
+import hashlib
+import json
+import logging
 import os
 import shutil
-import hashlib
-import datetime
-import logging
 from collections import OrderedDict
+
 from taskcat.client_factory import ClientFactory
-from taskcat.utils import CFNYAMLHandler
 from taskcat.exceptions import TaskCatException
+from taskcat.utils import CFNYAMLHandler
 
 log = logging.getLogger(__name__)
 

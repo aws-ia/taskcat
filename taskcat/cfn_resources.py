@@ -1,4 +1,5 @@
 import logging
+
 from taskcat.common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 
@@ -11,9 +12,9 @@ class CfnResourceTools:
 
     def get_resources(self, stackname, region, include_stacks=False):
         """
-        Given a stackname, and region function returns the list of dictionary items, where each item
-        consist of logicalId, physicalId and resourceType of the aws resource associated
-        with the stack.
+        Given a stackname, and region function returns the list of dictionary items,
+        where each item consist of logicalId, physicalId and resourceType of the aws
+        resource associated with the stack.
 
         :param include_stacks:
         :param stackname: CloudFormation stack name
@@ -34,7 +35,8 @@ class CfnResourceTools:
 
     def get_resources_helper(self, stackname, region, l_resources, include_stacks):
         """
-        This is a helper function of get_resources function. Check get_resources function for details.
+        This is a helper function of get_resources function. Check get_resources
+        function for details.
 
         """
         if stackname != "None":
@@ -99,8 +101,8 @@ class CfnResourceTools:
 
     def get_all_resources(self, stackids, region):
         """
-        Given a list of stackids, function returns the list of dictionary items, where each
-        item consist of stackId and the resources associated with that stack.
+        Given a list of stackids, function returns the list of dictionary items, where
+        each item consist of stackId and the resources associated with that stack.
 
         :param stackids: List of Stack Ids
         :param region: AWS region

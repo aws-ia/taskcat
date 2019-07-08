@@ -1,11 +1,12 @@
 import datetime
-import textwrap
-import tabulate
 import logging
+import textwrap
+
+import tabulate
 from botocore.exceptions import ClientError
 
-from taskcat.common_utils import CommonTools
 from taskcat.cfn_resources import CfnResourceTools
+from taskcat.common_utils import CommonTools
 from taskcat.logger import PrintMsg
 
 log = logging.getLogger(__name__)
@@ -17,7 +18,8 @@ class CfnLogTools:
 
     def get_cfn_stack_events(self, stackname, region):
         """
-        Given a stack name and the region, this function returns the event logs of the given stack, as list.
+        Given a stack name and the region, this function returns the event logs of the
+        given stack, as list.
         :param self:
         :param stackname: Name of the stack
         :param region: Region stack belongs to
@@ -35,11 +37,11 @@ class CfnLogTools:
                 stack_events.extend(response["StackEvents"])
         except ClientError as e:
             log.error(
-                "Error trying to get the events for stack [{}] in region [{}]\b {}".format(
-                    str(stackname), str(region), e
-                )
+                f"Error trying to get the events for stack [{str(stackname)}] in "
+                f"region [{str(region)}]\b {e}"
             )
-            # Commenting below line to avoid sudden exit on describe call failure. So that delete stack may continue.
+            # Commenting below line to avoid sudden exit on describe call failure. So
+            # that delete stack may continue.
             # sys.exit()
 
         return stack_events
@@ -96,7 +98,8 @@ class CfnLogTools:
 
     def write_logs(self, stack_id, logpath):
         """
-        This function writes the event logs of the given stack and all the child stacks to a given file.
+        This function writes the event logs of the given stack and all the child stacks
+        to a given file.
         :param stack_id: Stack Id
         :param logpath: Log file path
         :return:
@@ -123,10 +126,16 @@ class CfnLogTools:
             msg += "\t |Tested on: %s\n" % str(
                 datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
             )
-            msg += "------------------------------------------------------------------------------------------\n"
+            msg += (
+                "-----------------------------------------------------------------"
+                "-------------------------\n"
+            )
             msg += "ResourceStatusReason: \n"
             msg += textwrap.fill(str(reason), 85) + "\n"
-            msg += "==========================================================================================\n"
+            msg += (
+                "================================================================="
+                "=========================\n"
+            )
             if reason == "Stack launch was successful":
                 log.info(msg, extra={"nametag": PrintMsg.PASS})
             else:
@@ -137,28 +146,34 @@ class CfnLogTools:
             )
             with open(logpath, "a") as log_output:
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n"
                 )
                 log_output.write("Region: " + region + "\n")
                 log_output.write("StackName: " + stackname + "\n")
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write("ResourceStatusReason:  \n")
                 log_output.write(textwrap.fill(str(reason), 85) + "\n")
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write("Events:  \n")
                 log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
                 log_output.write(
-                    "\n*****************************************************************************\n"
+                    "\n****************************************************************"
+                    "*************\n"
                 )
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n"
                 )
                 log_output.write(
                     "Tested on: "
@@ -166,7 +181,8 @@ class CfnLogTools:
                     + "\n"
                 )
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n\n"
                 )
                 log_output.close()
 

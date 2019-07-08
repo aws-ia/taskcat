@@ -138,7 +138,8 @@ class ClientFactory:
             profile_name,
         ]
 
-    def get(
+    # TODO: reduce complexity in method
+    def get(  # noqa: C901
         self,
         service,
         region=None,

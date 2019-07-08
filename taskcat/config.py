@@ -1,17 +1,16 @@
 import logging
 import os
-from typing import Set, List, Dict, Optional
 from pathlib import Path
-from jsonschema import exceptions
-import yaml
-import cfnlint
+from typing import Dict, List, Optional, Set
 
-from taskcat.exceptions import TaskCatException
+import yaml
+
+import cfnlint
+from taskcat._config_types import S3BucketConfig, Test
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test, S3BucketConfig
-from taskcat.common_utils import absolute_path
-from taskcat.common_utils import schema_validate as validate
+from taskcat.common_utils import absolute_path, schema_validate as validate
+from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
@@ -43,7 +42,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         project_config_path: str = None,
         project_root: str = "./",
         override_file: str = None,
-        all_env_vars: List[dict] = os.environ.items(),
+        all_env_vars: Optional[List[dict]] = None,
         client_factory=ClientFactory,
     ):  # #pylint: disable=too-many-arguments
         # inputs
@@ -70,7 +69,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.lambda_build_only: bool = False
         self.exclude: str = ""
         self.enable_sig_v2: bool = False
-        self.auth: Dict[str:dict] = {}
+        self.auth: Dict[str, dict] = {}
 
         # project config
         self.name: str = ""
@@ -83,7 +82,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.project_config_path: Optional[Path] = None
         self.template_path: Optional[Path] = None
 
-        self._harvest_env_vars(all_env_vars)
+        self._harvest_env_vars(all_env_vars if all_env_vars else os.environ.items())
         self._process_global_config()
 
         if not self._absolute_path(project_config_path):

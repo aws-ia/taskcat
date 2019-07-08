@@ -1,7 +1,8 @@
 import logging
+
+from taskcat.cfn_lint import Lint as TaskCatLint
 from taskcat.config import Config
 from taskcat.exceptions import TaskCatException
-from taskcat.cfn_lint import Lint as TaskCatLint
 
 LOG = logging.getLogger(__name__)
 

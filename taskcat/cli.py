@@ -11,7 +11,7 @@ import taskcat.cli_modules
 from taskcat.cli_core import CliCore
 from taskcat.common_utils import exit_with_code
 from taskcat.exceptions import TaskCatException
-from taskcat.logger import init_taskcat_cli_logger, PrintMsg
+from taskcat.logger import PrintMsg, init_taskcat_cli_logger
 
 LOG = init_taskcat_cli_logger(loglevel="ERROR")
 

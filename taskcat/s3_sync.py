@@ -65,13 +65,13 @@ class S3Sync:
                 data = file_handle.read(chunk_size)
                 if not data:
                     break
-                md5s.append(hashlib.md5(data))
+                md5s.append(hashlib.md5(data))  # nosec
 
         if len(md5s) == 1:
             return '"{}"'.format(md5s[0].hexdigest())
 
         digests = b"".join(m.digest() for m in md5s)
-        digests_md5 = hashlib.md5(digests)
+        digests_md5 = hashlib.md5(digests)  # nosec
         return '"{}-{}"'.format(digests_md5.hexdigest(), len(md5s))
 
     # TODO: refactor
@@ -94,21 +94,26 @@ class S3Sync:
                     exclude_path = True
                     break
             if not exclude_path:
-                for file in files:
-                    exclude = False
-                    # exclude defined filename patterns
-                    for pattern in S3Sync.exclude_files:
-                        if fnmatch.fnmatch(file, pattern):
-                            exclude = True
-                            break
-                    if not exclude:
-                        full_path = root + "/" + file
-                        if include_checksums:
-                            # get checksum
-                            checksum = self._hash_file(full_path)
-                        else:
-                            checksum = ""
-                        file_list[relpath + file] = [full_path, checksum]
+                file_list = self._iterate_files(files, root, include_checksums, relpath)
+        return file_list
+
+    def _iterate_files(self, files, root, include_checksums, relpath):
+        file_list = {}
+        for file in files:
+            exclude = False
+            # exclude defined filename patterns
+            for pattern in S3Sync.exclude_files:
+                if fnmatch.fnmatch(file, pattern):
+                    exclude = True
+                    break
+            if not exclude:
+                full_path = root + "/" + file
+                if include_checksums:
+                    # get checksum
+                    checksum = self._hash_file(full_path)
+                else:
+                    checksum = ""
+                file_list[relpath + file] = [full_path, checksum]
         return file_list
 
     def _get_s3_file_list(self, bucket, prefix):
