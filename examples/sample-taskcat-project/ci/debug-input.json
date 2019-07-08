@@ -40,15 +40,15 @@
         "ParameterValue": "$[taskcat_genpass_32S]"
     },
     {
-        "ParameterKey":"LocalOverrideTest",
-        "ParameterValue":"override"
+        "ParameterKey": "LocalOverrideTest",
+        "ParameterValue": "override"
     },
     {
-        "ParameterKey":"GlobalOverrideTest",
-        "ParameterValue":"override"
+        "ParameterKey": "GlobalOverrideTest",
+        "ParameterValue": "override"
     },
     {
-        "ParameterKey":"LicenseContentTest",
+        "ParameterKey": "LicenseContentTest",
         "ParameterValue": "$[taskcat_getlicensecontent]/aws-quickstart-datasets/taskcat-license-param-test/example.txt"
     }
 ]

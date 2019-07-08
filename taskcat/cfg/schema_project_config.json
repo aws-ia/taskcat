@@ -2,10 +2,20 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "project":  { "$ref": "schema_definitions.json#/definitions/project" },
-        "tests":    { "$ref": "schema_definitions.json#/definitions/tests", "minProperties": 1 },
-        "general":  { "$ref": "schema_definitions.json#/definitions/general" }
+        "project": {
+            "$ref": "schema_definitions.json#/definitions/project"
+        },
+        "tests": {
+            "$ref": "schema_definitions.json#/definitions/tests",
+            "minProperties": 1
+        },
+        "general": {
+            "$ref": "schema_definitions.json#/definitions/general"
+        }
     },
-    "required": [ "project", "tests" ],
+    "required": [
+        "project",
+        "tests"
+    ],
     "additionalProperties": false
 }
