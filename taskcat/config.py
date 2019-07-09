@@ -212,9 +212,9 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             )
         if not test.regions:
             if self.regions:
-                test.regions = self.regions
+                test.regions = list(self.regions)
             else:
-                test.regions = {default_region}
+                test.regions = [default_region]
 
     def _process_global_config(self):
         if self.global_config_path is None:
@@ -240,7 +240,9 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         validate(instance, "project_config")
         self._set_all(instance)
 
-    def _process_legacy_project(self, instance) -> Optional[Exception]:
+    def _process_legacy_project(  # pylint: disable=useless-return
+        self, instance
+    ) -> Optional[Exception]:
         validate(instance, "legacy_project_config")
         LOG.warning(
             "%s config file is in a format that will be deprecated in the next "

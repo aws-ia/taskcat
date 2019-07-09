@@ -1,0 +1,71 @@
+exclude: ^(.travis.yml|.pre-commit-config.yaml|taskcat/reaper.py|taskcat/stacker.py|taskcat/deployer.py)$
+fail_fast: true
+repos:
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: v4.3.17
+  hooks:
+  - id: isort
+    # language_version: python3.6
+- repo: https://github.com/ambv/black
+  rev: stable
+  hooks:
+  - id: black
+    exclude: templates/
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.0.0
+  hooks:
+  - id: check-case-conflict
+  - id: end-of-file-fixer
+  - id: mixed-line-ending
+    args:
+    - --fix=lf
+  - id: trailing-whitespace
+  - id: flake8
+    additional_dependencies:
+    - flake8-bugbear>=19.3.0
+    - flake8-builtins>=1.4.1
+    - flake8-commas>=2.0.0
+    - flake8-comprehensions>=2.1.0
+    - flake8-debugger>=3.1.0
+    - flake8-pep3101>=1.2.1
+    # language_version: python3.6
+    exclude: templates/resource_model.py
+  - id: pretty-format-json
+    args:
+    - --autofix
+    - --indent=4
+    - --no-sort-keys
+  - id: check-merge-conflict
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: v1.3.0
+  hooks:
+  - id: python-check-blanket-noqa
+  - id: python-check-mock-methods
+  - id: python-no-log-warn
+- repo: https://github.com/PyCQA/bandit
+  rev: 1.6.2
+  hooks:
+  - id: bandit
+    files: "^taskcat/"
+    args: ["--skip", "B322"]
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: 'v0.711'
+  hooks:
+  - id: mypy
+    files: "^taskcat/"
+- repo: local
+  hooks:
+  - id: pylint-local
+    name: pylint-local
+    description: Run pylint in the local virtualenv
+    entry: pylint "setup.py" "taskcat/" "bin/"
+    language: system
+    pass_filenames: false
+    always_run: true
+  - id: pytest-local
+    name: pytest-local
+    description: Run pytest in the local virtualenv
+    entry: pytest --cov="taskcat" --doctest-modules --ignore "tests/data" "tests/"
+    language: system
+    pass_filenames: false
+    always_run: true

@@ -1,7 +1,6 @@
 import logging
 import os
 from collections import namedtuple
-from os import path
 
 from jinja2 import Template
 
@@ -121,4 +120,4 @@ class FilesystemService:
 
     @staticmethod
     def _templates_root_path():
-        return path.dirname(path.realpath(__file__)) + os.sep + TEMPLATES_ROOT_DIR
+        return os.path.dirname(os.path.realpath(__file__)) + os.sep + TEMPLATES_ROOT_DIR

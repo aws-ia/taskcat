@@ -35,7 +35,7 @@ class Test:
         if parameters:
             self.parameters.update(parameters)
         validate(self.parameters, "overrides")
-        self.regions: set = set(regions) if regions else set()
+        self.regions: list = list(regions) if regions else []
         self.auth: dict = auth
         self.client_factory: ClientFactory = ClientFactory()
         self.name: str = name

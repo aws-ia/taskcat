@@ -1,17 +1,17 @@
 from setuptools import setup
 
 with open("requirements.txt") as f:
-    required = f.read().splitlines()
+    REQUIRED = f.read().splitlines()
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    LONG_DESCRIPTION = fh.read()
 
 setup(
     version="0.9.0",
     name="taskcat-v9",
     packages=["taskcat"],
     description="An OpenSource Cloudformation Deployment Framework",
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     author="Tony Vattathil, Santiago Cardenas, Shivansh Singh, Jay McConnell, "
     "Andrew Glenn",
@@ -40,7 +40,7 @@ setup(
         "cloudformation deploy",
         "taskcat",
     ],
-    install_requires=required,
+    install_requires=REQUIRED,
     test_suite="tests",
     tests_require=["mock", "boto3"],
     include_package_data=True,

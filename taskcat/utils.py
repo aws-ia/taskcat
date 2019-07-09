@@ -87,7 +87,7 @@ class CFNYAMLHandler:
         )
         OrderedSafeLoader.add_multi_constructor("!", _construct_cfn_tag)
 
-        return yaml.safe_load(stream, OrderedSafeLoader)
+        return yaml.load(stream, OrderedSafeLoader)  # nosec
 
     @staticmethod
     def ordered_safe_dump(data, _=None, **kwds):
