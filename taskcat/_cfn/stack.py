@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from taskcat.cfn.template import Template
-from taskcat.client_factory import ClientFactory
+from taskcat._cfn.template import Template
+from taskcat._client_factory import ClientFactory
 
 GENERIC_ERROR_PATTERNS = [
     r"(The following resource\(s\) failed to create: )",

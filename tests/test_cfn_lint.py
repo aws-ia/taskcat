@@ -6,8 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from taskcat.cfn_lint import Lint
-from taskcat.config import Config
+from taskcat._cfn_lint import Lint
+from taskcat._config import Config
 
 test_two_path = str(
     Path(

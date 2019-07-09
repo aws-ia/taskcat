@@ -3,7 +3,7 @@ from unittest.mock import Mock, call
 
 from jinja2 import Template
 
-from taskcat.project_generator import ProjectConfiguration, ProjectGenerator, full_path
+from taskcat._project_generator import ProjectConfiguration, ProjectGenerator, full_path
 
 TEST_OWNER = "owner@example.com"
 TEST_PROJECT_NAME = "awesome_new_project"

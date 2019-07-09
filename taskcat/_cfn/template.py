@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import List, Optional, Set, Union
 
 import cfnlint
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import s3_bucket_name_from_url, s3_key_from_url, s3_url_maker
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import s3_bucket_name_from_url, s3_key_from_url, s3_url_maker
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

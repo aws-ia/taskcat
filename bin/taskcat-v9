@@ -10,8 +10,8 @@
 """
 
 from __future__ import print_function
-from taskcat.cli import main
-from taskcat import TaskCatException
+from taskcat._cli import main
+from taskcat.exceptions import TaskCatException
 import sys
 
 

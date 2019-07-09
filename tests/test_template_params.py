@@ -6,9 +6,9 @@ from io import BytesIO
 
 import mock
 
-from taskcat.client_factory import ClientFactory
+from taskcat._client_factory import ClientFactory
+from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
-from taskcat.template_params import ParamGen
 
 logger = logging.getLogger("taskcat")
 

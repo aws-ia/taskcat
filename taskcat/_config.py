@@ -6,10 +6,10 @@ from typing import Dict, List, Optional, Set, Union
 import yaml
 
 import cfnlint
+from taskcat._cfn.template import Template
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat._config_types import S3BucketConfig, Test
-from taskcat.cfn.template import Template
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import absolute_path, schema_validate as validate
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

@@ -1,4 +1,4 @@
-exclude: ^(.travis.yml|.pre-commit-config.yaml|taskcat/reaper.py|taskcat/stacker.py|taskcat/deployer.py)$
+exclude: ^(.travis.yml|.pre-commit-config.yaml)$
 fail_fast: true
 repos:
 - repo: https://github.com/pre-commit/mirrors-isort

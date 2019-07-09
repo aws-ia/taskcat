@@ -12,8 +12,8 @@ import unittest
 
 import mock
 
-from taskcat.cfn_resources import CfnResourceTools
-from taskcat.client_factory import ClientFactory
+from taskcat._cfn_resources import CfnResourceTools
+from taskcat._client_factory import ClientFactory
 from taskcat.exceptions import TaskCatException
 
 
@@ -82,7 +82,7 @@ class TestCfnResourceTools(unittest.TestCase):
 
         msg = "should return a list of resources"
         with mock.patch(
-            "taskcat.cfn_resources.CfnResourceTools.get_resources_helper",
+            "taskcat._cfn_resources.CfnResourceTools.get_resources_helper",
             mock_get_resources_helper,
         ):
             resources = cfn_resource_tools.get_resources("test_stack", "us-east-1")
@@ -143,7 +143,7 @@ class TestCfnResourceTools(unittest.TestCase):
 
         msg = "should return a list of resources"
         with mock.patch(
-            "taskcat.cfn_resources.CfnResourceTools.get_resources", mock_get_resources
+            "taskcat._cfn_resources.CfnResourceTools.get_resources", mock_get_resources
         ):
             resources = cfn_resource_tools.get_all_resources(
                 ["test_stack"], "us-east-1"

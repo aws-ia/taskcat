@@ -4,7 +4,7 @@ import time
 import yattag
 from botocore.vendored import requests
 
-from taskcat.common_utils import CommonTools
+from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

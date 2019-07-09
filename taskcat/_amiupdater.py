@@ -1,5 +1,7 @@
 # TODO: add type hints
 # type: ignore
+# TODO: fix lint issues
+# pylint: skip-file
 
 import collections
 import datetime
@@ -14,9 +16,9 @@ import pkg_resources
 import requests
 import yaml
 
-from taskcat.client_factory import ClientFactory
-from taskcat.stacker import LegacyTaskCat as tc
-from taskcat.utils import CFNYAMLHandler as cfy
+from taskcat._client_factory import ClientFactory
+from taskcat._stacker import LegacyTaskCat as tc
+from taskcat._utils import CFNYAMLHandler as cfy
 
 log = logging.getLogger(__name__)
 

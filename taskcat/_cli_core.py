@@ -7,20 +7,7 @@ import inspect
 import logging
 import types
 
-from taskcat.exceptions import TaskCatException
-
 LOG = logging.getLogger(__name__)
-
-
-class InvalidActionError(TaskCatException):
-    """Exception raised for error when invalid action is supplied
-
-    Attributes:
-        expression -- input expression in which the error occurred
-    """
-
-    def __init__(self, expression):
-        self.expression = expression
 
 
 class CliCore:
@@ -123,8 +110,8 @@ class CliCore:
         return sub_parser
 
     @staticmethod
-    def _add_arguments(args, parser):
-        for args, kwargs in args:
+    def _add_arguments(input_args, parser):
+        for args, kwargs in input_args:
             parser.add_argument(*args, **kwargs)
 
     def _build_parser(self, description, version):

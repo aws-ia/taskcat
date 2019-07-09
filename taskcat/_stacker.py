@@ -16,6 +16,9 @@
 # Planned Features:
 # - Email test results to owner of project
 
+# pylint: skip-file
+# flake8: noqa
+
 # --imports --
 from __future__ import print_function
 
@@ -34,17 +37,17 @@ import yaml
 from botocore.vendored import requests
 
 import cfnlint.core
-from taskcat.cfn_logutils import CfnLogTools
-from taskcat.cfn_resources import CfnResourceTools
-from taskcat.cli import get_installed_version
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import CommonTools, param_list_to_dict
+from taskcat._cfn_logutils import CfnLogTools
+from taskcat._cfn_resources import CfnResourceTools
+from taskcat._cli import get_installed_version
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import CommonTools, param_list_to_dict
+from taskcat._generate_reports import ReportBuilder
+from taskcat._logger import PrintMsg
+from taskcat._reaper import Reaper
+from taskcat._s3_sync import S3Sync
+from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
-from taskcat.generate_reports import ReportBuilder
-from taskcat.logger import PrintMsg
-from taskcat.reaper import Reaper
-from taskcat.s3_sync import S3Sync
-from taskcat.template_params import ParamGen
 
 
 class TestData(object):
@@ -303,7 +306,7 @@ class LegacyTaskCat(object):
             raise TaskCatException("Unable to parse JSON (taskcat project overrides)")
         except TaskCatException:
             raise
-        except Exception as e:
+        except Exception as e:  # nosec
             pass
 
         param_index = param_list_to_dict(original_keys)

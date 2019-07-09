@@ -2,6 +2,7 @@
 #      this is only here to illustrate generator's usage
 # run as: python path/to/runner.py <project_destination>
 #
+# pylint: skip-file
 
 import sys
 

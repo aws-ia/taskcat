@@ -19,8 +19,8 @@ from typing import List
 
 from boto3.exceptions import S3UploadFailedError
 
+from taskcat._logger import PrintMsg
 from taskcat.exceptions import TaskCatException
-from taskcat.logger import PrintMsg
 
 LOG = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
 import logging
 from uuid import uuid4
 
-from taskcat.client_factory import ClientFactory
-from taskcat.config import Config
+from taskcat._client_factory import ClientFactory
+from taskcat._config import Config
+from taskcat._s3_sync import S3Sync
 from taskcat.exceptions import TaskCatException
-from taskcat.s3_sync import S3Sync
 
 LOG = logging.getLogger(__name__)
 

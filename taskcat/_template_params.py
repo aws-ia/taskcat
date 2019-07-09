@@ -3,7 +3,7 @@ import random
 import re
 import uuid
 
-from taskcat.common_utils import CommonTools
+from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

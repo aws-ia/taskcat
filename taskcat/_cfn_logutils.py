@@ -5,11 +5,11 @@ import textwrap
 import tabulate
 from botocore.exceptions import ClientError
 
-from taskcat.cfn_resources import CfnResourceTools
-from taskcat.common_utils import CommonTools
-from taskcat.logger import PrintMsg
+from taskcat._cfn_resources import CfnResourceTools
+from taskcat._common_utils import CommonTools
+from taskcat._logger import PrintMsg
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class CfnLogTools:
@@ -36,7 +36,7 @@ class CfnLogTools:
                 )
                 stack_events.extend(response["StackEvents"])
         except ClientError as e:
-            log.error(
+            LOG.error(
                 f"Error trying to get the events for stack [{str(stackname)}] in "
                 f"region [{str(region)}]\b {e}"
             )
@@ -54,7 +54,7 @@ class CfnLogTools:
         :return: Event logs of the stack
         """
 
-        log.info("Collecting logs for " + stackname + '"\n')
+        LOG.info("Collecting logs for " + stackname + '"\n')
         # Collect stack_events
         stack_events = self.get_cfn_stack_events(stackname, region)
         # Uncomment line for debug
@@ -84,7 +84,7 @@ class CfnLogTools:
         :param logpath: Log file path
         :return:
         """
-        log.info("Collecting CloudFormation Logs")
+        LOG.info("Collecting CloudFormation Logs")
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = CommonTools(stack["StackId"]).parse_stack_info()
@@ -111,7 +111,7 @@ class CfnLogTools:
         # Get stack resources
         cfnlogs = self.get_cfnlogs(stackname, region)
 
-        if len(cfnlogs) != 0:
+        if cfnlogs:
             if cfnlogs[0]["ResourceStatus"] != "CREATE_COMPLETE":
                 if "ResourceStatusReason" in cfnlogs[0]:
                     reason = cfnlogs[0]["ResourceStatusReason"]
@@ -137,13 +137,10 @@ class CfnLogTools:
                 "=========================\n"
             )
             if reason == "Stack launch was successful":
-                log.info(msg, extra={"nametag": PrintMsg.PASS})
+                LOG.info(msg, extra={"nametag": PrintMsg.PASS})
             else:
-                log.error(msg)
-            log.warning(
-                " |GENERATING REPORTS{}".format(PrintMsg.header, PrintMsg.rst_color),
-                extra={"nametag": PrintMsg.NAMETAG},
-            )
+                LOG.error(msg)
+            LOG.warning("|GENERATING REPORTS", extra={"nametag": PrintMsg.NAMETAG})
             with open(logpath, "a") as log_output:
                 log_output.write(
                     "------------------------------------------------------------------"
@@ -194,6 +191,6 @@ class CfnLogTools:
                 if resource["resourceType"] == "AWS::CloudFormation::Stack":
                     self.write_logs(resource["physicalId"], logpath)
         else:
-            log.error(
+            LOG.error(
                 "No event logs found. Something went wrong at describe event call.\n"
             )

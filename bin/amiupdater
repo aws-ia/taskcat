@@ -2,7 +2,7 @@
 import argparse
 import os
 
-from taskcat.amiupdater import AMIUpdater
+from taskcat._amiupdater import AMIUpdater
 from taskcat.colored_console import PrintMsg
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import re
 import textwrap
 
 import cfnlint.core
-from taskcat.config import Config
+from taskcat._config import Config
 
 LOG = logging.getLogger(__name__)
 

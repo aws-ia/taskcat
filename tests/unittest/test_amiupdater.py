@@ -771,15 +771,15 @@ class MockEC2:
 class TestAMIUpdater(unittest.TestCase):
     def _module_loader(self, return_module=False):
         try:
-            del sys.modules["taskcat.amiupdater"]
+            del sys.modules["taskcat._amiupdater"]
         except KeyError:
             pass
-        from taskcat.amiupdater import AMIUpdater, AMIUpdaterException
+        from taskcat._amiupdater import AMIUpdater, AMIUpdaterException
 
         if return_module:
-            import taskcat.amiupdater
+            import taskcat._amiupdater
 
-            return AMIUpdater, AMIUpdaterException, taskcat.amiupdater
+            return AMIUpdater, AMIUpdaterException, taskcat._amiupdater
         else:
             return AMIUpdater, AMIUpdaterException
 
@@ -1045,7 +1045,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertRaises(AMIUpdaterException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
-        from taskcat.amiupdater import APIResultsData
+        from taskcat._amiupdater import APIResultsData
 
         instance_args = {
             "codename": "foo",
@@ -1063,7 +1063,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertRaises(TypeError, a < b)
 
     def test_APIResults_greaterthan_comparison_standard(self):
-        from taskcat.amiupdater import APIResultsData
+        from taskcat._amiupdater import APIResultsData
 
         APIResultsData.custom_comparisons = False
         instance_args = {
@@ -1082,7 +1082,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertRaises(TypeError, a > b)
 
     def test_APIResults_lessthan_comparison_custom(self):
-        from taskcat.amiupdater import APIResultsData
+        from taskcat._amiupdater import APIResultsData
 
         instance_args = {
             "codename": "foo",
@@ -1099,7 +1099,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertTrue(a < b)
 
     def test_APIResults_greaterthan_comparison_custom(self):
-        from taskcat.amiupdater import APIResultsData
+        from taskcat._amiupdater import APIResultsData
 
         instance_args = {
             "codename": "foo",

@@ -13,7 +13,7 @@ import os
 from multiprocessing import Pool
 from shutil import make_archive
 
-from taskcat.common_utils import make_dir
+from taskcat._common_utils import make_dir
 
 LOG = logging.getLogger(__name__)
 

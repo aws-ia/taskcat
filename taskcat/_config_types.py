@@ -5,8 +5,8 @@ from typing import Dict, Optional, Union
 import yaml
 from jsonschema import exceptions
 
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import absolute_path, schema_validate as validate
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

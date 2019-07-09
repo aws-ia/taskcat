@@ -1,6 +1,8 @@
+# pylint: skip-file
+
 import logging
 
-from taskcat.common_utils import CommonTools
+from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 
 log = logging.getLogger(__name__)

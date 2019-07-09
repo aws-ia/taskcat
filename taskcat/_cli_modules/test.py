@@ -1,5 +1,5 @@
 # flake8: noqa B950,F841
-from taskcat.config import Config
+from taskcat._config import Config
 
 
 class Test:

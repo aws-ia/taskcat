@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import unittest
 
-from taskcat.common_utils import param_list_to_dict
+from taskcat._common_utils import param_list_to_dict
 from taskcat.exceptions import TaskCatException
 
 

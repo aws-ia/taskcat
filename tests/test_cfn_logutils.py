@@ -6,8 +6,8 @@ import unittest
 import mock
 from botocore.exceptions import ClientError
 
-from taskcat.cfn_logutils import CfnLogTools
-from taskcat.client_factory import ClientFactory
+from taskcat._cfn_logutils import CfnLogTools
+from taskcat._client_factory import ClientFactory
 
 
 def client_factory_instance():
@@ -96,7 +96,7 @@ class TestCfnLogTools(unittest.TestCase):
 
         msg = "should return the expected output"
         with mock.patch(
-            "taskcat.cfn_logutils.CfnLogTools.get_cfn_stack_events",
+            "taskcat._cfn_logutils.CfnLogTools.get_cfn_stack_events",
             mock_get_cfn_stack_events,
         ):
             resources = cfn_logutils.get_cfnlogs("test_stack", "us-east-1")
@@ -119,14 +119,14 @@ class TestCfnLogTools(unittest.TestCase):
             random.randrange(1, 1000000000000000)
         )
         with mock.patch(
-            "taskcat.cfn_logutils.CfnLogTools.get_cfnlogs", mock_get_cfnlogs
+            "taskcat._cfn_logutils.CfnLogTools.get_cfnlogs", mock_get_cfnlogs
         ):
             with mock.patch(
-                "taskcat.common_utils.CommonTools.parse_stack_info",
+                "taskcat._common_utils.CommonTools.parse_stack_info",
                 mock_parse_stack_info,
             ):
                 with mock.patch(
-                    "taskcat.cfn_resources.CfnResourceTools.get_resources",
+                    "taskcat._cfn_resources.CfnResourceTools.get_resources",
                     mock_get_resources,
                 ):
                     cfn_logutils.write_logs("test_stack", path)

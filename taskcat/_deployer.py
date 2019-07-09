@@ -6,6 +6,10 @@
 # Shivansh Singh <sshvans@amazon.com>,
 # Jay McConnell <jmmccon@amazon.com>,
 # Andrew Glenn <andglenn@amazon.com>
+
+# pylint: skip-file
+# flake8: noqa
+
 from __future__ import print_function
 
 import argparse
@@ -17,9 +21,9 @@ import os
 import shutil
 from collections import OrderedDict
 
-from taskcat.client_factory import ClientFactory
+from taskcat._client_factory import ClientFactory
+from taskcat._utils import CFNYAMLHandler
 from taskcat.exceptions import TaskCatException
-from taskcat.utils import CFNYAMLHandler
 
 log = logging.getLogger(__name__)
 
@@ -182,7 +186,7 @@ class CFNAlchemist(object):
         """
         if self._target_key_prefix is None:
             raise TaskCatException("target_key_prefix cannot be None")
-        # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS CURRENTLY USING ClientFactory's get_session from utils.py
+        # TODO: FIGURE OUT BOTO SESSION HANDLING DETAILS CURRENTLY USING ClientFactory's get_session from _utils.py
         """
         # Use a profile
         if args.profile:
@@ -264,7 +268,7 @@ class CFNAlchemist(object):
                     )
                 )
                 s3_hash = remote_key_dict[_key].e_tag.strip('"')
-                local_hash = hashlib.md5(
+                local_hash = hashlib.md5(  # nosec
                     open(local_key_dict[_key], "rb").read()
                 ).hexdigest()
                 self.log.debug(

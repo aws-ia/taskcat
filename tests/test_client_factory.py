@@ -17,7 +17,7 @@ import boto3
 import botocore
 import mock
 
-from taskcat.client_factory import ClientFactory
+from taskcat._client_factory import ClientFactory
 
 
 class MockClientConfig(object):
@@ -170,11 +170,11 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(expected, aws_clients._credential_sets, msg)
 
     @mock.patch(
-        "taskcat.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory._create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     @mock.patch(
-        "taskcat.ClientFactory._create_session",
+        "taskcat._client_factory.ClientFactory._create_session",
         mock.MagicMock(return_value=MockBotoSessionClass()),
     )
     def test_get(self):
@@ -401,11 +401,11 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(ue2_session, s, msg)
 
     @mock.patch(
-        "taskcat.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory._create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     @mock.patch(
-        "taskcat.ClientFactory._create_session",
+        "taskcat._client_factory.ClientFactory._create_session",
         mock.MagicMock(return_value=MockBotoSessionClass()),
     )
     def test_regional_cred_map(self):
