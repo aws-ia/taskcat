@@ -15,6 +15,7 @@ import os
 import time
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
+from typing import List
 
 from boto3.exceptions import S3UploadFailedError
 
@@ -40,7 +41,7 @@ class S3Sync:
     exclude_files = [".*", "*.md"]
     exclude_path_prefixes = ["functions/source/", ".", "venv/", "taskcat_outputs/"]
 
-    exclude_remote_path_prefixes = []
+    exclude_remote_path_prefixes: List[str] = []
 
     def __init__(self, s3_client, bucket, prefix, path, acl="private"):
         """Syncronizes local file system with an s3 bucket/prefix

@@ -61,8 +61,8 @@ class Lint:
                 except cfnlint.core.CfnLintExitException as e:
                     lint_errors.add(str(e))
                 lints[name]["results"][tpath] = results
-            for e in lint_errors:
-                LOG.error(e)
+            for err in lint_errors:
+                LOG.error(err)
         return lints, lint_errors
 
     def output_results(self):

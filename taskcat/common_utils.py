@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Optional, Union
 
 from jsonschema import RefResolver, validate
 
@@ -150,7 +151,7 @@ def buildmap(start_location, map_string, partial_match=True):
     return fs_map
 
 
-def absolute_path(path: [str, Path]):
+def absolute_path(path: Optional[Union[str, Path]]):
     if path is None:
         return None
     path = Path(path).expanduser().resolve()

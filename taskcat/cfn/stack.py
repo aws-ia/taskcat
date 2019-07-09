@@ -5,7 +5,7 @@ import re
 import string
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from taskcat.cfn.template import Template
@@ -273,7 +273,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         children: bool = False,
     ) -> None:
         if properties:
-            self.set_stack_properties()
+            self.set_stack_properties({})
         if events:
             self._fetch_stack_events()
         if resources:
@@ -281,7 +281,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         if children:
             self._fetch_children()
 
-    def set_stack_properties(self, stack_properties: dict = None) -> None:
+    def set_stack_properties(self, stack_properties: Dict[str, Any]) -> None:
         if not stack_properties:
             cfn_client = self.get_client.get("cloudformation", region=self.region)
             stack_properties = cfn_client.describe_stacks(StackName=self.id)["Stacks"][
@@ -315,7 +315,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def events(
         self,
-        filter_status: [str] = None,
+        filter_status: Optional[List[str]] = None,
         refresh: bool = False,
         include_generic: bool = True,
     ) -> List[Event]:
@@ -347,7 +347,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._events = events
 
     def resources(
-        self, filter_status: [str] = None, refresh: bool = False
+        self, filter_status: Optional[str] = None, refresh: bool = False
     ) -> List[Resource]:
         if refresh or not self._resources:
             self._fetch_stack_resources()
@@ -394,7 +394,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         if refresh or not self._children:
             self._fetch_children()
 
-        def recurse(stack: Stack, descendants: List["Stack"] = None) -> ["Stack"]:
+        def recurse(stack: Stack, descendants: List["Stack"] = None) -> List["Stack"]:
             descendants = [] if not descendants else descendants
             if stack.children():
                 descendants += stack.children()
@@ -406,8 +406,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def error_events(
         self, recurse: bool = True, include_generic: bool = False, refresh=False
-    ) -> [Event]:
-        errors = []
+    ) -> List[Event]:
+        errors: list = []
         stacks = [self]
         if recurse:
             stacks += self.descendants()

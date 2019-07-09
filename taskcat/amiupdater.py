@@ -1,3 +1,6 @@
+# TODO: add type hints
+# type: ignore
+
 import collections
 import datetime
 import json

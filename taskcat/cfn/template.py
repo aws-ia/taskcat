@@ -2,7 +2,7 @@ import logging
 import random
 import string
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Union
 
 import cfnlint
 from taskcat.client_factory import ClientFactory
@@ -15,8 +15,8 @@ LOG = logging.getLogger(__name__)
 class Template:
     def __init__(
         self,
-        template_path: str,
-        project_root: str = "",
+        template_path: Union[str, Path],
+        project_root: Union[str, Path] = "",
         url: str = "",
         client_factory_instance: Optional[ClientFactory] = None,
     ):

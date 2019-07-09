@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import yaml
 from jsonschema import exceptions
@@ -20,7 +20,7 @@ class Test:
         parameter_input: Path = None,
         parameters: dict = None,
         regions: set = None,
-        project_root: [Path, str] = "./",
+        project_root: Union[Path, str] = "./",
         auth: dict = None,
     ):
         auth = auth if auth is not None else {}
@@ -28,16 +28,16 @@ class Test:
         self.template_file: Path = self._guess_path(template_file)
         self.parameter_input_file: Optional[Path] = None
         if parameter_input:
-            self.parameter_input_file: Path = self._guess_path(parameter_input)
+            self.parameter_input_file = self._guess_path(parameter_input)
         self.parameters: Dict[
-            str, int, bool
+            str, Union[str, int, bool]
         ] = self._params_from_file() if parameter_input else {}
         if parameters:
             self.parameters.update(parameters)
         validate(self.parameters, "overrides")
-        self.regions = list(regions) if regions else []
+        self.regions: set = set(regions) if regions else set()
         self.auth: dict = auth
-        self.client_factory: [ClientFactory, None] = None
+        self.client_factory: ClientFactory = ClientFactory()
         self.name: str = name
 
     def _guess_path(self, path):
@@ -105,7 +105,8 @@ class Test:
 
     @classmethod
     def from_dict(cls, raw_test: dict, project_root="./"):
-        return Test(**raw_test, project_root=Path(project_root))
+        raw_test["project_root"] = Path(project_root)
+        return Test(**raw_test)
 
 
 class S3BucketConfig(str):
