@@ -11,7 +11,8 @@ before_install:
   - wget https://github.com/awslabs/git-secrets/archive/${GIT_SECRETS_RELEASE}.tar.gz
   - tar -xvf ${GIT_SECRETS_RELEASE}.tar.gz
   - cd git-secrets-${GIT_SECRETS_RELEASE}/
-  - make install
+  - sudo make install
+  - cd ${TRAVIS_BUILD_DIR}
 install:
   - pip install .
 script: pre-commit run --all-files

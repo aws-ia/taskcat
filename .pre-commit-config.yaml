@@ -10,7 +10,6 @@ repos:
   rev: stable
   hooks:
   - id: black
-    exclude: templates/
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.0.0
   hooks:
@@ -29,7 +28,6 @@ repos:
     - flake8-debugger>=3.1.0
     - flake8-pep3101>=1.2.1
     # language_version: python3.6
-    exclude: templates/resource_model.py
   - id: pretty-format-json
     args:
     - --autofix
@@ -55,6 +53,19 @@ repos:
     files: "^taskcat/"
 - repo: local
   hooks:
+  - id: git-secrets-register-aws
+    name: git-secrets-register-aws
+    description: Register AWS patterns with git-secrets
+    entry: git-secrets --register-aws
+    language: system
+    always_run: true
+    pass_filenames: false
+  - id: git-secrets
+    name: git-secrets
+    description: Run git-secrets
+    entry: git-secrets --scan
+    language: system
+    always_run: true
   - id: pylint-local
     name: pylint-local
     description: Run pylint in the local virtualenv
