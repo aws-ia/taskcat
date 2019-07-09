@@ -3,13 +3,18 @@ language: python
 python:
   - "3.6"
   - "3.7"
-install:
+before_install:
   - pip install -r requirements.txt
+  - pip install -r dev-requirements.txt
+  - cd /tmp
+  - GIT_SECRETS_RELEASE=1.3.0
+  - wget https://github.com/awslabs/git-secrets/archive/${GIT_SECRETS_RELEASE}.tar.gz
+  - tar -xvf ${GIT_SECRETS_RELEASE}.tar.gz
+  - cd git-secrets-${GIT_SECRETS_RELEASE}/
+  - make install
+install:
   - pip install .
-script: pytest
+script: pre-commit run --all-files
 after_success:
-  - pip install pytest-cov codecov black pylint
-  - black --check -t py36 -t py37 taskcat/
-  - pylint taskcat
   - coverage run ./setup.py test > /dev/null
   - codecov --token=$CODECOV_TOKEN
