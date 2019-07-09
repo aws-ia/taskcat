@@ -6,10 +6,17 @@
 # Shivansh Singh <sshvans@amazon.com>,
 # Jay McConnell <jmmccon@amazon.com>,
 # Andrew Glenn <andglenn@amazon.com>
+
+# pylint: skip-file
+# flake8: noqa
+# nosec
+
 from __future__ import print_function
+
+import logging
+
 import botocore
 from botocore.exceptions import ClientError
-import logging
 
 log = logging.getLogger(__name__)
 ###

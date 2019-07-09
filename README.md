@@ -5,7 +5,7 @@
 
 ---
 ## Caution!
-> This repo is NOT the stable version of taskcat, that is here: https://github.com/aws-quickstart/taskcat. If you are involved in developing the next taskcat version, 
+> This repo is NOT the stable version of taskcat, that is here: https://github.com/aws-quickstart/taskcat. If you are involved in developing the next taskcat version,
 or want the bleeding edge then this repo is what you seek.
 ---
 
@@ -20,4 +20,3 @@ git clone git@github.com:taskcat/taskcat-v9.git
 cd taskcat-v9
 pip3 install -e .
 ```
-

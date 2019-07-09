@@ -3,7 +3,7 @@ import re
 import textwrap
 
 import cfnlint.core
-from taskcat.config import Config
+from taskcat._config import Config
 
 LOG = logging.getLogger(__name__)
 
@@ -39,13 +39,13 @@ class Lint:
         return list(supported)
 
     def _lint(self):
-        lints = dict()
+        lints = {}
         lint_errors = set()
 
         for name, test in self._config.tests.items():
             lints[name] = {"regions": self._filter_unsupported_regions(test.regions)}
             lints[name]["template_file"] = test.template.template_path
-            lints[name]["results"] = dict()
+            lints[name]["results"] = {}
 
             templates = [t for t in test.template.descendents]
             templates.append(test.template)
@@ -61,8 +61,8 @@ class Lint:
                 except cfnlint.core.CfnLintExitException as e:
                     lint_errors.add(str(e))
                 lints[name]["results"][tpath] = results
-            for e in lint_errors:
-                LOG.error(e)
+            for err in lint_errors:
+                LOG.error(err)
         return lints, lint_errors
 
     def output_results(self):

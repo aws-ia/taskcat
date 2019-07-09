@@ -1,4 +1,4 @@
-from taskcat.stacker import LegacyTaskCat
+from taskcat._stacker import LegacyTaskCat
 
 
 class TaskCat:  # pylint: disable=too-many-instance-attributes

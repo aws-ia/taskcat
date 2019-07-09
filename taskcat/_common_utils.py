@@ -1,10 +1,13 @@
+import json
+import logging
+import os
 import re
 import sys
-import os
-import logging
 from pathlib import Path
-import json
+from typing import Optional, Union
+
 from jsonschema import RefResolver, validate
+
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -78,7 +81,7 @@ class CommonTools:
         :return: Dictionary object containing the region and stack name
 
         """
-        stack_info = dict()
+        stack_info = {}
         region_re = re.compile(r"(?<=:)(.\w-.+(\w*)-\d)(?=:)")
         stack_name_re = re.compile(r"(?<=:stack/)(tCaT.*.)(?=/)")
         stack_info["region"] = self.regxfind(region_re, self.stack_name)
@@ -148,7 +151,7 @@ def buildmap(start_location, map_string, partial_match=True):
     return fs_map
 
 
-def absolute_path(path: [str, Path]):
+def absolute_path(path: Optional[Union[str, Path]]):
     if path is None:
         return None
     path = Path(path).expanduser().resolve()

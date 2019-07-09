@@ -11,7 +11,7 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 1. Are you testing a *QuickStart* or *Custom template*?
 2. Attach or link a copy of the template if possible (**remove any sensitive info**)
-3. Provide the parameters that you passed. (**remove any sensitive info**) 
+3. Provide the parameters that you passed. (**remove any sensitive info**)
 4. How did you install taskcat? (docker or pip3)
 5. Are you using a *profile*, *an instance role* or  *access keys* to run taskcat?
 6. Is your AWS environment configured via `aws configure`?

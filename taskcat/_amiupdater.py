@@ -1,17 +1,24 @@
+# TODO: add type hints
+# type: ignore
+# TODO: fix lint issues
+# pylint: skip-file
+
 import collections
-import os
-import json
 import datetime
+import json
+import logging
+import os
+import re
+from functools import reduce
+from multiprocessing.dummy import Pool as ThreadPool
+
 import pkg_resources
 import requests
 import yaml
-import re
-import logging
-from functools import reduce
-from taskcat.client_factory import ClientFactory
-from taskcat.utils import CFNYAMLHandler as cfy
-from taskcat.stacker import LegacyTaskCat as tc
-from multiprocessing.dummy import Pool as ThreadPool
+
+from taskcat._client_factory import ClientFactory
+from taskcat._stacker import LegacyTaskCat as tc
+from taskcat._utils import CFNYAMLHandler as cfy
 
 log = logging.getLogger(__name__)
 
@@ -107,9 +114,9 @@ class Codenames:
             self._no_filters[cn] = self
 
     def _create_codename_filters(self):
-        # I'm grabbing the filters from the config file, and adding them to self.filters;
-        # The RegionalCodename instance can access this value. That's important for threading
-        # the API queries - which we do.
+        # I'm grabbing the filters from the config file, and adding them to
+        # self.filters; The RegionalCodename instance can access this value. That's
+        # important for threading the API queries - which we do.
         cnfilter = TemplateClass.deep_get(
             Config.raw_dict, "global/AMIs/{}".format(self.cn)
         )
@@ -212,8 +219,8 @@ class Codenames:
         if missing_results_list:
             for code_reg in missing_results_list:
                 log.error(
-                    "The following Codename / Region  had no results from the EC2 API. {}",
-                    code_reg,
+                    f"The following Codename / Region  had no results from the EC2 "
+                    f"API. {code_reg}"
                 )
             raise AMIUpdaterException(
                 "One or more filters returns no results from the EC2 API."
@@ -227,10 +234,12 @@ class RegionalCodename(Codenames):
     def __new__(cls, *args, **kwargs):
         # A word on this.
         # - An instance of RegionalCodename is a representation of CODENAME and AMINAME.
-        # Since this module allows for multiple templates, *and* interrogates all templates at once,
-        # there's a risk I could end up with multiple instantations for each CODENAME/AMINAME combination.
-        # I maintain a dictionary of CODENAMEREGION -> Instance mappings, so if this class is instantated with the same
-        # arguments twice, the exact same memory pointer is returned.
+        # Since this module allows for multiple templates, *and* interrogates all
+        # templates at once, there's a risk I could end up with multiple
+        # instantations for each CODENAME/AMINAME combination. I maintain a
+        # dictionary of CODENAMEREGION -> Instance mappings, so if this class is
+        # instantated with the same arguments twice, the exact same memory pointer is
+        # returned.
         try:
             region = kwargs.get("region")
             cn = kwargs.get("cn")
@@ -278,7 +287,7 @@ class TemplateClass(object):
 
     @classmethod
     def regions(cls):
-        return [x for x in list(cls._regions) if x is not "AMI"]
+        return [x for x in list(cls._regions) if x != "AMI"]
 
     @staticmethod
     def _fetch_contents(filename):
@@ -352,7 +361,7 @@ class TemplateObject(TemplateClass):
                     pass
 
     def _determine_regions(self):
-        self._region_list = list()
+        self._region_list = []
         _ec2_regions = AMIUpdater.client_factory.get(
             "ec2", "us-east-1"
         ).describe_regions()["Regions"]
@@ -369,8 +378,8 @@ class TemplateObject(TemplateClass):
                 if region not in self._region_list:
                     if region in AMIUpdater.EXCLUDED_REGIONS:
                         log.error(
-                            "The {} region is currently unsupported. AMI IDs will not be updated for this region.",
-                            region,
+                            f"The {region} region is currently unsupported. AMI IDs "
+                            f"will not be updated for this region."
                         )
                     else:
                         raise AMIUpdaterException(
@@ -405,7 +414,10 @@ class AMIUpdater:
     upstream_config_file = pkg_resources.resource_filename(
         "taskcat", "/cfg/amiupdater.cfg.yml"
     )
-    upstream_config_file_url = "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/cfg/amiupdater.cfg.yml"
+    upstream_config_file_url = (
+        "https://raw.githubusercontent.com/aws-quickstart/"
+        "taskcat/master/cfg/amiupdater.cfg.yml"
+    )
     EXCLUDED_REGIONS = [
         "us-gov-east-1",
         "us-gov-west-1",
@@ -442,7 +454,7 @@ class AMIUpdater:
         if os.path.isfile(p):
             yield p
         elif os.path.isdir(p):
-            for dirpath, dirname, file_names in os.walk(p):
+            for dirpath, _, file_names in os.walk(p):
                 for fn in file_names:
                     if fn.endswith(tuple(TemplateClass.template_ext)):
                         yield os.path.join(dirpath, fn)
@@ -481,7 +493,7 @@ class AMIUpdater:
         # Fetches latest AMI IDs from the API.
         # Determines the most common AMI names across all regions
         # Sorts the AMIs by creation date, results go into APIResultsData.results.
-        # - See APIResultsData class and Codenames.parse_api_results function for details.
+        # See APIResultsData class and Codenames.parse_api_results function for details.
         Codenames.fetch_latest_amis()
         log.info("Latest AMI IDs fetched")
         Codenames.parse_api_results()

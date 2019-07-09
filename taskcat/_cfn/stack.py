@@ -5,11 +5,11 @@ import re
 import string
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
-from taskcat.cfn.template import Template
-from taskcat.client_factory import ClientFactory
+from taskcat._cfn.template import Template
+from taskcat._client_factory import ClientFactory
 
 GENERIC_ERROR_PATTERNS = [
     r"(The following resource\(s\) failed to create: )",
@@ -51,10 +51,12 @@ class Capabilities:
 
 
 class Event:  # pylint: disable=too-many-instance-attributes
-    def __init__(self, raw_event: dict, test_name: str = "", uuid: UUID = uuid4()):
+    def __init__(
+        self, raw_event: dict, test_name: str = "", uuid: Optional[UUID] = None
+    ):
         self.stack_id: str = raw_event["StackId"]
         self.test_name: str = test_name
-        self.uuid: UUID = uuid
+        self.uuid: UUID = uuid if uuid else uuid4()
         self.event_id: str = raw_event["EventId"]
         self.stack_name: str = raw_event["StackName"]
         self.logical_id: str = raw_event["LogicalResourceId"]
@@ -78,11 +80,11 @@ class Resource:
         stack_id: str,
         raw_resource: dict,
         test_name: str = "",
-        uuid: UUID = uuid4(),
+        uuid: Optional[UUID] = None,
     ):
         self.stack_id: str = stack_id
         self.test_name: str = test_name
-        self.uuid: UUID = uuid
+        self.uuid: UUID = uuid if uuid else uuid4()
         self.logical_id: str = raw_resource["LogicalResourceId"]
         self.type: str = raw_resource["ResourceType"]
         self.status: str = raw_resource["ResourceStatus"]
@@ -137,16 +139,18 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         stack_id: str,
         template: Template,
         test_name: str = "",
-        uuid: UUID = uuid4(),
-        client_factory_instance: ClientFactory = ClientFactory(),
+        uuid: Optional[UUID] = None,
+        client_factory_instance: Optional[ClientFactory] = None,
     ):
         self.test_name: str = test_name
-        self.uuid: UUID = uuid
+        self.uuid: UUID = uuid if uuid else uuid4()
         self.id: str = stack_id  # pylint: disable=invalid-name
         self.template: Template = template
         self.name: str = self._get_name()
         self.region: str = self._get_region()
-        self.get_client: ClientFactory = client_factory_instance
+        self.get_client: ClientFactory = (
+            client_factory_instance if client_factory_instance else ClientFactory()
+        )
         # properties from additional cfn api calls
         self._events: List[Event] = []
         self._resources: List[Resource] = []
@@ -188,7 +192,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         tags: List[Tag] = None,
         disable_rollback: bool = True,
         test_name: str = "",
-        uuid: UUID = uuid4(),
+        uuid: Optional[UUID] = None,
     ) -> "Stack":
         cfn_client = template.client_factory_instance.get(
             "cloudformation", region=region
@@ -203,6 +207,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             Tags=tags,
             Capabilities=Capabilities.ALL,
         )["StackId"]
+        uuid = uuid if uuid else uuid4()
         stack = cls(
             stack_id, template, test_name, uuid, template.client_factory_instance
         )
@@ -236,7 +241,9 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             path = parent_stack.template.project_root / Stack.REMOTE_TEMPLATE_PATH
             os.makedirs(path, exist_ok=True)
             fname = (
-                "".join(random.choice(string.ascii_lowercase) for _ in range(16))
+                "".join(
+                    random.choice(string.ascii_lowercase) for _ in range(16)  # nosec
+                )
                 + ".template"
             )
             absolute_path = path / fname
@@ -266,7 +273,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         children: bool = False,
     ) -> None:
         if properties:
-            self.set_stack_properties()
+            self.set_stack_properties({})
         if events:
             self._fetch_stack_events()
         if resources:
@@ -274,7 +281,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         if children:
             self._fetch_children()
 
-    def set_stack_properties(self, stack_properties: dict = None) -> None:
+    def set_stack_properties(self, stack_properties: Dict[str, Any]) -> None:
         if not stack_properties:
             cfn_client = self.get_client.get("cloudformation", region=self.region)
             stack_properties = cfn_client.describe_stacks(StackName=self.id)["Stacks"][
@@ -308,7 +315,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def events(
         self,
-        filter_status: [str] = None,
+        filter_status: Optional[List[str]] = None,
         refresh: bool = False,
         include_generic: bool = True,
     ) -> List[Event]:
@@ -340,7 +347,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._events = events
 
     def resources(
-        self, filter_status: [str] = None, refresh: bool = False
+        self, filter_status: Optional[str] = None, refresh: bool = False
     ) -> List[Resource]:
         if refresh or not self._resources:
             self._fetch_stack_resources()
@@ -387,7 +394,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         if refresh or not self._children:
             self._fetch_children()
 
-        def recurse(stack: Stack, descendants: List["Stack"] = None) -> ["Stack"]:
+        def recurse(stack: Stack, descendants: List["Stack"] = None) -> List["Stack"]:
             descendants = [] if not descendants else descendants
             if stack.children():
                 descendants += stack.children()
@@ -399,8 +406,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def error_events(
         self, recurse: bool = True, include_generic: bool = False, refresh=False
-    ) -> [Event]:
-        errors = []
+    ) -> List[Event]:
+        errors: list = []
         stacks = [self]
         if recurse:
             stacks += self.descendants()

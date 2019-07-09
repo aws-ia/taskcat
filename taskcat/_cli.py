@@ -6,12 +6,12 @@ import pyfiglet
 import requests
 from pkg_resources import get_distribution
 
-import taskcat
-import taskcat.cli_modules
-from taskcat.cli_core import CliCore
-from taskcat.common_utils import exit_with_code
+from taskcat._cli_core import CliCore
+from taskcat._common_utils import exit_with_code
+from taskcat._logger import PrintMsg, init_taskcat_cli_logger
 from taskcat.exceptions import TaskCatException
-from taskcat.logger import init_taskcat_cli_logger, PrintMsg
+
+from . import _cli_modules
 
 LOG = init_taskcat_cli_logger(loglevel="ERROR")
 
@@ -61,10 +61,10 @@ def main():
     try:
         _welcome()
         version = get_installed_version()
-        cli = CliCore(NAME, taskcat.cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
+        cli = CliCore(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
         cli.parse(args)
         cli.run()
-    except taskcat.exceptions.TaskCatException as e:
+    except TaskCatException as e:
         LOG.error(str(e), exc_info=_print_tracebacks(log_level))
         exit_with_code(1)
     except Exception as e:  # pylint: disable=broad-except

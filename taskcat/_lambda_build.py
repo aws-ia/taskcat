@@ -10,10 +10,10 @@ from __future__ import print_function
 
 import logging
 import os
-from shutil import make_archive
 from multiprocessing import Pool
-from taskcat.common_utils import make_dir
+from shutil import make_archive
 
+from taskcat._common_utils import make_dir
 
 LOG = logging.getLogger(__name__)
 

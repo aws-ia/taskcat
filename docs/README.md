@@ -2,7 +2,7 @@
 
 ---
 ##Caution!
-> This repo is NOT the stable version of taskcat, that is here: https://github.com/aws-quickstart/taskcat. If you are involved in developing the next taskcat version, 
+> This repo is NOT the stable version of taskcat, that is here: https://github.com/aws-quickstart/taskcat. If you are involved in developing the next taskcat version,
 or want the bleeding edge then this repo is what you seek.
 ---
 
@@ -46,7 +46,7 @@ Note: (If you do not have root privileges taskcat will install in the current di
 pip3 install taskcat
 ```
 
-### Installing via pip3 --user 
+### Installing via pip3 --user
 __(for those who want to install taskcat into their homedir)__
 
 ```
@@ -129,7 +129,7 @@ example here:
         ├── sample-cloudformation-project-novpc.template
         └── sample-cloudformation-project-withvpc.template <- Second version on template that will create a vpc with the workload
 
-## Step 2: Building a json input file 
+## Step 2: Building a json input file
 The example below shows an input file for a stack that requires seven parameters `KeyPairName`,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
 
 Note: you can auto generate values at runtime using **taskcat runtime injection** (see example below).

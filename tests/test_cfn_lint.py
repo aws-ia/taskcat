@@ -3,11 +3,17 @@ from __future__ import print_function
 import os
 import unittest
 from pathlib import Path
+
 import yaml
 
-from taskcat.cfn_lint import Lint
-from taskcat.config import Config
+from taskcat._cfn_lint import Lint
+from taskcat._config import Config
 
+test_two_path = str(
+    Path(
+        "/tmp/lint_test/test-config-two/templates/taskcat_test_" "template_test1"
+    ).resolve()
+)
 test_cases = [
     {
         "config": {
@@ -24,7 +30,8 @@ test_cases = [
                 "results": {
                     str(
                         Path(
-                            "/tmp/lint_test/test-config/templates/taskcat_test_template_test1"
+                            "/tmp/lint_test/test-config/templates/taskcat_test_template"
+                            "_test1"
                         ).resolve()
                     ): []
                 },
@@ -45,16 +52,19 @@ test_cases = [
                 "results": {
                     str(
                         Path(
-                            "/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1"
+                            "/tmp/lint_test/test-config-two/templates/taskcat_test_"
+                            "template_test1"
                         ).resolve()
                     ): [
                         f"[E3001: Basic CloudFormation Resource Check] (Invalid or "
                         f"unsupported Type AWS::Not::Exist for resource Name in "
-                        f"eu-west-1) matched {str(Path('/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1').resolve())}:1"
+                        f"eu-west-1) matched "
+                        f"{test_two_path}:1"
                     ]
                 },
                 "template_file": Path(
-                    "/tmp/lint_test/test-config-two/templates/taskcat_test_template_test1"
+                    "/tmp/lint_test/test-config-two/templates/taskcat_test_template"
+                    "_test1"
                 ).resolve(),
             }
         },
@@ -65,7 +75,8 @@ test_cases = [
             "tests": {"test1": {}},
         },
         "templates": {
-            "test1": """{"Resources": {"Name": {"Type":"AWS::CloudFormation::Stack","Properties":{"TemplateURL": "broken"}}}}"""
+            "test1": '{"Resources": {"Name": {"Type":"AWS::CloudFormation::Stack",'
+            '"Properties":{"TemplateURL": "broken"}}}}'
         },
         "expected_lints": {
             "test1": {

@@ -8,14 +8,16 @@
 # Andrew Glenn <andglenn@amazon.com>
 from __future__ import print_function
 
+import logging
+import os
+import unittest
+from threading import Lock
+
 import boto3
 import botocore
-import unittest
-import logging
-from threading import Lock
 import mock
-import os
-from taskcat.client_factory import ClientFactory
+
+from taskcat._client_factory import ClientFactory
 
 
 class MockClientConfig(object):
@@ -28,7 +30,15 @@ class MockBotoClient(object):
         self.session = MockBotoSession()
         pass
 
-    def client(self, service, region_name=None, access_key=None, secret_key=None, session_token=None, s3v4=True):
+    def client(
+        self,
+        service,
+        region_name=None,
+        access_key=None,
+        secret_key=None,
+        session_token=None,
+        s3v4=True,
+    ):
         return MockClient()
 
 
@@ -42,7 +52,7 @@ class MockBotoSessionClass(object):
         pass
 
     def get_available_regions(self, *args, **kwargs):
-        return ['us-east-1']
+        return ["us-east-1"]
 
     def client(self, service, config=None):
         return MockBotoClient().client(service)
@@ -63,9 +73,9 @@ class MockClient(object):
 
 
 def client_factory_instance():
-    with mock.patch.object(ClientFactory, '__init__', return_value=None):
+    with mock.patch.object(ClientFactory, "__init__", return_value=None):
         aws_clients = ClientFactory(None)
-    aws_clients._credential_sets = {'default': [None, None, None, None]}
+    aws_clients._credential_sets = {"default": [None, None, None, None]}
     aws_clients.logger = logging.getLogger()
     aws_clients._clients = {"default": {}}
     aws_clients._lock = Lock()
@@ -75,7 +85,7 @@ def client_factory_instance():
 class TestClientFactory(unittest.TestCase):
     def test___init__(self):
         # Mock the put_credential_set method that is called during init
-        with mock.patch.object(ClientFactory, 'put_credential_set', return_value=None):
+        with mock.patch.object(ClientFactory, "put_credential_set", return_value=None):
             aws_clients = ClientFactory(None)
 
             msg = "clients should be empty"
@@ -91,7 +101,9 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(aws_clients.put_credential_set("default"), None, msg)
 
         msg = "should raise ValueError for missing keyid or secret"
-        exception_message = '"aws_access_key_id" and "aws_secret_access_key" must both be set'
+        exception_message = (
+            '"aws_access_key_id" and "aws_secret_access_key" must both be set'
+        )
         with self.assertRaises(ValueError) as e:
             aws_clients.put_credential_set("default", aws_access_key_id="test")
         self.assertEqual(str(e.exception), exception_message, msg)
@@ -100,45 +112,79 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(str(e.exception), exception_message, msg)
 
         msg = "should raise ValueError for missing keyid or secret"
-        exception_message = '"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token'
+        exception_message = (
+            '"profile_name" cannot be used with aws_access_key_id, '
+            "aws_secret_access_key or aws_session_token"
+        )
         with self.assertRaises(ValueError) as e:
-            aws_clients.put_credential_set("default", profile_name="test", aws_access_key_id="test", aws_secret_access_key="test")
+            aws_clients.put_credential_set(
+                "default",
+                profile_name="test",
+                aws_access_key_id="test",
+                aws_secret_access_key="test",
+            )
         self.assertEqual(str(e.exception), exception_message, msg)
         with self.assertRaises(ValueError) as e:
-            aws_clients.put_credential_set("default", profile_name="test", aws_session_token="test")
+            aws_clients.put_credential_set(
+                "default", profile_name="test", aws_session_token="test"
+            )
         self.assertEqual(str(e.exception), exception_message, msg)
 
         msg = "should set default credentials with empty creds in _credential_sets"
         aws_clients._credential_sets = {}
         aws_clients.put_credential_set("default")
-        self.assertEqual({'default': [None, None, None, None]}, aws_clients._credential_sets, msg)
+        self.assertEqual(
+            {"default": [None, None, None, None]}, aws_clients._credential_sets, msg
+        )
 
-        msg = "should set test credentials with key, secret and token in _credential_sets"
+        msg = (
+            "should set test credentials with key, secret and token in _credential_sets"
+        )
         aws_clients._credential_sets = {}
-        aws_clients.put_credential_set("test", aws_access_key_id="test", aws_secret_access_key="test", aws_session_token="test")
-        self.assertEqual({'test': ["test", "test", "test", None]}, aws_clients._credential_sets, msg)
+        aws_clients.put_credential_set(
+            "test",
+            aws_access_key_id="test",
+            aws_secret_access_key="test",
+            aws_session_token="test",
+        )
+        self.assertEqual(
+            {"test": ["test", "test", "test", None]}, aws_clients._credential_sets, msg
+        )
 
         msg = "should set test credentials with profile in _credential_sets"
         aws_clients._credential_sets = {}
         aws_clients.put_credential_set("test", profile_name="test")
-        self.assertEqual({'test': [None, None, None, "test"]}, aws_clients._credential_sets, msg)
+        self.assertEqual(
+            {"test": [None, None, None, "test"]}, aws_clients._credential_sets, msg
+        )
 
         msg = "should replace test set in _credential_sets"
         aws_clients.put_credential_set("test")
-        self.assertEqual({'test': [None, None, None, None]}, aws_clients._credential_sets, msg)
+        self.assertEqual(
+            {"test": [None, None, None, None]}, aws_clients._credential_sets, msg
+        )
 
         msg = "should add to existing set in _credential_sets"
         aws_clients.put_credential_set("test2")
-        expected = {'test': [None, None, None, None], 'test2': [None, None, None, None]}
+        expected = {"test": [None, None, None, None], "test2": [None, None, None, None]}
         self.assertEqual(expected, aws_clients._credential_sets, msg)
 
-    @mock.patch("taskcat.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
-    @mock.patch("taskcat.ClientFactory._create_session", mock.MagicMock(return_value=MockBotoSessionClass()))
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_client",
+        mock.MagicMock(return_value=MockClient()),
+    )
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_session",
+        mock.MagicMock(return_value=MockBotoSessionClass()),
+    )
     def test_get(self):
         aws_clients = client_factory_instance()
-        os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
+        os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
-        msg = "should add additional key if profile/key is provided and credential set does not exist"
+        msg = (
+            "should add additional key if profile/key is provided and credential "
+            "set does not exist"
+        )
         aws_clients.get("test_service", profile="test", credential_set="nonexistant")
         self.assertIn("nonexistant", aws_clients._clients.keys(), msg)
 
@@ -146,7 +192,7 @@ class TestClientFactory(unittest.TestCase):
         msg = "should raise KeyError if credential set provided does not exist"
         exception_message = "'credential set nonexistant does not exist'"
         with self.assertRaises(KeyError) as e:
-            aws_clients.get("test", credential_set='nonexistant')
+            aws_clients.get("test", credential_set="nonexistant")
         self.assertEqual(exception_message, str(e.exception), msg)
 
         msg = "should return a client instance"
@@ -154,25 +200,48 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(MockClient, type(client), msg)
 
         msg = "'default' cache key should contain region key"
-        self.assertEqual(["us-east-1"], list(aws_clients._clients["default"].keys()), msg)
+        self.assertEqual(
+            ["us-east-1"], list(aws_clients._clients["default"].keys()), msg
+        )
 
         msg = "region cache entry should contain service name key"
-        self.assertIn("test_service", list(aws_clients._clients["default"]['us-east-1'].keys()), msg)
+        self.assertIn(
+            "test_service",
+            list(aws_clients._clients["default"]["us-east-1"].keys()),
+            msg,
+        )
 
         msg = "region cache entry should contain session key"
-        self.assertIn("session", list(aws_clients._clients["default"]['us-east-1'].keys()), msg)
+        self.assertIn(
+            "session", list(aws_clients._clients["default"]["us-east-1"].keys()), msg
+        )
 
         msg = "session should be an instance of boto session"
-        self.assertEqual(MockBotoSessionClass, type(aws_clients._clients["default"]['us-east-1']['session']), msg)
+        self.assertEqual(
+            MockBotoSessionClass,
+            type(aws_clients._clients["default"]["us-east-1"]["session"]),
+            msg,
+        )
         msg = "service cache entry should contain default sig key"
-        self.assertEqual(["default_sig_version"], list(aws_clients._clients["default"]['us-east-1']["test_service"].keys()), msg)
+        self.assertEqual(
+            ["default_sig_version"],
+            list(aws_clients._clients["default"]["us-east-1"]["test_service"].keys()),
+            msg,
+        )
 
         msg = "client should be added to cache"
-        self.assertEqual(client, aws_clients._clients["default"]['us-east-1']["test_service"]['default_sig_version'], msg)
+        self.assertEqual(
+            client,
+            aws_clients._clients["default"]["us-east-1"]["test_service"][
+                "default_sig_version"
+            ],
+            msg,
+        )
 
         ClientFactory._create_client.assert_called_once()
 
-        # should return a new client instance if credentials for an existing session have changed
+        # should return a new client instance if credentials for an existing session
+        # ave changed
         ClientFactory._create_client.reset_mock()
         aws_clients.get("test_service", key="test")
         ClientFactory._create_client.assert_called_once()
@@ -181,80 +250,119 @@ class TestClientFactory(unittest.TestCase):
         aws_clients.get("test_service")
         ClientFactory._create_client.assert_called_once()
 
-
     def test__create_session(self):
         aws_clients = client_factory_instance()
-        with mock.patch.object(boto3, 'session', return_value=MockBotoSession()):
-            aws_clients._create_session('us-east-2')
+        with mock.patch.object(boto3, "session", return_value=MockBotoSession()):
+            aws_clients._create_session("us-east-2")
 
             # check that session is created with correct region
-            boto3.session.Session.assert_called_once_with(region_name='us-east-2')
+            boto3.session.Session.assert_called_once_with(region_name="us-east-2")
 
             # check that session is created with provided creds
             boto3.session.Session.reset_mock()
-            aws_clients._create_session('us-east-2', access_key="test_key", secret_key="test_secret", session_token="test_token")
-            boto3.session.Session.assert_called_once_with(region_name='us-east-2', aws_access_key_id='test_key', aws_secret_access_key='test_secret', aws_session_token='test_token')
+            aws_clients._create_session(
+                "us-east-2",
+                access_key="test_key",
+                secret_key="test_secret",
+                session_token="test_token",
+            )
+            boto3.session.Session.assert_called_once_with(
+                region_name="us-east-2",
+                aws_access_key_id="test_key",
+                aws_secret_access_key="test_secret",
+                aws_session_token="test_token",
+            )
             boto3.session.Session.reset_mock()
-            aws_clients._create_session('us-east-2', access_key="test_key", secret_key="test_secret")
-            boto3.session.Session.assert_called_once_with(region_name='us-east-2', aws_access_key_id='test_key',
-                                                          aws_secret_access_key='test_secret')
+            aws_clients._create_session(
+                "us-east-2", access_key="test_key", secret_key="test_secret"
+            )
+            boto3.session.Session.assert_called_once_with(
+                region_name="us-east-2",
+                aws_access_key_id="test_key",
+                aws_secret_access_key="test_secret",
+            )
             boto3.session.Session.reset_mock()
-            aws_clients._create_session('us-east-2', profile_name="test_profile")
-            boto3.session.Session.assert_called_once_with(region_name='us-east-2', profile_name="test_profile")
+            aws_clients._create_session("us-east-2", profile_name="test_profile")
+            boto3.session.Session.assert_called_once_with(
+                region_name="us-east-2", profile_name="test_profile"
+            )
 
             # should fail without retries on permanent error "could not be found"
             boto3.session.Session.reset_mock()
             boto3.session.Session.side_effect = Exception("could not be found")
-            with self.assertRaises(Exception) as e:
-                aws_clients._create_session('us-east-2')
+            with self.assertRaises(Exception):
+                aws_clients._create_session("us-east-2")
             boto3.session.Session.assert_called_once()
 
             # Mock boto3 session to fail on 1st invocation
             msg = "should not raise on intermittent exceptions"
             boto3.session.Session.reset_mock()
-            boto3.session.Session.side_effect = [KeyError("test_failure"), MockBotoSession()]
-            aws_clients._create_session('us-east-2', delay=1, backoff_factor=1)
+            boto3.session.Session.side_effect = [
+                KeyError("test_failure"),
+                MockBotoSession(),
+            ]
+            aws_clients._create_session("us-east-2", delay=1, backoff_factor=1)
             self.assertEqual(2, boto3.session.Session.call_count, msg)
 
             # Mock boto3 to fail permanently
             boto3.session.Session.side_effect = KeyError("test_failure")
             msg = "should retry call 5 times and then raise exception"
-            with self.assertRaises(KeyError) as e:
-                aws_clients._create_session('us-east-2', delay=1, backoff_factor=1)
+            with self.assertRaises(KeyError):
+                aws_clients._create_session("us-east-2", delay=1, backoff_factor=1)
             self.assertEqual(6, boto3.session.Session.call_count, msg)
 
     @mock.patch("botocore.client.Config", mock.MagicMock(return_value=None))
     def test__create_client(self):
         aws_clients = client_factory_instance()
-        aws_clients._clients["default"] = {"us-east-1": {"session": MockBotoSessionClass()}}
+        aws_clients._clients["default"] = {
+            "us-east-1": {"session": MockBotoSessionClass()}
+        }
 
         msg = "should return a boto3 client"
-        client = aws_clients._create_client("default", "us-east-1", "test_service", False, delay=1, backoff_factor=1)
+        client = aws_clients._create_client(
+            "default", "us-east-1", "test_service", False, delay=1, backoff_factor=1
+        )
         self.assertEqual(MockClient, type(client), msg)
 
         msg = "should create a sig v4 client"
         botocore.client.Config.reset_mock()
-        client = aws_clients._create_client("default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1)
-        botocore.client.Config.assert_called_once_with(signature_version='s3v4')
+        client = aws_clients._create_client(
+            "default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1
+        )
+        botocore.client.Config.assert_called_once_with(signature_version="s3v4")
         self.assertEqual(MockClient, type(client), msg)
 
         msg = "if boto3 fails, should retry 4 times before raising"
         botocore.client.Config.reset_mock()
         botocore.client.Config.side_effect = KeyError("test_failure")
-        with self.assertRaises(KeyError) as e:
-            aws_clients._create_client("default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1)
+        with self.assertRaises(KeyError):
+            aws_clients._create_client(
+                "default",
+                "us-east-1",
+                "test_service",
+                "s3v4",
+                delay=1,
+                backoff_factor=1,
+            )
         self.assertEqual(4, botocore.client.Config.call_count, msg)
 
         msg = "should not raise on intermittent exceptions"
         botocore.client.Config.reset_mock()
-        botocore.client.Config.side_effect = [KeyError("test_failure"), MockBotoSession()]
-        client = aws_clients._create_client("default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1)
+        botocore.client.Config.side_effect = [
+            KeyError("test_failure"),
+            MockBotoSession(),
+        ]
+        client = aws_clients._create_client(
+            "default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1
+        )
         self.assertEqual(2, botocore.client.Config.call_count, msg)
         self.assertEqual(MockClient, type(client), msg)
 
     def test_get_available_regions(self):
         aws_clients = client_factory_instance()
-        aws_clients._clients["default"] = {"us-east-1": {"session": MockBotoSessionClass()}}
+        aws_clients._clients["default"] = {
+            "us-east-1": {"session": MockBotoSessionClass()}
+        }
 
         msg = "should return a list of strings"
         regions = aws_clients.get_available_regions("test_service")
@@ -269,7 +377,7 @@ class TestClientFactory(unittest.TestCase):
         msg = "if there are no existing sessions, should create a new one"
         mock_session.get_available_regions.reset_mock()
         aws_clients._clients["default"] = {"us-east-1": {}}
-        with mock.patch.object(boto3, 'session', return_value=MockBotoSession()):
+        with mock.patch.object(boto3, "session", return_value=MockBotoSession()):
             aws_clients.get_available_regions("test_service")
             boto3.session.Session.assert_called_once()
         self.assertEqual(0, mock_session.get_available_regions.call_count, msg)
@@ -280,11 +388,11 @@ class TestClientFactory(unittest.TestCase):
         ue2_session = MockBotoSessionClass()
         aws_clients._clients["default"] = {
             "us-east-1": {"session": ue1_session},
-            "us-east-2": {"session": ue2_session}
+            "us-east-2": {"session": ue2_session},
         }
 
         msg = "if region not provided, should be fetched from env var"
-        os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
+        os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
         s = aws_clients.get_session("default")
         self.assertEqual(ue1_session, s, msg)
 
@@ -292,16 +400,31 @@ class TestClientFactory(unittest.TestCase):
         s = aws_clients.get_session("default", "us-east-2")
         self.assertEqual(ue2_session, s, msg)
 
-    @mock.patch("taskcat.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
-    @mock.patch("taskcat.ClientFactory._create_session", mock.MagicMock(return_value=MockBotoSessionClass()))
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_client",
+        mock.MagicMock(return_value=MockClient()),
+    )
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_session",
+        mock.MagicMock(return_value=MockBotoSessionClass()),
+    )
     def test_regional_cred_map(self):
-        aws_clients = ClientFactory(regional_cred_map={'ap-east-1': {'profile_name': 'blah'}})
-        self.assertEquals(aws_clients._credential_sets['ap-east-1'], [None, None, None, 'blah'])
-        self.assertEquals(aws_clients._credential_sets['default'], [None, None, None, None])
+        aws_clients = ClientFactory(
+            regional_cred_map={"ap-east-1": {"profile_name": "blah"}}
+        )
+        self.assertEquals(
+            aws_clients._credential_sets["ap-east-1"], [None, None, None, "blah"]
+        )
+        self.assertEquals(
+            aws_clients._credential_sets["default"], [None, None, None, None]
+        )
 
         ClientFactory._create_client.reset_mock()
-        aws_clients.get("test_service", region='ap-east-1')
-        ClientFactory._create_client.assert_called_once_with('ap-east-1', 'ap-east-1', 'test_service', 'default_sig_version')
+        aws_clients.get("test_service", region="ap-east-1")
+        ClientFactory._create_client.assert_called_once_with(
+            "ap-east-1", "ap-east-1", "test_service", "default_sig_version"
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

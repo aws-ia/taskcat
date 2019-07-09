@@ -51,4 +51,3 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tasklist(custom_checkbox=true)
   - pymdownx.tilde
-

@@ -1,17 +1,16 @@
 import logging
 import os
-from typing import Set, List, Dict, Optional
 from pathlib import Path
-from jsonschema import exceptions
-import yaml
-import cfnlint
+from typing import Dict, List, Optional, Set, Union
 
+import yaml
+
+import cfnlint
+from taskcat._cfn.template import Template
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import absolute_path, schema_validate as validate
+from taskcat._config_types import S3BucketConfig, Test
 from taskcat.exceptions import TaskCatException
-from taskcat.cfn.template import Template
-from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test, S3BucketConfig
-from taskcat.common_utils import absolute_path
-from taskcat.common_utils import schema_validate as validate
 
 LOG = logging.getLogger(__name__)
 
@@ -38,21 +37,21 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     def __init__(
         self,
-        args: dict = None,
+        args: Optional[dict] = None,
         global_config_path: str = "~/.taskcat.yml",
         project_config_path: str = None,
         project_root: str = "./",
         override_file: str = None,
-        all_env_vars: List[dict] = os.environ.items(),
+        all_env_vars: Optional[List[dict]] = None,
         client_factory=ClientFactory,
     ):  # #pylint: disable=too-many-arguments
         # inputs
         if absolute_path(project_config_path) and not Path(project_root).is_absolute():
             project_root = absolute_path(project_config_path).parent / project_root
-        self.project_root: [Path, None] = absolute_path(project_root)
+        self.project_root: Union[Path, str] = absolute_path(project_root)
         self.args: dict = args if args else {}
-        self.global_config_path: [Path, None] = absolute_path(global_config_path)
-        self.override_file: Path = self._absolute_path(override_file)
+        self.global_config_path: Optional[Path] = absolute_path(global_config_path)
+        self.override_file: Optional[Path] = self._absolute_path(override_file)
         self._client_factory_class = client_factory
 
         # general config
@@ -70,24 +69,24 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.lambda_build_only: bool = False
         self.exclude: str = ""
         self.enable_sig_v2: bool = False
-        self.auth: Dict[str:dict] = {}
+        self.auth: Dict[str, dict] = {}
 
         # project config
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
         self.s3_bucket: S3BucketConfig = S3BucketConfig()
-        self.tests: Dict[Test] = {}
+        self.tests: Dict[str, Test] = {}
         self.regions: Set[str] = set()
-        self.env_vars = {}
+        self.env_vars: Dict[str, str] = {}
         self.project_config_path: Optional[Path] = None
         self.template_path: Optional[Path] = None
 
-        self._harvest_env_vars(all_env_vars)
+        self._harvest_env_vars(all_env_vars if all_env_vars else os.environ.items())
         self._process_global_config()
 
         if not self._absolute_path(project_config_path):
-            raise (
+            raise TaskCatException(
                 f"failed to load project config file {project_config_path}. file "
                 f"does not exist"
             )
@@ -176,13 +175,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 except TaskCatException:
                     LOG.debug("didn't find project config in %s", path)
 
-    def _absolute_path(self, path: [str, Path]) -> [Path, None]:
+    def _absolute_path(self, path: Optional[Union[str, Path]]) -> Optional[Path]:
         if path is None:
             return path
         path = Path(path)
         abs_path = absolute_path(path)
         if self.project_root and not abs_path:
-            abs_path = absolute_path(self.project_root / Path(path))
+            abs_path = absolute_path(Path(self.project_root) / Path(path))
         if not abs_path:
             raise TaskCatException(
                 f"Unable to resolve path {path}, with project_root "
@@ -212,7 +211,10 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 f"or set a default region in the aws cli"
             )
         if not test.regions:
-            test.regions = self.regions if self.regions else [default_region]
+            if self.regions:
+                test.regions = list(self.regions)
+            else:
+                test.regions = [default_region]
 
     def _process_global_config(self):
         if self.global_config_path is None:
@@ -238,7 +240,9 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         validate(instance, "project_config")
         self._set_all(instance)
 
-    def _process_legacy_project(self, instance) -> [None, Exception]:
+    def _process_legacy_project(  # pylint: disable=useless-return
+        self, instance
+    ) -> Optional[Exception]:
         validate(instance, "legacy_project_config")
         LOG.warning(
             "%s config file is in a format that will be deprecated in the next "
@@ -251,14 +255,19 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             del instance["global"]
         if "project" in instance:
             # delete unneeded config items
-            for item in ["marketplace-ami", "reporting"]:
-                if item in instance["project"]:
-                    del instance["project"][item]
+            for del_item in ["marketplace-ami", "reporting"]:
+                if del_item in instance["project"]:
+                    del instance["project"][del_item]
             # rename items with new keys
-            for item in [["qsname", "name"], ["package-lambda", "package_lambda"]]:
-                if item[0] in instance["project"]:
-                    instance["project"][item[1]] = instance["project"][item[0]]
-                    del instance["project"][item[0]]
+            for rename_item in [
+                ["qsname", "name"],
+                ["package-lambda", "package_lambda"],
+            ]:
+                if rename_item[0] in instance["project"]:
+                    instance["project"][rename_item[1]] = instance["project"][
+                        rename_item[0]
+                    ]
+                    del instance["project"][rename_item[0]]
         return None
 
     def _process_template_config(self):

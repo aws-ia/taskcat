@@ -1,14 +1,15 @@
 import datetime
-import textwrap
-import tabulate
 import logging
+import textwrap
+
+import tabulate
 from botocore.exceptions import ClientError
 
-from taskcat.common_utils import CommonTools
-from taskcat.cfn_resources import CfnResourceTools
-from taskcat.logger import PrintMsg
+from taskcat._cfn_resources import CfnResourceTools
+from taskcat._common_utils import CommonTools
+from taskcat._logger import PrintMsg
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class CfnLogTools:
@@ -17,7 +18,8 @@ class CfnLogTools:
 
     def get_cfn_stack_events(self, stackname, region):
         """
-        Given a stack name and the region, this function returns the event logs of the given stack, as list.
+        Given a stack name and the region, this function returns the event logs of the
+        given stack, as list.
         :param self:
         :param stackname: Name of the stack
         :param region: Region stack belongs to
@@ -34,12 +36,12 @@ class CfnLogTools:
                 )
                 stack_events.extend(response["StackEvents"])
         except ClientError as e:
-            log.error(
-                "Error trying to get the events for stack [{}] in region [{}]\b {}".format(
-                    str(stackname), str(region), e
-                )
+            LOG.error(
+                f"Error trying to get the events for stack [{str(stackname)}] in "
+                f"region [{str(region)}]\b {e}"
             )
-            # Commenting below line to avoid sudden exit on describe call failure. So that delete stack may continue.
+            # Commenting below line to avoid sudden exit on describe call failure. So
+            # that delete stack may continue.
             # sys.exit()
 
         return stack_events
@@ -52,7 +54,7 @@ class CfnLogTools:
         :return: Event logs of the stack
         """
 
-        log.info("Collecting logs for " + stackname + '"\n')
+        LOG.info("Collecting logs for " + stackname + '"\n')
         # Collect stack_events
         stack_events = self.get_cfn_stack_events(stackname, region)
         # Uncomment line for debug
@@ -82,7 +84,7 @@ class CfnLogTools:
         :param logpath: Log file path
         :return:
         """
-        log.info("Collecting CloudFormation Logs")
+        LOG.info("Collecting CloudFormation Logs")
         for test in testdata_list:
             for stack in test.get_test_stacks():
                 stackinfo = CommonTools(stack["StackId"]).parse_stack_info()
@@ -96,7 +98,8 @@ class CfnLogTools:
 
     def write_logs(self, stack_id, logpath):
         """
-        This function writes the event logs of the given stack and all the child stacks to a given file.
+        This function writes the event logs of the given stack and all the child stacks
+        to a given file.
         :param stack_id: Stack Id
         :param logpath: Log file path
         :return:
@@ -108,7 +111,7 @@ class CfnLogTools:
         # Get stack resources
         cfnlogs = self.get_cfnlogs(stackname, region)
 
-        if len(cfnlogs) != 0:
+        if cfnlogs:
             if cfnlogs[0]["ResourceStatus"] != "CREATE_COMPLETE":
                 if "ResourceStatusReason" in cfnlogs[0]:
                     reason = cfnlogs[0]["ResourceStatusReason"]
@@ -123,42 +126,51 @@ class CfnLogTools:
             msg += "\t |Tested on: %s\n" % str(
                 datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p")
             )
-            msg += "------------------------------------------------------------------------------------------\n"
+            msg += (
+                "-----------------------------------------------------------------"
+                "-------------------------\n"
+            )
             msg += "ResourceStatusReason: \n"
             msg += textwrap.fill(str(reason), 85) + "\n"
-            msg += "==========================================================================================\n"
-            if reason == "Stack launch was successful":
-                log.info(msg, extra={"nametag": PrintMsg.PASS})
-            else:
-                log.error(msg)
-            log.warning(
-                " |GENERATING REPORTS{}".format(PrintMsg.header, PrintMsg.rst_color),
-                extra={"nametag": PrintMsg.NAMETAG},
+            msg += (
+                "================================================================="
+                "=========================\n"
             )
+            if reason == "Stack launch was successful":
+                LOG.info(msg, extra={"nametag": PrintMsg.PASS})
+            else:
+                LOG.error(msg)
+            LOG.warning("|GENERATING REPORTS", extra={"nametag": PrintMsg.NAMETAG})
             with open(logpath, "a") as log_output:
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n"
                 )
                 log_output.write("Region: " + region + "\n")
                 log_output.write("StackName: " + stackname + "\n")
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write("ResourceStatusReason:  \n")
                 log_output.write(textwrap.fill(str(reason), 85) + "\n")
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write(
-                    "*****************************************************************************\n"
+                    "******************************************************************"
+                    "***********\n"
                 )
                 log_output.write("Events:  \n")
                 log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
                 log_output.write(
-                    "\n*****************************************************************************\n"
+                    "\n****************************************************************"
+                    "*************\n"
                 )
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n"
                 )
                 log_output.write(
                     "Tested on: "
@@ -166,7 +178,8 @@ class CfnLogTools:
                     + "\n"
                 )
                 log_output.write(
-                    "-----------------------------------------------------------------------------\n\n"
+                    "------------------------------------------------------------------"
+                    "-----------\n\n"
                 )
                 log_output.close()
 
@@ -178,6 +191,6 @@ class CfnLogTools:
                 if resource["resourceType"] == "AWS::CloudFormation::Stack":
                     self.write_logs(resource["physicalId"], logpath)
         else:
-            log.error(
+            LOG.error(
                 "No event logs found. Something went wrong at describe event call.\n"
             )

@@ -2,12 +2,11 @@ import logging
 import random
 import string
 from pathlib import Path
-from typing import List, Set
+from typing import List, Optional, Set, Union
 
 import cfnlint
-
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import s3_url_maker, s3_bucket_name_from_url, s3_key_from_url
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import s3_bucket_name_from_url, s3_key_from_url, s3_url_maker
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -16,10 +15,10 @@ LOG = logging.getLogger(__name__)
 class Template:
     def __init__(
         self,
-        template_path: str,
-        project_root: str = "",
+        template_path: Union[str, Path],
+        project_root: Union[str, Path] = "",
         url: str = "",
-        client_factory_instance: ClientFactory = ClientFactory(),
+        client_factory_instance: Optional[ClientFactory] = None,
     ):
         self.template_path: Path = Path(template_path).absolute()
         self.template = cfnlint.decode.cfn_yaml.load(str(self.template_path))
@@ -29,7 +28,9 @@ class Template:
             project_root if project_root else self.template_path.parent.parent
         )
         self.project_root = Path(project_root).absolute()
-        self.client_factory_instance = client_factory_instance
+        self.client_factory_instance = (
+            client_factory_instance if client_factory_instance else ClientFactory()
+        )
         self.url = url
         self.children: List[Template] = []
         self._find_children()
@@ -76,7 +77,10 @@ class Template:
     def _create_temporay_s3_object(self, bucket_name, prefix):
         if self.url:
             return ""
-        rand = "".join(random.choice(string.ascii_lowercase) for _ in range(8)) + "/"
+        rand = (
+            "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
+            + "/"
+        )
         return self._upload(bucket_name, prefix + rand)
 
     def _do_validate(self, tmpurl, region):

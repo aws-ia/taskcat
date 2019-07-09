@@ -1,14 +1,14 @@
-import unittest
-import logging
 import json
-import tempfile
-import re
-import yaml
+import logging
 import os
+import re
 import sys
-import mock
-from taskcat.client_factory import ClientFactory
+import tempfile
+import unittest
 from datetime import datetime
+
+import yaml
+
 logger = logging.getLogger("taskcat")
 
 
@@ -27,72 +27,48 @@ class MockEC2:
             "Regions": [
                 {
                     "Endpoint": "ec2.eu-north-1.amazonaws.com",
-                    "RegionName": "eu-north-1"
+                    "RegionName": "eu-north-1",
                 },
                 {
                     "Endpoint": "ec2.ap-south-1.amazonaws.com",
-                    "RegionName": "ap-south-1"
+                    "RegionName": "ap-south-1",
                 },
-                {
-                    "Endpoint": "ec2.eu-west-3.amazonaws.com",
-                    "RegionName": "eu-west-3"
-                },
-                {
-                    "Endpoint": "ec2.eu-west-2.amazonaws.com",
-                    "RegionName": "eu-west-2"
-                },
-                {
-                    "Endpoint": "ec2.eu-west-1.amazonaws.com",
-                    "RegionName": "eu-west-1"
-                },
+                {"Endpoint": "ec2.eu-west-3.amazonaws.com", "RegionName": "eu-west-3"},
+                {"Endpoint": "ec2.eu-west-2.amazonaws.com", "RegionName": "eu-west-2"},
+                {"Endpoint": "ec2.eu-west-1.amazonaws.com", "RegionName": "eu-west-1"},
                 {
                     "Endpoint": "ec2.ap-northeast-3.amazonaws.com",
-                    "RegionName": "ap-northeast-3"
+                    "RegionName": "ap-northeast-3",
                 },
                 {
                     "Endpoint": "ec2.ap-northeast-2.amazonaws.com",
-                    "RegionName": "ap-northeast-2"
+                    "RegionName": "ap-northeast-2",
                 },
                 {
                     "Endpoint": "ec2.ap-northeast-1.amazonaws.com",
-                    "RegionName": "ap-northeast-1"
+                    "RegionName": "ap-northeast-1",
                 },
-                {
-                    "Endpoint": "ec2.sa-east-1.amazonaws.com",
-                    "RegionName": "sa-east-1"
-                },
+                {"Endpoint": "ec2.sa-east-1.amazonaws.com", "RegionName": "sa-east-1"},
                 {
                     "Endpoint": "ec2.ca-central-1.amazonaws.com",
-                    "RegionName": "ca-central-1"
+                    "RegionName": "ca-central-1",
                 },
                 {
                     "Endpoint": "ec2.ap-southeast-1.amazonaws.com",
-                    "RegionName": "ap-southeast-1"
+                    "RegionName": "ap-southeast-1",
                 },
                 {
                     "Endpoint": "ec2.ap-southeast-2.amazonaws.com",
-                    "RegionName": "ap-southeast-2"
+                    "RegionName": "ap-southeast-2",
                 },
                 {
                     "Endpoint": "ec2.eu-central-1.amazonaws.com",
-                    "RegionName": "eu-central-1"
+                    "RegionName": "eu-central-1",
                 },
-                {
-                    "Endpoint": "ec2.us-east-1.amazonaws.com",
-                    "RegionName": "us-east-1"
-                },
-                {
-                    "Endpoint": "ec2.us-east-2.amazonaws.com",
-                    "RegionName": "us-east-2"
-                },
-                {
-                    "Endpoint": "ec2.us-west-1.amazonaws.com",
-                    "RegionName": "us-west-1"
-                },
-                {
-                    "Endpoint": "ec2.us-west-2.amazonaws.com",
-                    "RegionName": "us-west-2"
-                }
+                {"Endpoint": "ec2.us-east-1.amazonaws.com", "RegionName": "us-east-1"},
+                {"Endpoint": "ec2.us-east-2.amazonaws.com", "RegionName": "us-east-2"},
+                {"Endpoint": "ec2.us-west-1.amazonaws.com", "RegionName": "us-west-1"},
+                {"Endpoint": "ec2.us-west-2.amazonaws.com", "RegionName": "us-west-2"},
             ]
         }
 
@@ -115,8 +91,8 @@ class MockEC2:
                                 "SnapshotId": "snap-01d81204beb02804b",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20181129 x86_64 HVM gp2",
@@ -127,7 +103,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -146,8 +122,8 @@ class MockEC2:
                                 "SnapshotId": "snap-01d81204beb02804b",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20181116 x86_64 HVM gp2",
@@ -158,7 +134,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -177,8 +153,8 @@ class MockEC2:
                                 "SnapshotId": "snap-037f1f9e6c8ea4d65",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2016.09.1.20170119 x86_64 HVM GP2",
@@ -189,7 +165,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -208,8 +184,8 @@ class MockEC2:
                                 "SnapshotId": "snap-09ccbc8bc8ae7e4e9",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20180811 x86_64 HVM GP2",
@@ -220,7 +196,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -239,8 +215,8 @@ class MockEC2:
                                 "SnapshotId": "snap-086b6d892c1edbbb2",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20180508 x86_64 HVM GP2",
@@ -251,7 +227,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -270,8 +246,8 @@ class MockEC2:
                                 "SnapshotId": "snap-01d62e4cbe7d0ddd0",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20180307 x86_64 HVM GP2",
@@ -282,7 +258,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -301,8 +277,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0f2b695076fc43043",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.03.0.20170401 x86_64 HVM GP2",
@@ -313,7 +289,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -332,8 +308,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0699d9f527c416066",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20180412 x86_64 HVM GP2",
@@ -344,7 +320,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -363,8 +339,8 @@ class MockEC2:
                                 "SnapshotId": "snap-083018866ac6b06eb",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.03.1.20170812 x86_64 HVM GP2",
@@ -375,7 +351,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -394,8 +370,8 @@ class MockEC2:
                                 "SnapshotId": "snap-084cb269d55295d27",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20180103 x86_64 HVM GP2",
@@ -406,7 +382,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -425,8 +401,8 @@ class MockEC2:
                                 "SnapshotId": "snap-055cf1cfc1dda99fe",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20171120 x86_64 HVM GP2",
@@ -437,7 +413,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -456,8 +432,8 @@ class MockEC2:
                                 "SnapshotId": "snap-089ba67abbc06b72a",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20171103 x86_64 HVM GP2",
@@ -468,7 +444,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -487,8 +463,8 @@ class MockEC2:
                                 "SnapshotId": "snap-073f6727ec0ecc75b",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.03.1.20170617 x86_64 HVM GP2",
@@ -499,7 +475,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -518,8 +494,8 @@ class MockEC2:
                                 "SnapshotId": "snap-080eb3cb2eda29974",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.0.20170930 x86_64 HVM GP2",
@@ -530,7 +506,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -549,8 +525,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0fae6f7252388fc12",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20180115 x86_64 HVM GP2",
@@ -561,7 +537,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -580,8 +556,8 @@ class MockEC2:
                                 "SnapshotId": "snap-08a02ddbc6c4aecc0",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2016.09.1.20161221 x86_64 HVM GP2",
@@ -592,7 +568,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -611,8 +587,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0a9551026a7f15871",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.03.1.20170623 x86_64 HVM GP2",
@@ -623,7 +599,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -642,8 +618,8 @@ class MockEC2:
                                 "SnapshotId": "snap-fe8a3c04",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2016.09.0.20161028 x86_64 HVM GP2",
@@ -654,7 +630,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -673,8 +649,8 @@ class MockEC2:
                                 "SnapshotId": "snap-2a2a8752",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2016.09.0.20160923 x86_64 HVM GP2",
@@ -685,7 +661,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -704,8 +680,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0120309fef406aa90",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.03.0.20170417 x86_64 HVM GP2",
@@ -716,7 +692,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -735,8 +711,8 @@ class MockEC2:
                                 "SnapshotId": "snap-0e6d1e06d131ff774",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2017.09.1.20180108 x86_64 HVM GP2",
@@ -747,7 +723,7 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
+                    "VirtualizationType": "hvm",
                 },
                 {
                     "Architecture": "x86_64",
@@ -766,8 +742,8 @@ class MockEC2:
                                 "SnapshotId": "snap-07ad5635357af8b3e",
                                 "VolumeSize": 8,
                                 "VolumeType": "gp2",
-                                "Encrypted": "false"
-                            }
+                                "Encrypted": "false",
+                            },
                         }
                     ],
                     "Description": "Amazon Linux AMI 2018.03.0.20180622 x86_64 HVM GP2",
@@ -778,10 +754,10 @@ class MockEC2:
                     "RootDeviceName": "/dev/xvda",
                     "RootDeviceType": "ebs",
                     "SriovNetSupport": "simple",
-                    "VirtualizationType": "hvm"
-                }
+                    "VirtualizationType": "hvm",
+                },
             ]
-    }
+        }
 
     def describe_regions(self):
         outp = self.describe_regions_response
@@ -793,136 +769,137 @@ class MockEC2:
 
 
 class TestAMIUpdater(unittest.TestCase):
-
     def _module_loader(self, return_module=False):
         try:
-            del sys.modules['taskcat.amiupdater']
+            del sys.modules["taskcat._amiupdater"]
         except KeyError:
             pass
-        from taskcat.amiupdater import AMIUpdater, AMIUpdaterException
+        from taskcat._amiupdater import AMIUpdater, AMIUpdaterException
+
         if return_module:
-            import taskcat.amiupdater
-            return AMIUpdater, AMIUpdaterException, taskcat.amiupdater
+            import taskcat._amiupdater
+
+            return AMIUpdater, AMIUpdaterException, taskcat._amiupdater
         else:
             return AMIUpdater, AMIUpdaterException
 
     generic_skeleton_template = {
-        "Mappings":{
-            "AWSAMIRegionMap":{
-                "us-east-1":{
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "us-east-1": {
                     "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-east-2":{
+                "us-east-2": {
                     "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-west-1":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-west-2":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
-                }
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
             }
         }
     }
 
     inline_skeleton_template = {
-        "Metadata":{
-            "AWSAMIRegionMap":{
-                "Filters":{
-                    "NON_STANDARD_TEST":{
+        "Metadata": {
+            "AWSAMIRegionMap": {
+                "Filters": {
+                    "NON_STANDARD_TEST": {
                         "name": "amzn-ami-hvm-????.??.?.*-x86_64-gp2",
-                        "owner-alias": "amazon"
+                        "owner-alias": "amazon",
                     }
                 }
-             }
-        },
-        "Mappings":{
-            "AWSAMIRegionMap":{
-                "us-east-1":{
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
-                },
-                "us-east-2":{
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
-                },
-                "us-west-1":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
-                },
-                "us-west-2":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
-                }
             }
-        }
+        },
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "us-east-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-east-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+            }
+        },
     }
 
     no_mapping_skeleton_template = {
-        "Mappings":{
-            "AWSAMIRegionMap":{
-                "us-east-1":{
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "us-east-1": {
                     "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-east-2":{
+                "us-east-2": {
                     "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                    "NON_STANDARD_TEST":"FOOBAR"
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-west-1":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
                 },
-                "us-west-2":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                        "NON_STANDARD_TEST": "FOOBAR"
-                }
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
             }
         }
     }
 
     invalid_region_skeleton_template = {
-            "Mappings":{
-                "AWSAMIRegionMap":{
-                    "ASKDJSALKD":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                        "NON_STANDARD_TEST":"FOOBAR"
-                    },
-                    "us-east-2":{
-                        "AMZNLINUXHVM": "FOOBAR",
-                        "AMZNLINUXHVM_CUSTOM_CONFIG":"FOOBAR",
-                        "NON_STANDARD_TEST":"FOOBAR"
-                    },
-                    "us-west-1":{
-                            "AMZNLINUXHVM": "FOOBAR",
-                            "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                            "NON_STANDARD_TEST": "FOOBAR"
-                    },
-                    "us-west-2":{
-                            "AMZNLINUXHVM": "FOOBAR",
-                            "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                            "NON_STANDARD_TEST": "FOOBAR"
-                    }
-                }
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "ASKDJSALKD": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-east-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
             }
         }
+    }
 
     ami_regex_pattern = re.compile("ami-([0-9a-z]{8}|[0-9a-z]{17})")
 
@@ -937,7 +914,7 @@ class TestAMIUpdater(unittest.TestCase):
             data = self.invalid_region_skeleton_template
 
         fd, file = tempfile.mkstemp()
-        with open(file, 'w') as f:
+        with open(file, "w") as f:
             f.write(json.dumps(data))
         os.close(fd)
         return file
@@ -955,37 +932,41 @@ class TestAMIUpdater(unittest.TestCase):
         cf = self.client_factory_handler()
         mapping_name = "AMZNLINUXHVM"
         template_file = self.create_ephemeral_template()
-        amiupdater_args = {
-            "path_to_templates": template_file,
-            "client_factory": cf
-        }
-        au.upstream_config_file = "{}/{}".format(os.path.dirname(tcau.__file__), "cfg/amiupdater.cfg.yml")
+        amiupdater_args = {"path_to_templates": template_file, "client_factory": cf}
+        au.upstream_config_file = "{}/{}".format(
+            os.path.dirname(tcau.__file__), "cfg/amiupdater.cfg.yml"
+        )
         a = au(**amiupdater_args)
         a.update_amis()
 
-
         template_result = self.load_modified_template(template_file)
-        for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
+        for region, mapping_data in template_result["Mappings"][
+            "AWSAMIRegionMap"
+        ].items():
             for codename, ami_id in mapping_data.items():
                 if codename == mapping_name:
-                    with self.subTest(i="Verifying Updated AMI: [{}] / [{}]".format(mapping_name, region)):
+                    with self.subTest(
+                        i="Verifying Updated AMI: [{}] / [{}]".format(
+                            mapping_name, region
+                        )
+                    ):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_local_config_ALAMI(self):
         au, AMIUpdaterException = self._module_loader()
         cf = self.client_factory_handler()
         config_file_dict = {
-            "global":{
-                "AMIs":{
-                    "AMZNLINUXHVM_CUSTOM_CONFIG":{
+            "global": {
+                "AMIs": {
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": {
                         "name": "amzn-ami-hvm-????.??.?.*-x86_64-gp2",
-                        "owner-alias": "amazon"
+                        "owner-alias": "amazon",
                     }
                 }
             }
         }
         user_config_file = tempfile.mkstemp()[1]
-        with open(user_config_file, 'w') as f:
+        with open(user_config_file, "w") as f:
             f.write(yaml.dump(config_file_dict))
         mapping_name = "AMZNLINUXHVM_CUSTOM_CONFIG"
         template_file = self.create_ephemeral_template()
@@ -994,36 +975,48 @@ class TestAMIUpdater(unittest.TestCase):
             "use_upstream_mappings": False,
             "path_to_templates": template_file,
             "user_config_file": user_config_file,
-            "client_factory": cf
+            "client_factory": cf,
         }
         a = au(**amiupdater_args)
         a.update_amis()
 
         template_result = self.load_modified_template(template_file)
-        for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
+        for region, mapping_data in template_result["Mappings"][
+            "AWSAMIRegionMap"
+        ].items():
             for codename, ami_id in mapping_data.items():
                 if codename == mapping_name:
-                    with self.subTest(i="Verifying Updated AMI: [{}] / [{}]".format(mapping_name, region)):
+                    with self.subTest(
+                        i="Verifying Updated AMI: [{}] / [{}]".format(
+                            mapping_name, region
+                        )
+                    ):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_in_template_ALAMI(self):
-        au, AMIUpdaterException  = self._module_loader()
+        au, AMIUpdaterException = self._module_loader()
         cf = self.client_factory_handler()
         mapping_name = "NON_STANDARD_TEST"
         template_file = self.create_ephemeral_template(template_type="inline")
         amiupdater_args = {
             "path_to_templates": template_file,
             "use_upstream_mappings": False,
-            "client_factory": cf
+            "client_factory": cf,
         }
         a = au(**amiupdater_args)
         a.update_amis()
 
         template_result = self.load_modified_template(template_file)
-        for region, mapping_data in template_result["Mappings"]["AWSAMIRegionMap"].items():
+        for region, mapping_data in template_result["Mappings"][
+            "AWSAMIRegionMap"
+        ].items():
             for codename, ami_id in mapping_data.items():
                 if codename == mapping_name:
-                    with self.subTest(i="Verifying Updated AMI: [{}] / [{}]".format(mapping_name, region)):
+                    with self.subTest(
+                        i="Verifying Updated AMI: [{}] / [{}]".format(
+                            mapping_name, region
+                        )
+                    ):
                         self.assertRegex(ami_id, self.ami_regex_pattern)
 
     def test_invalid_region_exception(self):
@@ -1033,7 +1026,7 @@ class TestAMIUpdater(unittest.TestCase):
         amiupdater_args = {
             "path_to_templates": template_file,
             "use_upstream_mappings": False,
-            "client_factory": cf
+            "client_factory": cf,
         }
         a = au(**amiupdater_args)
 
@@ -1046,73 +1039,78 @@ class TestAMIUpdater(unittest.TestCase):
         amiupdater_args = {
             "path_to_templates": template_file,
             "use_upstream_mappings": False,
-            "client_factory": cf
+            "client_factory": cf,
         }
         a = au(**amiupdater_args)
         self.assertRaises(AMIUpdaterException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
-        from taskcat.amiupdater import APIResultsData
-        instance_args = { 'codename':'foo',
-                'ami_id':'ami-12345abcde',
-                'creation_date': datetime(2010, 1, 23),
-                'region':'us-east-1',
-                'custom_comparisions': False
-            }
+        from taskcat._amiupdater import APIResultsData
+
+        instance_args = {
+            "codename": "foo",
+            "ami_id": "ami-12345abcde",
+            "creation_date": datetime(2010, 1, 23),
+            "region": "us-east-1",
+            "custom_comparisions": False,
+        }
         a = APIResultsData(**instance_args)
 
-        instance_args['ami_id'] = 'ami-abcde12345'
-        instance_args['creation_date'] = datetime(2012, 1, 23)
+        instance_args["ami_id"] = "ami-abcde12345"
+        instance_args["creation_date"] = datetime(2012, 1, 23)
         b = APIResultsData(**instance_args)
 
         self.assertRaises(TypeError, a < b)
 
-
     def test_APIResults_greaterthan_comparison_standard(self):
-        from taskcat.amiupdater import APIResultsData
+        from taskcat._amiupdater import APIResultsData
+
         APIResultsData.custom_comparisons = False
-        instance_args = { 'codename':'foo',
-                'ami_id':'ami-12345abcde',
-                'creation_date': datetime(2010, 1, 23),
-                'region':'us-east-1',
-                'custom_comparisions': False
-            }
+        instance_args = {
+            "codename": "foo",
+            "ami_id": "ami-12345abcde",
+            "creation_date": datetime(2010, 1, 23),
+            "region": "us-east-1",
+            "custom_comparisions": False,
+        }
         a = APIResultsData(**instance_args)
 
-        instance_args['ami_id'] = 'ami-abcde12345'
-        instance_args['creation_date'] = datetime(2012, 1, 23)
+        instance_args["ami_id"] = "ami-abcde12345"
+        instance_args["creation_date"] = datetime(2012, 1, 23)
         b = APIResultsData(**instance_args)
 
         self.assertRaises(TypeError, a > b)
 
-
     def test_APIResults_lessthan_comparison_custom(self):
-        from taskcat.amiupdater import APIResultsData
-        instance_args = { 'codename':'foo',
-                'ami_id':'ami-12345abcde',
-                'creation_date': datetime(2010, 1, 23),
-                'region':'us-east-1'
-            }
+        from taskcat._amiupdater import APIResultsData
+
+        instance_args = {
+            "codename": "foo",
+            "ami_id": "ami-12345abcde",
+            "creation_date": datetime(2010, 1, 23),
+            "region": "us-east-1",
+        }
         a = APIResultsData(**instance_args)
 
-        instance_args['ami_id'] = 'ami-abcde12345'
-        instance_args['creation_date'] = datetime(2012, 1, 23)
+        instance_args["ami_id"] = "ami-abcde12345"
+        instance_args["creation_date"] = datetime(2012, 1, 23)
         b = APIResultsData(**instance_args)
 
         self.assertTrue(a < b)
 
-
     def test_APIResults_greaterthan_comparison_custom(self):
-        from taskcat.amiupdater import APIResultsData
-        instance_args = { 'codename':'foo',
-                'ami_id':'ami-12345abcde',
-                'creation_date': datetime(2012, 1, 23),
-                'region':'us-east-1'
-            }
+        from taskcat._amiupdater import APIResultsData
+
+        instance_args = {
+            "codename": "foo",
+            "ami_id": "ami-12345abcde",
+            "creation_date": datetime(2012, 1, 23),
+            "region": "us-east-1",
+        }
         a = APIResultsData(**instance_args)
 
-        instance_args['ami_id'] = 'ami-abcde12345'
-        instance_args['creation_date'] = datetime(2010, 1, 23)
+        instance_args["ami_id"] = "ami-abcde12345"
+        instance_args["creation_date"] = datetime(2010, 1, 23)
         b = APIResultsData(**instance_args)
 
         self.assertTrue(a > b)

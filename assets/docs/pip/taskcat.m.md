@@ -3,7 +3,7 @@ Module taskcat
 
 Classes
 -------
-TaskCat 
+TaskCat
     Ancestors (in MRO)
     ------------------
     taskcat.TaskCat
@@ -138,7 +138,7 @@ TaskCat
         consist of logicalId, physicalId and resourceType of the aws resource associated
         with the stack.
 
-        :param include_stacks: 
+        :param include_stacks:
         :param stackname: CloudFormation stack name
         :param region: AWS region
         :return: List of objects in the following format

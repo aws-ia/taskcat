@@ -1,9 +1,10 @@
-import re
-import random
-import uuid
 import logging
+import random
+import re
+import uuid
+
+from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
-from taskcat.common_utils import CommonTools
 
 LOG = logging.getLogger(__name__)
 
@@ -189,7 +190,7 @@ class ParamGen:
 
         # Generates password string with:
         # lowercase,uppercase and numeric chars
-        if pass_type == "A":
+        if pass_type == "A":  # nosec
             LOG.debug("Pass type => {0}".format("alpha-numeric"))
 
             while len(password) < pass_length:
@@ -241,7 +242,7 @@ class ParamGen:
         lowercase = "abcdefghijklmnopqrstuvwxyz"
         LOG.debug("Generating a {}-character random string".format(length))
         while len(random_string_list) < length:
-            random_string_list.append(random.choice(lowercase))
+            random_string_list.append(random.choice(lowercase))  # nosec
         return "".join(random_string_list)
 
     @staticmethod
@@ -250,7 +251,7 @@ class ParamGen:
         numbers = "1234567890"
         LOG.debug("Generating a {}-character random string of numbers".format(length))
         while len(random_number_list) < length:
-            random_number_list.append(random.choice(numbers))
+            random_number_list.append(random.choice(numbers))  # nosec
         return "".join(random_number_list)
 
     @staticmethod
