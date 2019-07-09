@@ -24,7 +24,8 @@ class Template:
         self.url = url
         self.children: List[Template] = []
         self._find_children()
-        self.template: Optional[Template] = None
+# TODO: ?!?
+#        self.template: Optional[Template] = None
 
 
     def __str__(self):

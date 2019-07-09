@@ -8,7 +8,7 @@ import yaml
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test
+from taskcat._config_types import Test, AWSRegionObject
 from taskcat.common_utils import absolute_path
 from taskcat.common_utils import schema_validate as validate
 
@@ -86,7 +86,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         # TODO: convert the regions set of strings to a set of regions objects that
         #  contain bucket_name and a boto3 session instance. Both of which should be
         #  None at this point.
-        self.regions: Set[str] = set()
+        self.regions: Set[AWSRegionObject] = set()
         self.env_vars = {}
 
         # clever processors, not well liked
@@ -240,6 +240,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                     instance["tests"][test], project_root=self.project_root
                 )
             instance["tests"] = tests
+        if "project" in instance.keys():
+            instance["project"]["regions"] = [AWSRegionObject(region) for region in instance["project"]["regions"]]
         try:
             validate(instance, "project_config")
         except exceptions.ValidationError:
@@ -278,14 +280,15 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         template = Template(str(self.template_path)).template
         try:
             template_config = template["Metadata"]["taskcat"]
+            self._add_template_path(template_config)
+            validate(template_config, "project_config")
+            self._set_all(template_config)
         except KeyError:
-            raise TaskCatException(
-                f"failed adding config from template file {str(self.template_path)} "
-                f"Metadata['taskcat'] not present"
-            )
-        self._add_template_path(template_config)
-        validate(template_config, "project_config")
-        self._set_all(template_config)
+            pass
+#            raise TaskCatException(
+#                f"failed adding config from template file {str(self.template_path)} "
+#                f"Metadata['taskcat'] not present"
+#            )
 
     def _add_template_path(self, template_config):
         if "tests" in template_config.keys():
@@ -337,7 +340,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 args["parameter_input"] if "parameter_input" in args.keys() else None
             )
             regions = (
-                set(args["regions"].split(",")) if "regions" in args.keys() else set()
+                set(args["regions"].split(',')) if "regions" in args.keys() else set()
             )
             test = Test(
                 template_file=template_file,

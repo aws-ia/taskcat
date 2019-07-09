@@ -21,15 +21,29 @@
             "type": "array",
             "uniqueItems": true,
             "items": {
-                "type": "string",
-                "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
+                "oneOf": [
+                     {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
+                     }, { "$ref" : "schema_definitions.json#/definitions/region" }
+                ]
             }
-        },
+        },    
         "tests": {
             "$id": "#tests",
             "type": "object",
             "patternProperties": {
                 "^[a-z\\d-]*$": { "$ref": "#/definitions/test" }
+            },
+            "additionalProperties": false
+        },
+        "region": {
+            "$id": "#region",
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "string"
+                }
             },
             "additionalProperties": false
         },

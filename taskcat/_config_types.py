@@ -34,7 +34,7 @@ class Test:  # pylint: disable=too-few-public-methods
         if parameters:
             self.parameters.update(parameters)
         validate(self.parameters, "overrides")
-        self.regions = list(regions) if regions else []
+        self.regions = list(AWSRegionObject(region) for region in regions) if regions else []
         self.auth: dict = auth
         self.client_factory: [ClientFactory, None] = None
         self.name: str = name
@@ -107,9 +107,19 @@ class Test:  # pylint: disable=too-few-public-methods
         return Test(**raw_test, project_root=project_root)
 
 
-class S3BucketConfig(str)
-      def __init__(self, public: bool = False, auto: bool = False)
+class S3BucketConfig(str):
+    def __init__(self, public: bool = False, auto: bool = False):
          self.region = ""
          self.publc = public
          self.auto = auto
          self.max_name_len = 63
+
+
+class AWSRegionObject:
+    def __init__(self, region_name: str):
+        self._region_name = region_name
+        self.client = None
+        self.s3bucket = None
+
+    def __repr__(self):
+        return f"<AWSRegionObject(region_name={self._region_name}) object at {hex(id(self))}>"
