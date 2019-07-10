@@ -47,6 +47,7 @@ class ClientFactory(object):
         regional_cred_map = regional_cred_map if regional_cred_map else {}
         self._clients = {"default": {}}
         self._credential_sets = {}
+        self._credential_accounts = {}
         self._lock = Lock()
         self.put_credential_set('default', aws_access_key_id, aws_secret_access_key, aws_session_token, profile_name)
         for region_name, credential_dict in regional_cred_map.items():
@@ -101,6 +102,8 @@ class ClientFactory(object):
                 '"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token')
         self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token,
                                                       profile_name]
+        self._create_account_dict_entry(credential_set_name)
+
 
     def get(self, service, region=None, credential_set='default', aws_access_key_id=None,
             aws_secret_access_key=None, aws_session_token=None, s3v4=False, profile_name=None):
@@ -157,6 +160,7 @@ class ClientFactory(object):
                 credential_set, region, service, s3v4
             )
             client = self._clients[credential_set][region][service][s3v4]
+
         setattr(client, 'clientfactory_credset_name', credential_set)
         return client
 
@@ -273,6 +277,29 @@ class ClientFactory(object):
             boto3.session.Session: instance of boto3 Session object
         """
         if not region:
-            region = self.get_default_region(None, None, None, None)
+            creds = self._credential_sets[credential_set]
+            region = self.get_default_region(*creds)
 
         return self._clients[credential_set][region]['session']
+
+    def get_credential_accounts(self):
+        """ Fetches account numbers for *all* credential sets stored.
+
+        Args:
+            None
+        Returns:
+            dict: [credential_set (str) ] -> account_number (str) for each credential set.
+        """
+        return self._credential_accounts
+
+
+    def _create_account_dict_entry(self, credential_set_name):
+        try:
+            foo = self._credential_accounts[credential_set_name]
+        except KeyError:
+            sts_client = self.get('sts', credential_set=credential_set_name)
+            try:
+                account_number = sts_client.get_caller_identity()['Account']
+            except botocore.exceptions.ClientError:
+                raise TaskCatException("Unable to proceed. An error occured while running sts.GetCallerIdentity")
+            self._credential_accounts[credential_set_name] = account_number
