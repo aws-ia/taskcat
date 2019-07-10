@@ -141,7 +141,6 @@ class ClientFactory(object):
                 if self._clients[credential_set][region]['session'].get_credentials().access_key != aws_access_key_id:
                     log.debug("credentials changed, forcing update...")
                     raise KeyError("New credentials for this credential_set, need a new session.")
-            return client
         except KeyError:
             log.debug("Couldn't return an existing client, making a new one...")
             if credential_set not in self._clients.keys():
@@ -157,7 +156,9 @@ class ClientFactory(object):
             self._clients[credential_set][region][service][s3v4] = self._create_client(
                 credential_set, region, service, s3v4
             )
-            return self._clients[credential_set][region][service][s3v4]
+            client = self._clients[credential_set][region][service][s3v4]
+        setattr(client, 'clientfactory_credset_name', credential_set)
+        return client
 
     def _create_session(self, region, access_key=None, secret_key=None, session_token=None, profile_name=None,
                         max_retries=4, delay=5, backoff_factor=2):
