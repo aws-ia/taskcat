@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
-# authors:
-# Tony Vattathil <tonynv@amazon.com>, <avattathil@gmail.com>
-# Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
-# Shivansh Singh <sshvans@amazon.com>,
-# Jay McConnell <jmmccon@amazon.com>,
-# Andrew Glenn <andglenn@amazon.com>
 import logging
 from threading import Lock
 from time import sleep
