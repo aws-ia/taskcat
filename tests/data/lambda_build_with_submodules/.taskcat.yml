@@ -1,0 +1,5 @@
+project:
+  name: nested-subs
+tests:
+  mytest:
+    template_file: templates/test.template.yaml

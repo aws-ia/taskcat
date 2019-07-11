@@ -18,6 +18,12 @@
                 "package_lambda": {
                     "type": "boolean"
                 },
+                "lambda_zip_path": {
+                    "type": "string"
+                },
+                "lambda_source_path": {
+                    "type": "string"
+                },
                 "s3_bucket": {
                     "type": "string",
                     "pattern": "^[a-z0-9-]*$"
