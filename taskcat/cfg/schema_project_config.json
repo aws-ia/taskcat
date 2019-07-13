@@ -4,7 +4,8 @@
     "properties": {
         "project":  { "$ref": "schema_definitions.json#/definitions/project" },
         "tests":    { "$ref": "schema_definitions.json#/definitions/tests", "minProperties": 1 },
-        "general":  { "$ref": "schema_definitions.json#/definitions/general" }
+        "general":  { "$ref": "schema_definitions.json#/definitions/general" },
+        "auth":     { "$ref": "schema_definitions.json#/definitions/auth"}
     },
     "required": [ "project", "tests" ],
     "additionalProperties": false

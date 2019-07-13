@@ -34,10 +34,18 @@ class Test:  # pylint: disable=too-few-public-methods
         if parameters:
             self.parameters.update(parameters)
         validate(self.parameters, "overrides")
-        self.regions = list(AWSRegionObject(region) for region in regions) if regions else []
+        self.regions = list(region for region in regions) if regions else []
         self.auth: dict = auth
         self.client_factory: [ClientFactory, None] = None
         self.name: str = name
+        self._regions_converted = False
+
+    def convert_regions(self):
+        if self._regions_converted:
+            return
+        if self.regions:
+            self.regions = list(AWSRegionObject(region) for region in self.regions)
+            self._regions_converted = True
 
     def _guess_path(self, path):
         abs_path = absolute_path(path)
@@ -107,19 +115,24 @@ class Test:  # pylint: disable=too-few-public-methods
         return Test(**raw_test, project_root=project_root)
 
 
-class S3BucketConfig(str):
-    def __init__(self, public: bool = False, auto: bool = False):
-         self.region = ""
+class S3BucketConfig:
+    def __init__(self, public: bool = False, auto: bool = False, name=""):
+         self.region = None
+         self.name = name
          self.publc = public
          self.auto = auto
          self.max_name_len = 63
+         self.account = None
+         self.created = not self.auto
+         if len(self.name) > self.max_name_len:
+             self.name = self.name[:self.max_name_len-1]
 
 
 class AWSRegionObject:
     def __init__(self, region_name: str):
-        self._region_name = region_name
+        self.name = region_name
         self.client = None
         self.s3bucket = None
 
     def __repr__(self):
-        return f"<AWSRegionObject(region_name={self._region_name}) object at {hex(id(self))}>"
+        return f"<AWSRegionObject(region_name={self.name}) object at {hex(id(self))}>"

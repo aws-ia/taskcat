@@ -300,6 +300,27 @@ class ClientFactory(object):
             sts_client = self.get('sts', credential_set=credential_set_name)
             try:
                 account_number = sts_client.get_caller_identity()['Account']
-            except botocore.exceptions.ClientError:
-                raise TaskCatException("Unable to proceed. An error occured while running sts.GetCallerIdentity")
+            except botocore.exceptions.ClientError as e:
+                raise TaskCatException(f"Unable to proceed. An error occured while running sts.GetCallerIdentity: f{e}")
             self._credential_accounts[credential_set_name] = account_number
+
+    def return_credset_instance(self, credential_set_name):
+        """
+        Returns a ClientFactory instance, given a credential_set_name.
+        The credentials configured under the credential_set_name are set to 'default'
+        in the returned instance.
+
+        Args:
+            credential_set_name (str): credential set name to return.
+        Returns:
+            ClientFactory: instance of ClientFactory using creds from the Credential Set Name
+            or None
+        """
+        if credential_set_name == 'default':
+            return self
+
+        if credential_set_name in self._credential_sets.keys():
+            cf_creds = self._credential_sets[credential_set_name]
+            cf_instance = ClientFactory(*cf_creds)
+            return cf_instance
+        return None

@@ -33,7 +33,7 @@
             "$id": "#tests",
             "type": "object",
             "patternProperties": {
-                "^[a-z\\d-]*$": { "$ref": "#/definitions/test" }
+                "^[a-z_\\d-]*$": { "$ref": "#/definitions/test" }
             },
             "additionalProperties": false
         },

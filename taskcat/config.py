@@ -1,5 +1,6 @@
 import logging
 import os
+import uuid
 from typing import Set, List, Dict
 from pathlib import Path
 from jsonschema import exceptions
@@ -8,7 +9,7 @@ import yaml
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test, AWSRegionObject
+from taskcat._config_types import Test, AWSRegionObject, S3BucketConfig
 from taskcat.common_utils import absolute_path
 from taskcat.common_utils import schema_validate as validate
 
@@ -59,6 +60,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.template_path: [Path, None] = self._absolute_path(template_path)
         self.override_file: Path = self._absolute_path(override_file)
         self._client_factory_class = client_factory
+        # Used only in initial client configuration, then set to None
+        self._client_factory_instance = None
 
         # general config
         self.profile_name: str = ""
@@ -83,9 +86,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.package_lambda: bool = True
         self.s3_bucket: str = ""
         self.tests: Dict[Test] = {}
-        # TODO: convert the regions set of strings to a set of regions objects that
-        #  contain bucket_name and a boto3 session instance. Both of which should be
-        #  None at this point.
         self.regions: Set[AWSRegionObject] = set()
         self.env_vars = {}
 
@@ -102,21 +102,18 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         if not self.template_path and not self.tests:
             raise TaskCatException(
                 "minimal config requires at least one test or a "
-                "template_path to be defined"
+                    "template_path to be defined"
             )
 
         # build client_factory_instances
         self._build_boto_factories()
 
-        # TODO: now that we have a fully setup config object we add a meethod that
-        #  iterates through tests and adds boto sessions to the region objects
+        # Assign regional and test-specific client-factories
+        self._assign_regional_factories()
 
-        # TODO: using a utility function/method we establish a set of distinct
-        #  buckets reqiuired. One for each unique accountid. With this we create the
-        #  buckets (not sure how to decide which region to place the bucket in the
-        #  case where there is a choice of more than 1 region).
-        #  Then we iterate through test regions and attach the bucket names to the
-        #  region objects
+        # Assign account-based buckets.
+        self._assign_account_buckets()
+
         # build and attach template objects
         self._get_templates()
 
@@ -128,6 +125,70 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 client_factory_instance=test.client_factory
             )
 
+
+    def _assign_regional_factories(self):
+        def set_appropriate_creds(test_name, region):
+            if hasattr(region.client, 'set') and region.client.set:
+                return
+            cred_key_list = [
+                    "default",
+                    region.name,
+                    test_name,
+                    f"{test_name}_{region.name}"]
+            for cred_key in cred_key_list:
+                cf = self._client_factory_instance.return_credset_instance(cred_key)
+                if cf:
+                    region.client = cf
+                    region.client.set = True
+                    region.client.account = region.client.get_credential_accounts()['default']
+
+        for test_name, test_obj in self.tests.items():
+            for region in test_obj.regions:
+                set_appropriate_creds(test_name, region)
+
+    def _assign_account_buckets(self):
+        bucket_dict = {}
+
+        def get_bucket_instance(name="", account=None,  **kwargs):
+            if account in bucket_dict.keys():
+                return bucket_dict[account]
+            if name in bucket_dict.keys():
+                return bucket_dict[name]
+            bucket_instance = S3BucketConfig(name=name, **kwargs)
+            if name:
+                bucket_dict[name] = bucket_instance
+            if account:
+                bucket_dict[account] = bucket_instance
+            return bucket_instance
+
+        test_regions = set()
+        for test in self.tests.values():
+            for test_region in test.regions:
+                test_regions.add(test_region)
+
+        for tr in test_regions:
+            if tr.s3bucket:
+                continue
+            if self.s3_bucket:
+                tr.s3bucket = get_bucket_instance(self.s3_bucket,
+                       public = self.public_s3_bucket)
+            else:
+                bn = self._generate_auto_bucket_name()
+                tr.s3bucket = get_bucket_instance(bn,
+                        account = tr.client.account,
+                        public = self.public_s3_bucket,
+                        auto=True)
+
+    def _generate_auto_bucket_name(self):
+        name_list = ["taskcat"]
+        if self.stack_prefix:
+            name_list.append(self.stack_prefix)
+        if self.name:
+            name_list.append(self.name)
+        name_list.append(str(uuid.uuid4())[:8])
+        full_bucket_name = "-".join(name_list)
+        return full_bucket_name
+
     def _build_cred_dict(self):
         creds = {}
         for cred_type in ["aws_secret_key", "aws_access_key", "profile_name"]:
@@ -138,13 +199,15 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _cred_merge(creds, regional):
-        if 'regional_cred_map' not in creds:
-            creds['regional_cred_map'] = {}
         if 'default' in regional:
             creds = regional['default']
             del regional['default']
+        if 'regional_cred_map' not in creds:
+            creds['regional_cred_map'] = {}
         creds['regional_cred_map'].update(regional)
         return creds
+
+
 
     def _build_boto_factories(self):
         instance_cache = []
@@ -158,11 +221,17 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             return instance
 
         default_creds = self._cred_merge(self._build_cred_dict(), self.auth.copy())
+        self._client_factory_instance = get_instance(default_creds)
 
-        for _, test in self.tests.items():
+        for test_name, test in self.tests.items():
             test_creds = default_creds.copy()
             test_creds['regional_cred_map'] = default_creds['regional_cred_map'].copy()
             if test.auth:
+                for cred_key in test.auth.keys():
+                    clist = []
+                    for cred_param in ['aws_secret_key', 'aws_access_key', 'aws_session_token', 'profile_name']:
+                        clist.append(test.auth[cred_key].get(cred_param, None))
+                    self._client_factory_instance.put_credential_set(f"{test_name}_{cred_key}", *clist)
                 test_creds = self._cred_merge(test_creds, test.auth.copy())
             test.client_factory = get_instance(test_creds)
             self._propagate_regions(test)
@@ -218,9 +287,10 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 f"or set a default region in the aws cli"
             )
         if not test.regions:
-            test.regions = (
-                self.regions if self.regions else [default_region]
-            )
+            if self.regions:
+                test.regions = [AWSRegionObject(region.name) for region in self.regions]
+            else:
+                test.regions = [AWSRegionObject(default_region)]
 
     def _process_global_config(self):
         if self.global_config_path is None:
@@ -241,12 +311,16 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 )
             instance["tests"] = tests
         if "project" in instance.keys():
-            instance["project"]["regions"] = [AWSRegionObject(region) for region in instance["project"]["regions"]]
+            instance["project"]["regions"] = [region for region in instance["project"]["regions"]]
         try:
             validate(instance, "project_config")
         except exceptions.ValidationError:
             if self._process_legacy_project(instance) is not None:
                 validate(instance, "project_config")
+        instance_regions = instance["project"]["regions"]
+        instance["project"]["regions"] = [AWSRegionObject(region) for region in instance_regions]
+        for test in instance['tests'].values():
+            test.convert_regions()
         self._set_all(instance)
 
     def _process_legacy_project(self, instance) -> [None, Exception]:
