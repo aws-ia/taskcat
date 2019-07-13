@@ -1,6 +1,6 @@
 import logging
 from taskcat.exceptions import TaskCatException
-from taskcat.config import Config
+from taskcat.config import Config, S3BucketConfig
 from taskcat.s3_sync import S3Sync
 
 log = logging.getLogger(__name__)
@@ -38,19 +38,40 @@ class S3BucketCreator:
             ]
         }"""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, bucket_config: S3BucketConfig):
         self.name: str = ""
         self.public: bool = False
         self.tags: list = []
         self.region: str = 'us-east-1'
         self.sigv4: bool = True
+        self.account: str = ""
         self._config = config
+        self._bucket_config = bucket_config
         self._client = None
         self._acl = None
         self._policy = None
 
+        # Name
         if config.s3_bucket.name:
             self.name = config.s3_bucket.name
+
+        if bucket_config.name:
+            self.name = bucket_config.name
+
+        # Region
+        if config.default_region != 'us-east-1':
+            self.region = config.default_region
+
+        if bucket_config.region:
+            self.region = bucket_config.region
+
+        # Account
+        if bucket_config.account:
+            self.account = bucket_config.account
+
+        # Client
+        if bucket_config.client:
+            self._client = bucket_config.client
 
         if config.s3_bucket.public:
             self.public = True
@@ -58,17 +79,11 @@ class S3BucketCreator:
         if config.s3_bucket.tags:
             self.tags = config.s3_bucket.tags
 
-        if config.default_region != 'us-east-1':
-            self.region = config.default_region
-
         if config.sigv4:
             self.sigv4 = True
 
         if config.s3_bucket.name:
             self.name = config.s3_bucket.name
-
-        if config.s3_bucket.public:
-            self.public = True
 
         if config.s3_bucket.tags:
             self.tags = config.s3_bucket.tags
@@ -140,18 +155,16 @@ class S3BucketCreator:
         # Verify bucket name length
         if len(self.name) > self._config.s3_bucket.max_name_len:
             raise S3BucketCreatorException(f"The bucket you provided [{self._config.s3_bucket.name}] is greater than {self._config.s3_bucket.max_name_len} characters.")
-        self._client =  self._config.client_factory.get('s3', region=self._config.default_region, s3v4=self.sigv4)
+        self._client = self._bucket_config.client.get('s3', region=self._config.default_region, s3v4=self.sigv4)
 
         if self._config.s3_bucket.name:
             self._assert_bucket_exists(self._config.s3_bucket.name)
             self.name = self._config.s3_bucket.name
             return
 
-        auto_bucket_name = f"taskcat-{self._config.stack_prefix}-{self.name}-{self._config.uuid}".lower()
-        log.info(f"Creating bucket {auto_bucket_name} in {self.region}")
-        self._create_bucket(auto_bucket_name)
+        log.info(f"Creating bucket {self.name} in {self.region}")
+        self._create_bucket(self.name)
         self._config.s3_bucket.auto = True
-        self.name = auto_bucket_name
 
 
 def stage_in_s3(self, config: Config):
@@ -165,19 +178,29 @@ def stage_in_s3(self, config: Config):
     :param config: Taskcat config object.
 
     """
-    S3Bucket = S3BucketCreator(config)
+    bucket_cache = {}
 
-    try:
-        # TODO: this moves into __init__ of Config object
-        S3Bucket.create()
-    except Exception as e:
-        raise TaskCatException(e)
+    # Create the bucket objects first!
+    for test in config.tests:
+        for region in test.regions:
+            cached_bucket = bucket_cache.get(f"{region.client.account}_{region.bucket.name}", None)
+            if cached_bucket:
+                region.bucket = cached_bucket
+            else:
+                region.bucket = S3BucketCreator(config, region.bucket)
+                bucket_cache[f"{region.client.account}_{region.bucket.name}"] = region.bucket
 
-    # TODO: sync to each bucket needed
-    S3Sync(S3Bucket.client,
-           S3Bucket.name,
-           config.project_name,
-           config.project_path,
-           S3Bucket.acl)
+    # Sync!
+    for bucket in bucket_cache.values():
+        try:
+            bucket.create()
+        except Exception as e:
+            raise TaskCatException(e)
+    for bucket in bucket_cache.values():
+        S3Sync(bucket.client,
+                bucket.name,
+                config.project_name,
+                config.project_path,
+                bucket.acl)
 
     # self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
