@@ -5,9 +5,16 @@ import unittest
 from pathlib import Path
 
 import yaml
+import mock
 
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
+
+class MockClientConfig(object):
+    def __init__(self):
+        self.region_name = "us-east-2"
+
+
 
 test_two_path = str(
     Path(
@@ -114,6 +121,10 @@ def flatten_rule(lints):
 
 
 class TestCfnLint(unittest.TestCase):
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_client",
+        mock.MagicMock(return_value=MockClient()),
+    )
     def test_lint(self):
         base_path = "/tmp/lint_test/"
         mkdir(base_path)

@@ -97,7 +97,7 @@ class TestClientFactory(unittest.TestCase):
             msg = "lock should be an instance of Lock"
             self.assertEqual(type(Lock()), type(aws_clients._lock), msg)
 
-    @mock.patch("taskcat.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
+    @mock.patch("taskcat._client_factory.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
     def test_put_credential_set(self):
         aws_clients = client_factory_instance()
 
@@ -405,6 +405,7 @@ class TestClientFactory(unittest.TestCase):
         "taskcat._client_factory.ClientFactory._create_session",
         mock.MagicMock(return_value=MockBotoSessionClass()),
     )
+
     def test_regional_cred_map(self):
         aws_clients = ClientFactory(
             regional_cred_map={"ap-east-1": {"profile_name": "blah"}}
