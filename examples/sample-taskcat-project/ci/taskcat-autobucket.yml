@@ -24,4 +24,3 @@ tests:
     template_file: debug-yaml.template
     regions:
       - us-east-1
-

@@ -1,6 +1,6 @@
 [
     {
-        "ParameterKey":"LocalOverrideTest",
-        "ParameterValue":"foobar"
+        "ParameterKey": "LocalOverrideTest",
+        "ParameterValue": "foobar"
     }
 ]

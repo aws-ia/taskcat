@@ -5,16 +5,34 @@
             "$id": "#project",
             "type": "object",
             "properties": {
-                "name":  { "type": "string", "pattern": "^[a-z/d-]*$" },
-                "owner":   { "type": "string" },
-                "regions": { "$ref": "#/definitions/regions" },
-                "package_lambda": { "type": "boolean" },
-                "s3_bucket": {"type": "string", "pattern": "^[a-z0-9-]*$"},
-                "template_file": { "type": "string" },
-                "parameters": { "$ref": "schema_definitions.json#/definitions/parameters" }
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z/d-]*$"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "regions": {
+                    "$ref": "#/definitions/regions"
+                },
+                "package_lambda": {
+                    "type": "boolean"
+                },
+                "s3_bucket": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]*$"
+                },
+                "template_file": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "$ref": "schema_definitions.json#/definitions/parameters"
+                }
             },
             "additionalProperties": false,
-            "required": ["name"]
+            "required": [
+                "name"
+            ]
         },
         "regions": {
             "$id": "#regions",
@@ -28,7 +46,7 @@
                      }, { "$ref" : "schema_definitions.json#/definitions/region" }
                 ]
             }
-        },    
+        },
         "tests": {
             "$id": "#tests",
             "type": "object",
@@ -51,19 +69,41 @@
             "$id": "#test",
             "type": "object",
             "properties": {
-                "auth":             { "$ref": "#/definitions/auth" },
-                "template_file":    { "type": "string" },
-                "parameter_input":  { "type": "string" },
-                "regions":          { "$ref": "#/definitions/regions" },
-                "parameters": { "$ref": "schema_definitions.json#/definitions/parameters" }
+                "auth": {
+                    "$ref": "#/definitions/auth"
+                },
+                "template_file": {
+                    "type": "string"
+                },
+                "parameter_input": {
+                    "oneOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "regions": {
+                    "$ref": "#/definitions/regions"
+                },
+                "parameters": {
+                    "$ref": "schema_definitions.json#/definitions/parameters"
+                }
             },
-            "required": ["template_file"]
+            "required": [
+                "template_file"
+            ]
         },
         "tags": {
             "$id": "#tags",
             "type": "object",
             "patternProperties": {
-                "^(?!aws:)([\\w\\d +-=._:/]*)$": { "type": "string", "maxLength": 256 }
+                "^(?!aws:)([\\w\\d +-=._:/]*)$": {
+                    "type": "string",
+                    "maxLength": 256
+                }
             },
             "maxLength": 128,
             "additionalProperties": false
@@ -72,7 +112,19 @@
             "$id": "#parameters",
             "type": "object",
             "patternProperties": {
-                "^[\\w\\d]*$": { "oneOf": [ {"type": "string"}, {"type": "boolean"}, {"type": "integer"} ] }
+                "^[\\w\\d]*$": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "integer"
+                        }
+                    ]
+                }
             },
             "additionalProperties": false
         },
@@ -80,24 +132,66 @@
             "$id": "#general",
             "type": "object",
             "properties": {
-                "auth":                 { "$ref": "#/definitions/auth" },
-                "config_file":          { "type": "string" },
-                "project_root":         { "type": "string" },
-                "profile_name":         { "type": "string" },
-                "aws_access_key":       { "type": "string" },
-                "aws_secret_key":       { "type": "string" },
-                "no_cleanup":           { "type": "boolean" },
-                "no_cleanup_failed":    { "type": "boolean" },
-                "public_s3_bucket":     { "type": "boolean" },
-                "verbosity":            { "type": "string", "enum": [ "debug", "info", "warning", "error" ] },
-                "tags":                 { "$ref": "#/definitions/tags" },
-                "stack_prefix":         { "type": "string" },
-                "lint":                 { "type": "boolean" },
-                "upload_only":          { "type": "boolean" },
-                "lambda_build_only":    { "type": "boolean" },
-                "exclude":              { "type": "string" },
-                "enable_sig_v2":        { "type": "boolean" },
-                "parameters":           { "$ref": "#/definitions/parameters" }
+                "auth": {
+                    "$ref": "#/definitions/auth"
+                },
+                "config_file": {
+                    "type": "string"
+                },
+                "project_root": {
+                    "type": "string"
+                },
+                "profile_name": {
+                    "type": "string"
+                },
+                "aws_access_key": {
+                    "type": "string"
+                },
+                "aws_secret_key": {
+                    "type": "string"
+                },
+                "no_cleanup": {
+                    "type": "boolean"
+                },
+                "no_cleanup_failed": {
+                    "type": "boolean"
+                },
+                "public_s3_bucket": {
+                    "type": "boolean"
+                },
+                "verbosity": {
+                    "type": "string",
+                    "enum": [
+                        "debug",
+                        "info",
+                        "warning",
+                        "error"
+                    ]
+                },
+                "tags": {
+                    "$ref": "#/definitions/tags"
+                },
+                "stack_prefix": {
+                    "type": "string"
+                },
+                "lint": {
+                    "type": "boolean"
+                },
+                "upload_only": {
+                    "type": "boolean"
+                },
+                "lambda_build_only": {
+                    "type": "boolean"
+                },
+                "exclude": {
+                    "type": "string"
+                },
+                "enable_sig_v2": {
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "$ref": "#/definitions/parameters"
+                }
             },
             "additionalProperties": false
         },
@@ -106,16 +200,24 @@
             "type": "object",
             "additionalProperties": false,
             "patternProperties": {
-                "^((ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9])|(default)$": { "$ref": "#/definitions/auth_item" }
+                "^((ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9])|(default)$": {
+                    "$ref": "#/definitions/auth_item"
+                }
             }
         },
         "auth_item": {
             "$id": "#auth_item",
             "type": "object",
             "properties": {
-                "profile_name":         { "type": "string" },
-                "aws_access_key":       { "type": "string" },
-                "aws_secret_key":       { "type": "string" }
+                "profile_name": {
+                    "type": "string"
+                },
+                "aws_access_key": {
+                    "type": "string"
+                },
+                "aws_secret_key": {
+                    "type": "string"
+                }
             },
             "additionalProperties": false
         }

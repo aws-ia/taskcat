@@ -10,15 +10,15 @@ from __future__ import print_function
 
 import logging
 import os
-from shutil import make_archive
 from multiprocessing import Pool
-from taskcat.common_utils import make_dir
+from shutil import make_archive
+
+from taskcat._common_utils import make_dir
+
+LOG = logging.getLogger(__name__)
 
 
-log = logging.getLogger(__name__)
-
-
-class LambdaBuild(object):
+class LambdaBuild:
     """Zips contents of lambda source files.
 
     """
@@ -40,11 +40,10 @@ class LambdaBuild(object):
             pool.join()
         finally:
             os.chdir(cur_dir)
-        return
 
     def _make_zip(self, name):
         try:
-            log.info("Zipping lambda function %s" % name)
+            LOG.info("Zipping lambda function %s" % name)
             output_path = "%s/%s" % (self.output_path, name)
             make_dir(output_path)
             os.chdir(name)

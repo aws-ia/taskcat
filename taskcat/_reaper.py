@@ -6,35 +6,42 @@
 # Shivansh Singh <sshvans@amazon.com>,
 # Jay McConnell <jmmccon@amazon.com>,
 # Andrew Glenn <andglenn@amazon.com>
+
+# pylint: skip-file
+# flake8: noqa
+# nosec
+
 from __future__ import print_function
+
+import logging
+
 import botocore
 from botocore.exceptions import ClientError
-import logging
 
 log = logging.getLogger(__name__)
 ###
 ### TODO: Deprecate this module
 ###
 
-debug = ''
-error = ''
-check = ''
-fail = ''
-info = ''
-header = '\x1b[1;41;0m'
-hightlight = '\x1b[0;30;47m'
-name_color = '\x1b[0;37;44m'
-aqua = '\x1b[0;30;46m'
-green = '\x1b[0;30;42m'
-white = '\x1b[0;30;47m'
-orange = '\x1b[0;30;43m'
-red = '\x1b[0;30;41m'
-rst_color = '\x1b[0m'
-E = '{1}[ERROR {0} ]{2} :'.format(error, red, rst_color)
-D = '{1}[DEBUG {0} ]{2} :'.format(debug, aqua, rst_color)
-P = '{1}[PASS  {0} ]{2} :'.format(check, green, rst_color)
-F = '{1}[FAIL  {0} ]{2} :'.format(fail, red, rst_color)
-I = '{1}[INFO  {0} ]{2} :'.format(info, orange, rst_color)
+debug = ""
+error = ""
+check = ""
+fail = ""
+info = ""
+header = "\x1b[1;41;0m"
+hightlight = "\x1b[0;30;47m"
+name_color = "\x1b[0;37;44m"
+aqua = "\x1b[0;30;46m"
+green = "\x1b[0;30;42m"
+white = "\x1b[0;30;47m"
+orange = "\x1b[0;30;43m"
+red = "\x1b[0;30;41m"
+rst_color = "\x1b[0m"
+E = "{1}[ERROR {0} ]{2} :".format(error, red, rst_color)
+D = "{1}[DEBUG {0} ]{2} :".format(debug, aqua, rst_color)
+P = "{1}[PASS  {0} ]{2} :".format(check, green, rst_color)
+F = "{1}[FAIL  {0} ]{2} :".format(fail, red, rst_color)
+I = "{1}[INFO  {0} ]{2} :".format(info, orange, rst_color)
 
 log = logging.getLogger(__name__)
 
@@ -46,8 +53,8 @@ class Reaper(object):
     #   bucket_name - Name of the bucket to delete
 
     def __delete_s3_bucket(self, bucket_name):
-        s3_resource = self.session.resource('s3')
-        log.info('Working on bucket [%s]', bucket_name)
+        s3_resource = self.session.resource("s3")
+        log.info("Working on bucket [%s]", bucket_name)
         bucket_resource = s3_resource.Bucket(bucket_name)
         log.info("Getting and deleting all object versions")
         try:
@@ -57,17 +64,17 @@ class Reaper(object):
                 # requests
                 object_version.delete()
         except ClientError as e:
-            if e.response['Error']['Code'] == 'AccessDenied':
+            if e.response["Error"]["Code"] == "AccessDenied":
                 log.warning("Unable to delete object versions. (AccessDenied)")
-            if e.response['Error']['Code'] == 'NoSuchBucket':
+            if e.response["Error"]["Code"] == "NoSuchBucket":
                 log.warning("Unable to get versions. (NoSuchBucket)")
             else:
                 log.error(e)
-        log.info('Deleting bucket [%s]', bucket_name)
+        log.info("Deleting bucket [%s]", bucket_name)
         try:
             bucket_resource.delete()
         except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == 'NoSuchBucket':
+            if e.response["Error"]["Code"] == "NoSuchBucket":
                 log.warning("Bucket was already deleted. (NoSuchBucket)")
             else:
                 log.error(e)
@@ -77,12 +84,12 @@ class Reaper(object):
     #   volume_id - Id of the volume to be deleted
 
     def __delete_volume(self, volume_id):
-        ec2_client = self.session.client('ec2')
-        log.info('Deleting EBS Volume [%s]', volume_id)
+        ec2_client = self.session.client("ec2")
+        log.info("Deleting EBS Volume [%s]", volume_id)
         try:
             ec2_client.delete_volume(VolumeId=volume_id)
         except ClientError as e:
-            if e.response['Error']['Code'] == 'AccessDenied':
+            if e.response["Error"]["Code"] == "AccessDenied":
                 log.warning("Unable to delete volume. (AccessDenied)")
             else:
                 log.error(e)
@@ -92,16 +99,15 @@ class Reaper(object):
     # sg_id - Id of the Security Group which needs to be deleted
 
     def __delete_sg(self, sg_id):
-        ec2_client = self.session.client('ec2')
-        log.info('Deleting Security Group [%s]', sg_id)
+        ec2_client = self.session.client("ec2")
+        log.info("Deleting Security Group [%s]", sg_id)
         try:
             ec2_client.delete_security_group(GroupId=sg_id)
         except ClientError as e:
-            if e.response['Error']['Code'] == 'InvalidGroup.InUse':
+            if e.response["Error"]["Code"] == "InvalidGroup.InUse":
                 log.warning("Unable to delete Security group. It is in-use.")
-            if e.response['Error']['Code'] == 'InvalidGroup.NotFound':
-                log.warning(
-                    "Unable to delete Security group. (not found).")
+            if e.response["Error"]["Code"] == "InvalidGroup.NotFound":
+                log.warning("Unable to delete Security group. (not found).")
             else:
                 log.error(e)
 
@@ -126,9 +132,12 @@ class Reaper(object):
     def delete_all(self, stack_list):
         log.info("Deleting all resources")
         for stack in stack_list:
-            for resource in stack['resources']:
+            for resource in stack["resources"]:
                 self.__delete_resource(
-                    resource['logicalId'], resource['resourceType'], resource['physicalId'])
+                    resource["logicalId"],
+                    resource["resourceType"],
+                    resource["physicalId"],
+                )
 
     # Give a resource logical id and resource type, this function deletes the resource
     # Param:

@@ -1,8 +1,7 @@
-from taskcat.stacker import LegacyTaskCat
+from taskcat._stacker import LegacyTaskCat
 
 
-class TaskCat(object):
-
+class TaskCat:  # pylint: disable=too-many-instance-attributes
     def __init__(self, args):
         self._legacy = LegacyTaskCat(args)
         self.set_config = self._legacy.set_config

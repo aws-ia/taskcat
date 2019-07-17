@@ -1,51 +1,45 @@
 import logging
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, Union
 
 import yaml
 from jsonschema import exceptions
 
-from taskcat.client_factory import ClientFactory
-from taskcat.common_utils import absolute_path
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat.exceptions import TaskCatException
-from taskcat.common_utils import schema_validate as validate
-from taskcat.cfn.template import Template
+from taskcat._cfn.template import Template
 
 LOG = logging.getLogger(__name__)
 
 
-class Test:  # pylint: disable=too-few-public-methods
+class Test:
     def __init__(
         self,
         template_file: Path,
-        name: str = 'default',
+        name: str = "default",
         parameter_input: Path = None,
         parameters: dict = None,
         regions: set = None,
-        project_root: Path = Path("./"),
-        auth: dict = {}
+        project_root: Union[Path, str] = "./",
+        auth: dict = None,
     ):
-        self._project_root: Path = project_root
+        auth = auth if auth is not None else {}
+        self._project_root: Path = Path(project_root)
         self.template_file: Path = self._guess_path(template_file)
-        self.parameter_input_file: Path = self._guess_path(parameter_input)
+        self.parameter_input_file: Optional[Path] = None
+        if parameter_input:
+            self.parameter_input_file = self._guess_path(parameter_input)
         self.parameters: Dict[
-            str, int, bool
+            str, Union[str, int, bool]
         ] = self._params_from_file() if parameter_input else {}
         if parameters:
             self.parameters.update(parameters)
         validate(self.parameters, "overrides")
-        self.regions = list(region for region in regions) if regions else []
+        self.regions: list = list(regions) if regions else []
         self.auth: dict = auth
-        self.client_factory: [ClientFactory, None] = None
+        self.client_factory: ClientFactory = ClientFactory()
         self.name: str = name
-        self._regions_converted = False
-
-    def convert_regions(self):
-        if self._regions_converted:
-            return
-        if self.regions:
-            self.regions = list(AWSRegionObject(region) for region in self.regions)
-            self._regions_converted = True
 
     def _guess_path(self, path):
         abs_path = absolute_path(path)
@@ -111,8 +105,9 @@ class Test:  # pylint: disable=too-few-public-methods
                 raise e
 
     @classmethod
-    def from_dict(cls, raw_test: dict, project_root=Path("./")):
-        return Test(**raw_test, project_root=project_root)
+    def from_dict(cls, raw_test: dict, project_root="./"):
+        raw_test["project_root"] = Path(project_root)
+        return Test(**raw_test)
 
 
 class S3BucketConfig:

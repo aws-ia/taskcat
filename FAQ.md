@@ -5,7 +5,7 @@
 
 Error:
 
- 
+
 ```
 botocore.exceptions.ClientError: An error occurred (IllegalLocationConstraintException) when calling the CreateBucket operation: The unspecified location constraint is incompatible for the region specific endpoint this request was sent to.
 ```
@@ -21,7 +21,7 @@ region = us-east-1
 ------
 #### Critial failure with version all version below 2018.416.143234
 
-Error: 
+Error:
 ```
 Traceback (most recent call last):
   File "/var/lib/jenkins/.local/bin/taskcat", line 58, in <module>
@@ -41,4 +41,3 @@ Solution: (Get latest version)
 > To upgrade pip version    [ pip install --upgrade taskcat]
 
 > To upgrade docker version [ docker pull taskcat/taskcat ]
-

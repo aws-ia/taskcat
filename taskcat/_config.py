@@ -3,9 +3,15 @@ import os
 import uuid
 from typing import Set, List, Dict
 from pathlib import Path
-from jsonschema import exceptions
+from typing import Dict, List, Optional, Set, Union
+
 import yaml
 
+import cfnlint
+from taskcat._cfn.template import Template
+from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import absolute_path, schema_validate as validate
+from taskcat._config_types import S3BucketConfig, Test
 from taskcat.exceptions import TaskCatException
 from taskcat.cfn.template import Template
 from taskcat.client_factory import ClientFactory
@@ -38,27 +44,22 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     def __init__(
         self,
-        args: dict = None,
+        args: Optional[dict] = None,
         global_config_path: str = "~/.taskcat.yml",
         template_path: str = None,
         project_config_path: str = None,
         project_root: str = "./",
         override_file: str = None,
-        all_env_vars: List[dict] = os.environ.items(),
+        all_env_vars: Optional[List[dict]] = None,
         client_factory=ClientFactory,
     ):  # #pylint: disable=too-many-arguments
         # inputs
-        if template_path:
-            if not Path(template_path).exists():
-                raise TaskCatException(
-                    f"failed adding config from template file "
-                    f"{template_path} file not found"
-                )
-        self.project_root: [Path, None] = absolute_path(project_root)
+        if absolute_path(project_config_path) and not Path(project_root).is_absolute():
+            project_root = absolute_path(project_config_path).parent / project_root
+        self.project_root: Union[Path, str] = absolute_path(project_root)
         self.args: dict = args if args else {}
-        self.global_config_path: [Path, None] = absolute_path(global_config_path)
-        self.template_path: [Path, None] = self._absolute_path(template_path)
-        self.override_file: Path = self._absolute_path(override_file)
+        self.global_config_path: Optional[Path] = absolute_path(global_config_path)
+        self.override_file: Optional[Path] = self._absolute_path(override_file)
         self._client_factory_class = client_factory
         # Used only in initial client configuration, then set to None
         self._client_factory_instance = None
@@ -78,31 +79,41 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.lambda_build_only: bool = False
         self.exclude: str = ""
         self.enable_sig_v2: bool = False
-        self.auth: Dict[str: dict] = {}
+        self.auth: Dict[str, dict] = {}
 
         # project config
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: str = ""
-        self.tests: Dict[Test] = {}
-        self.regions: Set[AWSRegionObject] = set()
-        self.env_vars = {}
+        self.s3_bucket: S3BucketConfig = S3BucketConfig()
+        self.tests: Dict[str, Test] = {}
+        self.regions: Set[str] = set()
+        self.env_vars: Dict[str, str] = {}
+        self.project_config_path: Optional[Path] = None
+        self.template_path: Optional[Path] = None
 
-        # clever processors, not well liked
-        self._harvest_env_vars(all_env_vars)
-        self._parse_project_config(project_config_path)
-
-        # build config object from gathered entries
+        self._harvest_env_vars(all_env_vars if all_env_vars else os.environ.items())
         self._process_global_config()
-        self._process_project_config()
-        self._process_template_config()
+
+        if not self._absolute_path(project_config_path):
+            raise TaskCatException(
+                f"failed to load project config file {project_config_path}. file "
+                f"does not exist"
+            )
+
+        if self._is_template(self._absolute_path(project_config_path)):
+            self.template_path = self._absolute_path(project_config_path)
+            self._process_template_config()
+        else:
+            self._parse_project_config(project_config_path)
+            self._process_project_config()
+
         self._process_env_vars()
         self._process_args()
         if not self.template_path and not self.tests:
             raise TaskCatException(
                 "minimal config requires at least one test or a "
-                    "template_path to be defined"
+                "template_path to be defined"
             )
 
         # build client_factory_instances
@@ -116,6 +127,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
         # build and attach template objects
         self._get_templates()
+
+    @staticmethod
+    def _is_template(path):
+        parsed_file = cfnlint.decode.cfn_yaml.load(str(path))
+        return "Resources" in parsed_file
 
     def _get_templates(self):
         for _, test in self.tests.items():
@@ -207,17 +223,15 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         creds['regional_cred_map'].update(regional)
         return creds
 
-
-
     def _build_boto_factories(self):
         instance_cache = []
 
-        def get_instance(creds):
-            for c, i in instance_cache:
-                if creds == c:
-                    return i
-            instance = self._client_factory_class(**creds)
-            instance_cache.append([creds, instance])
+        def get_instance(provided_creds):
+            for creds, instance in instance_cache:
+                if provided_creds == creds:
+                    return instance
+            instance = self._client_factory_class(**provided_creds)
+            instance_cache.append([provided_creds, instance])
             return instance
 
         default_creds = self._cred_merge(self._build_cred_dict(), self.auth.copy())
@@ -225,7 +239,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
         for test_name, test in self.tests.items():
             test_creds = default_creds.copy()
-            test_creds['regional_cred_map'] = default_creds['regional_cred_map'].copy()
+            test_creds["regional_cred_map"] = default_creds["regional_cred_map"].copy()
             if test.auth:
                 for cred_key in test.auth.keys():
                     clist = []
@@ -237,25 +251,23 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self._propagate_regions(test)
 
     def _parse_project_config(self, project_config_path):
-        self.project_config_path: [Path, None] = self._absolute_path(
-            project_config_path
-        )
+        self.project_config_path = self._absolute_path(project_config_path)
         if self.project_config_path is None:
             for path in Config.DEFAULT_PROJECT_PATHS:
                 try:
-                    self.project_config_path: [Path, None] = self._absolute_path(path)
+                    self.project_config_path = self._absolute_path(path)
                     LOG.debug("found project config in default location %s", path)
                     break
                 except TaskCatException:
                     LOG.debug("didn't find project config in %s", path)
 
-    def _absolute_path(self, path: [str, Path]) -> [Path, None]:
+    def _absolute_path(self, path: Optional[Union[str, Path]]) -> Optional[Path]:
         if path is None:
             return path
         path = Path(path)
         abs_path = absolute_path(path)
         if self.project_root and not abs_path:
-            abs_path = absolute_path(self.project_root / Path(path))
+            abs_path = absolute_path(Path(self.project_root) / Path(path))
         if not abs_path:
             raise TaskCatException(
                 f"Unable to resolve path {path}, with project_root "
@@ -277,9 +289,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self._set(k, v)
 
     def _propagate_regions(self, test: Test):
-        default_region = test.client_factory.get_default_region(
-            None, None, None, None
-        )
+        default_region = test.client_factory.get_default_region(None, None, None, None)
         if not test.regions and not default_region and not self.regions:
             raise TaskCatException(
                 f"unable to define region for test {test.name}, you must define "
@@ -302,7 +312,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
     def _process_project_config(self):
         if self.project_config_path is None:
             return
-        instance = yaml.safe_load(open(str(self.project_config_path), "r"))
+        with open(str(self.project_config_path), "r") as file_handle:
+            instance = yaml.safe_load(file_handle)
         if "tests" in instance.keys():
             tests = {}
             for test in instance["tests"].keys():
@@ -310,42 +321,39 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                     instance["tests"][test], project_root=self.project_root
                 )
             instance["tests"] = tests
-        if "project" in instance.keys():
-            instance["project"]["regions"] = [region for region in instance["project"]["regions"]]
-        try:
-            validate(instance, "project_config")
-        except exceptions.ValidationError:
-            if self._process_legacy_project(instance) is not None:
-                validate(instance, "project_config")
-        instance_regions = instance["project"]["regions"]
-        instance["project"]["regions"] = [AWSRegionObject(region) for region in instance_regions]
-        for test in instance['tests'].values():
-            test.convert_regions()
+        if "global" in instance.keys():
+            self._process_legacy_project(instance)
+        validate(instance, "project_config")
         self._set_all(instance)
 
-    def _process_legacy_project(self, instance) -> [None, Exception]:
-        try:
-            validate(instance, "legacy_project_config")
-            LOG.warning(
-                "%s config file is in a format that will be deprecated in the next "
-                "version of taskcat",
-                str(self.project_config_path),
-            )
-        except exceptions.ValidationError as e:
-            LOG.debug("legacy config validation failed: %s", e)
-            return e
+    def _process_legacy_project(  # pylint: disable=useless-return
+        self, instance
+    ) -> Optional[Exception]:
+        validate(instance, "legacy_project_config")
+        LOG.warning(
+            "%s config file is in a format that will be deprecated in the next "
+            "version of taskcat",
+            str(self.project_config_path),
+        )
         # rename global to project
         if "global" in instance:
             instance["project"] = instance["global"]
             del instance["global"]
         if "project" in instance:
             # delete unneeded config items
-            for item in ["marketplace-ami", "reporting"]:
-                del instance["project"][item]
+            for del_item in ["marketplace-ami", "reporting"]:
+                if del_item in instance["project"]:
+                    del instance["project"][del_item]
             # rename items with new keys
-            for item in [["qsname", "name"]]:
-                instance["project"][item[1]] = instance["project"][item[0]]
-                del instance["project"][item[0]]
+            for rename_item in [
+                ["qsname", "name"],
+                ["package-lambda", "package_lambda"],
+            ]:
+                if rename_item[0] in instance["project"]:
+                    instance["project"][rename_item[1]] = instance["project"][
+                        rename_item[0]
+                    ]
+                    del instance["project"][rename_item[0]]
         return None
 
     def _process_template_config(self):
@@ -354,15 +362,18 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         template = Template(str(self.template_path)).template
         try:
             template_config = template["Metadata"]["taskcat"]
-            self._add_template_path(template_config)
-            validate(template_config, "project_config")
-            self._set_all(template_config)
         except KeyError:
-            pass
-#            raise TaskCatException(
-#                f"failed adding config from template file {str(self.template_path)} "
-#                f"Metadata['taskcat'] not present"
-#            )
+            region = self._client_factory_class().get_default_region(
+                None, None, None, None
+            )
+            name = self.template_path.name.split(".")[0]
+            template_config = {
+                "project": {"name": name},
+                "tests": {name: {"regions": [region]}, "parameters": {}},
+            }
+        self._add_template_path(template_config)
+        validate(template_config, "project_config")
+        self._set_all(template_config)
 
     def _add_template_path(self, template_config):
         if "tests" in template_config.keys():
@@ -414,7 +425,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 args["parameter_input"] if "parameter_input" in args.keys() else None
             )
             regions = (
-                set(args["regions"].split(',')) if "regions" in args.keys() else set()
+                set(args["regions"].split(",")) if "regions" in args.keys() else set()
             )
             test = Test(
                 template_file=template_file,

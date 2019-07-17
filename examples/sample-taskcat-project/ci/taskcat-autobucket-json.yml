@@ -19,4 +19,3 @@ tests:
     regions:
       - us-east-1
     template_file: debug.template
-

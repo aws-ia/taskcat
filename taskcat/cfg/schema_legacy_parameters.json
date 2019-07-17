@@ -9,7 +9,19 @@
                 "type": "string",
                 "pattern": "^[\\w\\d]*$"
             },
-            "ParameterValue": { "oneOf": [ {"type": "string"}, {"type": "boolean"}, {"type": "integer"} ] }
+            "ParameterValue": {
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "boolean"
+                    },
+                    {
+                        "type": "integer"
+                    }
+                ]
+            }
         },
         "required": [
             "ParameterKey",

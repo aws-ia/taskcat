@@ -3,7 +3,7 @@ Module sweeper
 
 Classes
 -------
-Sweeper 
+Sweeper
     Ancestors (in MRO)
     ------------------
     sweeper.Sweeper

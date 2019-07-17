@@ -1,0 +1,157 @@
+import argparse
+import signal
+import sys
+
+import pyfiglet
+import requests
+from pkg_resources import get_distribution
+
+from taskcat._cli_core import CliCore
+from taskcat._common_utils import exit_with_code
+from taskcat._logger import PrintMsg, init_taskcat_cli_logger
+from taskcat.exceptions import TaskCatException
+
+from . import _cli_modules
+
+LOG = init_taskcat_cli_logger(loglevel="ERROR")
+
+
+class SetVerbosity(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        LOG.setLevel(_get_log_level([option_string]))
+
+
+NAME = "taskcat-v9"
+DESCRIPTION = (
+    "taskcat is a tool that tests AWS CloudFormation templates. It deploys "
+    "your AWS CloudFormation template in multiple AWS Regions and "
+    "generates a report with a pass/fail grade for each region. You can "
+    "specify the regions and number of Availability Zones you want to "
+    "include in the test, and pass in parameter values from your AWS "
+    "CloudFormation template."
+)
+GLOBAL_ARGS = [
+    [
+        ["-q", "--quiet"],
+        {
+            "action": SetVerbosity,
+            "nargs": 0,
+            "help": "reduce output to the minimum",
+            "dest": "_quiet",
+        },
+    ],
+    [
+        ["-d", "--debug"],
+        {
+            "action": SetVerbosity,
+            "nargs": 0,
+            "help": "adds debug output and tracebacks",
+            "dest": "_debug",
+        },
+    ],
+]
+
+
+def main():
+    signal.signal(signal.SIGINT, _sigint_handler)
+    log_level = _setup_logging(sys.argv)
+    args = sys.argv[1:]
+    if not args:
+        args.append("-h")
+    try:
+        _welcome()
+        version = get_installed_version()
+        cli = CliCore(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
+        cli.parse(args)
+        cli.run()
+    except TaskCatException as e:
+        LOG.error(str(e), exc_info=_print_tracebacks(log_level))
+        exit_with_code(1)
+    except Exception as e:  # pylint: disable=broad-except
+        LOG.error(
+            "%s %s", e.__class__.__name__, str(e), exc_info=_print_tracebacks(log_level)
+        )
+        exit_with_code(1)
+
+
+def _setup_logging(args):
+    log_level = _get_log_level(args)
+    LOG.setLevel(log_level)
+    return log_level
+
+
+def _print_tracebacks(log_level):
+    return log_level == "DEBUG"
+
+
+def _get_log_level(args):
+    log_level = "INFO"
+    if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
+        exit_with_code(1, "--debug and --quiet cannot be specified simultaneously")
+    if "-d" in args or "--debug" in args:
+        log_level = "DEBUG"
+    if "-q" in args or "--quiet" in args:
+        log_level = "ERROR"
+    return log_level
+
+
+def check_for_update():
+    def _print_upgrade_msg(new_version):
+        LOG.info("version %s\n" % version, extra={"nametag": ""})
+        LOG.warning("A newer version of %s is available (%s)", NAME, new_version)
+        LOG.info(
+            "To upgrade pip version    %s[ pip install --upgrade %s]%s",
+            PrintMsg.highlight,
+            NAME,
+            PrintMsg.rst_color,
+        )
+        LOG.info(
+            "To upgrade docker version %s[ docker pull %s/%s ]%s\n",
+            PrintMsg.highlight,
+            NAME,
+            NAME,
+            PrintMsg.rst_color,
+        )
+
+    version = get_installed_version()
+    if version != "[local source] no pip module installed":
+        if "dev" not in version:
+            current_version = get_pip_version(f"https://pypi.org/pypi/{NAME}/json")
+            if version in current_version:
+                LOG.info("version %s" % version, extra={"nametag": ""})
+            else:
+                _print_upgrade_msg(current_version)
+    else:
+        LOG.info("Using local source (development mode)\n")
+
+
+def _welcome():
+    banner = pyfiglet.Figlet(font="standard")
+    banner = banner
+    LOG.info(f"{banner.renderText(NAME)}\n", extra={"nametag": ""})
+    try:
+        check_for_update()
+    except TaskCatException:
+        raise
+    except Exception:  # pylint: disable=broad-except
+        LOG.debug("Unexpected error", exc_info=True)
+        LOG.warning("Unable to get version info!!, continuing")
+
+
+def get_pip_version(url):
+    """
+    Given the url to PypI package info url returns the current live version
+    """
+    return requests.get(url).json()["info"]["version"]
+
+
+def get_installed_version():
+    try:
+        return get_distribution(NAME).version
+    except Exception:  # pylint: disable=broad-except
+        return "[local source] no pip module installed"
+
+
+def _sigint_handler(signum, frame):
+    LOG.debug(f"SIGNAL {signum} caught at {frame}")
+    exit_with_code(1)
