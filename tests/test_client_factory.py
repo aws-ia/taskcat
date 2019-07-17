@@ -22,7 +22,6 @@ class MockClientConfig(object):
     def __init__(self):
         self.region_name = "us-east-2"
 
-
 class MockBotoClient(object):
     def __init__(self):
         self.session = MockBotoSession()
@@ -59,13 +58,16 @@ class MockCredentials(object):
 class MockClient(object):
     def __init__(self):
         self._client_config = MockClientConfig()
-        pass
+
+    def get_caller_identity(self):
+        return {'Account':"0123456789"}
 
 
 def client_factory_instance():
     with mock.patch.object(ClientFactory, '__init__', return_value=None):
         aws_clients = ClientFactory(None)
     aws_clients._credential_sets = {'default': [None, None, None, None]}
+    aws_clients._credential_accounts = {}
     aws_clients.logger = logging.getLogger()
     aws_clients._clients = {"default": {}}
     aws_clients._lock = Lock()
@@ -84,6 +86,7 @@ class TestClientFactory(unittest.TestCase):
             msg = "lock should be an instance of Lock"
             self.assertEqual(type(Lock()), type(aws_clients._lock), msg)
 
+    @mock.patch("taskcat.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
     def test_put_credential_set(self):
         aws_clients = client_factory_instance()
 

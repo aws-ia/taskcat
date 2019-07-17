@@ -119,14 +119,7 @@ class S3BucketConfig:
     def __init__(self, public: bool = False, auto: bool = False, name=""):
          self.region = None
          self.name = name
-         self.publc = public
-         self.auto = auto
-         self.max_name_len = 63
          self.account = None
-         self.created = not self.auto
-         if len(self.name) > self.max_name_len:
-             self.name = self.name[:self.max_name_len-1]
-
 
 class AWSRegionObject:
     def __init__(self, region_name: str):
