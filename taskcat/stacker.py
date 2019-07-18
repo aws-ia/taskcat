@@ -429,33 +429,31 @@ class TaskCat(object):
                 auto_bucket = auto_bucket[:self._max_bucket_name_length]
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
-                if self.get_default_region() == 'us-east-1':
-                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                       Bucket=auto_bucket)
-                else:
-                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                       Bucket=auto_bucket,
-                                                       CreateBucketConfiguration={
-                                                           'LocationConstraint': self.get_default_region()
-                                                       })
 
-                self.set_s3bucket_type('auto')
+                try:
+                    if self.get_default_region() == 'us-east-1':
+                        s3_client.create_bucket(ACL=bucket_or_object_acl,
+                                                           Bucket=auto_bucket)
+                    else:
+                        s3_client.create_bucket(ACL=bucket_or_object_acl,
+                                                           Bucket=auto_bucket,
+                                                           CreateBucketConfiguration={
+                                                               'LocationConstraint': self.get_default_region()
+                                                           })
+
+                    s3_client.get_waiter('bucket_exists').wait(Bucket=auto_bucket)
+
+                    self.set_s3bucket_type('auto')
+                    print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+                except Exception as e:
+                    print(PrintMsg.ERROR + "Bucket (%s) creation failed" % auto_bucket)
+                    if self.verbose:
+                        print(PrintMsg.DEBUG + str(e))
+                    raise
             else:
                 raise TaskCatException("Default_region = " + self.get_default_region())
 
-            if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
-                self.set_s3bucket(auto_bucket)
-            else:
-                print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
-                response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                   Bucket=auto_bucket,
-                                                   CreateBucketConfiguration={
-                                                       'LocationConstraint': self.get_default_region()})
-
-                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                    print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
-                    self.set_s3bucket(auto_bucket)
             if self.tags:
                 s3_client.put_bucket_tagging(
                     Bucket=auto_bucket,
