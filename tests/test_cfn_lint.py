@@ -14,7 +14,12 @@ class MockClientConfig(object):
     def __init__(self):
         self.region_name = "us-east-2"
 
+class MockClient(object):
+    def __init__(self):
+        self._client_config = MockClientConfig()
 
+    def get_caller_identity(self):
+        return {'Account':"0123456789"}
 
 test_two_path = str(
     Path(

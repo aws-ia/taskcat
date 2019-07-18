@@ -11,13 +11,8 @@ import cfnlint
 from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
-from taskcat._config_types import S3BucketConfig, Test
+from taskcat._config_types import S3BucketConfig, Test, AWSRegionObject
 from taskcat.exceptions import TaskCatException
-from taskcat.cfn.template import Template
-from taskcat.client_factory import ClientFactory
-from taskcat._config_types import Test, AWSRegionObject, S3BucketConfig
-from taskcat.common_utils import absolute_path
-from taskcat.common_utils import schema_validate as validate
 
 LOG = logging.getLogger(__name__)
 
@@ -298,7 +293,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             )
         if not test.regions:
             if self.regions:
-                test.regions = [AWSRegionObject(region.name) for region in self.regions]
+                test.regions = [AWSRegionObject(region) for region in self.regions]
             else:
                 test.regions = [AWSRegionObject(default_region)]
 

@@ -53,6 +53,7 @@ class ClientFactory:
         regional_cred_map = regional_cred_map if regional_cred_map else {}
         self._clients = {"default": {}}
         self._credential_sets = {}
+        self._credential_accounts = {}
         self._lock = Lock()
         self.put_credential_set(
             "default",
@@ -137,7 +138,6 @@ class ClientFactory:
             aws_session_token,
             profile_name,
         ]
-                '"profile_name" cannot be used with aws_access_key_id, aws_secret_access_key or aws_session_token')
         self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token,
                                                       profile_name]
         self._create_account_dict_entry(credential_set_name)
