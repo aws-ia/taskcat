@@ -99,6 +99,12 @@ jobs:
         protocol: https
       EOL
     - cat ~/.config/hub
+    - |
+      OPEN_PR = $(hub pr list -s open --base master --head "release/v${RELEASE_ID}" -L 1 -f "%I")
+      if [ ${OPEN_PR} ]; then
+        hub api -XPOST repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR}/comments -f body="Aggregating in release."
+        hub api -XPATCH repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR} -f state=closed
+      fi
     - hub pull-request  -m "Release taskcat [$NEW_VERSION]"  -h "release/v${RELEASE_ID}"
 
   - stage: "Create Development Builds"
