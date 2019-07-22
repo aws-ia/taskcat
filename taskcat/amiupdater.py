@@ -17,7 +17,14 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
-    pass
+    def __init__(self, message=None):
+        if message:
+            print("{} {}".format(PrintMsg.ERROR, message))
+
+class AMIUpdaterNoFiltersException(TaskCatException):
+    def __init__(self, message=None):
+        if message:
+            print("{} {}".format(PrintMsg.ERROR, message))
 
 class AMIUpdaterCommitNeededException(TaskCatException):
     pass
@@ -131,7 +138,7 @@ class Codenames:
         # Create a ThreadPool, size is the number of regions.
 
         if len(RegionalCodename.objects()) == 0:
-            raise AMIUpdaterFatalException("No AMI filters were found. Nothing to fetch from the EC2 API.")
+            raise AMIUpdaterNoFiltersException("No AMI filters were found. Nothing to fetch from the EC2 API.")
 
         pool = ThreadPool(len(TemplateClass.regions()))
         # For reach RegionalCodename that we've generated....
