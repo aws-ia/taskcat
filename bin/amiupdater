@@ -2,7 +2,7 @@
 import sys
 import os
 import argparse
-from taskcat.amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterCommitNeededException
+from taskcat.amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterCommitNeededException, AMIUpdaterNoFiltersException
 from taskcat.colored_console import PrintMsg
 
 def exit(code):
@@ -48,3 +48,5 @@ if __name__ == "__main__":
             exit(100)
         except AMIUpdaterFatalException:
             exit(1)
+        except AMIUpdaterNoFiltersException:
+            exit(0)

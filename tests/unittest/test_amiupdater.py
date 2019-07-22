@@ -1110,7 +1110,7 @@ class TestAMIUpdater(unittest.TestCase):
             "client_factory": cf
         }
         a = au(**amiupdater_args)
-        self.assertRaises(AMIUpdaterFatalException, a.update_amis)
+        self.assertRaises(AMIUpdaterNoFiltersException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
         from taskcat.amiupdater import APIResultsData
