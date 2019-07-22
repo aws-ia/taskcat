@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import unittest
 
 from taskcat._common_utils import param_list_to_dict
