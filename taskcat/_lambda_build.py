@@ -23,24 +23,26 @@ class LambdaBuild:
 
     def _recurse(self, base_path, rel_source, rel_zip):
         submodules_path = Path(base_path) / "submodules"
-        if submodules_path.is_dir():
-            for submodule in submodules_path.iterdir():
-                source_path = submodule / rel_source
-                output_path = submodule / rel_zip
-                if source_path.is_dir():
-                    self._build_lambdas(source_path, output_path)
-                self._recurse(submodule, rel_source, rel_zip)
+        if not submodules_path.is_dir():
+            return
+        for submodule in submodules_path.iterdir():
+            source_path = submodule / rel_source
+            if not source_path.is_dir():
+                continue
+            output_path = submodule / rel_zip
+            self._build_lambdas(source_path, output_path)
+            self._recurse(submodule, rel_source, rel_zip)
 
     def _build_lambdas(self, parent_path: Path, output_path):
-        if parent_path.is_dir:
-            for path in parent_path.iterdir():
-                if (path / "Dockerfile").is_file():
-                    tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
-                    LOG.info(
-                        f"Packaging lambda source from {path} using docker image {tag}"
-                    )
-                    self._docker_build(path, tag)
-                    self._docker_extract(tag, output_path / path.stem)
+        if not parent_path.is_dir:
+            return
+        for path in parent_path.iterdir():
+            if not (path / "Dockerfile").is_file():
+                continue
+            tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
+            LOG.info(f"Packaging lambda source from {path} using docker image {tag}")
+            self._docker_build(path, tag)
+            self._docker_extract(tag, output_path / path.stem)
 
     @staticmethod
     def _clean_build_log(line):
