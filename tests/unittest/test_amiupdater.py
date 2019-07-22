@@ -794,15 +794,17 @@ class MockEC2:
 
 class TestAMIUpdater(unittest.TestCase):
 
-    def _module_loader(self, return_module=False, commit_needed=False):
+    def _module_loader(self, return_module=False, commit_needed=False, no_filters=False):
         try:
             del sys.modules['taskcat.amiupdater']
         except KeyError:
             pass
-        from taskcat.amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterCommitNeededException
+        from taskcat.amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterCommitNeededException, AMIUpdaterNoFiltersException
         module_tuple = (AMIUpdater, AMIUpdaterFatalException)
         if commit_needed:
             module_tuple += (AMIUpdaterCommitNeededException,)
+        if no_filters:
+            module_tuple += (AMIUpdaterNoFiltersException,)
         if return_module:
             import taskcat.amiupdater
             module_tuple += (taskcat.amiupdater,)
@@ -1101,7 +1103,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertRaises(AMIUpdaterFatalException, a.update_amis)
 
     def test_no_filters_exception(self):
-        au, AMIUpdaterFatalException = self._module_loader()
+        au, _, AMIUpdaterNoFiltersException = self._module_loader(no_filters=True)
         cf = self.client_factory_handler()
         template_file = self.create_ephemeral_template()
         amiupdater_args = {
@@ -1110,7 +1112,7 @@ class TestAMIUpdater(unittest.TestCase):
             "client_factory": cf
         }
         a = au(**amiupdater_args)
-        self.assertRaises(AMIUpdaterFatalException, a.update_amis)
+        self.assertRaises(AMIUpdaterNoFiltersException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
         from taskcat.amiupdater import APIResultsData
