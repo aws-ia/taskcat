@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import fnmatch
 import hashlib
 import logging

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import logging
 from pathlib import Path
 from uuid import UUID, uuid5
