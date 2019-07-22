@@ -68,7 +68,7 @@ except Exception:
     _run_mode = 0
 
 version = __version__
-sig = base64.b64decode("dENhVA==").decode()
+sig = base64.b64decode("dGNhdA==").decode()
 jobid = str(uuid.uuid4())
 
 '''
@@ -429,33 +429,31 @@ class TaskCat(object):
                 auto_bucket = auto_bucket[:self._max_bucket_name_length]
             if self.get_default_region():
                 print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
-                if self.get_default_region() == 'us-east-1':
-                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                       Bucket=auto_bucket)
-                else:
-                    response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                       Bucket=auto_bucket,
-                                                       CreateBucketConfiguration={
-                                                           'LocationConstraint': self.get_default_region()
-                                                       })
 
-                self.set_s3bucket_type('auto')
+                try:
+                    if self.get_default_region() == 'us-east-1':
+                        s3_client.create_bucket(ACL=bucket_or_object_acl,
+                                                           Bucket=auto_bucket)
+                    else:
+                        s3_client.create_bucket(ACL=bucket_or_object_acl,
+                                                           Bucket=auto_bucket,
+                                                           CreateBucketConfiguration={
+                                                               'LocationConstraint': self.get_default_region()
+                                                           })
+
+                    s3_client.get_waiter('bucket_exists').wait(Bucket=auto_bucket)
+
+                    self.set_s3bucket_type('auto')
+                    print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
+                    self.set_s3bucket(auto_bucket)
+                except Exception as e:
+                    print(PrintMsg.ERROR + "Bucket (%s) creation failed" % auto_bucket)
+                    if self.verbose:
+                        print(PrintMsg.DEBUG + str(e))
+                    raise
             else:
                 raise TaskCatException("Default_region = " + self.get_default_region())
 
-            if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
-                self.set_s3bucket(auto_bucket)
-            else:
-                print('{0}Creating bucket {1} in {2}'.format(PrintMsg.INFO, auto_bucket, self.get_default_region()))
-                response = s3_client.create_bucket(ACL=bucket_or_object_acl,
-                                                   Bucket=auto_bucket,
-                                                   CreateBucketConfiguration={
-                                                       'LocationConstraint': self.get_default_region()})
-
-                if response['ResponseMetadata']['HTTPStatusCode'] is 200:
-                    print(PrintMsg.INFO + "Staging Bucket => [%s]" % auto_bucket)
-                    self.set_s3bucket(auto_bucket)
             if self.tags:
                 s3_client.put_bucket_tagging(
                     Bucket=auto_bucket,
@@ -1664,7 +1662,14 @@ class TaskCat(object):
     def checkforupdate(silent=False):
         update_needed = False
 
-        def _print_upgrade_msg(newversion):
+        def _print_upgrade_msg(newversion, nine=False):
+            if nine:
+                print("{} !!!!!".format(PrintMsg.INFO))
+                print("{} Breaking changes have been introduced to the taskcat CLI arguments in the v0.9.x branch.".format(PrintMsg.INFO))
+                print("{} Please review the migration document *BEFORE* upgrading to v0.9.x!".format(PrintMsg.INFO))
+                print("{} - https://github.com/aws-quickstart/taskcat/blob/master/README_v0.9_MIGRATION.md".format(PrintMsg.INFO))
+                print("{} !!!!!".format(PrintMsg.INFO))
+                print('\n')
             print("version %s" % version)
             print('\n')
             print("{} A newer version of {} is available ({})".format(
@@ -1676,16 +1681,19 @@ class TaskCat(object):
             print('\n')
 
         if _run_mode > 0:
+            nine=False
             if 'dev' not in version:
                 current_version = get_pip_version(
                     'https://pypi.org/pypi/taskcat/json')
                 if version not in current_version:
                     update_needed = True
+                if '0.9' in current_version:
+                    nine=True
             if not silent:
                 if not update_needed:
                     print("version %s" % version)
                 else:
-                    _print_upgrade_msg(current_version)
+                    _print_upgrade_msg(current_version, nine)
         else:
             print(PrintMsg.INFO + "Using local source (development mode) \n")
 
