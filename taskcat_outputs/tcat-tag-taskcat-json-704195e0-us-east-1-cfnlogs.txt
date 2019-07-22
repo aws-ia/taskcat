@@ -1,0 +1,27 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tcat-tag-taskcat-json-704195e0
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId               ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------------  ---------------------------
+2019-07-22 15:46:04.411000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack  tcat-tag-taskcat-json-704195e0
+2019-07-22 15:46:01.390000+00:00  CREATE_COMPLETE     Custom::GenerateID          GetID
+2019-07-22 15:46:00.791000+00:00  CREATE_IN_PROGRESS  Custom::GenerateID          GetID                           Resource creation Initiated
+2019-07-22 15:45:57.928000+00:00  CREATE_IN_PROGRESS  Custom::GenerateID          GetID
+2019-07-22 15:45:55.111000+00:00  CREATE_COMPLETE     AWS::Lambda::Function       GenID
+2019-07-22 15:45:54.839000+00:00  CREATE_IN_PROGRESS  AWS::Lambda::Function       GenID                           Resource creation Initiated
+2019-07-22 15:45:54.174000+00:00  CREATE_IN_PROGRESS  AWS::Lambda::Function       GenID
+2019-07-22 15:45:51.079000+00:00  CREATE_COMPLETE     AWS::IAM::Role              LambdaExecutionRole
+2019-07-22 15:45:35.522000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role              LambdaExecutionRole             Resource creation Initiated
+2019-07-22 15:45:34.946000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role              LambdaExecutionRole
+2019-07-22 15:45:30.524000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tcat-tag-taskcat-json-704195e0  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 22. July 2019 10:46AM
+-----------------------------------------------------------------------------
+

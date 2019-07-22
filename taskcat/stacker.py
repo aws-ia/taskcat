@@ -68,7 +68,7 @@ except Exception:
     _run_mode = 0
 
 version = __version__
-sig = base64.b64decode("dENhVA==").decode()
+sig = base64.b64decode("dGNhdA==").decode()
 jobid = str(uuid.uuid4())
 
 '''
