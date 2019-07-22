@@ -33,6 +33,9 @@
                 },
                 "parameters": {
                     "$ref": "schema_definitions.json#/definitions/parameters"
+                },
+                "build_submodules": {
+                    "type": "boolean"
                 }
             },
             "additionalProperties": false,

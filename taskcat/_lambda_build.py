@@ -12,14 +12,21 @@ LOG = logging.getLogger(__name__)
 class LambdaBuild:
     NULL_UUID = UUID("{00000000-0000-0000-0000-000000000000}")
 
-    def __init__(self, config: Config, build_submodules=True):
+    def __init__(self, config: Config):
         self._docker = docker.from_env()
         self._config = config
         self._build_lambdas(config.lambda_source_path, config.lambda_zip_path)
-        if build_submodules:
-            rel_source = config.lambda_source_path.relative_to(config.project_root)
-            rel_zip = config.lambda_zip_path.relative_to(config.project_root)
-            self._recurse(config.project_root, rel_source, rel_zip)
+        self._build_submodules()
+
+    def _build_submodules(self):
+        if not self._config.build_submodules:
+            return
+        lambda_source_path = self._config.lambda_source_path
+        project_root = self._config.project_root
+        lambda_zip_path = self._config.lambda_zip_path
+        rel_source = lambda_source_path.relative_to(project_root)
+        rel_zip = lambda_zip_path.relative_to(project_root)
+        self._recurse(project_root, rel_source, rel_zip)
 
     def _recurse(self, base_path, rel_source, rel_zip):
         submodules_path = Path(base_path) / "submodules"
