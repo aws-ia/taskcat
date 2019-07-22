@@ -34,7 +34,7 @@ class CommonTools:
         """
         stack_info = dict()
         region_re = re.compile('(?<=:)(.\w-.+(\w*)-\d)(?=:)')
-        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)')
+        stack_name_re = re.compile('(?<=:stack/)(tCaT.*.)(?=/)', re.IGNORECASE)
         stack_info['region'] = self.regxfind(region_re, self.stack_name)
         stack_info['stack_name'] = self.regxfind(stack_name_re, self.stack_name)
         return stack_info

@@ -1,0 +1,27 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tcat-tag-taskcat-yaml-55c08ae1
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId               ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------------  ---------------------------
+2019-07-22 15:43:41.432000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack  tcat-tag-taskcat-yaml-55c08ae1
+2019-07-22 15:43:39.230000+00:00  CREATE_COMPLETE     Custom::GenerateID          GetID
+2019-07-22 15:43:38.898000+00:00  CREATE_IN_PROGRESS  Custom::GenerateID          GetID                           Resource creation Initiated
+2019-07-22 15:43:36.171000+00:00  CREATE_IN_PROGRESS  Custom::GenerateID          GetID
+2019-07-22 15:43:33.885000+00:00  CREATE_COMPLETE     AWS::Lambda::Function       GenID
+2019-07-22 15:43:33.752000+00:00  CREATE_IN_PROGRESS  AWS::Lambda::Function       GenID                           Resource creation Initiated
+2019-07-22 15:43:33.327000+00:00  CREATE_IN_PROGRESS  AWS::Lambda::Function       GenID
+2019-07-22 15:43:30.093000+00:00  CREATE_COMPLETE     AWS::IAM::Role              LambdaExecutionRole
+2019-07-22 15:43:15.591000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role              LambdaExecutionRole             Resource creation Initiated
+2019-07-22 15:43:15.149000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role              LambdaExecutionRole
+2019-07-22 15:43:11.316000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tcat-tag-taskcat-yaml-55c08ae1  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 22. July 2019 10:43AM
+-----------------------------------------------------------------------------
+
