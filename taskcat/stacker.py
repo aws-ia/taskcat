@@ -1662,7 +1662,14 @@ class TaskCat(object):
     def checkforupdate(silent=False):
         update_needed = False
 
-        def _print_upgrade_msg(newversion):
+        def _print_upgrade_msg(newversion, nine=False):
+            if nine:
+                print("{} !!!!!".format(PrintMsg.INFO))
+                print("{} Breaking changes have been introduced to the taskcat CLI arguments in the v0.9.x branch.".format(PrintMsg.INFO))
+                print("{} Please review the migration document *BEFORE* upgrading to v0.9.x!".format(PrintMsg.INFO))
+                print("{} - https://github.com/aws-quickstart/taskcat/blob/master/README_v0.9_MIGRATION.md".format(PrintMsg.INFO))
+                print("{} !!!!!".format(PrintMsg.INFO))
+                print('\n')
             print("version %s" % version)
             print('\n')
             print("{} A newer version of {} is available ({})".format(
@@ -1674,16 +1681,19 @@ class TaskCat(object):
             print('\n')
 
         if _run_mode > 0:
+            nine=False
             if 'dev' not in version:
                 current_version = get_pip_version(
                     'https://pypi.org/pypi/taskcat/json')
                 if version not in current_version:
                     update_needed = True
+                if '0.9' in current_version:
+                    nine=True
             if not silent:
                 if not update_needed:
                     print("version %s" % version)
                 else:
-                    _print_upgrade_msg(current_version)
+                    _print_upgrade_msg(current_version, nine)
         else:
             print(PrintMsg.INFO + "Using local source (development mode) \n")
 
