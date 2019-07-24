@@ -1,7 +1,6 @@
 import logging
 import os
 import uuid
-from typing import Set, List, Dict
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
 
@@ -11,7 +10,7 @@ import cfnlint
 from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
-from taskcat._config_types import S3BucketConfig, Test, AWSRegionObject
+from taskcat._config_types import AWSRegionObject, S3BucketConfig, Test
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -41,13 +40,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self,
         args: Optional[dict] = None,
         global_config_path: str = "~/.taskcat.yml",
-        template_path: str = None,
         project_config_path: str = None,
         project_root: str = "./",
         override_file: str = None,
         all_env_vars: Optional[List[dict]] = None,
         client_factory=ClientFactory,
     ):  # #pylint: disable=too-many-arguments
+        # #pylint: disable=too-many-statements
         # inputs
         if absolute_path(project_config_path) and not Path(project_root).is_absolute():
             project_root = absolute_path(project_config_path).parent / project_root
@@ -80,7 +79,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: S3BucketConfig = S3BucketConfig()
+        self.s3_bucket: str = ""
         self.tests: Dict[str, Test] = {}
         self.regions: Set[str] = set()
         self.env_vars: Dict[str, str] = {}
@@ -133,62 +132,71 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             test.template = Template(
                 template_path=test.template_file,
                 project_root=self.project_root,
-                client_factory_instance=test.client_factory
+                client_factory_instance=test.client_factory,
             )
-
 
     def _assign_regional_factories(self):
         def set_appropriate_creds(test_name, region):
-            if hasattr(region.client, 'set') and region.client.set:
+            if hasattr(region.client, "set") and region.client.set:
                 return
             cred_key_list = [
-                    "default",
-                    region.name,
-                    test_name,
-                    f"{test_name}_{region.name}"]
+                "default",
+                region.name,
+                test_name,
+                f"{test_name}_{region.name}",
+            ]
             for cred_key in cred_key_list:
-                cf = self._client_factory_instance.return_credset_instance(cred_key)
-                if cf:
-                    region.client = cf
+                client_factory = self._client_factory_instance.return_credset_instance(
+                    cred_key
+                )
+                if client_factory:
+                    region.client = client_factory
                     region.client.set = True
-                    region.client.account = region.client.get_credential_accounts()['default']
+                    region.client.account = region.client.get_credential_accounts()[
+                        "default"
+                    ]
 
         for test_name, test_obj in self.tests.items():
             for region in test_obj.regions:
                 set_appropriate_creds(test_name, region)
 
+    @staticmethod
+    def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):
+        if account in bucket_dict.keys():
+            return bucket_dict[account]
+        if name in bucket_dict.keys():
+            return bucket_dict[name]
+        bucket_instance = S3BucketConfig(name=name, **kwargs)
+        if name:
+            bucket_dict[name] = bucket_instance
+        if account:
+            bucket_dict[account] = bucket_instance
+        return bucket_instance
+
     def _assign_account_buckets(self):
         bucket_dict = {}
-
-        def get_bucket_instance(name="", account=None,  **kwargs):
-            if account in bucket_dict.keys():
-                return bucket_dict[account]
-            if name in bucket_dict.keys():
-                return bucket_dict[name]
-            bucket_instance = S3BucketConfig(name=name, **kwargs)
-            if name:
-                bucket_dict[name] = bucket_instance
-            if account:
-                bucket_dict[account] = bucket_instance
-            return bucket_instance
 
         test_regions = set()
         for test in self.tests.values():
             for test_region in test.regions:
                 test_regions.add(test_region)
 
-        for tr in test_regions:
-            if tr.s3bucket:
+        for test_region in test_regions:
+            if test_region.s3bucket:
                 continue
             if self.s3_bucket:
-                tr.s3bucket = get_bucket_instance(self.s3_bucket,
-                       public = self.public_s3_bucket)
+                test_region.s3bucket = self._get_bucket_instance(
+                    bucket_dict, self.s3_bucket, public=self.public_s3_bucket
+                )
             else:
-                bn = self._generate_auto_bucket_name()
-                tr.s3bucket = get_bucket_instance(bn,
-                        account = tr.client.account,
-                        public = self.public_s3_bucket,
-                        auto=True)
+                bucket_name = self._generate_auto_bucket_name()
+                test_region.s3bucket = self._get_bucket_instance(
+                    bucket_dict,
+                    bucket_name,
+                    account=test_region.client.account,
+                    public=self.public_s3_bucket,
+                    auto=True,
+                )
 
     def _generate_auto_bucket_name(self):
         name_list = ["taskcat"]
@@ -210,12 +218,12 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _cred_merge(creds, regional):
-        if 'default' in regional:
-            creds = regional['default']
-            del regional['default']
-        if 'regional_cred_map' not in creds:
-            creds['regional_cred_map'] = {}
-        creds['regional_cred_map'].update(regional)
+        if "default" in regional:
+            creds = regional["default"]
+            del regional["default"]
+        if "regional_cred_map" not in creds:
+            creds["regional_cred_map"] = {}
+        creds["regional_cred_map"].update(regional)
         return creds
 
     def _build_boto_factories(self):
@@ -238,9 +246,16 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             if test.auth:
                 for cred_key in test.auth.keys():
                     clist = []
-                    for cred_param in ['aws_secret_key', 'aws_access_key', 'aws_session_token', 'profile_name']:
+                    for cred_param in [
+                        "aws_secret_key",
+                        "aws_access_key",
+                        "aws_session_token",
+                        "profile_name",
+                    ]:
                         clist.append(test.auth[cred_key].get(cred_param, None))
-                    self._client_factory_instance.put_credential_set(f"{test_name}_{cred_key}", *clist)
+                    self._client_factory_instance.put_credential_set(
+                        f"{test_name}_{cred_key}", *clist
+                    )
                 test_creds = self._cred_merge(test_creds, test.auth.copy())
             test.client_factory = get_instance(test_creds)
             self._propagate_regions(test)

@@ -138,10 +138,13 @@ class ClientFactory:
             aws_session_token,
             profile_name,
         ]
-        self._credential_sets[credential_set_name] = [aws_access_key_id, aws_secret_access_key, aws_session_token,
-                                                      profile_name]
+        self._credential_sets[credential_set_name] = [
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_session_token,
+            profile_name,
+        ]
         self._create_account_dict_entry(credential_set_name)
-
 
     # TODO: reduce complexity in method
     def get(  # noqa: C901
@@ -221,7 +224,7 @@ class ClientFactory:
             )
             client = self._clients[credential_set][region][service][s3v4]
 
-        setattr(client, 'clientfactory_credset_name', credential_set)
+        client.clientfactory_credset_name = credential_set
         return client
 
     def _create_session(
@@ -373,20 +376,22 @@ class ClientFactory:
         Args:
             None
         Returns:
-            dict: [credential_set (str) ] -> account_number (str) for each credential set.
+            dict: [credential_set (str) ] account_number (str) for each credential set.
         """
         return self._credential_accounts
 
-
     def _create_account_dict_entry(self, credential_set_name):
         try:
-            foo = self._credential_accounts[credential_set_name]
+            _ = self._credential_accounts[credential_set_name]
         except KeyError:
-            sts_client = self.get('sts', credential_set=credential_set_name)
+            sts_client = self.get("sts", credential_set=credential_set_name)
             try:
-                account_number = sts_client.get_caller_identity()['Account']
+                account_number = sts_client.get_caller_identity()["Account"]
             except botocore.exceptions.ClientError as e:
-                raise TaskCatException(f"Unable to proceed. An error occured while running sts.GetCallerIdentity: f{e}")
+                raise TaskCatException(
+                    f"Unable to proceed. An error occured while running"
+                    + f"sts.GetCallerIdentity: f{e}"
+                )
             self._credential_accounts[credential_set_name] = account_number
 
     def return_credset_instance(self, credential_set_name):
@@ -398,10 +403,11 @@ class ClientFactory:
         Args:
             credential_set_name (str): credential set name to return.
         Returns:
-            ClientFactory: instance of ClientFactory using creds from the Credential Set Name
+            ClientFactory: instance of ClientFactory using
+                creds from the Credential Set Name
             or None
         """
-        if credential_set_name == 'default':
+        if credential_set_name == "default":
             return self
 
         if credential_set_name in self._credential_sets.keys():

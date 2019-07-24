@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# flake8: noqa
+# pylint: skip-file
 # authors:
 # Tony Vattathil tonynv@amazon.com, avattathil@gmail.com
 # Santiago Cardenas <sancard@amazon.com>, <santiago[dot]cardenas[at]outlook[dot]com>
@@ -10,24 +12,26 @@
 """
 
 from __future__ import print_function
-import taskcat
-import yaml
+
+import argparse
+import logging
 import os
+import signal
 import sys
 import traceback
-import argparse
+from argparse import RawTextHelpFormatter
+
 import pyfiglet
 import requests
-import logging
-import signal
-from argparse import RawTextHelpFormatter
+import yaml
 from pkg_resources import get_distribution
-from taskcat.common_utils import exit0, exit1
-from taskcat.lambda_build import LambdaBuild
-from taskcat.cfn_lint import Lint
-from taskcat.logger import init_taskcat_cli_logger, PrintMsg
-from taskcat.exceptions import TaskCatException
 
+import taskcat
+from taskcat.cfn_lint import Lint
+from taskcat.common_utils import exit0, exit1
+from taskcat.exceptions import TaskCatException
+from taskcat.lambda_build import LambdaBuild
+from taskcat.logger import PrintMsg, init_taskcat_cli_logger
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +41,7 @@ def main():
     log = init_taskcat_cli_logger(loglevel=args.verbosity)
     signal.signal(signal.SIGINT, sigint_handler)
     try:
-        welcome('taskcat')
+        welcome("taskcat")
         tcat_instance = taskcat.TaskCat(args)
         # Get configuration from command line arg (-c)
         tcat_instance.set_config(args.config_yml)
@@ -51,21 +55,26 @@ def main():
             test_list = tcat_instance.validate_yaml(args.config_yml)
 
             # Load yaml into local taskcat config
-            with open(tcat_instance.get_config(), 'r') as cfg:
+            with open(tcat_instance.get_config(), "r") as cfg:
                 taskcat_cfg = yaml.safe_load(cfg.read())
-            project_path = os.path.abspath(args.config_yml).rsplit('ci/', 1)[0][:-1]
+            project_path = os.path.abspath(args.config_yml).rsplit("ci/", 1)[0][:-1]
             tcat_instance.set_config(args.config_yml)
-            tcat_cfg_glbl = taskcat_cfg['global']
-            project_name = ''
-            if 'qsname' in tcat_cfg_glbl.keys():
-                project_name = tcat_cfg_glbl['qsname']
-            elif 'project' in tcat_cfg_glbl.keys():
-                project_name = tcat_cfg_glbl['project']
-            if "package-lambda" not in taskcat_cfg['global']:
-                taskcat_cfg['global']["package-lambda"] = False
-            if tcat_instance.lambda_build_only and not taskcat_cfg['global']["package-lambda"]:
-                exit1("Lambda build not enabled for project. Add package-lambda: true to taskcat.yaml global section")
-            elif taskcat_cfg['global']["package-lambda"]:
+            tcat_cfg_glbl = taskcat_cfg["global"]
+            project_name = ""
+            if "qsname" in tcat_cfg_glbl.keys():
+                project_name = tcat_cfg_glbl["qsname"]
+            elif "project" in tcat_cfg_glbl.keys():
+                project_name = tcat_cfg_glbl["project"]
+            if "package-lambda" not in taskcat_cfg["global"]:
+                taskcat_cfg["global"]["package-lambda"] = False
+            if (
+                tcat_instance.lambda_build_only
+                and not taskcat_cfg["global"]["package-lambda"]
+            ):
+                exit1(
+                    "Lambda build not enabled for project. Add package-lambda: true to taskcat.yaml global section"
+                )
+            elif taskcat_cfg["global"]["package-lambda"]:
                 try:
                     lambda_path = "{}/functions/source".format(project_path)
                     if os.path.isdir(lambda_path):
@@ -75,7 +84,9 @@ def main():
                 if tcat_instance.lambda_build_only:
                     exit0("Lambda source zipped successfully")
             try:
-                Lint(config=tcat_instance.get_config(), path=project_path).output_results()
+                Lint(
+                    config=tcat_instance.get_config(), path=project_path
+                ).output_results()
             except taskcat.exceptions.TaskCatException as e:
                 log.error(str(e))
                 exit1(str(e))
@@ -90,9 +101,11 @@ def main():
             tcat_instance.validate_template(taskcat_cfg, test_list)
             tcat_instance.validate_parameters(taskcat_cfg, test_list)
             # instance.stackcreate returns testdata object
-            testdata = tcat_instance.stackcreate(taskcat_cfg, test_list, args.stack_prefix)
+            testdata = tcat_instance.stackcreate(
+                taskcat_cfg, test_list, args.stack_prefix
+            )
             tcat_instance.get_stackstatus(testdata, 5)
-            tcat_instance.createreport(testdata, 'index.html')
+            tcat_instance.createreport(testdata, "index.html")
             tcat_instance.cleanup(testdata, 5)
             if tcat_instance.one_or_more_tests_failed:
                 exit1("One or more tests failed. See the report for details.")
@@ -112,96 +125,89 @@ def _parse_args():
         Multi-Region CloudFormation Test Deployment Tool)
         For more info see: http://taskcat.io
     """,
-        prog='taskcat',
-        prefix_chars='-',
-        formatter_class=RawTextHelpFormatter)
+        prog="taskcat",
+        prefix_chars="-",
+        formatter_class=RawTextHelpFormatter,
+    )
     parser.add_argument(
-        '-c',
-        '--config_yml',
+        "-c",
+        "--config_yml",
         type=str,
         help=" (Config File Required!) \n "
-             "example here: https://raw.githubusercontent.com/aws-quickstart/"
-             "taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml"
+        "example here: https://raw.githubusercontent.com/aws-quickstart/"
+        "taskcat/master/examples/sample-taskcat-project/ci/taskcat.yml",
     )
     parser.add_argument(
-        '-P',
-        '--boto_profile',
-        type=str,
-        help="Authenticate using boto profile")
+        "-P", "--boto_profile", type=str, help="Authenticate using boto profile"
+    )
+    parser.add_argument("-A", "--aws_access_key", type=str, help="AWS Access Key")
+    parser.add_argument("-S", "--aws_secret_key", type=str, help="AWS Secret Key")
     parser.add_argument(
-        '-A',
-        '--aws_access_key',
-        type=str,
-        help="AWS Access Key")
-    parser.add_argument(
-        '-S',
-        '--aws_secret_key',
-        type=str,
-        help="AWS Secret Key")
-    parser.add_argument(
-        '-n',
-        '--no_cleanup',
-        action='store_true',
-        help="Sets cleanup to false (Does not teardown stacks)")
-    parser.add_argument(
-        '-N',
-        '--no_cleanup_failed',
-        action='store_true',
-        help="Sets cleaup to false if the stack launch fails (Does not teardown stacks if it experiences a failure)"
+        "-n",
+        "--no_cleanup",
+        action="store_true",
+        help="Sets cleanup to false (Does not teardown stacks)",
     )
     parser.add_argument(
-        '-p',
-        '--public_s3_bucket',
-        action='store_true',
-        help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)")
+        "-N",
+        "--no_cleanup_failed",
+        action="store_true",
+        help="Sets cleaup to false if the stack launch fails (Does not teardown stacks if it experiences a failure)",
+    )
     parser.add_argument(
-        '-v',
-        '--verbosity',
+        "-p",
+        "--public_s3_bucket",
+        action="store_true",
+        help="Sets public_s3_bucket to True. (Accesses objects via public HTTP, not S3 API calls)",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbosity",
         type=str,
         default="warn",
-        help="Sets output verbosity to appropriate level, valid values are debug, info, warning, error")
-    parser.add_argument(
-        '-t',
-        '--tag',
-        action=AppendTag,
-        help="add tag to cloudformation stack, must be in the format TagKey=TagValue, multiple -t can be specified")
-    parser.add_argument(
-        '-s',
-        '--stack-prefix',
-        type=str,
-        default="tag",
-        help="set prefix for cloudformation stack name. only accepts lowercase letters, numbers and '-'")
-    parser.add_argument(
-        '-l',
-        '--lint',
-        action='store_true',
-        help="lint the templates and exit")
-    parser.add_argument(
-        '-V',
-        '--version',
-        action='store_true',
-        help="Prints Version")
-    parser.add_argument(
-        '-u',
-        '--upload-only',
-        action='store_true',
-        help="Sync local files with s3 and exit")
-    parser.add_argument(
-        '-b',
-        '--lambda-build-only',
-        action='store_true',
-        help="create lambda zips and exit")
-    parser.add_argument(
-        '-e',
-        '--exclude',
-        action='append',
-        help="Exclude directories or files from s3 sync\n"
-             "Example: --exclude foo --exclude bar --exclude *.txt"
+        help="Sets output verbosity to appropriate level, valid values are debug, info, warning, error",
     )
     parser.add_argument(
-        '--enable-sig-v2',
-        action='store_true',
-        help="Allow sigv2 requests to auto generated buckets")
+        "-t",
+        "--tag",
+        action=AppendTag,
+        help="add tag to cloudformation stack, must be in the format TagKey=TagValue, multiple -t can be specified",
+    )
+    parser.add_argument(
+        "-s",
+        "--stack-prefix",
+        type=str,
+        default="tag",
+        help="set prefix for cloudformation stack name. only accepts lowercase letters, numbers and '-'",
+    )
+    parser.add_argument(
+        "-l", "--lint", action="store_true", help="lint the templates and exit"
+    )
+    parser.add_argument("-V", "--version", action="store_true", help="Prints Version")
+    parser.add_argument(
+        "-u",
+        "--upload-only",
+        action="store_true",
+        help="Sync local files with s3 and exit",
+    )
+    parser.add_argument(
+        "-b",
+        "--lambda-build-only",
+        action="store_true",
+        help="create lambda zips and exit",
+    )
+    parser.add_argument(
+        "-e",
+        "--exclude",
+        action="append",
+        help="Exclude directories or files from s3 sync\n"
+        "Example: --exclude foo --exclude bar --exclude *.txt",
+    )
+    parser.add_argument(
+        "--enable-sig-v2",
+        action="store_true",
+        help="Allow sigv2 requests to auto generated buckets",
+    )
 
     args = parser.parse_args()
 
@@ -217,8 +223,10 @@ def _parse_args():
     if args.boto_profile is not None:
         if args.aws_access_key is not None or args.aws_secret_key is not None:
             print(parser.print_help())
-            raise TaskCatException("Cannot use boto profile -P (--boto_profile) with --aws_access_key or --aws_secret_"
-                                   "key")
+            raise TaskCatException(
+                "Cannot use boto profile -P (--boto_profile) with --aws_access_key or --aws_secret_"
+                "key"
+            )
 
     if not args.config_yml:
         parser.error("-c (--config_yml) not passed (Config File Required!)")
@@ -229,50 +237,58 @@ def _parse_args():
         if args.no_cleanup:
             parser.error("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
             print(parser.print_help())
-            raise TaskCatException("Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)")
+            raise TaskCatException(
+                "Cannot use -n (--no_cleanup) with -N (--no_cleanup_failed)"
+            )
 
     return args
 
 
 class AppendTag(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        if len(values.split('=')) != 2:
+        if len(values.split("=")) != 2:
             raise TaskCatException("tags must be in the format TagKey=TagValue")
-        n, v = values.split('=')
+        n, v = values.split("=")
         try:
-            getattr(namespace, 'tags')
+            getattr(namespace, "tags")
         except AttributeError:
-            setattr(namespace, 'tags', [])
+            setattr(namespace, "tags", [])
         namespace.tags.append({"Key": n, "Value": v})
 
 
 def checkforupdate():
-
     def _print_upgrade_msg(newversion):
         log.info("version %s\n" % version, extra={"nametag": ""})
-        log.warning("A newer version of {} is available ({})".format('taskcat', newversion))
-        log.info('To upgrade pip version    {}[ pip install --upgrade taskcat]{}'.format(
-                    PrintMsg.highlight, PrintMsg.rst_color))
-        log.info('To upgrade docker version {}[ docker pull taskcat/taskcat ]{}\n'.format(
-                    PrintMsg.highlight, PrintMsg.rst_color))
+        log.warning(
+            "A newer version of {} is available ({})".format("taskcat", newversion)
+        )
+        log.info(
+            "To upgrade pip version    {}[ pip install --upgrade taskcat]{}".format(
+                PrintMsg.highlight, PrintMsg.rst_color
+            )
+        )
+        log.info(
+            "To upgrade docker version {}[ docker pull taskcat/taskcat ]{}\n".format(
+                PrintMsg.highlight, PrintMsg.rst_color
+            )
+        )
 
     version = get_installed_version()
     if version != "[local source] no pip module installed":
-        if 'dev' not in version:
-            current_version = get_pip_version(
-                'https://pypi.org/pypi/taskcat/json')
+        if "dev" not in version:
+            current_version = get_pip_version("https://pypi.org/pypi/taskcat/json")
             if version in current_version:
-                log.info("version %s" % version, extra={"nametag": ''})
+                log.info("version %s" % version, extra={"nametag": ""})
             else:
                 _print_upgrade_msg(current_version)
     else:
         log.info("Using local source (development mode)\n")
 
 
-def welcome(prog_name='taskcat'):
-    banner = pyfiglet.Figlet(font='standard')
+def welcome(prog_name="taskcat"):
+    banner = pyfiglet.Figlet(font="standard")
     banner = banner
-    log.info("{0}".format(banner.renderText(prog_name), '\n'), extra={"nametag": ""})
+    log.info("{0}".format(banner.renderText(prog_name), "\n"), extra={"nametag": ""})
     # noinspection PyBroadException
     try:
         checkforupdate()
@@ -294,7 +310,7 @@ def get_pip_version(url):
 def get_installed_version():
     # noinspection PyBroadException
     try:
-        return get_distribution('taskcat').version.replace('.0', '.')
+        return get_distribution("taskcat").version.replace(".0", ".")
     except Exception:
         return "[local source] no pip module installed"
 

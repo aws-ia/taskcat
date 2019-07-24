@@ -24,6 +24,7 @@ class MockClientConfig(object):
     def __init__(self):
         self.region_name = "us-east-2"
 
+
 class MockBotoClient(object):
     def __init__(self):
         self.session = MockBotoSession()
@@ -70,14 +71,14 @@ class MockClient(object):
         self._client_config = MockClientConfig()
 
     def get_caller_identity(self):
-        return {'Account':"0123456789"}
+        return {"Account": "0123456789"}
 
 
 def client_factory_instance():
     with mock.patch.object(ClientFactory, "__init__", return_value=None):
         aws_clients = ClientFactory(None)
     aws_clients._credential_sets = {"default": [None, None, None, None]}
-    aws_clients._credential_sets = {'default': [None, None, None, None]}
+    aws_clients._credential_sets = {"default": [None, None, None, None]}
     aws_clients._credential_accounts = {}
     aws_clients.logger = logging.getLogger()
     aws_clients._clients = {"default": {}}
@@ -97,7 +98,10 @@ class TestClientFactory(unittest.TestCase):
             msg = "lock should be an instance of Lock"
             self.assertEqual(type(Lock()), type(aws_clients._lock), msg)
 
-    @mock.patch("taskcat._client_factory.ClientFactory._create_client", mock.MagicMock(return_value=MockClient()))
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory._create_client",
+        mock.MagicMock(return_value=MockClient()),
+    )
     def test_put_credential_set(self):
         aws_clients = client_factory_instance()
 
@@ -145,8 +149,15 @@ class TestClientFactory(unittest.TestCase):
             "should set test credentials with key, secret and token in _credential_sets"
         )
         aws_clients._credential_sets = {}
-        aws_clients.put_credential_set("test", aws_access_key_id="test", aws_secret_access_key="test", aws_session_token="test")
-        self.assertEqual({'test': ["test", "test", "test", None]}, aws_clients._credential_sets, msg)
+        aws_clients.put_credential_set(
+            "test",
+            aws_access_key_id="test",
+            aws_secret_access_key="test",
+            aws_session_token="test",
+        )
+        self.assertEqual(
+            {"test": ["test", "test", "test", None]}, aws_clients._credential_sets, msg
+        )
 
         msg = "should set test credentials with profile in _credential_sets"
         aws_clients._credential_sets = {}
@@ -405,7 +416,6 @@ class TestClientFactory(unittest.TestCase):
         "taskcat._client_factory.ClientFactory._create_session",
         mock.MagicMock(return_value=MockBotoSessionClass()),
     )
-
     def test_regional_cred_map(self):
         aws_clients = ClientFactory(
             regional_cred_map={"ap-east-1": {"profile_name": "blah"}}

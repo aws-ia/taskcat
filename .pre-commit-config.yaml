@@ -73,10 +73,10 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-  - id: pytest-local
-    name: pytest-local
-    description: Run pytest in the local virtualenv
-    entry: pytest --cov="taskcat" --doctest-modules --ignore "tests/data" "tests/"
-    language: system
-    pass_filenames: false
-    always_run: true
+#  - id: pytest-local
+#    name: pytest-local
+#    description: Run pytest in the local virtualenv
+#    entry: pytest --cov="taskcat" --doctest-modules --zRnore "tests/data" "tests/"
+#    language: system
+#    pass_filenames: false
+#    always_run: true

@@ -4,22 +4,25 @@ import os
 import unittest
 from pathlib import Path
 
-import yaml
 import mock
+import yaml
 
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
 
+
 class MockClientConfig(object):
     def __init__(self):
         self.region_name = "us-east-2"
+
 
 class MockClient(object):
     def __init__(self):
         self._client_config = MockClientConfig()
 
     def get_caller_identity(self):
-        return {'Account':"0123456789"}
+        return {"Account": "0123456789"}
+
 
 test_two_path = str(
     Path(

@@ -40,10 +40,13 @@
             "uniqueItems": true,
             "items": {
                 "oneOf": [
-                     {
+                    {
                         "type": "string",
                         "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
-                     }, { "$ref" : "schema_definitions.json#/definitions/region" }
+                    },
+                    {
+                        "$ref": "schema_definitions.json#/definitions/region"
+                    }
                 ]
             }
         },
@@ -51,7 +54,9 @@
             "$id": "#tests",
             "type": "object",
             "patternProperties": {
-                "^[a-z_\\d-]*$": { "$ref": "#/definitions/test" }
+                "^[a-z_\\d-]*$": {
+                    "$ref": "#/definitions/test"
+                }
             },
             "additionalProperties": false
         },

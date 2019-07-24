@@ -5,10 +5,10 @@ from typing import Dict, Optional, Union
 import yaml
 from jsonschema import exceptions
 
+# from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat.exceptions import TaskCatException
-from taskcat._cfn.template import Template
 
 LOG = logging.getLogger(__name__)
 
@@ -112,9 +112,13 @@ class Test:
 
 class S3BucketConfig:
     def __init__(self, public: bool = False, auto: bool = False, name=""):
-         self.region = None
-         self.name = name
-         self.account = None
+        self.region = None
+        self.name = name
+        self.account = None
+        self.client = None
+        self.public = public
+        self.auto = auto
+
 
 class AWSRegionObject:
     def __init__(self, region_name: str):
