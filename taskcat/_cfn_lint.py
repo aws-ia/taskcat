@@ -26,11 +26,12 @@ class Lint:
 
     @staticmethod
     def _filter_unsupported_regions(regions):
+        region_list = [region.name for region in regions]
         lint_regions = set(cfnlint.core.REGIONS)
-        if set(regions).issubset(lint_regions):
-            return regions
-        supported = set(regions).intersection(lint_regions)
-        unsupported = set(regions).difference(lint_regions)
+        if set(region_list).issubset(lint_regions):
+            return region_list
+        supported = set(region_list).intersection(lint_regions)
+        unsupported = set(region_list).difference(lint_regions)
         LOG.error(
             "The following regions are not supported by cfn-python-lint and will "
             "not be linted %s",
