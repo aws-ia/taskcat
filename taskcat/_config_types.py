@@ -111,13 +111,14 @@ class Test:
 
 
 class S3BucketConfig:
-    def __init__(self, public: bool = False, auto: bool = False, name=""):
+    def __init__(self, public: bool = False, auto: bool = False, name="", client=None):
         self.region = None
         self.name = name
         self.account = None
-        self.client = None
+        self.client = client
         self.public = public
         self.auto = auto
+        self.max_name_len = 63
 
 
 class AWSRegionObject:

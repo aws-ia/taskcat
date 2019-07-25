@@ -64,7 +64,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.aws_secret_key: str = ""
         self.no_cleanup: bool = False
         self.no_cleanup_failed: bool = False
-        self.public_s3_bucket: bool = False
         self.verbosity: str = "DEBUG"
         self.tags: dict = {}
         self.stack_prefix: str = ""
@@ -79,7 +78,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: str = ""
+        self.s3_bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[str, Test] = {}
         self.regions: Set[str] = set()
         self.env_vars: Dict[str, str] = {}
@@ -184,9 +183,12 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         for test_region in test_regions:
             if test_region.s3bucket:
                 continue
-            if self.s3_bucket:
+            if self.s3_bucket.name:
                 test_region.s3bucket = self._get_bucket_instance(
-                    bucket_dict, self.s3_bucket, public=self.public_s3_bucket
+                    bucket_dict,
+                    self.s3_bucket.name,
+                    public=self.s3_bucket.public,
+                    client=test_region.client,
                 )
             else:
                 bucket_name = self._generate_auto_bucket_name()
@@ -194,8 +196,9 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                     bucket_dict,
                     bucket_name,
                     account=test_region.client.account,
-                    public=self.public_s3_bucket,
+                    public=self.s3_bucket.public,
                     auto=True,
+                    client=test_region.client,
                 )
 
     def _generate_auto_bucket_name(self):
