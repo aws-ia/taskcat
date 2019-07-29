@@ -36,7 +36,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         "./ci/taskcat.yml",
     ]
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-statements
         self,
         args: Optional[dict] = None,
         global_config_path: str = "~/.taskcat.yml",
@@ -84,7 +84,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.env_vars: Dict[str, str] = {}
         self.project_config_path: Optional[Path] = None
         self.template_path: Optional[Path] = None
-
+        self.lambda_source_path: Path = (
+            Path(self.project_root) / "functions/source/"
+        ).resolve()
+        self.lambda_zip_path: Path = (
+            Path(self.project_root) / "functions/packages/"
+        ).resolve()
+        self.build_submodules = True
         self._harvest_env_vars(all_env_vars if all_env_vars else os.environ.items())
         self._process_global_config()
 
