@@ -46,6 +46,7 @@ class ClientFactory:
         self._clients = {"default": {}}
         self._credential_sets = {}
         self._credential_accounts = {}
+        self._credential_instances = {}
         self._lock = Lock()
         self.put_credential_set(
             "default",
@@ -136,7 +137,6 @@ class ClientFactory:
             aws_session_token,
             profile_name,
         ]
-        self._create_account_dict_entry(credential_set_name)
 
     # TODO: reduce complexity in method
     def get(  # noqa: C901
@@ -362,30 +362,6 @@ class ClientFactory:
 
         return self._clients[credential_set][region]["session"]
 
-    def get_credential_accounts(self):
-        """ Fetches account numbers for *all* credential sets stored.
-
-        Args:
-            None
-        Returns:
-            dict: [credential_set (str) ] account_number (str) for each credential set.
-        """
-        return self._credential_accounts
-
-    def _create_account_dict_entry(self, credential_set_name):
-        try:
-            _ = self._credential_accounts[credential_set_name]
-        except KeyError:
-            sts_client = self.get("sts", credential_set=credential_set_name)
-            try:
-                account_number = sts_client.get_caller_identity()["Account"]
-            except botocore.exceptions.ClientError as e:
-                raise TaskCatException(
-                    f"Unable to proceed. An error occured while running"
-                    + f"sts.GetCallerIdentity: f{e}"
-                )
-            self._credential_accounts[credential_set_name] = account_number
-
     def return_credset_instance(self, credential_set_name):
         """
         Returns a ClientFactory instance, given a credential_set_name.
@@ -401,9 +377,12 @@ class ClientFactory:
         """
         if credential_set_name == "default":
             return self
-
+        cached_instance = self._credential_instances.get(credential_set_name, None)
+        if cached_instance:
+            return cached_instance
         if credential_set_name in self._credential_sets.keys():
             cf_creds = self._credential_sets[credential_set_name]
             cf_instance = ClientFactory(*cf_creds)
+            self._credential_instances[credential_set_name] = cf_instance
             return cf_instance
         return None

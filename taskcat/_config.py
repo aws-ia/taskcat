@@ -146,8 +146,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 return
             cred_key_list = [
                 "default",
+                f"{test_name}_default",
                 region.name,
-                test_name,
                 f"{test_name}_{region.name}",
             ]
             for cred_key in cred_key_list:
@@ -157,9 +157,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 if client_factory:
                     region.client = client_factory
                     region.client.set = True
-                    region.client.account = region.client.get_credential_accounts()[
-                        "default"
-                    ]
+                    sts_client = region.client.get("sts")
+                    try:
+                        account = sts_client.get_caller_identity()["Account"]
+                    except Exception:
+                        raise TaskCatException(
+                            f"Unable to fetch the account number in region {region}."
+                        )
+                    region.client.account = account
 
         for test_name, test_obj in self.tests.items():
             for region in test_obj.regions:
@@ -228,11 +233,12 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
     @staticmethod
     def _cred_merge(creds, regional):
         if "default" in regional:
-            creds = regional["default"]
+            creds["profile_name"] = regional["default"]
             del regional["default"]
         if "regional_cred_map" not in creds:
             creds["regional_cred_map"] = {}
-        creds["regional_cred_map"].update(regional)
+        for region, profile_name in regional.items():
+            creds["regional_cred_map"][region] = {"profile_name": profile_name}
         return creds
 
     def _build_boto_factories(self):
@@ -250,21 +256,20 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self._client_factory_instance = get_instance(default_creds)
 
         for test_name, test in self.tests.items():
+            test_regions = [region.name for region in test.regions]
             test_creds = default_creds.copy()
-            test_creds["regional_cred_map"] = default_creds["regional_cred_map"].copy()
             if test.auth:
-                for cred_key in test.auth.keys():
-                    clist = []
-                    for cred_param in [
-                        "aws_secret_key",
-                        "aws_access_key",
-                        "aws_session_token",
-                        "profile_name",
-                    ]:
-                        clist.append(test.auth[cred_key].get(cred_param, None))
+                for cred_key, cred_profile in test.auth.items():
+                    if cred_key != "default" and cred_key not in test_regions:
+                        LOG.WARN(
+                            f"Not applying regional-based creds for \
+                            f{cred_key}, as it is not being tested in test:\
+                            {test_name}"
+                        )
                     self._client_factory_instance.put_credential_set(
-                        f"{test_name}_{cred_key}", *clist
+                        f"{test_name}_{cred_key}", profile_name=cred_profile
                     )
+
                 test_creds = self._cred_merge(test_creds, test.auth.copy())
             test.client_factory = get_instance(test_creds)
             self._propagate_regions(test)
