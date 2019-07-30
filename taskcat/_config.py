@@ -141,34 +141,34 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             )
 
     def _assign_regional_factories(self):
-        def set_appropriate_creds(test_name, region):
-            if hasattr(region.client, "set") and region.client.set:
-                return
-            cred_key_list = [
-                "default",
-                f"{test_name}_default",
-                region.name,
-                f"{test_name}_{region.name}",
-            ]
-            for cred_key in cred_key_list:
-                client_factory = self._client_factory_instance.return_credset_instance(
-                    cred_key
-                )
-                if client_factory:
-                    region.client = client_factory
-                    region.client.set = True
-                    sts_client = region.client.get("sts")
-                    try:
-                        account = sts_client.get_caller_identity()["Account"]
-                    except Exception:
-                        raise TaskCatException(
-                            f"Unable to fetch the account number in region {region}."
-                        )
-                    region.client.account = account
-
         for test_name, test_obj in self.tests.items():
             for region in test_obj.regions:
-                set_appropriate_creds(test_name, region)
+                self._set_appropriate_creds(test_name, region)
+
+    def _set_appropriate_creds(self, test_name, region):
+        if hasattr(region.client, "set") and region.client.set:
+            return
+        cred_key_list = [
+            "default",
+            f"{test_name}_default",
+            region.name,
+            f"{test_name}_{region.name}",
+        ]
+        for cred_key in cred_key_list:
+            client_factory = self._client_factory_instance.return_credset_instance(
+                cred_key
+            )
+            if client_factory:
+                region.client = client_factory
+                region.client.set = True
+                sts_client = region.client.get("sts")
+                try:
+                    account = sts_client.get_caller_identity()["Account"]
+                except Exception:
+                    raise TaskCatException(
+                        f"Unable to fetch the account number in region {region}."
+                    )
+                region.client.account = account
 
     @staticmethod
     def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):
