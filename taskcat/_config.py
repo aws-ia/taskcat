@@ -45,6 +45,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         override_file: str = None,
         all_env_vars: Optional[List[dict]] = None,
         client_factory=ClientFactory,
+        create_clients: bool = True,
     ):  # #pylint: disable=too-many-arguments
         # #pylint: disable=too-many-statements
         # inputs
@@ -118,11 +119,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         # build client_factory_instances
         self._build_boto_factories()
 
-        # Assign regional and test-specific client-factories
-        self._assign_regional_factories()
+        # Used where full Regional/S3Bucket properties are needd.
+        # - ie: 'test' subcommand, etc.
+        if create_clients:
+            # Assign regional and test-specific client-factories
+            self._assign_regional_factories()
 
-        # Assign account-based buckets.
-        self._assign_account_buckets()
+            # Assign account-based buckets.
+            self._assign_account_buckets()
 
         # build and attach template objects
         self._get_templates()
