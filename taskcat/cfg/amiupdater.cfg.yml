@@ -33,10 +33,12 @@ global:
     CENTOS7:
       name: CentOS Linux 7 x86_64 HVM EBS*
       owner-alias: aws-marketplace
+      product-code: aw0evgkw8e5c1q413zgy5pjce
       product-code.type: marketplace
     CENTOS7HVM:
       name: CentOS Linux 7 x86_64 HVM EBS*
       owner-alias: aws-marketplace
+      product-code: aw0evgkw8e5c1q413zgy5pjce
       product-code.type: marketplace
     RHEL66HVM:
       name: RHEL-6.6_HVM_GA-????????-x86_64-?-Hourly2-GP2
