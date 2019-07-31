@@ -6,13 +6,8 @@
 #  Create development builds (Triggered by commit to develop branch)
 #  - Builds pypi package to https://test.pypi.org/project/taskcat/
 #  - Tags development builds
+#
 dist: xenial
-addons:
-  apt:
-    sources:
-    - sourceline: 'ppa:cpick/hub'
-    packages:
-    - hub
 language: python
 
 branches:
@@ -69,7 +64,12 @@ jobs:
 
   - stage: "Pull Request to Release → Master"
     name: "generate pull request"
-    if: branch =~ /(release.*)/ AND type = push 
+    if: branch =~ /(release.*)/ AND type = push
+    before_install:
+    - |
+      HUB_DIST=linux-amd64
+      HUB_VERSION=$(curl -w "%{url_effective}\n" -I -L -s -S github.com/github/hub/releases/latest -o /dev/null | awk -F'releases/tag/v' '{ print $2 }')
+      curl "https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-${HUB_DIST}-${HUB_VERSION}.tgz" -L | tar xvz && sudo ./hub-${HUB_DIST}-${HUB_VERSION}/install && rm -r ./hub-${HUB_DIST}-${HUB_VERSION}
     script:
     - export RELEASE_ID=$(grep version setup.py  | awk -F= '{print $2}' | cut -f1-2 -d.|tr -d "'|\""| tr -d "," |xargs)
     - export NEW_VERSION="$(cat setup.py |grep version | awk -F"=|," '{print $2}' |sed -e s/\'//g |sed -e 's/ //g')"
@@ -99,6 +99,12 @@ jobs:
         protocol: https
       EOL
     - cat ~/.config/hub
+    - |
+      OPEN_PR=$(hub pr list -s open --base master --head "release/v${RELEASE_ID}" -L 1 -f "%I")
+      if [ ${OPEN_PR} ]; then
+        hub api -XPOST repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR}/comments -f body="Aggregating in release." >/dev/null
+        hub api -XPATCH repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR} -f state=closed >/dev/null
+      fi
     - hub pull-request  -m "Release taskcat [$NEW_VERSION]"  -h "release/v${RELEASE_ID}"
 
   - stage: "Create Development Builds"
@@ -112,7 +118,7 @@ jobs:
     - git config --global push.followTags true
     script:
     - |
-      if [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
+      if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
         echo "Creating new development ${RELEASE_ID}"
         git checkout $TRAVIS_BRANCH
         export COMMIT_MSG="$(git log -1 --pretty=%B| xargs)"
@@ -148,7 +154,7 @@ jobs:
     - git config --global user.name "Travis CI"
     - git config --global push.followTags true
     - git fetch --all
-    if: branch = master AND type = push
+    if: branch = master AND type = push AND fork = false
     before_deploy:
     - python setup.py clean --all
     script:
