@@ -18,9 +18,6 @@ class MockClient(object):
     def __init__(self):
         self._client_config = MockClientConfig()
 
-    def get_caller_identity(self):
-        return {"Account": "0123456789"}
-
 
 test_two_path = str(
     Path(
@@ -152,7 +149,9 @@ class TestCfnLint(unittest.TestCase):
                 with open(config_path, "w") as f:
                     f.write(yaml.safe_dump(test_case["config"]))
                 config = Config(
-                    project_config_path=str(config_path), project_root="../"
+                    project_config_path=str(config_path),
+                    project_root="../",
+                    create_clients=False,
                 )
                 lint = Lint(config=config)
                 self.assertEqual(

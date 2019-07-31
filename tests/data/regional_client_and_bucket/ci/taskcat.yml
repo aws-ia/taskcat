@@ -23,7 +23,7 @@ project:
 tests:
   json-test:
     parameter_input: debug-input.json
-    template_file: debug-json.template
+    template_file: debug-yaml.template
     auth:
       eu-central-1: special-use-case
   yaml-test:

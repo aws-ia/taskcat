@@ -24,6 +24,5 @@ coverage.xml
 /.pytest_cache/
 /.mypy_cache/
 taskcat_outputs/
-foo.py
 # Doc Site
 site/

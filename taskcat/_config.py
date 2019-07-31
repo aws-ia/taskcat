@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
 
 import yaml
+from botocore.exceptions import ClientError
 
 import cfnlint
 from taskcat._cfn.template import Template
@@ -164,17 +165,20 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             client_factory = self._client_factory_instance.return_credset_instance(
                 cred_key
             )
-            if client_factory:
-                region.client = client_factory
-                region.client.set = True
-                sts_client = region.client.get("sts")
-                try:
-                    account = sts_client.get_caller_identity()["Account"]
-                except Exception:
+            if not client_factory:
+                continue
+            region.client = client_factory
+            region.client.set = True
+            sts_client = region.client.get("sts")
+            try:
+                account = sts_client.get_caller_identity()["Account"]
+            except ClientError as e:
+                if e.response["Error"]["Code"] == "AccessDenied":
                     raise TaskCatException(
-                        f"Unable to fetch the account number in region {region}."
+                        f"Not able to fetch account number from {region}. {str(e)}"
                     )
-                region.client.account = account
+                raise
+            region.client.account = account
 
     @staticmethod
     def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):
@@ -268,10 +272,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             if test.auth:
                 for cred_key, cred_profile in test.auth.items():
                     if cred_key != "default" and cred_key not in test_regions:
-                        LOG.WARN(
-                            f"Not applying regional-based creds for \
-                            f{cred_key}, as it is not being tested in test:\
-                            {test_name}"
+                        LOG.warning(
+                            f"{test_name} doesn't use creds: {cred_key}. Skipping"
                         )
                     self._client_factory_instance.put_credential_set(
                         f"{test_name}_{cred_key}", profile_name=cred_profile
