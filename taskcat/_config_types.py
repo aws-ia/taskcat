@@ -5,7 +5,6 @@ from typing import Dict, Optional, Union
 import yaml
 from jsonschema import exceptions
 
-# from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat.exceptions import TaskCatException
@@ -111,21 +110,17 @@ class Test:
 
 
 class S3BucketConfig:
-    def __init__(self, public: bool = False, auto: bool = False, name="", client=None):
-        self.region = None
-        self.name = name
-        self.account = None
-        self.client = client
-        self.public = public
-        self.auto = auto
-        self.max_name_len = 63
+    def __init__(self):
+        self.name = ""
+        self.public = False
 
 
 class AWSRegionObject:
     def __init__(self, region_name: str):
-        self.name = region_name
-        self.client = None
+        self.name: str = region_name
+        self.client: Optional[ClientFactory] = None
         self.s3bucket = None
+        # self.s3bucket: Optional[Union[S3BucketConfig, S3BucketCreator]] = None
 
     def __repr__(self):
         return f"<AWSRegionObject(region_name={self.name}) object at {hex(id(self))}>"

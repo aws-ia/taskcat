@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import uuid
@@ -11,6 +12,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat._config_types import AWSRegionObject, S3BucketConfig, Test
+from taskcat._s3_stage import S3APIResponse, S3BucketCreatorException
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -79,7 +81,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: S3BucketConfig = S3BucketConfig()
+        self.s3bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[str, Test] = {}
         self.regions: Set[str] = set()
         self.env_vars: Dict[str, str] = {}
@@ -180,7 +182,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             return bucket_dict[account]
         if name in bucket_dict.keys():
             return bucket_dict[name]
-        bucket_instance = S3BucketConfig(name=name, **kwargs)
+        bucket_instance = S3Bucket(name=name, **kwargs)
         if name:
             bucket_dict[name] = bucket_instance
         if account:
@@ -198,20 +200,21 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         for test_region in test_regions:
             if test_region.s3bucket:
                 continue
-            if self.s3_bucket.name:
+            if self.s3bucket.name:
                 test_region.s3bucket = self._get_bucket_instance(
                     bucket_dict,
-                    self.s3_bucket.name,
-                    public=self.s3_bucket.public,
+                    config=self,
+                    name=self.s3bucket.name,
                     client=test_region.client,
                 )
             else:
                 bucket_name = self._generate_auto_bucket_name()
                 test_region.s3bucket = self._get_bucket_instance(
                     bucket_dict,
-                    bucket_name,
+                    config=self,
+                    name=bucket_name,
+                    region=test_region.name,
                     account=test_region.client.account,
-                    public=self.s3_bucket.public,
                     auto=True,
                     client=test_region.client,
                 )
@@ -482,3 +485,134 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 elif value.lower() in ["true", "false"]:
                     value = value.lower() == "true"
                 self.env_vars[key] = value
+
+
+class S3Bucket:
+    # #pylint: disable=too-many-instance-attributes
+
+    def __init__(
+        self,
+        config: Config,
+        client: ClientFactory,
+        name: str = "",
+        region: str = "us-east-1",
+        auto: bool = True,
+        account: str = "",
+    ):
+        self.name: str = name
+        self.public: bool = config.s3bucket.public
+        self.tags: list = []
+        self.region: str = region
+        self.sigv4: bool = True
+        self._auto: bool = auto
+        self._config: Config = config
+        self._client = client
+        self._acl = ""
+        self._policy: Optional[str] = None
+        self._created: bool = False
+        self._max_name_len = 63
+        self.s3_session = self._client.get("s3", region=self.region)
+        # Account
+        self.account = account
+        # Client
+        self._determine_bucket_attributes()
+
+    def _determine_bucket_attributes(self):
+        self.sigv4 = not self._config.enable_sig_v2
+        self.tags = self._config.tags
+        self.public = self._config.s3bucket.public
+        if not self.auto:
+            self._assert_bucket_exists(self.name)
+            self._created = True
+
+    @property
+    def acl(self):
+        return self._acl
+
+    @property
+    def policy(self):
+        return self._policy
+
+    @property
+    def client(self):
+        return self._client
+
+    @property
+    def auto(self):
+        return self._auto
+
+    @property
+    def sigv4_policy(self):
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Test",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Action": "s3:*",
+                    "Resource": f"arn:aws:s3:::{self.name}/*",
+                    "Condition": {"StringEquals": {"s3:signatureversion": "AWS"}},
+                }
+            ],
+        }
+        return json.dumps(policy)
+
+    def _create_in_region(self):
+        if self.region == "us-east-1":
+            response = self.s3_session.create_bucket(ACL=self.acl, Bucket=self.name)
+        else:
+            response = self.s3_session.create_bucket(
+                ACL=self.acl,
+                Bucket=self.name,
+                CreateBucketConfiguration={"LocationConstraint": self.region},
+            )
+
+        return S3APIResponse(response)
+
+    def _create_bucket(self, bucket_name):
+        _create_resp = self._create_in_region()
+        if _create_resp.ok:
+            LOG.info(f"Staging Bucket: [{bucket_name}]")
+
+        if self.tags:
+            LOG.info(f"Propagating tags to this bucket.")
+            self.s3_session.put_bucket_tagging(
+                Bucket=bucket_name, Tagging={"TagSet": self.tags}
+            )
+
+        if self.sigv4:
+            LOG.info(f"Enforcing SigV4 requests for bucket ${bucket_name}")
+            self.s3_session.put_bucket_policy(
+                Bucket=self.name, Policy=self.sigv4_policy
+            )
+
+    def _assert_bucket_exists(self, name):
+
+        # Verify bucket exists.
+        try:
+            _ = self.s3_session.list_objects(Bucket=name)
+        except self.s3_session.exceptions.NoSuchBucket:
+            raise TaskCatException(
+                f"The bucket you provided ({name}) does " f"not exist. Exiting."
+            )
+        return True
+
+    def create(self):
+        if self._created:
+            return
+
+        # Verify bucket name length
+        if len(self.name) > self._config.s3_bucket.max_name_len:
+            raise S3BucketCreatorException(
+                f"The bucket name you provided [{self._config.s3_bucket.name}] \
+                is greater than {self._config.s3_bucket.max_name_len} characters."
+            )
+
+        LOG.info(f"Creating bucket in {self.region} for account {self.account}")
+        self._create_bucket(self.name)
+        self._created = True
+
+    # TODO Add delete().
+    def delete(self):
+        pass
