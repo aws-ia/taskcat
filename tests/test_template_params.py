@@ -21,25 +21,8 @@ def client_factory_instance():
     return aws_clients
 
 
-class MockClientFactory:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-
-    def get(self, service, region, **xxrgs):
-        if service == "s3":
-            return MockS3(**self.kwargs)
-        else:
-            return MockEC2(**self.kwargs)
-
-
-class MockS3:
-    def get_object(self, Key, **kwargs):
-        objresp = {"Body": BytesIO("unicorns".encode("utf-8"))}
-        return objresp
-
-
-class MockEC2:
-    def __init__(self, **kwargs):
+class MockSingleAZClient:
+    def __init__(self, *args, **kwargs):
         self.describe_az_output = {
             "AvailabilityZones": [
                 {
@@ -80,16 +63,75 @@ class MockEC2:
                 },
             ]
         }
-        for k, v in kwargs.items():
-            if k == "ec2_single_az" and v:
-                self.describe_az_output["AvailabilityZones"] = [
-                    self.describe_az_output["AvailabilityZones"][0]
-                ]
-        pass
+        self.describe_az_output["AvailabilityZones"] = [
+            self.describe_az_output["AvailabilityZones"][0]
+        ]
 
     def describe_availability_zones(self, Filters):
         outp = self.describe_az_output
         return outp
+
+    def get_caller_identity(self):
+        return {"Account": "0123456789"}
+
+    def get_object(self, Key, **kwargs):
+        objresp = {"Body": BytesIO("unicorns".encode("utf-8"))}
+        return objresp
+
+
+class MockClient:
+    def __init__(self, *args, **kwargs):
+        self.describe_az_output = {
+            "AvailabilityZones": [
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1a",
+                },
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1b",
+                },
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1c",
+                },
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1d",
+                },
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1e",
+                },
+                {
+                    "State": "available",
+                    "Messages": [],
+                    "RegionName": "us-east-1",
+                    "ZoneName": "us-east-1f",
+                },
+            ]
+        }
+
+    def describe_availability_zones(self, Filters):
+        outp = self.describe_az_output
+        return outp
+
+    def get_caller_identity(self):
+        return {"Account": "0123456789"}
+
+    def get_object(self, Key, **kwargs):
+        objresp = {"Body": BytesIO("unicorns".encode("utf-8"))}
+        return objresp
 
 
 class TestParamGen(unittest.TestCase):
@@ -200,7 +242,7 @@ class TestParamGen(unittest.TestCase):
 
     def test_get_available_azs(self):
         pg = ParamGen(**self.class_kwargs)
-        pg._boto_client = MockClientFactory()
+        pg._boto_client = MockClient
         returned_azs = pg.get_available_azs(2)
         returned_az_list = returned_azs.split(",")
         test_criteria = [
@@ -214,13 +256,13 @@ class TestParamGen(unittest.TestCase):
 
     def test_genaz_raises_taskcat_exception(self):
         pg = ParamGen(**self.class_kwargs)
-        pg._boto_client = MockClientFactory(ec2_single_az=True)
+        pg._boto_client = MockSingleAZClient
         with self.assertRaises(TaskCatException):
             pg.get_available_azs(2)
 
     def test_get_content(self):
         pg = ParamGen(**self.class_kwargs)
-        pg._boto_client = MockClientFactory()
+        pg._boto_client = MockClient
         self.assertEqual(
             pg.get_content(bucket="unit-test-bucket", object_key="unit-test-key"),
             "unicorns",
@@ -340,7 +382,7 @@ class TestParamGen(unittest.TestCase):
             {"ParameterKey": "LocalOverrideTest", "ParameterValue": "override"},
             {"ParameterKey": "GlobalOverrideTest", "ParameterValue": "override"},
         ]
-        bclient = MockClientFactory()
+        bclient = MockClient
         bclient.logger = logger
         class_kwargs = self.class_kwargs
         class_kwargs["param_list"] = input_params

@@ -47,7 +47,11 @@ def stage_in_s3(config):
 
     for bucket in bucket_set:
         S3Sync(
-            bucket.s3_session, bucket.name, config.name, config.project_root, bucket.acl
+            bucket.client("s3"),
+            bucket.name,
+            config.name,
+            config.project_root,
+            bucket.acl,
         )
 
 

@@ -116,11 +116,32 @@ class S3BucketConfig:
 
 
 class AWSRegionObject:
-    def __init__(self, region_name: str):
+    def __init__(self, region_name: str, client_factory: ClientFactory):
         self.name: str = region_name
-        self.client: Optional[ClientFactory] = None
         self.s3bucket = None
-        # self.s3bucket: Optional[Union[S3BucketConfig, S3BucketCreator]] = None
+        self.account: Optional[str] = None
+        self._cf: ClientFactory = client_factory
+        self._credset_name: Optional[str] = None
+        self._credset_modify = True
+
+    @property
+    def credset_name(self) -> Optional[str]:
+        return self._credset_name
+
+    @credset_name.setter
+    def credset_name(self, value: str) -> None:
+        if not self._credset_modify:
+            return
+        self._credset_name = value
+
+    def disable_credset_modification(self):
+        self._credset_modify = False
+
+    def client(self, service):
+        service_session = self._cf.create_client(
+            credset_name=self.credset_name, region=self.name, service=service
+        )
+        return service_session
 
     def __repr__(self):
         return f"<AWSRegionObject(region_name={self.name}) object at {hex(id(self))}>"

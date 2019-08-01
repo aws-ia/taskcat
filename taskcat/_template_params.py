@@ -109,7 +109,7 @@ class ParamGen:
         :return: List of availability zones in a given region
 
         """
-        ec2_client = self._boto_client.get("ec2", region=self.region)
+        ec2_client = self._boto_client("ec2")
         available_azs = []
         availability_zones = ec2_client.describe_availability_zones(
             Filters=[{"Name": "state", "Values": ["available"]}]
@@ -156,7 +156,7 @@ class ParamGen:
         :return: Content of the object
 
         """
-        s3_client = self._boto_client.get("s3", region=self.region, s3v4=True)
+        s3_client = self._boto_client("s3", s3v4=True)
         try:
             dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
         except TaskCatException:
@@ -341,9 +341,7 @@ class ParamGen:
                     url_bucket, url_key, url_expire_seconds
                 )
             )
-            s3_client = self._boto_client.get(
-                "s3", region=self._boto_client.get_default_region(), s3v4=True
-            )
+            s3_client = self._boto_client("s3", s3v4=True)
             param_value = s3_client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": url_bucket, "Key": url_key},

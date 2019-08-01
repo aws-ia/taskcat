@@ -17,15 +17,15 @@ project:
     - us-west-2
     - sa-east-1
   auth:
-    us-east-1: prod
-    sa-east-1: south-america-prod
-    us-east-2: staging
+#    us-east-1: prod
+#    sa-east-1: south-america-prod
+#    us-east-2: staging
 tests:
-  json-test:
-    parameter_input: debug-input.json
-    template_file: debug-yaml.template
-    auth:
-      eu-central-1: special-use-case
+#  json-test:
+#    parameter_input: debug-input.json
+#    template_file: debug-yaml.template
+#    auth:
+#      eu-central-1: special-use-case
   yaml-test:
     auth:
       default: foobar

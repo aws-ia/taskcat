@@ -36,6 +36,7 @@ class MockBotoClient(object):
 
 class MockBotoSession(object):
     def __init__(self):
+
         pass
 
 
@@ -91,7 +92,7 @@ class TestClientFactory(unittest.TestCase):
             self.assertEqual(type(Lock()), type(aws_clients._lock), msg)
 
     @mock.patch(
-        "taskcat._client_factory.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory.create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     def test_put_credential_set(self):
@@ -170,7 +171,7 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(expected, aws_clients._credential_sets, msg)
 
     @mock.patch(
-        "taskcat._client_factory.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory.create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     @mock.patch(
@@ -188,7 +189,7 @@ class TestClientFactory(unittest.TestCase):
         aws_clients.get("test_service", profile="test", credential_set="nonexistant")
         self.assertIn("nonexistant", aws_clients._clients.keys(), msg)
 
-        ClientFactory._create_client.reset_mock()
+        ClientFactory.create_client.reset_mock()
         msg = "should raise KeyError if credential set provided does not exist"
         exception_message = "'credential set nonexistant does not exist'"
         with self.assertRaises(KeyError) as e:
@@ -238,17 +239,17 @@ class TestClientFactory(unittest.TestCase):
             msg,
         )
 
-        ClientFactory._create_client.assert_called_once()
+        ClientFactory.create_client.assert_called_once()
 
         # should return a new client instance if credentials for an existing session
         # ave changed
-        ClientFactory._create_client.reset_mock()
+        ClientFactory.create_client.reset_mock()
         aws_clients.get("test_service", key="test")
-        ClientFactory._create_client.assert_called_once()
+        ClientFactory.create_client.assert_called_once()
 
         # should use cached client if one exists
         aws_clients.get("test_service")
-        ClientFactory._create_client.assert_called_once()
+        ClientFactory.create_client.assert_called_once()
 
     def test__create_session(self):
         aws_clients = client_factory_instance()
@@ -312,21 +313,21 @@ class TestClientFactory(unittest.TestCase):
             self.assertEqual(6, boto3.session.Session.call_count, msg)
 
     @mock.patch("botocore.client.Config", mock.MagicMock(return_value=None))
-    def test__create_client(self):
+    def test_create_client(self):
         aws_clients = client_factory_instance()
         aws_clients._clients["default"] = {
             "us-east-1": {"session": MockBotoSessionClass()}
         }
 
         msg = "should return a boto3 client"
-        client = aws_clients._create_client(
+        client = aws_clients.create_client(
             "default", "us-east-1", "test_service", False, delay=1, backoff_factor=1
         )
         self.assertEqual(MockClient, type(client), msg)
 
         msg = "should create a sig v4 client"
         botocore.client.Config.reset_mock()
-        client = aws_clients._create_client(
+        client = aws_clients.create_client(
             "default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1
         )
         botocore.client.Config.assert_called_once_with(signature_version="s3v4")
@@ -336,7 +337,7 @@ class TestClientFactory(unittest.TestCase):
         botocore.client.Config.reset_mock()
         botocore.client.Config.side_effect = KeyError("test_failure")
         with self.assertRaises(KeyError):
-            aws_clients._create_client(
+            aws_clients.create_client(
                 "default",
                 "us-east-1",
                 "test_service",
@@ -352,7 +353,7 @@ class TestClientFactory(unittest.TestCase):
             KeyError("test_failure"),
             MockBotoSession(),
         ]
-        client = aws_clients._create_client(
+        client = aws_clients.create_client(
             "default", "us-east-1", "test_service", "s3v4", delay=1, backoff_factor=1
         )
         self.assertEqual(2, botocore.client.Config.call_count, msg)
@@ -401,7 +402,7 @@ class TestClientFactory(unittest.TestCase):
         self.assertEqual(ue2_session, s, msg)
 
     @mock.patch(
-        "taskcat._client_factory.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory.create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     @mock.patch(
@@ -419,9 +420,9 @@ class TestClientFactory(unittest.TestCase):
             aws_clients._credential_sets["default"], [None, None, None, None]
         )
 
-        ClientFactory._create_client.reset_mock()
+        ClientFactory.create_client.reset_mock()
         aws_clients.get("test_service", region="ap-east-1")
-        ClientFactory._create_client.assert_called_once_with(
+        ClientFactory.create_client.assert_called_once_with(
             "ap-east-1", "ap-east-1", "test_service", "default_sig_version"
         )
 

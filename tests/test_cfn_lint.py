@@ -125,7 +125,7 @@ def flatten_rule(lints):
 
 class TestCfnLint(unittest.TestCase):
     @mock.patch(
-        "taskcat._client_factory.ClientFactory._create_client",
+        "taskcat._client_factory.ClientFactory.create_client",
         mock.MagicMock(return_value=MockClient()),
     )
     def test_lint(self):
