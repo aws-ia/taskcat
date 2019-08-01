@@ -138,8 +138,8 @@ class AWSRegionObject:
         self._credset_modify = False
 
     def client(self, service):
-        service_session = self._cf.create_client(
-            credset_name=self.credset_name, region=self.name, service=service
+        service_session = self._cf.get(
+            credential_set=self.credset_name, region=self.name, service=service
         )
         return service_session
 

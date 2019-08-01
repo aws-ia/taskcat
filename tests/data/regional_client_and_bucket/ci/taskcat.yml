@@ -17,9 +17,9 @@ project:
     - us-west-2
     - sa-east-1
   auth:
-#    us-east-1: prod
-#    sa-east-1: south-america-prod
-#    us-east-2: staging
+    us-east-1: prod
+    sa-east-1: south-america-prod
+    us-east-2: staging
 tests:
 #  json-test:
 #    parameter_input: debug-input.json

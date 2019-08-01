@@ -156,7 +156,7 @@ class ParamGen:
         :return: Content of the object
 
         """
-        s3_client = self._boto_client("s3", s3v4=True)
+        s3_client = self._boto_client("s3")
         try:
             dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
         except TaskCatException:
@@ -341,7 +341,7 @@ class ParamGen:
                     url_bucket, url_key, url_expire_seconds
                 )
             )
-            s3_client = self._boto_client("s3", s3v4=True)
+            s3_client = self._boto_client("s3")
             param_value = s3_client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": url_bucket, "Key": url_key},
