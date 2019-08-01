@@ -3,13 +3,18 @@ import os
 import random
 import re
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from threading import Timer
+from typing import Callable, List, Optional, Tuple
 from uuid import UUID, uuid4
 
+import boto3
+
 from taskcat._cfn.template import Template
-from taskcat._client_factory import ClientFactory
+from taskcat._common_utils import pascal_to_snake, s3_url_maker
+from taskcat._config import S3Bucket
+from taskcat._config_types import AWSRegionObject
 
 GENERIC_ERROR_PATTERNS = [
     r"(The following resource\(s\) failed to create: )",
@@ -17,30 +22,38 @@ GENERIC_ERROR_PATTERNS = [
 ]
 
 
+def criteria_matches(criteria: dict, instance):
+    # fail if criteria includes an invalid property
+    for k in criteria:
+        if k not in instance.__dict__:
+            raise ValueError(f"{k} is not a valid property of {instance}")
+    for k, v in criteria.items():
+        # matching is AND for multiple criteria, so as soon as one fails,
+        # it's not a match
+        if getattr(instance, k) != v:
+            return False
+    return True
+
+
 class StackStatus:
-    CREATE_IN_PROGRESS = ["CREATE_IN_PROGRESS"]
-    CREATE_COMPLETE = ["CREATE_COMPLETE"]
-    CREATE_FAILED = [
+    COMPLETE = ["CREATE_COMPLETE", "UPDATE_COMPLETE", "DELETE_COMPLETE"]
+    IN_PROGRESS = [
+        "CREATE_IN_PROGRESS",
+        "DELETE_IN_PROGRESS",
+        "UPDATE_IN_PROGRESS",
+        "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
+    ]
+    FAILED = [
+        "DELETE_FAILED",
         "CREATE_FAILED",
         "ROLLBACK_IN_PROGRESS",
         "ROLLBACK_FAILED",
         "ROLLBACK_COMPLETE",
-    ]
-    UPDATE_COMPLETE = ["UPDATE_COMPLETE"]
-    UPDATE_IN_PROGRESS = ["UPDATE_IN_PROGRESS", "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS"]
-    UPDATE_FAILED = [
         "UPDATE_ROLLBACK_IN_PROGRESS",
         "UPDATE_ROLLBACK_FAILED",
         "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
         "UPDATE_ROLLBACK_COMPLETE",
     ]
-    DELETE_IN_PROGRESS = ["DELETE_IN_PROGRESS"]
-    DELETE_COMPLETE = ["DELETE_COMPLETE"]
-    DELETE_FAILED = ["DELETE_FAILED"]
-
-    IN_PROGRESS = CREATE_IN_PROGRESS + UPDATE_IN_PROGRESS + DELETE_IN_PROGRESS
-    COMPLETE = CREATE_COMPLETE + UPDATE_COMPLETE + DELETE_COMPLETE
-    FAILED = CREATE_FAILED + UPDATE_FAILED + DELETE_FAILED
 
 
 class Capabilities:
@@ -50,59 +63,73 @@ class Capabilities:
     ALL = [IAM, NAMED_IAM, AUTO_EXPAND]
 
 
-class Event:  # pylint: disable=too-many-instance-attributes
-    def __init__(
-        self, raw_event: dict, test_name: str = "", uuid: Optional[UUID] = None
-    ):
-        self.stack_id: str = raw_event["StackId"]
-        self.test_name: str = test_name
-        self.uuid: UUID = uuid if uuid else uuid4()
-        self.event_id: str = raw_event["EventId"]
-        self.stack_name: str = raw_event["StackName"]
-        self.logical_id: str = raw_event["LogicalResourceId"]
-        self.type: str = raw_event["ResourceType"]
-        self.status: str = raw_event["ResourceStatus"]
-        self.physical_id: str = raw_event.get("PhysicalResourceId", "")
-        self.timestamp: datetime = raw_event.get("Timestamp", datetime.fromtimestamp(0))
-        self.status_reason: str = raw_event.get("ResourceStatusReason", "")
-        self.properties: dict = json.loads(raw_event.get("ResourceProperties", "{}"))
+class Event:
+    def __init__(self, event_dict: dict):
+        self.event_id: str = event_dict["EventId"]
+        self.stack_name: str = event_dict["StackName"]
+        self.logical_id: str = event_dict["LogicalResourceId"]
+        self.type: str = event_dict["ResourceType"]
+        self.status: str = event_dict["ResourceStatus"]
+        self.physical_id: str = ""
+        self.timestamp: datetime = datetime.fromtimestamp(0)
+        self.status_reason: str = ""
+        self.properties: dict = {}
+        if "PhysicalResourceId" in event_dict.keys():
+            self.physical_id = event_dict["PhysicalResourceId"]
+        if "Timestamp" in event_dict.keys():
+            self.timestamp = event_dict["Timestamp"]
+        if "ResourceStatusReason" in event_dict.keys():
+            self.status_reason = event_dict["ResourceStatusReason"]
+        if "ResourceProperties" in event_dict.keys():
+            self.properties = json.loads(event_dict["ResourceProperties"])
 
     def __str__(self):
-        return f"{self.timestamp} {self.logical_id} {self.status}"
+        return "{} {} {}".format(self.timestamp, self.logical_id, self.status)
 
     def __repr__(self):
-        return f"<Event object {self.event_id} at {hex(id(self))}>"
+        return "<Event object {} at {}>".format(self.event_id, hex(id(self)))
 
 
 class Resource:
     def __init__(
-        self,
-        stack_id: str,
-        raw_resource: dict,
-        test_name: str = "",
-        uuid: Optional[UUID] = None,
+        self, stack_id: str, resource_dict: dict, test_name: str = "", uuid: UUID = None
     ):
+        uuid = uuid if uuid else uuid4()
         self.stack_id: str = stack_id
         self.test_name: str = test_name
-        self.uuid: UUID = uuid if uuid else uuid4()
-        self.logical_id: str = raw_resource["LogicalResourceId"]
-        self.type: str = raw_resource["ResourceType"]
-        self.status: str = raw_resource["ResourceStatus"]
-        self.physical_id: str = raw_resource.get("PhysicalResourceId", "")
-        self.last_updated_timestamp: datetime = raw_resource.get(
-            "LastUpdatedTimestamp", datetime.fromtimestamp(0)
-        )
+        self.uuid: UUID = uuid
+        self.logical_id: str = resource_dict["LogicalResourceId"]
+        self.type: str = resource_dict["ResourceType"]
+        self.status: str = resource_dict["ResourceStatus"]
+        self.physical_id: str = ""
+        self.last_updated_timestamp: datetime = datetime.fromtimestamp(0)
+        self.status_reason: str = ""
+        if "PhysicalResourceId" in resource_dict.keys():
+            self.physical_id = resource_dict["PhysicalResourceId"]
+        if "LastUpdatedTimestamp" in resource_dict.keys():
+            self.last_updated_timestamp = resource_dict["LastUpdatedTimestamp"]
+        if "ResourceStatusReason" in resource_dict.keys():
+            self.status_reason = resource_dict["ResourceStatusReason"]
 
     def __str__(self):
-        return f"<Resource {self.logical_id} {self.status}>"
+        return "<Resource {} {}>".format(self.logical_id, self.status)
 
 
 class Parameter:
-    def __init__(self, raw_param: dict):
-        self.key: str = raw_param["ParameterKey"]
-        self.value: str = raw_param.get("ParameterValue", "")
-        self.use_previous_value: bool = raw_param.get("UsePreviousValue", False)
-        self.resolved_value: str = raw_param.get("ResolvedValue", "")
+    def __init__(self, param_dict: dict):
+        self.key: str = param_dict["ParameterKey"]
+        self.value: str = ""
+        self.raw_value: str = ""
+        self.use_previous_value: bool = False
+        self.resolved_value: str = ""
+        if "ParameterValue" in param_dict.keys():
+            self.value = param_dict["ParameterValue"]
+        if "UsePreviousValue" in param_dict.keys():
+            self.use_previous_value = param_dict["UsePreviousValue"]
+        if "ResolvedValue" in param_dict.keys():
+            self.resolved_value = param_dict["ResolvedValue"]
+        if self.value and not self.raw_value:
+            self.raw_value = self.value
 
     def dump(self):
         param_dict = {"ParameterKey": self.key}
@@ -114,11 +141,15 @@ class Parameter:
 
 
 class Output:
-    def __init__(self, raw_output: dict):
-        self.key: str = raw_output["OutputKey"]
-        self.value: str = raw_output["OutputValue"]
-        self.description: str = raw_output.get("Description", "")
-        self.export_name: str = raw_output.get("ExportName", "")
+    def __init__(self, output_dict: dict):
+        self.key: str = output_dict["OutputKey"]
+        self.value: str = output_dict["OutputValue"]
+        self.description: str = ""
+        self.export_name: str = ""
+        if "Description" in output_dict.keys():
+            self.description = output_dict["Description"]
+        if "ExportName" in output_dict.keys():
+            self.export_name = output_dict["ExportName"]
 
 
 class Tag:
@@ -131,30 +162,58 @@ class Tag:
         return tag_dict
 
 
+class FilterableList(list):
+    def filter(self, criteria: Optional[dict] = None, **kwargs):
+        if not criteria and kwargs:
+            return self
+        if not criteria:
+            criteria = kwargs
+        flist = FilterableList()
+        for item in self:
+            if criteria_matches(criteria, item):
+                flist.append(item)
+        return flist
+
+
+class Stacks(FilterableList):
+    pass
+
+
+class Resources(FilterableList):
+    pass
+
+
+class Events(FilterableList):
+    pass
+
+
 class Stack:  # pylint: disable=too-many-instance-attributes
+
     REMOTE_TEMPLATE_PATH = Path(".taskcat/.remote_templates")
 
     def __init__(
         self,
+        region: AWSRegionObject,
         stack_id: str,
         template: Template,
-        test_name: str = "",
-        uuid: Optional[UUID] = None,
-        client_factory_instance: Optional[ClientFactory] = None,
+        test_name,
+        uuid: UUID = None,
     ):
+        uuid = uuid if uuid else uuid4()
         self.test_name: str = test_name
-        self.uuid: UUID = uuid if uuid else uuid4()
-        self.id: str = stack_id  # pylint: disable=invalid-name
+        self.uuid: UUID = uuid
+        self.id: str = stack_id
         self.template: Template = template
         self.name: str = self._get_name()
-        self.region: str = self._get_region()
-        self.get_client: ClientFactory = (
-            client_factory_instance if client_factory_instance else ClientFactory()
-        )
+        self.region: AWSRegionObject = region
+        self.region_name = region.name
+        self.client: boto3.client = region.client("cloudformation")
+        self.completion_time: timedelta = timedelta(0)
+
         # properties from additional cfn api calls
-        self._events: List[Event] = []
-        self._resources: List[Resource] = []
-        self._children: List[Stack] = []
+        self._events: Events = Events()
+        self._resources: Resources = Resources()
+        self._children: Stacks = Stacks()
         # properties from describe_stacks response
         self.change_set_id: str = ""
         self.parameters: List[Parameter] = []
@@ -169,12 +228,18 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.tags: List[Tag] = []
         self.parent_id: str = ""
         self.root_id: str = ""
+        self._auto_refresh_interval: timedelta = timedelta(seconds=60)
+        self._last_event_refresh: datetime = datetime.fromtimestamp(0)
+        self._last_resource_refresh: datetime = datetime.fromtimestamp(0)
+        self._last_child_refresh: datetime = datetime.fromtimestamp(0)
+        self._timer = Timer(self._auto_refresh_interval.total_seconds(), self.refresh)
+        self._timer.start()
 
     def __str__(self):
         return self.id
 
     def __repr__(self):
-        return f"<Stack object {self.name} at {hex(id(self))}>"
+        return "<Stack object {} at {}>".format(self.name, hex(id(self)))
 
     def _get_region(self) -> str:
         return self.id.split(":")[3]
@@ -182,44 +247,47 @@ class Stack:  # pylint: disable=too-many-instance-attributes
     def _get_name(self) -> str:
         return self.id.split(":")[5].split("/")[1]
 
+    def _auto_refresh(self, last_refresh):
+        if datetime.now() - last_refresh > self._auto_refresh_interval:
+            return True
+        return False
+
     @classmethod
     def create(
         cls,
+        region: AWSRegionObject,
         stack_name: str,
         template: Template,
-        region: str,
         parameters: List[Parameter] = None,
         tags: List[Tag] = None,
         disable_rollback: bool = True,
         test_name: str = "",
-        uuid: Optional[UUID] = None,
+        uuid: UUID = None,
     ) -> "Stack":
-        cfn_client = template.client_factory_instance.get(
-            "cloudformation", region=region
-        )
+        uuid = uuid if uuid else uuid4()
+        cfn_client = region.client("cloudformation")
         parameters = [p.dump() for p in parameters] if parameters else []
         tags = [t.dump() for t in tags] if tags else []
+        if isinstance(region.s3bucket, S3Bucket):
+            bucket_name: str = region.s3bucket.name
+        else:
+            raise TypeError("region object has unset bucket object")
+        template_url = s3_url_maker(bucket_name, template.s3_key, region.client("s3"))
         stack_id = cfn_client.create_stack(
             StackName=stack_name,
-            TemplateURL=template.url,
+            TemplateURL=template_url,
             Parameters=parameters,
             DisableRollback=disable_rollback,
             Tags=tags,
             Capabilities=Capabilities.ALL,
         )["StackId"]
-        uuid = uuid if uuid else uuid4()
-        stack = cls(
-            stack_id, template, test_name, uuid, template.client_factory_instance
-        )
+        stack = cls(region, stack_id, template, test_name, uuid)
         # fetch property values from cfn
         stack.refresh()
-
         return stack
 
     @classmethod
-    def import_from_properties(
-        cls, stack_properties: dict, parent_stack: "Stack"
-    ) -> "Stack":
+    def _import_child(cls, stack_properties: dict, parent_stack: "Stack") -> "Stack":
         url = ""
         for event in parent_stack.events():
             if event.physical_id == stack_properties["StackId"] and event.properties:
@@ -232,9 +300,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             absolute_path = parent_stack.template.project_root / relative_path
         else:
             # Assuming template is remote to project and downloading it
-            cfn_client = parent_stack.get_client.get(
-                "cloudformation", region=parent_stack.region
-            )
+            cfn_client = parent_stack.client
             tempate_body = cfn_client.get_template(
                 StackName=stack_properties["StackId"]
             )["TemplateBody"]
@@ -247,21 +313,34 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 + ".template"
             )
             absolute_path = path / fname
-            with open(absolute_path, "w") as file_handle:
-                file_handle.write(tempate_body)
+            with open(absolute_path, "w") as fh:
+                fh.write(tempate_body)
         template = Template(
             str(absolute_path),
             parent_stack.template.project_root,
             url,
-            parent_stack.get_client,
+            parent_stack.client,
         )
         stack = cls(
+            parent_stack.region,
             stack_properties["StackId"],
             template,
             parent_stack.name,
             parent_stack.uuid,
-            parent_stack.get_client,
         )
+        stack.set_stack_properties(stack_properties)
+        return stack
+
+    @classmethod
+    def import_existing(
+        cls,
+        stack_properties: dict,
+        template: Template,
+        region: AWSRegionObject,
+        test_name: str,
+        uid: UUID,
+    ) -> "Stack":
+        stack = cls(region, stack_properties["StackId"], template, test_name, uid)
         stack.set_stack_properties(stack_properties)
         return stack
 
@@ -273,59 +352,51 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         children: bool = False,
     ) -> None:
         if properties:
-            self.set_stack_properties({})
+            self.set_stack_properties()
         if events:
             self._fetch_stack_events()
+            self._last_event_refresh = datetime.now()
         if resources:
             self._fetch_stack_resources()
+            self._last_resource_refresh = datetime.now()
         if children:
             self._fetch_children()
+            self._last_child_refresh = datetime.now()
 
-    def set_stack_properties(self, stack_properties: Dict[str, Any]) -> None:
-        if not stack_properties:
-            cfn_client = self.get_client.get("cloudformation", region=self.region)
-            stack_properties = cfn_client.describe_stacks(StackName=self.id)["Stacks"][
-                0
-            ]
-        if "Parameters" in stack_properties.keys():
-            for param in stack_properties["Parameters"]:
-                self.parameters.append(Parameter(param))
-        if "Outputs" in stack_properties.keys():
-            for outp in stack_properties["Outputs"]:
-                self.outputs.append(Output(outp))
-        if "Tags" in stack_properties.keys():
-            for tag in stack_properties["Tags"]:
-                self.tags.append(Tag(tag))
-        self.change_set_id = stack_properties.get("ChangeSetId", self.change_set_id)
-        self.creation_time = stack_properties.get("CreationTime", self.creation_time)
-        self.deletion_time = stack_properties.get("DeletionTime", self.deletion_time)
-        self.status = stack_properties.get("StackStatus", self.status)
-        self.status_reason = stack_properties.get(
-            "StackStatusReason", self.status_reason
-        )
-        self.disable_rollback = stack_properties.get(
-            "DisableRollback", self.disable_rollback
-        )
-        self.timeout_in_minutes = stack_properties.get(
-            "TimeoutInMinutes", self.timeout_in_minutes
-        )
-        self.capabilities = stack_properties.get("Capabilities", self.capabilities)
-        self.parent_id = stack_properties.get("ParentId", self.parent_id)
-        self.root_id = stack_properties.get("RootId", self.root_id)
+    def set_stack_properties(self, stack_properties: Optional[dict] = None) -> None:
+        # TODO: get time to complete for complete stacks and % complete
+        props: dict = stack_properties if stack_properties else {}
+        self._timer.cancel()
+        if not props:
+            describe_stacks = self.client.describe_stacks
+            props = describe_stacks(StackName=self.id)["Stacks"][0]
+        iterable_props: List[Tuple[str, Callable]] = [
+            ("Parameters", Parameter),
+            ("Outputs", Output),
+            ("Tags", Tag),
+        ]
+        for prop_name, prop_class in iterable_props:
+            for item in props[prop_name]:
+                prop_name = prop_name.lower()
+                item = prop_class(item)
+                getattr(self, prop_name).append(item)
+        for key, value in props.items():
+            if key in [p[0] for p in iterable_props]:
+                continue
+            key = pascal_to_snake(key).replace("stack_", "")
+            setattr(self, key, value)
+        if self.status in StackStatus.IN_PROGRESS:
+            self._timer = Timer(
+                self._auto_refresh_interval.total_seconds(), self.refresh
+            )
+            self._timer.start()
 
-    def events(
-        self,
-        filter_status: Optional[List[str]] = None,
-        refresh: bool = False,
-        include_generic: bool = True,
-    ) -> List[Event]:
-        if refresh or not self._events:
+    def events(self, refresh: bool = False, include_generic: bool = True) -> Events:
+        if refresh or not self._events or self._auto_refresh(self._last_event_refresh):
             self._fetch_stack_events()
         events = self._events
-        if filter_status:
-            events = [event for event in self._events if event.status in filter_status]
         if not include_generic:
-            events = [event for event in events if not self._is_generic(event)]
+            events = Events([event for event in events if not self._is_generic(event)])
         return events
 
     @staticmethod
@@ -337,32 +408,28 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         return generic
 
     def _fetch_stack_events(self) -> None:
-        cfn_client = self.get_client.get("cloudformation", region=self.region)
-        events = []
-        for page in cfn_client.get_paginator("describe_stack_events").paginate(
+        self._last_event_refresh = datetime.now()
+        events = Events()
+        for page in self.client.get_paginator("describe_stack_events").paginate(
             StackName=self.id
         ):
             for event in page["StackEvents"]:
                 events.append(Event(event))
         self._events = events
 
-    def resources(
-        self, filter_status: Optional[str] = None, refresh: bool = False
-    ) -> List[Resource]:
-        if refresh or not self._resources:
+    def resources(self, refresh: bool = False) -> Resources:
+        if (
+            refresh
+            or not self._resources
+            or self._auto_refresh(self._last_resource_refresh)
+        ):
             self._fetch_stack_resources()
-        if filter_status:
-            return [
-                resource
-                for resource in self._resources
-                if resource.status in filter_status
-            ]
         return self._resources
 
     def _fetch_stack_resources(self) -> None:
-        cfn_client = self.get_client.get("cloudformation", region=self.region)
-        resources = []
-        for page in cfn_client.get_paginator("list_stack_resources").paginate(
+        self._last_resource_refresh = datetime.now()
+        resources = Resources()
+        for page in self.client.get_paginator("list_stack_resources").paginate(
             StackName=self.id
         ):
             for resource in page["StackResourceSummaries"]:
@@ -370,32 +437,37 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._resources = resources
 
     def delete(self) -> None:
-        cfn_client = self.get_client.get("cloudformation", region=self.region)
-        cfn_client.delete_stack(StackName=self.id)
+        self.client.delete_stack(StackName=self.id)
+        self.refresh()
 
     def update(self, *args, **kwargs):
         raise NotImplementedError("Stack updates not implemented")
 
     def _fetch_children(self) -> None:
-        cfn_client = self.get_client.get("cloudformation", region=self.region)
-        for page in cfn_client.get_paginator("describe_stacks").paginate():
+        print("updating stack children")
+        self._last_child_refresh = datetime.now()
+        for page in self.client.get_paginator("describe_stacks").paginate():
             for stack in page["Stacks"]:
                 if "ParentId" in stack.keys():
                     if self.id == stack["ParentId"]:
-                        stack_obj = Stack.import_from_properties(stack, self)
+                        stack_obj = Stack._import_child(stack, self)
                         self._children.append(stack_obj)
 
-    def children(self, refresh=False) -> List["Stack"]:
-        if refresh or not self._children:
+    def children(self, refresh=False) -> Stacks:
+        if (
+            refresh
+            or not self._children
+            or self._auto_refresh(self._last_child_refresh)
+        ):
             self._fetch_children()
         return self._children
 
-    def descendants(self, refresh=False) -> List["Stack"]:
+    def descendants(self, refresh=False) -> Stacks:
         if refresh or not self._children:
             self._fetch_children()
 
-        def recurse(stack: Stack, descendants: List["Stack"] = None) -> List["Stack"]:
-            descendants = [] if not descendants else descendants
+        def recurse(stack: Stack, descendants: Stacks = None) -> Stacks:
+            descendants = descendants if descendants else Stacks()
             if stack.children():
                 descendants += stack.children()
                 for child in stack.children():
@@ -406,15 +478,14 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def error_events(
         self, recurse: bool = True, include_generic: bool = False, refresh=False
-    ) -> List[Event]:
-        errors: list = []
-        stacks = [self]
+    ) -> Events:
+        errors = Events()
+        stacks = Stacks([self])
         if recurse:
             stacks += self.descendants()
         for stack in stacks:
-            errors += stack.events(
-                refresh=refresh,
-                filter_status=StackStatus.FAILED,
-                include_generic=include_generic,
-            )
+            for status in StackStatus.FAILED:
+                errors += stack.events(
+                    refresh=refresh, include_generic=include_generic
+                ).filter({"status": status})
         return errors

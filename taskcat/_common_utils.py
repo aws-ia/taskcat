@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Optional, Union
 
+import boto3
 from jsonschema import RefResolver, validate
 
 from taskcat.exceptions import TaskCatException
@@ -18,6 +19,9 @@ S3_PARTITION_MAP = {
     "aws-us-gov": "amazonaws.com",
 }
 
+FIRST_CAP_RE = re.compile("(.)([A-Z][a-z]+)")
+ALL_CAP_RE = re.compile("([a-z0-9])([A-Z])")
+
 
 def region_from_stack_id(stack_id):
     return stack_id.split(":")[3]
@@ -27,20 +31,19 @@ def name_from_stack_id(stack_id):
     return stack_id.split(":")[5].split("/")[1]
 
 
-def s3_url_maker(bucket, key, client_factory):
-    s3_client = client_factory.get("s3")
+def s3_url_maker(bucket, key, s3_client):
     location = s3_client.get_bucket_location(Bucket=bucket)["LocationConstraint"]
     url = (
         f"https://{bucket}.s3.amazonaws.com/{key}"
     )  # default case for us-east-1 which returns no location
     if location:
-        domain = get_s3_domain(location, client_factory)
+        domain = get_s3_domain(location)
         url = f"https://{bucket}.s3-{location}.{domain}/{key}"
     return url
 
 
-def get_s3_domain(region, client_factory):
-    ssm_client = client_factory.get("ssm")
+def get_s3_domain(region, ssm_client=None):
+    ssm_client = ssm_client if ssm_client else boto3.client("ssm")
     partition = ssm_client.get_parameter(
         Name=f"/aws/service/global-infrastructure/regions/{region}/partition"
     )["Parameter"]["Value"]
@@ -185,3 +188,15 @@ def tests_to_dict(tests):
                     v = str(v)
                 rendered_tests[test][k] = v
     return rendered_tests
+
+
+def merge_dicts(list_of_dicts):
+    merged_dict = {}
+    for single_dict in list_of_dicts:
+        merged_dict = {**merged_dict, **single_dict}
+    return merged_dict
+
+
+def pascal_to_snake(pascal):
+    sub = ALL_CAP_RE.sub(r"\1_\2", pascal)
+    return ALL_CAP_RE.sub(r"\1_\2", sub).lower()

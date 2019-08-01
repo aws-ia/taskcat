@@ -34,26 +34,10 @@ def stage_in_s3(config):
     """
     bucket_set: set = set()
 
-    # Create the bucket objects first!
     for test in config.tests.values():
         for region in test.regions:
             bucket_set.add(region.s3bucket)
-    # Sync!
     for bucket in bucket_set:
-        try:
-            bucket.create()
-        except Exception as e:
-            raise TaskCatException(e)
-
+        bucket.create()
     for bucket in bucket_set:
-        S3Sync(
-            bucket.client("s3"),
-            bucket.name,
-            config.name,
-            config.project_root,
-            bucket.acl,
-        )
-
-
-# pylint: disable=line-too-long
-# self.s3_url_prefix = "https://" + self.get_s3_hostname() + "/" + self.get_project_name()
+        S3Sync(bucket.client, bucket.name, config.name, config.project_root, bucket.acl)
