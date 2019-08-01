@@ -1,7 +1,7 @@
 ---
-project:
+global:
   owner: owner@company.com
-  name: nested-fail
+  qsname: delete-fail
   regions:
     - us-east-1
     - us-west-2

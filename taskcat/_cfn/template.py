@@ -18,6 +18,7 @@ class Template:
         template_path: Union[str, Path],
         project_root: Union[str, Path] = "",
         url: str = "",
+        s3_key_prefix: str = "",
         client_factory_instance: Optional[ClientFactory] = None,
     ):
         self.template_path: Path = Path(template_path).absolute()
@@ -31,7 +32,8 @@ class Template:
         self.client_factory_instance = (
             client_factory_instance if client_factory_instance else ClientFactory()
         )
-        self.url = url
+        self._url = url
+        self._s3_key_prefix = s3_key_prefix
         self.children: List[Template] = []
         self._find_children()
 
@@ -63,6 +65,11 @@ class Template:
         )
 
     @property
+    def s3_key(self):
+        suffix = str(self.template_path.relative_to(self.project_root))
+        return self._s3_key_prefix + suffix
+
+    @property
     def linesplit(self):
         return self.raw_template.split("\n")
 
@@ -74,8 +81,8 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
 
-    def _create_temporay_s3_object(self, bucket_name, prefix):
-        if self.url:
+    def _create_temporary_s3_object(self, bucket_name, prefix):
+        if self._url:
             return ""
         rand = (
             "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
@@ -86,7 +93,7 @@ class Template:
     def _do_validate(self, tmpurl, region):
         error = None
         exception = None
-        url = tmpurl if tmpurl else self.url
+        url = tmpurl if tmpurl else self._url
         cfn_client = self.client_factory_instance.get("cloudformation", region)
         try:
             cfn_client.validate_template(TemplateURL=url)
@@ -99,12 +106,12 @@ class Template:
         return error, exception
 
     def validate(self, region, bucket_name: str = "", prefix: str = ""):
-        if not self.url and not bucket_name:
+        if not self._url and not bucket_name:
             raise ValueError(
                 "validate requires either the url instance variable, or bucket_"
                 "name+prefix to be provided"
             )
-        tmpurl = self._create_temporay_s3_object(bucket_name, prefix)
+        tmpurl = self._create_temporary_s3_object(bucket_name, prefix)
         error, exception = self._do_validate(tmpurl, region)
         self._delete_s3_object(tmpurl)
         if exception:
@@ -133,21 +140,21 @@ class Template:
         return ""
 
     def _get_relative_url(self, path: str) -> str:
-        if not self.url:
+        if not self._url:
             return ""
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))
-        url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
+        url_prefix = "/".join(self._url.split("/")[0:-suffix_length])
         suffix = str(path).replace(str(self.project_root), "")
         url = url_prefix + suffix
         return url
 
     def url_prefix(self) -> str:
-        if not self.url:
+        if not self._url:
             return ""
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))
-        url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
+        url_prefix = "/".join(self._url.split("/")[0:-suffix_length])
         return url_prefix
 
     def _find_children(self) -> None:
@@ -175,6 +182,7 @@ class Template:
                     child,
                     self.project_root,
                     self._get_relative_url(child),
+                    self._s3_key_prefix,
                     self.client_factory_instance,
                 )
             self.children.append(child_template_instance)

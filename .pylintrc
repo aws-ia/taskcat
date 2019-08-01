@@ -430,7 +430,9 @@ good-names=i,
            _,
            e,
            ok,
-           az
+           az,
+           id,
+           fh
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no
