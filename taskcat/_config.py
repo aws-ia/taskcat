@@ -1,15 +1,20 @@
+import json
 import logging
 import os
+import uuid
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
 
+import boto3
 import yaml
+from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
 import cfnlint
 from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
-from taskcat._config_types import S3BucketConfig, Test
+from taskcat._config_types import AWSRegionObject, S3BucketConfig, Test
+from taskcat._s3_stage import S3APIResponse, S3BucketCreatorException
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -41,18 +46,19 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         global_config_path: str = "~/.taskcat.yml",
         project_config_path: str = None,
         project_root: str = "./",
-        override_file: str = None,
+        override_file: str = None,  # pylint: disable=unused-argument
         all_env_vars: Optional[List[dict]] = None,
-        client_factory=ClientFactory,
-    ):  # pylint: disable=too-many-arguments
+        create_clients: bool = True,
+    ):  # #pylint: disable=too-many-arguments
+        # #pylint: disable=too-many-statements
         # inputs
         if absolute_path(project_config_path) and not Path(project_root).is_absolute():
             project_root = absolute_path(project_config_path).parent / project_root
         self.project_root: Union[Path, str] = absolute_path(project_root)
         self.args: dict = args if args else {}
         self.global_config_path: Optional[Path] = absolute_path(global_config_path)
-        self.override_file: Optional[Path] = self._absolute_path(override_file)
-        self._client_factory_class = client_factory
+        self._client_factory_instance = ClientFactory()
+        # Used only in initial client configuration, then set to None
 
         # general config
         self.profile_name: str = ""
@@ -60,7 +66,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.aws_secret_key: str = ""
         self.no_cleanup: bool = False
         self.no_cleanup_failed: bool = False
-        self.public_s3_bucket: bool = False
         self.verbosity: str = "DEBUG"
         self.tags: dict = {}
         self.stack_prefix: str = ""
@@ -75,7 +80,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.name: str = ""
         self.owner: str = ""
         self.package_lambda: bool = True
-        self.s3_bucket: S3BucketConfig = S3BucketConfig()
+        self.s3bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[str, Test] = {}
         self.regions: Set[str] = set()
         self.env_vars: Dict[str, str] = {}
@@ -112,8 +117,17 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 "template_path to be defined"
             )
 
-        # build client_factory_instances
-        self._build_boto_factories()
+        # Add test/region specific credential sets to ClientFactory instance.
+        self._add_granular_credsets_to_cf()
+
+        # Used where full Regional/S3Bucket properties are needd.
+        # - ie: 'test' subcommand, etc.
+        if create_clients:
+            # Assign regional and test-specific client-factories
+            self._enable_regional_creds()
+
+            # Assign account-based buckets.
+            self._assign_account_buckets()
 
         # build and attach template objects
         self._get_templates()
@@ -131,6 +145,93 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 client_factory_instance=test.client_factory,
             )
 
+    def _enable_regional_creds(self):
+        for test_name, test_obj in self.tests.items():
+            for region in test_obj.regions:
+                self._set_appropriate_creds(test_name, region)
+
+    def _set_appropriate_creds(self, test_name, region):
+
+        cred_key_list = [
+            "default",
+            f"{test_name}_default",
+            region.name,
+            f"{test_name}_{region.name}",
+        ]
+        for cred_key in cred_key_list:
+            if self._client_factory_instance.credset_exists(cred_key):
+                region.credset_name = cred_key
+
+        sts_client = region.client("sts")
+        try:
+            account = sts_client.get_caller_identity()["Account"]
+
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "AccessDenied":
+                raise TaskCatException(
+                    f"Not able to fetch account number from {region}. {str(e)}"
+                )
+            raise
+        except NoCredentialsError as e:
+            raise TaskCatException(str(e))
+        except ProfileNotFound as e:
+            raise TaskCatException(str(e))
+        region.account = account
+        region.disable_credset_modification()
+
+    @staticmethod
+    def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):
+        if account in bucket_dict.keys():
+            return bucket_dict[account]
+        if name in bucket_dict.keys():
+            return bucket_dict[name]
+        bucket_instance = S3Bucket(name=name, **kwargs)
+        if name:
+            bucket_dict[name] = bucket_instance
+        if account:
+            bucket_dict[account] = bucket_instance
+        return bucket_instance
+
+    def _assign_account_buckets(self):
+        bucket_dict = {}
+
+        test_regions = set()
+        for test in self.tests.values():
+            for test_region in test.regions:
+                test_regions.add(test_region)
+
+        for test_region in test_regions:
+            if test_region.s3bucket:
+                continue
+            if self.s3bucket.name:
+                test_region.s3bucket = self._get_bucket_instance(
+                    bucket_dict,
+                    config=self,
+                    name=self.s3bucket.name,
+                    client=test_region.client,
+                )
+            else:
+                bucket_name = self._generate_auto_bucket_name()
+                test_region.s3bucket = self._get_bucket_instance(
+                    bucket_dict,
+                    config=self,
+                    name=bucket_name,
+                    region=test_region.name,
+                    account=test_region.account,
+                    auto=True,
+                    client=test_region.client,
+                )
+
+    def _generate_auto_bucket_name(self):
+        name_list = ["taskcat"]
+        if self.stack_prefix:
+            name_list.append(self.stack_prefix)
+        if self.name:
+            name_list.append(self.name)
+        name_list.append(str(uuid.uuid4())[:8])
+        full_bucket_name = "-".join(name_list)
+        return full_bucket_name
+
     def _build_cred_dict(self):
         creds = {}
         for cred_type in ["aws_secret_key", "aws_access_key", "profile_name"]:
@@ -141,33 +242,33 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _cred_merge(creds, regional):
+        if "default" in regional:
+            creds["profile_name"] = regional["default"]
+            del regional["default"]
         if "regional_cred_map" not in creds:
             creds["regional_cred_map"] = {}
-        if "default" in regional:
-            creds = regional["default"]
-            del regional["default"]
-        creds["regional_cred_map"].update(regional)
+        for region, profile_name in regional.items():
+            creds["regional_cred_map"][region] = {"profile_name": profile_name}
         return creds
 
-    def _build_boto_factories(self):
-        instance_cache = []
+    def _add_granular_credsets_to_cf(self):
 
-        def get_instance(provided_creds):
-            for creds, instance in instance_cache:
-                if provided_creds == creds:
-                    return instance
-            instance = self._client_factory_class(**provided_creds)
-            instance_cache.append([provided_creds, instance])
-            return instance
+        for cred_key, profile_name in self.auth.items():
+            self._client_factory_instance.put_credential_set(
+                cred_key, profile_name=profile_name
+            )
 
-        default_creds = self._cred_merge(self._build_cred_dict(), self.auth.copy())
-
-        for _, test in self.tests.items():
-            test_creds = default_creds.copy()
-            test_creds["regional_cred_map"] = default_creds["regional_cred_map"].copy()
+        for test_name, test in self.tests.items():
+            test_regions = [region.name for region in test.regions]
             if test.auth:
-                test_creds = self._cred_merge(test_creds, test.auth.copy())
-            test.client_factory = get_instance(test_creds)
+                for cred_key, cred_profile in test.auth.items():
+                    if cred_key != "default" and cred_key not in test_regions:
+                        LOG.warning(
+                            f"{test_name} doesn't use creds: {cred_key}. Skipping"
+                        )
+                    self._client_factory_instance.put_credential_set(
+                        f"{test_name}_{cred_key}", profile_name=cred_profile
+                    )
             self._propagate_regions(test)
 
     def _parse_project_config(self, project_config_path):
@@ -209,6 +310,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self._set(k, v)
 
     def _propagate_regions(self, test: Test):
+        # TODO: Better way to handle default_region
         default_region = test.client_factory.get_default_region(None, None, None, None)
         if not test.regions and not default_region and not self.regions:
             raise TaskCatException(
@@ -218,9 +320,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             )
         if not test.regions:
             if self.regions:
-                test.regions = list(self.regions)
+                test.regions = [
+                    AWSRegionObject(region, self._client_factory_instance)
+                    for region in self.regions
+                ]
             else:
-                test.regions = [default_region]
+                test.regions = [
+                    AWSRegionObject(default_region, self._client_factory_instance)
+                ]
 
     def _process_global_config(self):
         if self.global_config_path is None:
@@ -283,7 +390,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         try:
             template_config = template["Metadata"]["taskcat"]
         except KeyError:
-            region = self._client_factory_class().get_default_region(
+            region = self._client_factory_instance.get_default_region(
                 None, None, None, None
             )
             name = self.template_path.name.split(".")[0]
@@ -374,3 +481,131 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 elif value.lower() in ["true", "false"]:
                     value = value.lower() == "true"
                 self.env_vars[key] = value
+
+
+class S3Bucket:
+    # #pylint: disable=too-many-instance-attributes
+
+    def __init__(
+        self,
+        config: Config,
+        client: boto3.client,
+        name: str = "",
+        region: str = "us-east-1",
+        auto: bool = True,
+        account: str = "",
+    ):
+        self.name: str = name
+        self.public: bool = config.s3bucket.public
+        self.tags: list = []
+        self.region: str = region
+        self.sigv4: bool = True
+        self._auto: bool = auto
+        self._config: Config = config
+        self._client = client
+        self._acl = ""
+        self._policy: Optional[str] = None
+        self._created: bool = False
+        self._max_name_len = 63
+        # Account
+        self.account = account
+        # Client
+        self._determine_bucket_attributes()
+
+    def _determine_bucket_attributes(self):
+        self.sigv4 = not self._config.enable_sig_v2
+        self.tags = self._config.tags
+        self.public = self._config.s3bucket.public
+        if not self.auto:
+            self._assert_bucket_exists(self.name)
+            self._created = True
+
+    @property
+    def acl(self):
+        return self._acl
+
+    @property
+    def policy(self):
+        return self._policy
+
+    @property
+    def client(self):
+        return self._client
+
+    @property
+    def auto(self):
+        return self._auto
+
+    @property
+    def sigv4_policy(self):
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Test",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Action": "s3:*",
+                    "Resource": f"arn:aws:s3:::{self.name}/*",
+                    "Condition": {"StringEquals": {"s3:signatureversion": "AWS"}},
+                }
+            ],
+        }
+        return json.dumps(policy)
+
+    def _create_in_region(self):
+        if self.region == "us-east-1":
+            response = self.client.create_bucket(ACL=self.acl, Bucket=self.name)
+        else:
+            response = self.client.create_bucket(
+                ACL=self.acl,
+                Bucket=self.name,
+                CreateBucketConfiguration={"LocationConstraint": self.region},
+            )
+
+        return S3APIResponse(response)
+
+    def _create_bucket(self, bucket_name):
+        _create_resp = self._create_in_region()
+        if _create_resp.ok:
+            LOG.info(f"Staging Bucket: [{bucket_name}]")
+
+        if self.tags:
+            LOG.info(f"Propagating tags to this bucket.")
+            self.client.put_bucket_tagging(
+                Bucket=bucket_name, Tagging={"TagSet": self.tags}
+            )
+
+        if self.sigv4:
+            LOG.info(f"Enforcing SigV4 requests for bucket ${bucket_name}")
+            self.client.put_bucket_policy(Bucket=self.name, Policy=self.sigv4_policy)
+
+    def _assert_bucket_exists(self, name):
+
+        # Verify bucket exists.
+        try:
+            _ = self.client.list_objects(Bucket=name)
+        except self.client.exceptions.NoSuchBucket:
+            raise TaskCatException(
+                f"The bucket you provided ({name}) does " f"not exist. Exiting."
+            )
+        return True
+
+    def create(self):
+        if self._created:
+            return
+
+        # Verify bucket name length
+        if len(self.name) > self._max_name_len:
+            raise S3BucketCreatorException(
+                f"The bucket name you provided [{self._config.s3bucket}] \
+                is greater than {self._max_name_len} characters."
+            )
+
+        LOG.info(f"Creating bucket in {self.region} for account {self.account}")
+        self._create_bucket(self.name)
+        self._created = True
+
+    # TODO Add delete().
+    def delete(self):
+        pass

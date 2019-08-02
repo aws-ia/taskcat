@@ -17,6 +17,7 @@ class TestLambdaPackage(unittest.TestCase):
         c = Config(
             project_config_path=str(tmp / "test" / ".taskcat.yml"),
             project_root=str((tmp / "test").resolve()),
+            create_clients=False,
         )
         LambdaBuild(c)
         path = tmp / "test"

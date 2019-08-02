@@ -16,7 +16,11 @@ class Lint:
         :param project_root: base path for project
         :param strict: fail on lint warnings as well as errors
         """
-        config = Config(project_config_path=input_file, project_root=project_root)
+        config = Config(
+            project_config_path=input_file,
+            project_root=project_root,
+            create_clients=False,
+        )
         lint = TaskCatLint(config, strict)
         errors = lint.lints[1]
         lint.output_results()

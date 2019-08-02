@@ -85,7 +85,9 @@ class S3Sync:
                     exclude_path = True
                     break
             if not exclude_path:
-                file_list = self._iterate_files(files, root, include_checksums, relpath)
+                file_list.update(
+                    self._iterate_files(files, root, include_checksums, relpath)
+                )
         return file_list
 
     def _iterate_files(self, files, root, include_checksums, relpath):

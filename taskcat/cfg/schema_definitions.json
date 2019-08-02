@@ -9,6 +9,9 @@
                     "type": "string",
                     "pattern": "^[a-z/d-]*$"
                 },
+                "auth": {
+                    "$ref": "#/definitions/auth"
+                },
                 "owner": {
                     "type": "string"
                 },
@@ -43,25 +46,6 @@
                 "name"
             ]
         },
-        "regions": {
-            "$id": "#regions",
-            "type": "array",
-            "uniqueItems": true,
-            "items": {
-                "type": "string",
-                "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
-            }
-        },
-        "tests": {
-            "$id": "#tests",
-            "type": "object",
-            "patternProperties": {
-                "^[a-z\\d-]*$": {
-                    "$ref": "#/definitions/test"
-                }
-            },
-            "additionalProperties": false
-        },
         "test": {
             "$id": "#test",
             "type": "object",
@@ -92,6 +76,42 @@
             "required": [
                 "template_file"
             ]
+        },
+        "tests": {
+            "$id": "#tests",
+            "type": "object",
+            "patternProperties": {
+                "^[a-z_\\d-]*$": {
+                    "$ref": "#/definitions/test"
+                }
+            },
+            "additionalProperties": false
+        },
+        "regions": {
+            "$id": "#regions",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
+                    },
+                    {
+                        "$ref": "schema_definitions.json#/definitions/region"
+                    }
+                ]
+            }
+        },
+        "region": {
+            "$id": "#region",
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
         },
         "tags": {
             "$id": "#tags",
@@ -129,9 +149,6 @@
             "$id": "#general",
             "type": "object",
             "properties": {
-                "auth": {
-                    "$ref": "#/definitions/auth"
-                },
                 "config_file": {
                     "type": "string"
                 },
@@ -198,25 +215,9 @@
             "additionalProperties": false,
             "patternProperties": {
                 "^((ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9])|(default)$": {
-                    "$ref": "#/definitions/auth_item"
+                    "type": "string"
                 }
             }
-        },
-        "auth_item": {
-            "$id": "#auth_item",
-            "type": "object",
-            "properties": {
-                "profile_name": {
-                    "type": "string"
-                },
-                "aws_access_key": {
-                    "type": "string"
-                },
-                "aws_secret_key": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
         }
     }
 }

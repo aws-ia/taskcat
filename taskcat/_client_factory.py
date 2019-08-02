@@ -45,6 +45,8 @@ class ClientFactory:
         regional_cred_map = regional_cred_map if regional_cred_map else {}
         self._clients = {"default": {}}
         self._credential_sets = {}
+        self._credential_accounts = {}
+        self._credential_instances = {}
         self._lock = Lock()
         self.put_credential_set(
             "default",
@@ -129,6 +131,12 @@ class ClientFactory:
             aws_session_token,
             profile_name,
         ]
+        self._credential_sets[credential_set_name] = [
+            aws_access_key_id,
+            aws_secret_access_key,
+            aws_session_token,
+            profile_name,
+        ]
 
     # TODO: reduce complexity in method
     def get(  # noqa: C901
@@ -172,6 +180,7 @@ class ClientFactory:
             key, secret, token, profile = self._credential_sets[credential_set]
         if not region:
             region = self.get_default_region(key, secret, token, profile)
+
         s3v4 = "s3v4" if s3v4 else "default_sig_version"
         try:
             LOG.debug(
@@ -203,10 +212,13 @@ class ClientFactory:
                 self._clients[credential_set][region]["session"] = self._create_session(
                     region, key, secret, token, profile
                 )
-            self._clients[credential_set][region][service][s3v4] = self._create_client(
+            self._clients[credential_set][region][service][s3v4] = self.create_client(
                 credential_set, region, service, s3v4
             )
-            return self._clients[credential_set][region][service][s3v4]
+            client = self._clients[credential_set][region][service][s3v4]
+
+        client.clientfactory_credset_name = credential_set
+        return client
 
     def _create_session(
         self,
@@ -267,12 +279,12 @@ class ClientFactory:
                     raise
                 sleep(delay * (retry ** backoff_factor))
 
-    def _create_client(
+    def create_client(
         self,
-        credential_set,
-        region,
-        service,
-        s3v4,
+        credential_set: str,
+        region: str,
+        service: str,
+        s3v4="s3v4",
         max_retries=4,
         delay=5,
         backoff_factor=2,
@@ -309,11 +321,27 @@ class ClientFactory:
             except TaskCatException:
                 raise
             except Exception:  # pylint: disable=broad-except
-                LOG.debug("failed to create client", exc_info=1)
+                LOG.debug("failed to create client", exc_info=True)
                 retry += 1
                 if retry >= max_retries:
                     raise
                 sleep(delay * (retry ** backoff_factor))
+
+    def credset_exists(self, credset_name) -> bool:
+        """
+        Asserts that a particular credset exists within the instance.
+
+        Args:
+            credset_name (str): Credential Set Name
+
+        Returns:
+            bool
+        :param credset_name:
+        :return:
+        """
+        if credset_name in self._credential_sets.keys():
+            return True
+        return False
 
     def get_available_regions(self, service):
         """fetches available regions for a service
@@ -346,6 +374,32 @@ class ClientFactory:
             boto3.session.Session: instance of boto3 Session object
         """
         if not region:
-            region = self.get_default_region(None, None, None, None)
+            creds = self._credential_sets[credential_set]
+            region = self.get_default_region(*creds)
 
         return self._clients[credential_set][region]["session"]
+
+    def return_credset_instance(self, credential_set_name):
+        """
+        Returns a ClientFactory instance, given a credential_set_name.
+        The credentials configured under the credential_set_name are set to 'default'
+        in the returned instance.
+
+        Args:
+            credential_set_name (str): credential set name to return.
+        Returns:
+            ClientFactory: instance of ClientFactory using
+                creds from the Credential Set Name
+            or None
+        """
+        if credential_set_name == "default":
+            return self
+        cached_instance = self._credential_instances.get(credential_set_name, None)
+        if cached_instance:
+            return cached_instance
+        if credential_set_name in self._credential_sets.keys():
+            cf_creds = self._credential_sets[credential_set_name]
+            cf_instance = ClientFactory(*cf_creds)
+            self._credential_instances[credential_set_name] = cf_instance
+            return cf_instance
+        return None

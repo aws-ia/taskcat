@@ -109,12 +109,39 @@ class Test:
         return Test(**raw_test)
 
 
-class S3BucketConfig(str):
-    def __init__(self, public: bool = False, auto: bool = False):
-        self.region = ""
-        self.public = public
-        self.auto = auto
-        self.max_name_len = 63
-        self.name = self.__str__()
-        self.tags: list = []
-        super().__init__()
+class S3BucketConfig:
+    def __init__(self):
+        self.name = ""
+        self.public = False
+
+
+class AWSRegionObject:
+    def __init__(self, region_name: str, client_factory: ClientFactory):
+        self.name: str = region_name
+        self.s3bucket = None
+        self.account: Optional[str] = None
+        self._cf: ClientFactory = client_factory
+        self._credset_name: Optional[str] = None
+        self._credset_modify = True
+
+    @property
+    def credset_name(self) -> Optional[str]:
+        return self._credset_name
+
+    @credset_name.setter
+    def credset_name(self, value: str) -> None:
+        if not self._credset_modify:
+            return
+        self._credset_name = value
+
+    def disable_credset_modification(self):
+        self._credset_modify = False
+
+    def client(self, service):
+        service_session = self._cf.get(
+            credential_set=self.credset_name, region=self.name, service=service
+        )
+        return service_session
+
+    def __repr__(self):
+        return f"<AWSRegionObject(region_name={self.name}) object at {hex(id(self))}>"

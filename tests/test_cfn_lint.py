@@ -2,10 +2,22 @@ import os
 import unittest
 from pathlib import Path
 
+import mock
 import yaml
 
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
+
+
+class MockClientConfig(object):
+    def __init__(self):
+        self.region_name = "us-east-2"
+
+
+class MockClient(object):
+    def __init__(self):
+        self._client_config = MockClientConfig()
+
 
 test_two_path = str(
     Path(
@@ -112,6 +124,10 @@ def flatten_rule(lints):
 
 
 class TestCfnLint(unittest.TestCase):
+    @mock.patch(
+        "taskcat._client_factory.ClientFactory.create_client",
+        mock.MagicMock(return_value=MockClient()),
+    )
     def test_lint(self):
         base_path = "/tmp/lint_test/"
         mkdir(base_path)
@@ -133,7 +149,9 @@ class TestCfnLint(unittest.TestCase):
                 with open(config_path, "w") as f:
                     f.write(yaml.safe_dump(test_case["config"]))
                 config = Config(
-                    project_config_path=str(config_path), project_root="../"
+                    project_config_path=str(config_path),
+                    project_root="../",
+                    create_clients=False,
                 )
                 lint = Lint(config=config)
                 self.assertEqual(
