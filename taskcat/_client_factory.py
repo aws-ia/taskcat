@@ -339,7 +339,7 @@ class ClientFactory:
         :param credset_name:
         :return:
         """
-        if credset_name in self._clients.keys():
+        if credset_name in self._credential_sets.keys():
             return True
         return False
 

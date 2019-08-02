@@ -16,10 +16,11 @@ project:
     - us-west-1
     - us-west-2
     - sa-east-1
+    - me-south-1
+    - ap-east-1
   auth:
-    us-east-1: prod
-    sa-east-1: south-america-prod
-    us-east-2: staging
+    me-south-1: mes1
+    ap-east-1: hongkong
 tests:
 #  json-test:
 #    parameter_input: debug-input.json

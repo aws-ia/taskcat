@@ -162,21 +162,21 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             if self._client_factory_instance.credset_exists(cred_key):
                 region.credset_name = cred_key
 
-            sts_client = region.client("sts")
-            try:
-                account = sts_client.get_caller_identity()["Account"]
+        sts_client = region.client("sts")
+        try:
+            account = sts_client.get_caller_identity()["Account"]
 
-            except ClientError as e:
-                if e.response["Error"]["Code"] == "AccessDenied":
-                    raise TaskCatException(
-                        f"Not able to fetch account number from {region}. {str(e)}"
-                    )
-                raise
-            except NoCredentialsError as e:
-                raise TaskCatException(str(e))
-            except ProfileNotFound as e:
-                raise TaskCatException(str(e))
-            region.account = account
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "AccessDenied":
+                raise TaskCatException(
+                    f"Not able to fetch account number from {region}. {str(e)}"
+                )
+            raise
+        except NoCredentialsError as e:
+            raise TaskCatException(str(e))
+        except ProfileNotFound as e:
+            raise TaskCatException(str(e))
+        region.account = account
         region.disable_credset_modification()
 
     @staticmethod
@@ -252,6 +252,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         return creds
 
     def _add_granular_credsets_to_cf(self):
+
+        for cred_key, profile_name in self.auth.items():
+            self._client_factory_instance.put_credential_set(
+                cred_key, profile_name=profile_name
+            )
 
         for test_name, test in self.tests.items():
             test_regions = [region.name for region in test.regions]
