@@ -22,11 +22,11 @@ project:
     me-south-1: mes1
     ap-east-1: hongkong
 tests:
-#  json-test:
-#    parameter_input: debug-input.json
-#    template_file: debug-yaml.template
-#    auth:
-#      eu-central-1: special-use-case
+  json-test:
+    parameter_input: debug-input.json
+    template_file: debug.template
+    auth:
+      eu-central-1: special-use-case
   yaml-test:
     auth:
       default: foobar
