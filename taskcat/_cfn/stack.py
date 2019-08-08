@@ -26,7 +26,7 @@ def criteria_matches(criteria: dict, instance):
     # fail if criteria includes an invalid property
     for k in criteria:
         if k not in instance.__dict__:
-            raise ValueError(f"{k} is not a valid property of {instance}")
+            raise ValueError(f"{k} is not a valid property of {type(instance)}")
     for k, v in criteria.items():
         # matching is AND for multiple criteria, so as soon as one fails,
         # it's not a match
@@ -164,7 +164,7 @@ class Tag:
 
 class FilterableList(list):
     def filter(self, criteria: Optional[dict] = None, **kwargs):
-        if not criteria and kwargs:
+        if not criteria and not kwargs:
             return self
         if not criteria:
             criteria = kwargs
@@ -376,10 +376,9 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             ("Tags", Tag),
         ]
         for prop_name, prop_class in iterable_props:
-            for item in props[prop_name]:
-                prop_name = prop_name.lower()
+            for item in props.get(prop_name, []):
                 item = prop_class(item)
-                getattr(self, prop_name).append(item)
+                getattr(self, prop_name.lower()).append(item)
         for key, value in props.items():
             if key in [p[0] for p in iterable_props]:
                 continue
@@ -444,7 +443,6 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         raise NotImplementedError("Stack updates not implemented")
 
     def _fetch_children(self) -> None:
-        print("updating stack children")
         self._last_child_refresh = datetime.now()
         for page in self.client.get_paginator("describe_stacks").paginate():
             for stack in page["Stacks"]:
