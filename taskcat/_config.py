@@ -175,6 +175,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         except ProfileNotFound as e:
             raise TaskCatException(str(e))
         region.account = account
+        region.set_partition()
         region.disable_credset_modification()
 
     @staticmethod
@@ -214,10 +215,10 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                     bucket_dict,
                     config=self,
                     name=bucket_name,
-                    region=test_region.name,
+                    region=test_region.get_bucket_region_for_partition(),
                     account=test_region.account,
                     auto=True,
-                    client=test_region.client("s3"),
+                    client=test_region.get_s3_client(),
                 )
 
     def _generate_auto_bucket_name(self):
