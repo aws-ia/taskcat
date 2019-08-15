@@ -33,7 +33,7 @@ class Stacker:
         self,
         config: Config,
         uid: uuid.UUID = NULL_UUID,
-        stack_name_prefix: str = "tCat",
+        stack_name_prefix: str = "tCaT",
         tags: list = None,
     ):
         self.config = config

@@ -272,10 +272,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             bucket_name: str = region.s3bucket.name
         else:
             raise TypeError("region object has unset bucket object")
-        template_url = s3_url_maker(bucket_name, template.s3_key, region.client("s3"))
+        template.url = s3_url_maker(bucket_name, template.s3_key, region.client("s3"))
         stack_id = cfn_client.create_stack(
             StackName=stack_name,
-            TemplateURL=template_url,
+            TemplateURL=template.url,
             Parameters=parameters,
             DisableRollback=disable_rollback,
             Tags=tags,
@@ -287,7 +287,9 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         return stack
 
     @classmethod
-    def _import_child(cls, stack_properties: dict, parent_stack: "Stack") -> "Stack":
+    def _import_child(
+        cls, stack_properties: dict, parent_stack: "Stack"
+    ) -> Optional["Stack"]:
         url = ""
         for event in parent_stack.events():
             if event.physical_id == stack_properties["StackId"] and event.properties:
@@ -313,13 +315,14 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 + ".template"
             )
             absolute_path = path / fname
-            with open(absolute_path, "w") as fh:
-                fh.write(tempate_body)
+            if not absolute_path.exists():
+                with open(absolute_path, "w") as fh:
+                    fh.write(tempate_body)
         template = Template(
-            str(absolute_path),
-            parent_stack.template.project_root,
-            url,
-            parent_stack.client,
+            template_path=str(absolute_path),
+            project_root=parent_stack.template.project_root,
+            url=url,
+            client_factory_instance=parent_stack.client,
         )
         stack = cls(
             parent_stack.region,
@@ -446,6 +449,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._last_child_refresh = datetime.now()
         for page in self.client.get_paginator("describe_stacks").paginate():
             for stack in page["Stacks"]:
+                if self._children.filter(id=stack["StackId"]):
+                    continue
                 if "ParentId" in stack.keys():
                     if self.id == stack["ParentId"]:
                         stack_obj = Stack._import_child(stack, self)
@@ -466,7 +471,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
         def recurse(stack: Stack, descendants: Stacks = None) -> Stacks:
             descendants = descendants if descendants else Stacks()
-            if stack.children():
+            if stack.children(refresh=refresh):
                 descendants += stack.children()
                 for child in stack.children():
                     descendants = recurse(child, descendants)
