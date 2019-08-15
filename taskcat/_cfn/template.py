@@ -32,7 +32,7 @@ class Template:
         self.client_factory_instance = (
             client_factory_instance if client_factory_instance else ClientFactory()
         )
-        self._url = url
+        self.url = url
         self._s3_key_prefix = s3_key_prefix
         self.children: List[Template] = []
         self._find_children()
@@ -82,7 +82,7 @@ class Template:
         self._find_children()
 
     def _create_temporary_s3_object(self, bucket_name, prefix):
-        if self._url:
+        if self.url:
             return ""
         rand = (
             "".join(random.choice(string.ascii_lowercase) for _ in range(8))  # nosec
@@ -93,7 +93,7 @@ class Template:
     def _do_validate(self, tmpurl, region):
         error = None
         exception = None
-        url = tmpurl if tmpurl else self._url
+        url = tmpurl if tmpurl else self.url
         cfn_client = self.client_factory_instance.get("cloudformation", region)
         try:
             cfn_client.validate_template(TemplateURL=url)
@@ -106,7 +106,7 @@ class Template:
         return error, exception
 
     def validate(self, region, bucket_name: str = "", prefix: str = ""):
-        if not self._url and not bucket_name:
+        if not self.url and not bucket_name:
             raise ValueError(
                 "validate requires either the url instance variable, or bucket_"
                 "name+prefix to be provided"
@@ -140,21 +140,21 @@ class Template:
         return ""
 
     def _get_relative_url(self, path: str) -> str:
-        if not self._url:
+        if not self.url:
             return ""
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))
-        url_prefix = "/".join(self._url.split("/")[0:-suffix_length])
+        url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
         suffix = str(path).replace(str(self.project_root), "")
         url = url_prefix + suffix
         return url
 
     def url_prefix(self) -> str:
-        if not self._url:
+        if not self.url:
             return ""
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))
-        url_prefix = "/".join(self._url.split("/")[0:-suffix_length])
+        url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
         return url_prefix
 
     def _find_children(self) -> None:
