@@ -126,6 +126,7 @@ class AWSRegionObject:
         self._cf: ClientFactory = client_factory
         self._credset_name: Optional[str] = None
         self._credset_modify = True
+        self.partition = None
 
     @property
     def credset_name(self) -> Optional[str]:
@@ -145,6 +146,34 @@ class AWSRegionObject:
             credential_set=self.credset_name, region=self.name, service=service
         )
         return service_session
+
+    def set_partition(self):
+        if not self._credset_name:
+            return
+        avail_regions = self._cf.get_session(
+            self.credset_name, self.name
+        ).get_available_regions("s3")
+        if "us-east-1" in avail_regions:
+            self.partition = "aws"
+        elif "us-gov-east-1" in avail_regions:
+            self.partition = "aws-us-gov"
+        elif "cn-north-1" in avail_regions:
+            self.partition = "aws-cn"
+
+    def get_bucket_region_for_partition(self):
+        region = "us-east-1"
+        if self.partition == "aws-us-gov":
+            region = "us-gov-east-1"
+        elif self.partition == "aws-cn":
+            region = "cn-north-1"
+        return region
+
+    def get_s3_client(self):
+        return self._cf.get(
+            credential_set=self.credset_name,
+            region=self.get_bucket_region_for_partition(),
+            service="s3",
+        )
 
     def __repr__(self):
         return f"<AWSRegionObject(region_name={self.name}) object at {hex(id(self))}>"
