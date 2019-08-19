@@ -18,6 +18,7 @@ class Template:
         template_path: Union[str, Path],
         project_root: Union[str, Path] = "",
         url: str = "",
+        s3_key_prefix: str = "",
         client_factory_instance: Optional[ClientFactory] = None,
     ):
         self.template_path: Path = Path(template_path).absolute()
@@ -32,6 +33,7 @@ class Template:
             client_factory_instance if client_factory_instance else ClientFactory()
         )
         self.url = url
+        self._s3_key_prefix = s3_key_prefix
         self.children: List[Template] = []
         self._find_children()
 
@@ -63,6 +65,11 @@ class Template:
         )
 
     @property
+    def s3_key(self):
+        suffix = str(self.template_path.relative_to(self.project_root))
+        return self._s3_key_prefix + suffix
+
+    @property
     def linesplit(self):
         return self.raw_template.split("\n")
 
@@ -74,7 +81,7 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
 
-    def _create_temporay_s3_object(self, bucket_name, prefix):
+    def _create_temporary_s3_object(self, bucket_name, prefix):
         if self.url:
             return ""
         rand = (
@@ -104,7 +111,7 @@ class Template:
                 "validate requires either the url instance variable, or bucket_"
                 "name+prefix to be provided"
             )
-        tmpurl = self._create_temporay_s3_object(bucket_name, prefix)
+        tmpurl = self._create_temporary_s3_object(bucket_name, prefix)
         error, exception = self._do_validate(tmpurl, region)
         self._delete_s3_object(tmpurl)
         if exception:
@@ -175,6 +182,7 @@ class Template:
                     child,
                     self.project_root,
                     self._get_relative_url(child),
+                    self._s3_key_prefix,
                     self.client_factory_instance,
                 )
             self.children.append(child_template_instance)

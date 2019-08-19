@@ -1,6 +1,4 @@
 ---
-general:
-  boto_profile: test
 project:
   owner: owner@company.com
   name: nested-fail
