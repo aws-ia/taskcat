@@ -148,7 +148,7 @@ class AWSRegionObject:
         return service_session
 
     def set_partition(self):
-        if not self._credset_name:
+        if not self.credset_name:
             return
         avail_regions = self._cf.get_session(
             self.credset_name, self.name
