@@ -41,7 +41,7 @@ if __name__ == "__main__":
     else:
         upstream_version = AMIUpdater.check_updated_upstream_mapping_spec()
         if upstream_version:
-            print(
+            print(  # noqa: T001
                 f"{PrintMsg.INFO} A new version of the AMIUpdater spec is available "
                 f"for download (v. {upstream_version})\n"
                 f"{PrintMsg.INFO} To update your definitions, run: \n"

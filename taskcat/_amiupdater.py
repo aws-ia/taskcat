@@ -483,7 +483,7 @@ class AMIUpdater:
                 "The following mappings are unknown to AMIUpdater. Please investigate"
             )
             for unknown_map in unknown_mappings:
-                print(unknown_map)
+                log.warning(unknown_map)
 
     def update_amis(self):
         for template_file in self._fetch_template_files():

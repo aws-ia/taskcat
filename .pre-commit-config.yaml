@@ -27,6 +27,7 @@ repos:
     - flake8-comprehensions>=2.1.0
     - flake8-debugger>=3.1.0
     - flake8-pep3101>=1.2.1
+    - flake8-print>=3.1.0
     # language_version: python3.6
   - id: pretty-format-json
     args:

@@ -134,7 +134,6 @@ class TestCfnLint(unittest.TestCase):
         try:
             for test_case in test_cases:
                 qs_path = base_path + test_case["config"]["global"]["qsname"] + "/"
-                print(qs_path)
                 mkdir(qs_path)
                 mkdir(qs_path + "ci")
                 mkdir(qs_path + "templates")
