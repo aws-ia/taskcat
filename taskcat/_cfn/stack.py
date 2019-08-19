@@ -383,7 +383,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 item = prop_class(item)
                 getattr(self, prop_name.lower()).append(item)
         for key, value in props.items():
-            if key in [p[0] for p in iterable_props]:
+            if key in [p[0] for p in iterable_props]:  # noqa: C412
                 continue
             key = pascal_to_snake(key).replace("stack_", "")
             setattr(self, key, value)
