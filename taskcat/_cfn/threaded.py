@@ -68,10 +68,7 @@ class Stacker:
         partial_kwargs = {
             "stack_name": stack_name,
             "template": test.template,
-            "parameters": [
-                Parameter({"ParameterKey": k, "ParameterValue": v})
-                for k, v in test.parameters.items()
-            ],
+            "parameters": self._cfn_format_parameters(test.parameters),
             "tags": tags,
             "test_name": test.name,
         }
@@ -80,7 +77,10 @@ class Stacker:
 
     @staticmethod
     def _cfn_format_parameters(parameters):
-        return [{"ParameterKey": k, "ParameterValue": v} for k, v in parameters.items()]
+        return [
+            Parameter({"ParameterKey": k, "ParameterValue": v})
+            for k, v in parameters.items()
+        ]
 
     # Not used by tCat at present
     def update_stacks(self):
