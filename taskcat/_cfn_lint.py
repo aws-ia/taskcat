@@ -64,6 +64,11 @@ class Lint:
                 lints[name]["results"][tpath] = results
             for err in lint_errors:
                 LOG.error(err)
+        for test in lints:
+            for result in lints[test]["results"]:
+                if lints[test]["results"][result]:
+                    if self._is_error(lints[test]["results"][result]):
+                        lint_errors.add(result)
         return lints, lint_errors
 
     def output_results(self):

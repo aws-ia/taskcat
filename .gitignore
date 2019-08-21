@@ -26,3 +26,4 @@ coverage.xml
 taskcat_outputs/
 # Doc Site
 site/
+*.zip
