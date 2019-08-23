@@ -5,6 +5,7 @@ import argparse
 import importlib
 import inspect
 import logging
+import sys
 import types
 
 LOG = logging.getLogger(__name__)
@@ -114,6 +115,16 @@ class CliCore:
         for args, kwargs in input_args:
             parser.add_argument(*args, **kwargs)
 
+    @staticmethod
+    def _add_sub(parser, **kwargs):
+        if sys.version_info[1] != 6 or "required" not in kwargs:
+            return parser.add_subparsers(**kwargs)
+        required = kwargs["required"]
+        kwargs.pop("required")
+        sub = parser.add_subparsers(**kwargs)
+        sub.required = required
+        return sub
+
     def _build_parser(self, description, version):
         parser = argparse.ArgumentParser(
             description=description,
@@ -126,7 +137,8 @@ class CliCore:
         self._add_arguments(self.args["global"], parser)
 
         description = self._get_command_help(self._modules)
-        command_parser = parser.add_subparsers(
+        command_parser = self._add_sub(
+            parser=parser,
             title="commands",
             description=description,
             required=True,
@@ -152,7 +164,8 @@ class CliCore:
                     m[0]: m[1] for m in self._get_class_methods(self._modules[mod])
                 }
                 description = self._get_command_help(class_methods)
-                subcommand_parser = mod_parser.add_subparsers(
+                subcommand_parser = self._add_sub(
+                    parser=mod_parser,
                     title="subcommands",
                     description=description,
                     required=True,

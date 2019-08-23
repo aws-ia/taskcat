@@ -5,6 +5,7 @@ import sys
 
 
 if __name__ == "__main__":
-    if sys.version_info[0] < 3:
-        raise TaskCatException("Please use Python 3")
-    main()
+    if sys.version_info[0] == 3 and sys.version_info[1] >= 6:
+        main()
+    else:
+        raise TaskCatException("Please use Python 3.6+")

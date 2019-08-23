@@ -1,0 +1,15 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "NotUsed": {
+            "Description": "I'm not being used",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {}
+        }
+    }
+}
