@@ -136,7 +136,7 @@ class MockClient:
 
 class TestParamGen(unittest.TestCase):
     class_kwargs = {
-        "param_list": [],
+        "param_dict": {},
         "bucket_name": "tcat-tag-skdfklsdfklsjf",
         "region": "us-east-1",
         "boto_client": client_factory_instance(),
@@ -355,67 +355,54 @@ class TestParamGen(unittest.TestCase):
         self.assertEqual(pg.param_value, "1234")
 
     def test_param_transform(self):
-        input_params = [
-            {
-                "ParameterKey": "AvailabilityZones",
-                "ParameterValue": "$[taskcat_genaz_3]",
-            },
-            {"ParameterKey": "SingleAZ", "ParameterValue": "$[taskcat_getsingleaz_2]"},
-            {"ParameterKey": "StackName", "ParameterValue": "TestStack"},
-            {"ParameterKey": "ByteValue", "ParameterValue": "1"},
-            {"ParameterKey": "UUID", "ParameterValue": "$[taskcat_genuuid]"},
-            {
-                "ParameterKey": "RandomNumber",
-                "ParameterValue": "$[taskcat_random-numbers]",
-            },
-            {
-                "ParameterKey": "RandomString",
-                "ParameterValue": "$[taskcat_random-string]",
-            },
-            {"ParameterKey": "UUID", "ParameterValue": "$[taskcat_genuuid]"},
-            {"ParameterKey": "PasswordA", "ParameterValue": "$[taskcat_genpass_8A]"},
-            {
-                "ParameterKey": "PasswordAConfirm",
-                "ParameterValue": "$[taskcat_getval_PasswordA]",
-            },
-            {"ParameterKey": "PasswordB", "ParameterValue": "$[taskcat_genpass_32S]"},
-            {"ParameterKey": "LocalOverrideTest", "ParameterValue": "override"},
-            {"ParameterKey": "GlobalOverrideTest", "ParameterValue": "override"},
-        ]
+        input_params = {
+            "AvailabilityZones": "$[taskcat_genaz_3]",
+            "ByteValue": "1",
+            "GlobalOverrideTest": "override",
+            "LocalOverrideTest": "override",
+            "PasswordA": "$[taskcat_genpass_8A]",
+            "PasswordAConfirm": "$[taskcat_getval_PasswordA]",
+            "PasswordB": "$[taskcat_genpass_32S]",
+            "RandomNumber": "$[taskcat_random-numbers]",
+            "RandomString": "$[taskcat_random-string]",
+            "SingleAZ": "$[taskcat_getsingleaz_2]",
+            "StackName": "TestStack",
+            "UUID": "$[taskcat_genuuid]",
+        }
         bclient = MockClient
         bclient.logger = logger
         class_kwargs = self.class_kwargs
-        class_kwargs["param_list"] = input_params
+        class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
         pg.transform_parameter()
-        transformed_params = [x["ParameterValue"] for x in pg.results]
-        original_params = [x["ParameterValue"] for x in input_params]
         ignore_patterns = ["RE_COUNT"]
         missed_regex_patterns = []
         regex_pattern_text = set()
         _found = False
         for rp in self.regex_patterns:
             regex_pattern_text.add(rp.test_pattern_attribute)
-            for tp in transformed_params:
+            for _param_key, param_value in pg.results.items():
                 if rp.test_pattern_attribute in ignore_patterns:
                     continue
                 with self.subTest(
                     "Transformed Value: {} must not match Regex: {}".format(
-                        tp, rp.test_pattern_attribute
+                        param_value, rp.test_pattern_attribute
                     )
                 ):
-                    self.assertNotRegex(tp, getattr(pg, rp.test_pattern_attribute))
+                    self.assertNotRegex(
+                        param_value, getattr(pg, rp.test_pattern_attribute)
+                    )
         regex_pattern_text = list(regex_pattern_text)
         for rp in self.regex_patterns:
             regex_test = re.compile(getattr(pg, rp.test_pattern_attribute))
-            for tp in original_params:
-                if regex_test.search(tp):
+            for _param_key, param_value in input_params.items():
+                if regex_test.search(param_value):
                     _found = True
             if not _found:
                 missed_regex_patterns.append(rp.test_pattern_attribute)
         self.assertEqual(missed_regex_patterns, [])
         with self.subTest("SingleAZ transformed value must be us-east-1b"):
-            for r in pg.results:
-                if r["ParameterKey"] == "SingleAZ":
-                    self.assertEqual(r["ParameterValue"], "us-east-1b")
+            for _param_key, param_value in pg.results.items():
+                if _param_key == "SingleAZ":
+                    self.assertEqual(param_value, "us-east-1b")

@@ -31,10 +31,10 @@ class ParamGen:
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
 
-    def __init__(self, param_list, bucket_name, region, boto_client):
+    def __init__(self, param_dict, bucket_name, region, boto_client):
         self.regxfind = CommonTools.regxfind
-        self._param_list = param_list
-        self.results = []
+        self._param_dict = param_dict
+        self.results = {}
         self.mutated_params = {}
         self.param_name = None
         self.param_value = None
@@ -47,10 +47,10 @@ class ParamGen:
         # Depreciated placeholders:
         # - $[taskcat_gets3contents]
         # - $[taskcat_geturl]
-        for param in self._param_list:
+        for param_name, param_value in self._param_dict.items():
             # Setting the instance variables to reflect key/value pair we're working on.
-            self.param_name = param["ParameterKey"]
-            self.param_value = param["ParameterValue"]
+            self.param_name = param_name
+            self.param_value = param_value
 
             # Convert from bytes to string.
             self.convert_to_str()
@@ -95,10 +95,7 @@ class ParamGen:
 
             # $[taskcat_genuuid]
             self._regex_replace_param_value(self.RE_GENUUID, self._gen_uuid())
-
-            self.results.append(
-                {"ParameterKey": self.param_name, "ParameterValue": self.param_value}
-            )
+            self.results.update({self.param_name: self.param_value})
 
     def get_available_azs(self, count):
         """
