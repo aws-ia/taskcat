@@ -96,7 +96,7 @@ class Lint:
         for test in self.lints[0]:
             for template in self.lints[0][test]["results"]:
                 results = self.lints[0][test]["results"][template]
-                if not results:
+                if results:
                     if self._is_error(results) or self.strict:
                         return False
         return True
