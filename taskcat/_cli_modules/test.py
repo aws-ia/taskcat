@@ -1,8 +1,13 @@
 # flake8: noqa B950,F841
+import logging
+
+from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
 from taskcat._config import Config
-from taskcat.exceptions import TaskCatException
 from taskcat._s3_stage import stage_in_s3
+from taskcat.exceptions import TaskCatException
+
+LOG = logging.getLogger(__name__)
 
 
 class Test:
@@ -33,6 +38,18 @@ class Test:
         stage_in_s3(config)
         # 4. validate
         # 5. launch stacks
+        test_definition = Stacker(config)
+        LOG.info(f"Project Name: {test_definition.project_name}")
+        for test in test_definition.config.tests:
+            LOG.info(f"Starting Test: {test}")
+            LOG.info(f"Queuing Test: in {test_definition.config.regions}")
+            test_definition.create_stacks()
+
+            for stack in test_definition.stacks:
+                LOG.info(
+                    f"Launching test_definition: {stack.name} in Region: {stack.region_name}"
+                )
+
         # 6. wait for completion
         # 7. delete stacks
         # 8. create report
