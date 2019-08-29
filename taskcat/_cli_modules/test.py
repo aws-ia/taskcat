@@ -2,6 +2,7 @@
 from taskcat._cfn_lint import Lint as TaskCatLint
 from taskcat._config import Config
 from taskcat.exceptions import TaskCatException
+from taskcat._s3_stage import stage_in_s3
 
 
 class Test:
@@ -29,6 +30,7 @@ class Test:
         if errors or not lint.passed:
             raise TaskCatException("Lint failed with errors")
         # 3. s3 sync
+        stage_in_s3(config)
         # 4. validate
         # 5. launch stacks
         # 6. wait for completion
