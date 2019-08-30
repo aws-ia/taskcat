@@ -1,19 +1,18 @@
-import unittest
-import mock
-import os
 import errno
+import os
+import unittest
+
+import mock
 
 from taskcat._common_utils import (
-    param_list_to_dict,
-    region_from_stack_id,
-    name_from_stack_id,
-    s3_url_maker,
     get_s3_domain,
-    merge_dicts,
-    pascal_to_snake,
     make_dir,
-    absolute_path,
-    schema_validate,
+    merge_dicts,
+    name_from_stack_id,
+    param_list_to_dict,
+    pascal_to_snake,
+    region_from_stack_id,
+    s3_url_maker,
 )
 from taskcat.exceptions import TaskCatException
 
