@@ -1,10 +1,10 @@
 import unittest
+
 import mock
 
-from taskcat._cli_core import CliCore
-from taskcat._cli import GLOBAL_ARGS
-from taskcat.exceptions import TaskCatException
 from taskcat import _cli_modules
+from taskcat._cli import GLOBAL_ARGS
+from taskcat._cli_core import CliCore
 
 
 class TestCliCore(unittest.TestCase):
