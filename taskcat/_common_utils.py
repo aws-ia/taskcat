@@ -129,31 +129,6 @@ def param_list_to_dict(original_keys):
     return param_index
 
 
-def buildmap(start_location, map_string, partial_match=True):
-    """
-    Given a start location and a string value, this function returns a list of
-    file paths containing the given string value, down in the directory
-    structure from the start location.
-
-    :param start_location: directory from where to start looking for the file
-    :param map_string: value to match in the file path
-    :param partial_match: (bool) Turn on partial matching.
-    :  Ex: 'foo' matches 'foo' and 'foo.old'. Defaults true. False adds a '/' to the
-        end of the string.
-    :return:
-        list of file paths containing the given value.
-    """
-    if not partial_match:
-        map_string = "{}/".format(map_string)
-    fs_map = []
-    for fs_path, _, filelist in os.walk(start_location, topdown=False):
-        for fs_file in filelist:
-            fs_path_to_file = os.path.join(fs_path, fs_file)
-            if map_string in fs_path_to_file and ".git" not in fs_path_to_file:
-                fs_map.append(fs_path_to_file)
-    return fs_map
-
-
 def absolute_path(path: Optional[Union[str, Path]]):
     if path is None:
         return None
