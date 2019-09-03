@@ -38,11 +38,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         "./ci/taskcat.yml",
     ]
 
-    def __init__(  # pylint: disable=too-many-statements
+    def __init__(  # noqa: C901
         self,
         args: Optional[dict] = None,
         global_config_path: str = "~/.taskcat.yml",
-        project_config_path: str = None,
+        project_config_path: Optional[Union[Path, str]] = None,
         project_root: str = "./",
         override_file: str = None,  # pylint: disable=unused-argument
         all_env_vars: Optional[List[dict]] = None,
@@ -97,6 +97,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self._process_global_config()
 
         if not self._absolute_path(project_config_path):
+            for path in Config.DEFAULT_PROJECT_PATHS:
+                try:
+                    project_config_path = self._absolute_path(path)
+                    LOG.debug("found project config in default location %s", path)
+                    break
+                except TaskCatException:
+                    LOG.debug("didn't find project config in %s", path)
+        if not self._absolute_path(project_config_path):
             raise TaskCatException(
                 f"failed to load project config file {project_config_path}. file "
                 f"does not exist"
@@ -106,7 +114,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             self.template_path = self._absolute_path(project_config_path)
             self._process_template_config()
         else:
-            self._parse_project_config(project_config_path)
+            self.project_config_path = self._absolute_path(project_config_path)
             self._process_project_config()
 
         self._process_env_vars()
@@ -268,6 +276,12 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             creds["regional_cred_map"][region] = {"profile_name": profile_name}
         return creds
 
+    @staticmethod
+    def region_to_str(region):
+        if isinstance(region, str):
+            return region
+        return region.name
+
     def _add_granular_credsets_to_cf(self):
 
         for cred_key, profile_name in self.auth.items():
@@ -276,7 +290,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             )
 
         for test_name, test in self.tests.items():
-            test_regions = [region.name for region in test.regions]
+            test_regions = [self.region_to_str(region) for region in test.regions]
             if test.auth:
                 for cred_key, cred_profile in test.auth.items():
                     if cred_key != "default" and cred_key not in test_regions:
@@ -287,17 +301,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                         f"{test_name}_{cred_key}", profile_name=cred_profile
                     )
             self._propagate_regions(test)
-
-    def _parse_project_config(self, project_config_path):
-        self.project_config_path = self._absolute_path(project_config_path)
-        if self.project_config_path is None:
-            for path in Config.DEFAULT_PROJECT_PATHS:
-                try:
-                    self.project_config_path = self._absolute_path(path)
-                    LOG.debug("found project config in default location %s", path)
-                    break
-                except TaskCatException:
-                    LOG.debug("didn't find project config in %s", path)
 
     def _absolute_path(self, path: Optional[Union[str, Path]]) -> Optional[Path]:
         if path is None:
@@ -408,13 +411,10 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         try:
             template_config = template["Metadata"]["taskcat"]
         except KeyError:
-            region = self._client_factory_instance.get_default_region(
-                None, None, None, None
-            )
             name = self.template_path.name.split(".")[0]
             template_config = {
                 "project": {"name": name},
-                "tests": {name: {"regions": [region]}, "parameters": {}},
+                "tests": {name: {}, "parameters": {}},
             }
         self._add_template_path(template_config)
         validate(template_config, "project_config")
@@ -436,7 +436,6 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self._to_general(self.env_vars)
         if not self.env_vars:
             return
-        validate(self.env_vars, "project_config")
         self._set_all(self.env_vars)
 
     def _process_args(self):
@@ -445,15 +444,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self._to_general(self.args)
         if not self.args:
             return
-        validate(self.args, "project_config")
         self._set_all(self.args)
 
     @staticmethod
     def _to_project(args: dict):
-        for arg in args.keys():
+        if "project" not in args.keys():
+            args["project"] = {}
+        for arg in list(args.keys()):
             if arg.startswith("project_"):
-                if "project" not in args.keys():
-                    args["project"] = {}
                 args["project"][arg[8:]] = args[arg]
                 del args[arg]
 
@@ -484,11 +482,12 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     @staticmethod
     def _to_general(args: dict):
-        for arg in args.keys():
+        for arg in list(args.keys()):
             if "general" not in args.keys():
                 args["general"] = {}
-            args["general"][arg] = args[arg]
-            del args[arg]
+            if arg not in ["project", "tests"]:
+                args["general"][arg] = args[arg]
+                del args[arg]
 
     def _harvest_env_vars(self, env_vars):
         for key, value in env_vars:
