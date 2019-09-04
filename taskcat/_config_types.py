@@ -260,6 +260,7 @@ class S3Bucket:
                 CreateBucketConfiguration={"LocationConstraint": self.region},
             )
 
+        self.client.get_waiter("bucket_exists").wait(Bucket=self.name)
         return S3APIResponse(response)
 
     def _create_bucket(self, bucket_name):
