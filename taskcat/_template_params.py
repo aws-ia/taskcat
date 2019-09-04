@@ -2,6 +2,7 @@ import logging
 import random
 import re
 import uuid
+from typing import Set
 
 from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
@@ -31,7 +32,7 @@ class ParamGen:
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
 
-    def __init__(self, param_dict, bucket_name, region, boto_client):
+    def __init__(self, param_dict, bucket_name, region, boto_client, az_excludes=None):
         self.regxfind = CommonTools.regxfind
         self._param_dict = param_dict
         self.results = {}
@@ -41,6 +42,10 @@ class ParamGen:
         self.bucket_name = bucket_name
         self._boto_client = boto_client
         self.region = region
+        if not az_excludes:
+            self.az_excludes: Set[str] = set()
+        else:
+            self.az_excludes: Set[str] = az_excludes
         self.transform_parameter()
 
     def transform_parameter(self):
@@ -115,6 +120,12 @@ class ParamGen:
         for az in availability_zones[  # pylint: disable=invalid-name
             "AvailabilityZones"
         ]:
+            if az["ZoneId"] in self.az_excludes:
+                LOG.info(
+                    f"Excluding AZ {az['ZoneName']} as Zone ID {az['ZoneId']} \
+                     is blacklisted."
+                )
+                continue
             available_azs.append(az["ZoneName"])
 
         if len(available_azs) < count:

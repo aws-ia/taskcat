@@ -30,36 +30,42 @@ class MockSingleAZClient:
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1a",
+                    "ZoneId": "use1-az6",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1b",
+                    "ZoneId": "use1-az5",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1c",
+                    "ZoneId": "use1-az4",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1d",
+                    "ZoneId": "use1-az3",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1e",
+                    "ZoneId": "use1-az2",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1f",
+                    "ZoneId": "use1-az1",
                 },
             ]
         }
@@ -88,36 +94,42 @@ class MockClient:
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1a",
+                    "ZoneId": "use1-az6",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1b",
+                    "ZoneId": "use1-az5",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1c",
+                    "ZoneId": "use1-az4",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1d",
+                    "ZoneId": "use1-az3",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1e",
+                    "ZoneId": "use1-az2",
                 },
                 {
                     "State": "available",
                     "Messages": [],
                     "RegionName": "us-east-1",
                     "ZoneName": "us-east-1f",
+                    "ZoneId": "use1-az1",
                 },
             ]
         }
@@ -239,6 +251,31 @@ class TestParamGen(unittest.TestCase):
         pg = ParamGen(**self.class_kwargs)
         self.assertEqual(pg.regxfind(ParamGen.RE_COUNT, "$[taskcat_getaz_2]"), "2")
         self.assertEqual(pg.regxfind(ParamGen.RE_COUNT, "$[taskcat_genpass_8]"), "8")
+
+    def test_get_available_azs_with_excludes(self):
+        class_kwargs = {**self.class_kwargs, "az_excludes": {"use1-az6", "use1-az5"}}
+        pg = ParamGen(**class_kwargs)
+        pg._boto_client = MockClient
+        returned_azs = pg.get_available_azs(4)
+        returned_az_list = returned_azs.split(",")
+        test_criteria = [
+            # tuple (first_param, second_param, test_description)
+            (len(returned_az_list), 4, "Verifying we return 4 AZs"),
+            (len(set(returned_az_list)), 4, "Verifying we return 4 *unique* AZs"),
+            (
+                ("us-east-1a" not in returned_az_list),
+                True,
+                "Verifying us-east-1a is not returned.",
+            ),
+            (
+                ("us-east-1b" not in returned_az_list),
+                True,
+                "Verifying us-east-1b is not returned.",
+            ),
+        ]
+        for first_param, second_param, test_desc in test_criteria:
+            with self.subTest(test_desc):
+                self.assertEqual(first_param, second_param)
 
     def test_get_available_azs(self):
         pg = ParamGen(**self.class_kwargs)

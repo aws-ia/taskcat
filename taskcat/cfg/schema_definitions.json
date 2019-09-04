@@ -18,6 +18,9 @@
                 "regions": {
                     "$ref": "#/definitions/regions"
                 },
+                "az_blacklist": {
+                    "$ref": "#/definitions/az_blacklist"
+                },
                 "package_lambda": {
                     "type": "boolean"
                 },
@@ -76,6 +79,15 @@
             "required": [
                 "template_file"
             ]
+        },
+        "az_blacklist": {
+            "$id": "#az_backlist",
+            "type": "array",
+            "uniqueItems": true,
+            "patternProperties": {
+                "type": "string",
+                "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$"
+            }
         },
         "tests": {
             "$id": "#tests",
