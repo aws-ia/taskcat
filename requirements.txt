@@ -9,5 +9,5 @@ yattag>=1.10.0,<2.0
 PyYAML>=4.2b1,<5.0
 jinja2>=2.10.0,<3.0
 requests>2.17.0
-jsonschema~=2.6
+jsonschema~=3.0
 docker~=3.7

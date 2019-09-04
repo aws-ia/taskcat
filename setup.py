@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 setup(
     version="0.9.0",
     name="taskcat-v9",
-    packages=["taskcat"],
+    packages=["taskcat", "taskcat._cfn", "taskcat._cli_modules"],
     description="An OpenSource Cloudformation Deployment Framework",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

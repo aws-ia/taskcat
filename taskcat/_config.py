@@ -53,6 +53,8 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         if absolute_path(project_config_path) and not Path(project_root).is_absolute():
             project_root = absolute_path(project_config_path).parent / project_root
         self.project_root: Union[Path, str] = absolute_path(project_root)
+        if not self.project_root:
+            raise TaskCatException(f"project_root {project_root} is not a valid path")
         self.args: dict = args if args else {}
         self.global_config_path: Optional[Path] = absolute_path(global_config_path)
         self._client_factory_instance = ClientFactory()
