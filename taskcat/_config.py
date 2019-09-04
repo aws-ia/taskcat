@@ -12,6 +12,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import ClientFactory
 from taskcat._common_utils import absolute_path, schema_validate as validate
 from taskcat._config_types import AWSRegionObject, S3Bucket, S3BucketConfig, Test
+from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -128,6 +129,13 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             # Assign account-based buckets.
             self._assign_account_buckets()
 
+            # generate regional-based parameters
+            self._generate_regional_parameters()
+
+        # add `template` attribute to Test objects
+        for _, test_obj in self.tests.items():
+            test_obj.template = None  # type: ignore
+
         # build and attach template objects
         self._get_templates()
 
@@ -179,6 +187,14 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         region.account = account
         region.set_partition()
         region.disable_credset_modification()
+
+    def _generate_regional_parameters(self):
+        for test in self.tests.values():
+            for region in test.regions:
+                param_obj = ParamGen(
+                    test.parameters, region.s3bucket.name, region.name, region.client
+                )
+                test.parameters = param_obj.results
 
     @staticmethod
     def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):

@@ -123,6 +123,7 @@ class AWSRegionObject:
         self.name: str = region_name
         self.s3bucket: Optional[S3Bucket] = None
         self.account: Optional[str] = None
+        self.parameters: Dict[str, str] = {}
         self._cf: ClientFactory = client_factory
         self._credset_name: Optional[str] = None
         self._credset_modify = True
