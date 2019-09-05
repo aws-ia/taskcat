@@ -10,6 +10,7 @@ from typing import Callable, List, Optional, Tuple
 from uuid import UUID, uuid4
 
 import boto3
+import mock
 
 from taskcat._cfn.template import Template
 from taskcat._common_utils import pascal_to_snake, s3_url_maker
@@ -187,6 +188,10 @@ class Events(FilterableList):
     pass
 
 
+class Tags(FilterableList):
+    pass
+
+
 class Stack:  # pylint: disable=too-many-instance-attributes
 
     REMOTE_TEMPLATE_PATH = Path(".taskcat/.remote_templates")
@@ -268,7 +273,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         cfn_client = region.client("cloudformation")
         parameters = [p.dump() for p in parameters] if parameters else []
         tags = [t.dump() for t in tags] if tags else []
-        if isinstance(region.s3bucket, S3Bucket):
+        if isinstance(region.s3bucket, (S3Bucket, mock.Mock)):
             bucket_name: str = region.s3bucket.name
         else:
             raise TypeError("region object has unset bucket object")
@@ -381,7 +386,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         for prop_name, prop_class in iterable_props:
             for item in props.get(prop_name, []):
                 item = prop_class(item)
-                getattr(self, prop_name.lower()).append(item)
+                self._merge_props(getattr(self, prop_name.lower()), item)
         for key, value in props.items():
             if key in [p[0] for p in iterable_props]:  # noqa: C412
                 continue
@@ -392,6 +397,16 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 self._auto_refresh_interval.total_seconds(), self.refresh
             )
             self._timer.start()
+
+    @staticmethod
+    def _merge_props(existing_props, new):
+        added = False
+        for existing_id, prop in enumerate(existing_props):
+            if prop.key == new.key:
+                existing_props[existing_id] = new
+                added = True
+        if not added:
+            existing_props.append(new)
 
     def events(self, refresh: bool = False, include_generic: bool = True) -> Events:
         if refresh or not self._events or self._auto_refresh(self._last_event_refresh):
