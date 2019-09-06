@@ -17,7 +17,7 @@ from taskcat._common_utils import (
 from taskcat.exceptions import TaskCatException
 
 
-class TestCfnLogTools(unittest.TestCase):
+class TestCommonUtils(unittest.TestCase):
     def test_get_param_includes(self):
         bad_testcases = [{}, [[]], [{}]]
         for bad in bad_testcases:
@@ -32,7 +32,8 @@ class TestCfnLogTools(unittest.TestCase):
         actual = name_from_stack_id("arn:::us-east-1::Stack/test-name")
         self.assertEqual("test-name", actual)
 
-    def test_s3_url_maker(self):
+    @mock.patch("taskcat._common_utils.get_s3_domain", return_value="amazonaws.com")
+    def test_s3_url_maker(self, m_get_s3_domain):
         m_s3 = mock.Mock()
         m_s3.get_bucket_location.return_value = {"LocationConstraint": None}
         actual = s3_url_maker("test-bucket", "test-key/1", m_s3)
@@ -44,6 +45,7 @@ class TestCfnLogTools(unittest.TestCase):
         self.assertEqual(
             "https://test-bucket.s3-us-west-2.amazonaws.com/test-key/1", actual
         )
+        m_get_s3_domain.assert_called_once()
 
     def test_get_s3_domain(self):
         m_ssm = mock.Mock()

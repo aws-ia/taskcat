@@ -200,9 +200,10 @@ class TestCfnLint(unittest.TestCase):
                 )
             )
             lint.output_results()
-            mock_log_info.assert_called_once_with(
-                "Lint passed for test test1 on template /private/tmp/lint_test_"
-                "output/test-config/templates/taskcat_test_template_test1"
+            self.assertTrue(
+                mock_log_info.call_args[0][0].startswith(
+                    "Lint passed for test test1 on template "
+                )
             )
             self.assertEqual(mock_log_error.called, False)
             self.assertEqual(mock_log_warning.called, False)
@@ -218,15 +219,13 @@ class TestCfnLint(unittest.TestCase):
             rule.message = "some warning"
             test.append(rule)
             lint.output_results()
+            self.assertTrue(
+                mock_log_warning.call_args_list[0][0][0].startswith(
+                    "Lint detected issues for test test1 on template "
+                )
+            )
             mock_log_warning.assert_has_calls(
-                [
-                    mock.call(
-                        "Lint detected issues for test test1 on template /private/tmp/"
-                        "lint_test_output/test-config/templates/taskcat_test_template_"
-                        "test1:"
-                    ),
-                    mock.call("    line 123 [0001] [short warning] some warning"),
-                ]
+                [mock.call("    line 123 [0001] [short warning] some warning")]
             )
             self.assertEqual(mock_log_info.called, False)
             self.assertEqual(mock_log_error.called, False)
@@ -240,10 +239,10 @@ class TestCfnLint(unittest.TestCase):
             rule.message = "some error"
             test.append(rule)
             lint.output_results()
-            mock_log_warning.assert_called_once_with(
-                "Lint detected issues for test test1 on template /private/tmp/"
-                "lint_test_output/test-config/templates/taskcat_test_template_"
-                "test1:"
+            self.assertTrue(
+                mock_log_warning.call_args[0][0].startswith(
+                    "Lint detected issues for test test1 on template "
+                )
             )
             mock_log_error.assert_called_once_with(
                 "    line 123 [0001] [short error] some error"
