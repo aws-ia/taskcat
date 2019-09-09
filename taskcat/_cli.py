@@ -146,7 +146,7 @@ def get_pip_version(url):
     """
     Given the url to PypI package info url returns the current live version
     """
-    return requests.get(url).json()["info"]["version"]
+    return requests.get(url, timeout=1.0).json()["info"]["version"]
 
 
 def get_installed_version():
