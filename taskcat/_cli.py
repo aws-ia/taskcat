@@ -52,7 +52,7 @@ GLOBAL_ARGS = [
 ]
 
 
-def main():
+def main(cli_core_class=CliCore, exit_func=exit_with_code):
     signal.signal(signal.SIGINT, _sigint_handler)
     log_level = _setup_logging(sys.argv)
     args = sys.argv[1:]
@@ -61,21 +61,21 @@ def main():
     try:
         _welcome()
         version = get_installed_version()
-        cli = CliCore(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
+        cli = cli_core_class(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
         cli.parse(args)
         cli.run()
     except TaskCatException as e:
         LOG.error(str(e), exc_info=_print_tracebacks(log_level))
-        exit_with_code(1)
+        exit_func(1)
     except Exception as e:  # pylint: disable=broad-except
         LOG.error(
             "%s %s", e.__class__.__name__, str(e), exc_info=_print_tracebacks(log_level)
         )
-        exit_with_code(1)
+        exit_func(1)
 
 
-def _setup_logging(args):
-    log_level = _get_log_level(args)
+def _setup_logging(args, exit_func=exit_with_code):
+    log_level = _get_log_level(args, exit_func=exit_func)
     LOG.setLevel(log_level)
     return log_level
 
@@ -84,10 +84,10 @@ def _print_tracebacks(log_level):
     return log_level == "DEBUG"
 
 
-def _get_log_level(args):
+def _get_log_level(args, exit_func=exit_with_code):
     log_level = "INFO"
     if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
-        exit_with_code(1, "--debug and --quiet cannot be specified simultaneously")
+        exit_func(1, "--debug and --quiet cannot be specified simultaneously")
     if "-d" in args or "--debug" in args:
         log_level = "DEBUG"
     if "-q" in args or "--quiet" in args:
@@ -116,11 +116,15 @@ def check_for_update():
     version = get_installed_version()
     if version != "[local source] no pip module installed":
         if "dev" not in version:
-            current_version = get_pip_version(f"https://pypi.org/pypi/{NAME}/json")
-            if version in current_version:
-                LOG.info("version %s" % version, extra={"nametag": ""})
-            else:
-                _print_upgrade_msg(current_version)
+            try:
+                current_version = get_pip_version(f"https://pypi.org/pypi/{NAME}/json")
+                if version in current_version:
+                    LOG.info("version %s" % version, extra={"nametag": ""})
+                else:
+                    _print_upgrade_msg(current_version)
+            except Exception:  # pylint: disable=broad-except
+                LOG.debug("Unexpected error", exc_info=True)
+                LOG.warning("Unable to get version info!!, continuing")
     else:
         LOG.info("Using local source (development mode)\n")
 

@@ -17,10 +17,9 @@ import requests
 import yaml
 
 from taskcat._client_factory import ClientFactory
-from taskcat._stacker import LegacyTaskCat as tc
 from taskcat._utils import CFNYAMLHandler as cfy
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class AMIUpdaterException(Exception):
@@ -73,14 +72,14 @@ class Config:
             try:
                 cls.raw_dict = yaml.safe_load(f)
             except yaml.YAMLError as e:
-                log.error("[{}] - YAML Syntax Error!", fn)
-                log.error("{}", e)
+                LOG.error("[{}] - YAML Syntax Error!", fn)
+                LOG.error("{}", e)
         try:
             for x in cls.raw_dict.get("global").get("AMIs").keys():
                 cls.codenames.add(x)
         except Exception as e:
-            log.error("{} config file [{}] is not structured properly!", configtype, fn)
-            log.error("{}", e)
+            LOG.error("{} config file [{}] is not structured properly!", configtype, fn)
+            LOG.error("{}", e)
             raise AMIUpdaterException
 
     @classmethod
@@ -218,7 +217,7 @@ class Codenames:
                 region_codename_result_list.append(latest_ami)
         if missing_results_list:
             for code_reg in missing_results_list:
-                log.error(
+                LOG.error(
                     f"The following Codename / Region  had no results from the EC2 "
                     f"API. {code_reg}"
                 )
@@ -377,7 +376,7 @@ class TemplateObject(TemplateClass):
                     continue
                 if region not in self._region_list:
                     if region in AMIUpdater.EXCLUDED_REGIONS:
-                        log.error(
+                        LOG.error(
                             f"The {region} region is currently unsupported. AMI IDs "
                             f"will not be updated for this region."
                         )
@@ -461,9 +460,7 @@ class AMIUpdater:
 
     @classmethod
     def check_updated_upstream_mapping_spec(cls):
-        needed, version = tc.checkforupdate(True)
-        if needed:
-            return version
+        # TODO: add v9 compatible logic to check versions
         return False
 
     @classmethod
@@ -479,25 +476,25 @@ class AMIUpdater:
 
         unknown_mappings = Codenames.unknown_mappings()
         if unknown_mappings:
-            log.warning(
+            LOG.warning(
                 "The following mappings are unknown to AMIUpdater. Please investigate"
             )
             for unknown_map in unknown_mappings:
-                log.warning(unknown_map)
+                LOG.warning(unknown_map)
 
     def update_amis(self):
         for template_file in self._fetch_template_files():
             # Loads each template as an object.
             TemplateObject(template_file)
-        log.info("Created all filters necessary for the API calls")
+        LOG.info("Created all filters necessary for the API calls")
         # Fetches latest AMI IDs from the API.
         # Determines the most common AMI names across all regions
         # Sorts the AMIs by creation date, results go into APIResultsData.results.
         # See APIResultsData class and Codenames.parse_api_results function for details.
         Codenames.fetch_latest_amis()
-        log.info("Latest AMI IDs fetched")
+        LOG.info("Latest AMI IDs fetched")
         Codenames.parse_api_results()
-        log.info("API results parsed")
+        LOG.info("API results parsed")
 
         for template_object in TemplateObject.objects():
             for result in APIResultsData.results:
@@ -508,5 +505,5 @@ class AMIUpdater:
         # For each template, write it to disk.
         for template_object in TemplateObject.objects():
             template_object.write()
-        log.info("{} Templates updated as necessary")
-        log.info("{} Complete!")
+        LOG.info("{} Templates updated as necessary")
+        LOG.info("{} Complete!")

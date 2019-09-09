@@ -124,7 +124,7 @@ class Stacker:
         for status_group in ["COMPLETE", "IN_PROGRESS", "FAILED"]:
             if stack.status in getattr(StackStatus, status_group):
                 return stack.id, status_group, stack.status_reason
-        raise TaskCatException("Invalid stack status {status}")
+        raise TaskCatException(f"Invalid stack {stack}")
 
     def events(self, recurse=False, threads: int = 32, **kwargs):
         if recurse:

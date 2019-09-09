@@ -78,7 +78,8 @@ class Test:
     def _params_from_file(self):
         if not self.parameter_input_file:
             return None
-        params = yaml.safe_load(open(str(self.parameter_input_file), "r"))
+        with open(str(self.parameter_input_file), "r") as f_handle:
+            params = yaml.safe_load(f_handle)
         self._validate_params(params)
         try:
             validate(params, "legacy_parameters")
