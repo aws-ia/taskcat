@@ -22,6 +22,7 @@ class TerminalPrinter:
                 self._print_stack_tree(stack, buffer=self.buffer)
             time.sleep(poll_interval)
             self.buffer.clear()
+            _status_dict = stacker.status()
 
     @staticmethod
     def _print_stack_tree(stack, buffer):
