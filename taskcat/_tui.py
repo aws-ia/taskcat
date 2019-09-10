@@ -28,8 +28,15 @@ class TerminalPrinter:
     def _print_stack_tree(stack, buffer):
         padding_1 = "         "
         buffer.append(
-            "{}{}stack {} {}".format(padding_1, "\u250f ", "\u24c5", stack.name)
+            "{}{}stack {} {}".format(padding_1, "\u250f ", "\u24c2", stack.name)
         )
+        if stack.descendants():
+            for nested_stack in stack.descendants():
+                buffer.append(
+                    "{}{}stack {} {}".format(
+                        padding_1, "\u2523 ", "\u24c3", nested_stack.name
+                    )
+                )
         buffer.append("{}{} region: {}".format(padding_1, "\u2523", stack.region_name))
         buffer.append(
             "{}{}status: {}{}{}".format(
