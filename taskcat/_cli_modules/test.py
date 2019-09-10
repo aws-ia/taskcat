@@ -43,8 +43,8 @@ class Test:
         test_definition.create_stacks()
         terminal_printer = TerminalPrinter()
         terminal_printer.report_test_progress(stacker=test_definition)
-
         # 6. wait for completion
+        test_definition.delete_stacks()
         # 7. delete stacks
         # 8. create report
 
