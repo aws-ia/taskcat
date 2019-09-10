@@ -1,3 +1,4 @@
+reprint
 mock>=2.0.0,<3.0
 tabulate>=0.8.2,<1.0
 pyfiglet>=0.7.5,<1.0
