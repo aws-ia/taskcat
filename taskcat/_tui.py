@@ -1,9 +1,12 @@
+import logging
 import time
 
 from reprint import output
 
 from taskcat._cfn.threaded import Stacker as TaskcatStacker
 from taskcat._logger import PrintMsg
+
+LOG = logging.getLogger(__name__)
 
 
 class TerminalPrinter:
@@ -23,6 +26,8 @@ class TerminalPrinter:
             time.sleep(poll_interval)
             self.buffer.clear()
             _status_dict = stacker.status()
+
+        self._display_final_status(stacker)
 
     @staticmethod
     def _print_stack_tree(stack, buffer):
@@ -44,16 +49,23 @@ class TerminalPrinter:
             )
         )
 
-    #        if stack.children:
-    #            for child in stack.descendants():
-    #                buffer.append(f'         ┗ {child.name}')
+    @staticmethod
+    def _display_final_status(stacker: TaskcatStacker):
+        for final_stack in stacker.stacks:
+            LOG.info("{}stack {} {}".format("\u250f ", "\u24c2", final_stack.name))
+            if final_stack.descendants():
+                for nested_stack in final_stack.descendants():
+                    LOG.info(
+                        "{}stack {} {}".format("\u2523 ", "\u24c3", nested_stack.name)
+                    )
+            LOG.info("{} region: {}".format("\u2523", final_stack.region_name))
+
+            LOG.info(
+                "{}status: {}{} {}".format(
+                    "\u2517 ", PrintMsg.white, final_stack.status, PrintMsg.rst_color
+                )
+            )
 
     @staticmethod
     def _is_test_in_progress(status_dict, status_condition="IN_PROGRESS"):
         return bool(len(status_dict[status_condition]) > 0)
-
-        # for stack in stack:
-
-    #    LOG.info(
-    #        f"Launching test_definition: {stack.name} in Region: {stack.region_name}"
-    #    )
