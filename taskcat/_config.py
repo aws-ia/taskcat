@@ -82,6 +82,7 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.package_lambda: bool = True
         self.s3bucket: S3BucketConfig = S3BucketConfig()
         self.tests: Dict[str, Test] = {}
+        self.installer: Dict[str, Test] = {}
         self.regions: Set[str] = set()
         self.env_vars: Dict[str, str] = {}
         self.project_config_path: Optional[Path] = None
@@ -348,6 +349,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 test.regions = [
                     AWSRegionObject(default_region, self._client_factory_instance)
                 ]
+        else:
+            test.regions = [
+                AWSRegionObject(region, self._client_factory_instance)
+                for region in test.regions
+            ]
 
     def _process_global_config(self):
         if self.global_config_path is None:
@@ -361,18 +367,24 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             return
         with open(str(self.project_config_path), "r") as file_handle:
             instance = yaml.safe_load(file_handle)
-        if "tests" in instance.keys():
-            tests = {}
-            for test in instance["tests"].keys():
-                tests[test] = Test.from_dict(
-                    instance["tests"][test], project_root=self.project_root
-                )
-                tests[test].name = test
-            instance["tests"] = tests
+        self._to_instance(instance, self.project_root, "tests")
+        self._to_instance(instance, self.project_root, "installer")
+
         if "global" in instance.keys():
             self._process_legacy_project(instance)
         validate(instance, "project_config")
         self._set_all(instance)
+
+    @staticmethod
+    def _to_instance(instance, project_root, key):
+        if key in instance.keys():
+            tests = {}
+            for test in instance[key].keys():
+                tests[test] = Test.from_dict(
+                    instance[key][test], project_root=project_root
+                )
+                tests[test].name = test
+            instance[key] = tests
 
     def _process_legacy_project(  # pylint: disable=useless-return
         self, instance
@@ -464,6 +476,11 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
             template_file = (
                 args["template_file"] if "template_file" in args.keys() else None
             )
+            if not template_file and len(self.tests) > 0:
+                test_name = [k for k in self.tests.keys()][0]
+                template_file = self.tests[test_name].template_file
+            elif not template_file:
+                raise TaskCatException("no suitable template file found")
             parameter_input = (
                 args["parameter_input"] if "parameter_input" in args.keys() else None
             )
@@ -477,8 +494,10 @@ class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 project_root=self.project_root,
             )
             args["tests"] = {"default": test}
-            del args["template_file"]
-            del args["parameter_input"]
+            if args.get("template_file"):
+                del args["template_file"]
+            if args.get("parameter_input"):
+                del args["parameter_input"]
 
     @staticmethod
     def _to_general(args: dict):

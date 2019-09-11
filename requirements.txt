@@ -11,3 +11,4 @@ jinja2>=2.10.0,<3.0
 requests>2.17.0
 jsonschema~=3.0
 docker~=3.7
+dulwich~=0.19

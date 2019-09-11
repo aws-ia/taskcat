@@ -1,5 +1,9 @@
 project:
   name: nested-subs
+installer:
+  default:
+    parameters: {}
+    template_file: templates/test.template.yaml
 tests:
   mytest:
     template_file: templates/test.template.yaml

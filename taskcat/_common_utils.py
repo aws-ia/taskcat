@@ -143,6 +143,8 @@ def schema_validate(instance, schema_name):
     if isinstance(instance_copy, dict):
         if "tests" in instance_copy.keys():
             instance_copy["tests"] = tests_to_dict(instance_copy["tests"])
+        if "installer" in instance_copy.keys():
+            instance_copy["installer"] = tests_to_dict(instance_copy["installer"])
     schema_path = Path(__file__).parent.absolute() / "cfg"
     with open(schema_path / f"schema_{schema_name}.json", "r") as file_handle:
         schema = json.load(file_handle)

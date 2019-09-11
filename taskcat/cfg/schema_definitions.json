@@ -99,6 +99,31 @@
             },
             "additionalProperties": false
         },
+        "installer": {
+            "$id": "#installer",
+            "type": "object",
+            "patternProperties": {
+                "^[a-z_\\d-]*$": {
+                    "$ref": "#/definitions/install"
+                }
+            },
+            "additionalProperties": false
+        },
+        "install": {
+            "$id": "#test",
+            "type": "object",
+            "properties": {
+                "template_file": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "$ref": "schema_definitions.json#/definitions/parameters"
+                }
+            },
+            "required": [
+                "template_file"
+            ]
+        },
         "regions": {
             "$id": "#regions",
             "type": "array",

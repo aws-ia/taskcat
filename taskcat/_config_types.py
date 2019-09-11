@@ -283,7 +283,7 @@ class S3Bucket:
 
         # Verify bucket exists.
         try:
-            _ = self.client.list_objects(Bucket=name)
+            _ = self.client.head_bucket(Bucket=name)
         except self.client.exceptions.NoSuchBucket:
             raise TaskCatException(
                 f"The bucket you provided ({name}) does " f"not exist. Exiting."

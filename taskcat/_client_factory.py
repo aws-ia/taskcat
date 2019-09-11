@@ -376,6 +376,11 @@ class ClientFactory:
         if not region:
             creds = self._credential_sets[credential_set]
             region = self.get_default_region(*creds)
+        if not self._clients[credential_set].get(region):
+            creds = self._credential_sets[credential_set]
+            self._clients[credential_set][region] = {
+                "session": self._create_session(region, *creds)
+            }
 
         return self._clients[credential_set][region]["session"]
 

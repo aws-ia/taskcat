@@ -11,6 +11,7 @@ from taskcat._common_utils import merge_dicts
 from taskcat._config import Config
 from taskcat._config_types import AWSRegionObject, Test
 from taskcat.exceptions import TaskCatException
+from taskcat._client_factory import ClientFactory
 
 LOG = logging.getLogger(__name__)
 
@@ -235,3 +236,46 @@ class Stacker:
                 stacks_by_client[client] = {"Client": client, "Stacks": []}
             stacks_by_client[client]["Stacks"].append(stack)
         return [stacks_by_client[r] for r in stacks_by_client]
+
+    @staticmethod
+    def list_stacks(profiles, regions):
+        stacks = fan_out(
+            Stacker._list_per_profile, {"regions": regions}, profiles, threads=8
+        )
+        return [stack for sublist in stacks for stack in sublist]
+
+    @staticmethod
+    def _list_per_profile(profile, regions):
+        stacks = fan_out(
+            Stacker._get_taskcat_stacks,
+            {"boto_factory": ClientFactory(profile_name=profile)},
+            regions,
+            threads=len(regions),
+        )
+        return [stack for sublist in stacks for stack in sublist]
+
+    @staticmethod
+    def _get_taskcat_stacks(region, boto_factory: ClientFactory):
+        cfn = boto_factory.get("cloudformation", region=region)
+        stacks = []
+        profile = list(boto_factory._credential_sets.keys())[0]
+        try:
+            for page in cfn.get_paginator("describe_stacks").paginate():
+                for stack_props in page["Stacks"]:
+                    if stack_props.get("ParentId"):
+                        continue
+                    stack = {"region": region, "profile": profile}
+                    for tag in stack_props["Tags"]:
+                        k, v = (tag["Key"], tag["Value"])
+                        if k.startswith("taskcat-"):
+                            stack[k] = v
+                    if stack.get("taskcat-id"):
+                        stack["taskcat-id"] = uuid.UUID(stack["taskcat-id"])
+                        stacks.append(stack)
+        except Exception:
+            LOG.warning(
+                f"Failed to fetch stacks for region {region} using profile "
+                f"{profile}"
+            )
+            LOG.debug(f"Traceback:", exc_info=True)
+        return stacks

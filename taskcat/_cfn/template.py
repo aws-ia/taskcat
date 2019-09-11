@@ -119,6 +119,8 @@ class Template:
         return error
 
     def _template_url_to_path(self, template_url):
+        # TODO: this code assumes a specific url schema, should rather attempt to
+        #  resolve values from params/defaults
         if isinstance(template_url, dict):
             if "Fn::Sub" in template_url.keys():
                 if isinstance(template_url["Fn::Sub"], str):
@@ -130,7 +132,7 @@ class Template:
         elif isinstance(template_url, str):
             template_path = "/".join(template_url.split("/")[-2:])
         template_path = self.project_root / template_path
-        if template_path.exists():
+        if template_path.is_file():
             return template_path
         LOG.error(
             "Failed to discover path for %s, path %s does not exist",
@@ -178,13 +180,16 @@ class Template:
                 if str(descendent.template_path) == str(child):
                     child_template_instance = descendent
             if not child_template_instance:
-                child_template_instance = Template(
-                    child,
-                    self.project_root,
-                    self._get_relative_url(child),
-                    self._s3_key_prefix,
-                    self.client_factory_instance,
-                )
+                try:
+                    child_template_instance = Template(
+                        child,
+                        self.project_root,
+                        self._get_relative_url(child),
+                        self._s3_key_prefix,
+                        self.client_factory_instance,
+                    )
+                except Exception:
+                    LOG.error(f"Failed to add child template {child}")
             self.children.append(child_template_instance)
 
     @property
