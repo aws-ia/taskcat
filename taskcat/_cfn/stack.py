@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import re
@@ -16,6 +17,8 @@ from taskcat._cfn.template import Template
 from taskcat._common_utils import pascal_to_snake, s3_url_maker
 from taskcat._config import S3Bucket
 from taskcat._config_types import AWSRegionObject
+
+LOG = logging.getLogger(__name__)
 
 GENERIC_ERROR_PATTERNS = [
     r"(The following resource\(s\) failed to create: )",
@@ -455,6 +458,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def delete(self) -> None:
         self.client.delete_stack(StackName=self.id)
+        LOG.info(f"Deleting stack: {self.name} in Region: {self.region_name}")
         self.refresh()
 
     def update(self, *args, **kwargs):
