@@ -12,28 +12,49 @@ def return_mock(*args, **kwargs):
     return mock.Mock()
 
 
+@mock.patch(
+    "taskcat._dataclasses.S3BucketObj._bucket_matches_existing", return_value=True
+)
+def get_tests(test_proj, _):
+    c = Config.create(
+        project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
+    )
+    boto_cache = get_mock_boto_cache()
+    templates = c.get_templates(boto3_cache=boto_cache, project_root=test_proj)
+    regions = c.get_regions(boto3_cache=boto_cache)
+    buckets = c.get_buckets(boto_cache)
+    params = c.get_rendered_parameters(buckets, regions, templates)
+    return (
+        c.config.project.name,
+        c.get_tests(
+            project_root=test_proj,
+            templates=templates,
+            regions=regions,
+            buckets=buckets,
+            parameters=params,
+        ),
+    )
+
+
+@mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
+def get_mock_boto_cache(m_boto):
+    return m_boto()
+
+
 class TestStacker(unittest.TestCase):
     @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
     def test_create_stacks(self):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
-        )
-        stacker = Stacker(c)
+        project_name, tests = get_tests(test_proj)
+        stacker = Stacker(project_name=project_name, tests=tests)
         stacker.create_stacks()
         self.assertEqual(2, len(stacker.stacks))
 
     @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
     def test_delete_stacks(self):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
-        )
-        stacker = Stacker(c)
+        project_name, tests = get_tests(test_proj)
+        stacker = Stacker(project_name=project_name, tests=tests)
         stacker.create_stacks()
         stacker.delete_stacks()
         stacker.stacks[0].delete.assert_called_once()
@@ -41,12 +62,8 @@ class TestStacker(unittest.TestCase):
     @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
     def test_status(self):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
-        )
-        stacker = Stacker(c)
+        project_name, tests = get_tests(test_proj)
+        stacker = Stacker(project_name=project_name, tests=tests)
         stacker.create_stacks()
         stacker.stacks[0].id = "stack-id"
         stacker.stacks[0].status_reason = ""
@@ -65,12 +82,8 @@ class TestStacker(unittest.TestCase):
     @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
     def test_events(self):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
-        )
-        stacker = Stacker(c)
+        project_name, tests = get_tests(test_proj)
+        stacker = Stacker(project_name=project_name, tests=tests)
         stacker.create_stacks()
         events = stacker.events()
         self.assertEqual(2, len(events))
@@ -78,28 +91,22 @@ class TestStacker(unittest.TestCase):
     @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
     def test_resources(self):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
-        )
-        stacker = Stacker(c)
+        project_name, tests = get_tests(test_proj)
+        stacker = Stacker(project_name=project_name, tests=tests)
         stacker.create_stacks()
         resources = stacker.resources()
         self.assertEqual(2, len(resources))
 
-    @mock.patch("taskcat._cfn.threaded.AWSRegionObject.client", return_mock)
+    @mock.patch("taskcat._dataclasses.RegionObj.client", return_mock)
     @mock.patch(
         "taskcat._cfn.threaded.Stacker._import_stacks_per_client", return_value=[]
     )
     def test_from_existing(self, m_import):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
+        project_name, tests = get_tests(test_proj)
+        s = Stacker.from_existing(
+            uid=uuid.UUID(int=0), tests=tests, project_name=project_name
         )
-        s = Stacker.from_existing(uuid.UUID(int=0), c)
         self.assertEqual([], s.stacks)
 
     @mock.patch("taskcat._cfn.threaded.Stack.import_existing")

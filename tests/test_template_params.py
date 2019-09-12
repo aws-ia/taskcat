@@ -6,7 +6,7 @@ from io import BytesIO
 
 import mock
 
-from taskcat._client_factory import ClientFactory
+from taskcat._client_factory import Boto3Cache
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
 
@@ -14,8 +14,8 @@ logger = logging.getLogger("taskcat")
 
 
 def client_factory_instance():
-    with mock.patch.object(ClientFactory, "__init__", return_value=None):
-        aws_clients = ClientFactory(None)
+    with mock.patch.object(Boto3Cache, "__init__", return_value=None):
+        aws_clients = Boto3Cache(None)
     aws_clients._credential_sets = {"default": [None, None, None, None]}
     aws_clients.logger = logger
     return aws_clients

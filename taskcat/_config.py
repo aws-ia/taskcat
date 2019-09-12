@@ -2,499 +2,333 @@ import logging
 import os
 import uuid
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, Optional, Union
 
 import yaml
-from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
-import cfnlint
 from taskcat._cfn.template import Template
-from taskcat._client_factory import ClientFactory
-from taskcat._common_utils import absolute_path, schema_validate as validate
-from taskcat._config_types import AWSRegionObject, S3Bucket, S3BucketConfig, Test
+from taskcat._client_factory import Boto3Cache
+from taskcat._common_utils import generate_bucket_name
+from taskcat._dataclasses import BaseConfig, RegionObj, S3BucketObj, TestObj, TestRegion
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
-# TODO: build a mechanism to identify the source of a config value
+GENERAL = Path("~/.taskcat.yml").expanduser().resolve()
+PROJECT = Path("./.taskcat.yml").resolve()
+PROJECT_ROOT = Path("./").resolve()
+OVERRIDES = Path("./.taskcat_overrides.yml").resolve()
+
+DEFAULTS = {
+    "project": {
+        "build_submodules": True,
+        "package_lambda": True,
+        "lambda_zip_path": "lambda_functions/packages",
+        "lambda_source_path": "lambda_functions/source",
+    }
+}
 
 
-class Config:  # pylint: disable=too-many-instance-attributes,too-few-public-methods
-    """
-    Config hierarchy (items lower down override items above them):
-    global config
-    project config
-    template config
-    ENV vars
-    CLI args
-    Override file (for parameter overrides)
-    """
+class Config:
+    def __init__(self, sources: list, uid: uuid.UUID):
+        self.config = BaseConfig.from_dict(DEFAULTS)
+        self.config.set_source("TASKCAT_DEFAULT")
+        self.uid = uid
+        for source in sources:
+            config_dict: dict = source["config"]
+            source_name: str = source["source"]
+            source_config = BaseConfig.from_dict(config_dict)
+            source_config.set_source(source_name)
+            self.config = BaseConfig.merge(self.config, source_config)
 
-    DEFAULT_PROJECT_PATHS = [
-        "./.taskcat.yml",
-        "./.taskcat.yaml",
-        "./ci/taskcat.yaml",
-        "./ci/taskcat.yml",
-    ]
-
-    def __init__(  # noqa: C901
-        self,
+    @classmethod
+    # pylint: disable=too-many-locals
+    def create(
+        cls,
+        template_file: Optional[Path] = None,
         args: Optional[dict] = None,
-        global_config_path: str = "~/.taskcat.yml",
-        project_config_path: Optional[Union[Path, str]] = None,
-        project_root: str = "./",
-        override_file: str = None,  # pylint: disable=unused-argument
-        all_env_vars: Optional[List[dict]] = None,
-        create_clients: bool = True,
-    ):  # #pylint: disable=too-many-arguments
-        # #pylint: disable=too-many-statements
-        # inputs
-        if absolute_path(project_config_path) and not Path(project_root).is_absolute():
-            project_root = absolute_path(project_config_path).parent / project_root
-        self.project_root: Union[Path, str] = absolute_path(project_root)
-        if not self.project_root:
-            raise TaskCatException(f"project_root {project_root} is not a valid path")
-        self.args: dict = args if args else {}
-        self.global_config_path: Optional[Path] = absolute_path(global_config_path)
-        self._client_factory_instance = ClientFactory()
-        # Used only in initial client configuration, then set to None
-
-        # general config
-        self.profile_name: str = ""
-        self.aws_access_key: str = ""
-        self.aws_secret_key: str = ""
-        self.no_cleanup: bool = False
-        self.no_cleanup_failed: bool = False
-        self.verbosity: str = "DEBUG"
-        self.tags: dict = {}
-        self.stack_prefix: str = ""
-        self.lint: bool = False
-        self.upload_only: bool = False
-        self.lambda_build_only: bool = False
-        self.exclude: str = ""
-        self.enable_sig_v2: bool = False
-        self.auth: Dict[str, dict] = {}
-
-        # project config
-        self.name: str = ""
-        self.owner: str = ""
-        self.package_lambda: bool = True
-        self.s3bucket: S3BucketConfig = S3BucketConfig()
-        self.tests: Dict[str, Test] = {}
-        self.regions: Set[str] = set()
-        self.env_vars: Dict[str, str] = {}
-        self.project_config_path: Optional[Path] = None
-        self.template_path: Optional[Path] = None
-        self.lambda_source_path: Path = (
-            Path(self.project_root) / "functions/source/"
-        ).resolve()
-        self.lambda_zip_path: Path = (
-            Path(self.project_root) / "functions/packages/"
-        ).resolve()
-        self.build_submodules = True
-        self._harvest_env_vars(all_env_vars if all_env_vars else os.environ.items())
-        self._process_global_config()
-
-        if not self._absolute_path(project_config_path):
-            for path in Config.DEFAULT_PROJECT_PATHS:
-                try:
-                    project_config_path = self._absolute_path(path)
-                    LOG.debug("found project config in default location %s", path)
-                    break
-                except TaskCatException:
-                    LOG.debug("didn't find project config in %s", path)
-        if not self._absolute_path(project_config_path):
-            raise TaskCatException(
-                f"failed to load project config file {project_config_path}. file "
-                f"does not exist"
-            )
-
-        if self._is_template(self._absolute_path(project_config_path)):
-            self.template_path = self._absolute_path(project_config_path)
-            self._process_template_config()
-        else:
-            self.project_config_path = self._absolute_path(project_config_path)
-            self._process_project_config()
-
-        self._process_env_vars()
-        self._process_args()
-        if not self.template_path and not self.tests:
-            raise TaskCatException(
-                "minimal config requires at least one test or a "
-                "template_path to be defined"
-            )
-
-        # Add test/region specific credential sets to ClientFactory instance.
-        self._add_granular_credsets_to_cf()
-
-        # Used where full Regional/S3Bucket properties are needd.
-        # - ie: 'test' subcommand, etc.
-        if create_clients:
-            # Assign regional and test-specific client-factories
-            self._enable_regional_creds()
-
-            # Assign account-based buckets.
-            self._assign_account_buckets()
-
-            # generate regional-based parameters
-            self._generate_regional_parameters()
-
-        # add `template` attribute to Test objects
-        for _, test_obj in self.tests.items():
-            test_obj.template = None  # type: ignore
-
-        # build and attach template objects
-        self._get_templates()
-
-    @staticmethod
-    def _is_template(path):
-        parsed_file = cfnlint.decode.cfn_yaml.load(str(path))
-        return "Resources" in parsed_file
-
-    def _get_templates(self):
-        for _, test in self.tests.items():
-            test.template = Template(
-                template_path=test.template_file,
-                project_root=self.project_root,
-                s3_key_prefix=f"{self.name}/",
-                client_factory_instance=test.client_factory,
-            )
-
-    def _enable_regional_creds(self):
-        for test_name, test_obj in self.tests.items():
-            for region in test_obj.regions:
-                self._set_appropriate_creds(test_name, region)
-
-    def _set_appropriate_creds(self, test_name, region):
-
-        cred_key_list = [
-            "default",
-            f"{test_name}_default",
-            region.name,
-            f"{test_name}_{region.name}",
-        ]
-        for cred_key in cred_key_list:
-            if self._client_factory_instance.credset_exists(cred_key):
-                region.credset_name = cred_key
-
-        sts_client = region.client("sts")
-        try:
-            account = sts_client.get_caller_identity()["Account"]
-
-        except ClientError as e:
-            if e.response["Error"]["Code"] == "AccessDenied":
-                raise TaskCatException(
-                    f"Not able to fetch account number from {region}. {str(e)}"
-                )
-            raise
-        except NoCredentialsError as e:
-            raise TaskCatException(str(e))
-        except ProfileNotFound as e:
-            raise TaskCatException(str(e))
-        region.account = account
-        region.set_partition()
-        region.disable_credset_modification()
-
-    def _generate_regional_parameters(self):
-        for test in self.tests.values():
-            for region in test.regions:
-                param_obj = ParamGen(
-                    test.parameters, region.s3bucket.name, region.name, region.client
-                )
-                test.parameters = param_obj.results
-
-    @staticmethod
-    def _get_bucket_instance(bucket_dict, name="", account=None, **kwargs):
-        if account in bucket_dict.keys():
-            return bucket_dict[account]
-        if name in bucket_dict.keys():
-            return bucket_dict[name]
-        bucket_instance = S3Bucket(name=name, **kwargs)
-        if name:
-            bucket_dict[name] = bucket_instance
-        if account:
-            bucket_dict[account] = bucket_instance
-        return bucket_instance
-
-    def _assign_account_buckets(self):
-        bucket_dict = {}
-
-        test_regions = set()
-        for test in self.tests.values():
-            for test_region in test.regions:
-                test_regions.add(test_region)
-
-        for test_region in test_regions:
-            if test_region.s3bucket:
-                continue
-            if self.s3bucket.name:
-                test_region.s3bucket = self._get_bucket_instance(
-                    bucket_dict,
-                    config=self,
-                    name=self.s3bucket.name,
-                    client=test_region.client("s3"),
-                )
-            else:
-                bucket_name = self._generate_auto_bucket_name()
-                test_region.s3bucket = self._get_bucket_instance(
-                    bucket_dict,
-                    config=self,
-                    name=bucket_name,
-                    region=test_region.get_bucket_region_for_partition(),
-                    account=test_region.account,
-                    auto=True,
-                    client=test_region.get_s3_client(),
-                )
-
-    def _generate_auto_bucket_name(self):
-        name_list = ["taskcat"]
-        if self.stack_prefix:
-            name_list.append(self.stack_prefix)
-        if self.name:
-            name_list.append(self.name)
-        name_list.append(str(uuid.uuid4())[:8])
-        full_bucket_name = "-".join(name_list)
-        return full_bucket_name
-
-    def _build_cred_dict(self):
-        creds = {}
-        for cred_type in ["aws_secret_key", "aws_access_key", "profile_name"]:
-            cred_val = getattr(self, cred_type)
-            if cred_val:
-                creds[cred_type] = cred_val
-        return creds
-
-    @staticmethod
-    def _cred_merge(creds, regional):
-        if "default" in regional:
-            creds["profile_name"] = regional["default"]
-            del regional["default"]
-        if "regional_cred_map" not in creds:
-            creds["regional_cred_map"] = {}
-        for region, profile_name in regional.items():
-            creds["regional_cred_map"][region] = {"profile_name": profile_name}
-        return creds
-
-    @staticmethod
-    def region_to_str(region):
-        if isinstance(region, str):
-            return region
-        return region.name
-
-    def _add_granular_credsets_to_cf(self):
-
-        for cred_key, profile_name in self.auth.items():
-            self._client_factory_instance.put_credential_set(
-                cred_key, profile_name=profile_name
-            )
-
-        for test_name, test in self.tests.items():
-            test_regions = [self.region_to_str(region) for region in test.regions]
-            if test.auth:
-                for cred_key, cred_profile in test.auth.items():
-                    if cred_key != "default" and cred_key not in test_regions:
-                        LOG.warning(
-                            f"{test_name} doesn't use creds: {cred_key}. Skipping"
-                        )
-                    self._client_factory_instance.put_credential_set(
-                        f"{test_name}_{cred_key}", profile_name=cred_profile
-                    )
-            self._propagate_regions(test)
-
-    def _absolute_path(self, path: Optional[Union[str, Path]]) -> Optional[Path]:
-        if path is None:
-            return path
-        path = Path(path)
-        abs_path = absolute_path(path)
-        if self.project_root and not abs_path:
-            abs_path = absolute_path(Path(self.project_root) / Path(path))
-        if not abs_path:
-            raise TaskCatException(
-                f"Unable to resolve path {path}, with project_root "
-                f"{self.project_root}"
-            )
-        return abs_path
-
-    def _set(self, opt, val):
-        if opt in ["project", "general"]:
-            for k, v in val.items():
-                self._set(k, v)
-            return
-        if opt not in self.__dict__:
-            raise ValueError(f"{opt} is not a valid config option")
-        setattr(self, opt, val)
-
-    def _set_all(self, config: dict):
-        for k, v in config.items():
-            self._set(k, v)
-
-    def _propagate_regions(self, test: Test):
-        # TODO: Better way to handle default_region
-        default_region = test.client_factory.get_default_region(None, None, None, None)
-        if not test.regions and not default_region and not self.regions:
-            raise TaskCatException(
-                f"unable to define region for test {test.name}, you must define "
-                f"regions "
-                f"or set a default region in the aws cli"
-            )
-        if not test.regions:
-            if self.regions:
-                test.regions = [
-                    AWSRegionObject(region, self._client_factory_instance)
-                    for region in self.regions
-                ]
-            else:
-                test.regions = [
-                    AWSRegionObject(default_region, self._client_factory_instance)
-                ]
-
-    def _process_global_config(self):
-        if self.global_config_path is None:
-            return
-        instance = yaml.safe_load(open(str(self.global_config_path), "r"))
-        validate(instance, "global_config")
-        self._set_all(instance)
-
-    def _process_project_config(self):
-        if self.project_config_path is None:
-            return
-        with open(str(self.project_config_path), "r") as file_handle:
-            instance = yaml.safe_load(file_handle)
-        if "tests" in instance.keys():
-            tests = {}
-            for test in instance["tests"].keys():
-                tests[test] = Test.from_dict(
-                    instance["tests"][test], project_root=self.project_root
-                )
-                tests[test].name = test
-            instance["tests"] = tests
-        if "global" in instance.keys():
-            self._process_legacy_project(instance)
-        validate(instance, "project_config")
-        self._set_all(instance)
-
-    def _process_legacy_project(  # pylint: disable=useless-return
-        self, instance
-    ) -> Optional[Exception]:
-        validate(instance, "legacy_project_config")
-        LOG.warning(
-            "%s config file is in a format that will be deprecated in the next "
-            "version of taskcat",
-            str(self.project_config_path),
+        global_config_path: Path = GENERAL,
+        project_config_path: Path = PROJECT,
+        overrides_path: Path = OVERRIDES,
+        env_vars: Optional[dict] = None,
+        project_root: Path = PROJECT_ROOT,
+        uid: uuid.UUID = None,
+    ) -> "Config":
+        uid = uid if uid else uuid.uuid4()
+        project_source = cls._get_project_source(
+            cls, project_config_path, project_root, template_file
         )
-        # rename global to project
-        if "global" in instance:
-            instance["project"] = instance["global"]
-            del instance["global"]
-        if "project" in instance:
-            # delete unneeded config items
-            for del_item in ["marketplace-ami", "reporting"]:
-                if del_item in instance["project"]:
-                    del instance["project"][del_item]
-            # rename items with new keys
-            for rename_item in [
-                ["qsname", "name"],
-                ["package-lambda", "package_lambda"],
-            ]:
-                if rename_item[0] in instance["project"]:
-                    instance["project"][rename_item[1]] = instance["project"][
-                        rename_item[0]
-                    ]
-                    del instance["project"][rename_item[0]]
-        return None
 
-    def _process_template_config(self):
-        if not self.template_path:
-            return
-        template = Template(str(self.template_path)).template
-        try:
-            template_config = template["Metadata"]["taskcat"]
-        except KeyError:
-            name = self.template_path.name.split(".")[0]
-            template_config = {
-                "project": {"name": name},
-                "tests": {name: {}, "parameters": {}},
+        # general
+        sources = [
+            {
+                "source": str(global_config_path),
+                "config": cls._dict_from_file(global_config_path),
             }
-        self._add_template_path(template_config)
-        validate(template_config, "project_config")
-        self._set_all(template_config)
+        ]
 
-    def _add_template_path(self, template_config):
-        if "tests" in template_config.keys():
-            for test in template_config["tests"].keys():
-                if "template_file" not in template_config["tests"][test].keys():
-                    rel_path = str(self.template_path.relative_to(self.project_root))
-                    template_config["tests"][test]["template_file"] = rel_path
-                template_config["tests"][test] = Test.from_dict(
-                    template_config["tests"][test], project_root=self.project_root
-                )
+        # project config file
+        if project_source:
+            sources.append(project_source)
 
-    def _process_env_vars(self):
-        self._to_project(self.env_vars)
-        self._to_tests(self.env_vars)
-        self._to_general(self.env_vars)
-        if not self.env_vars:
-            return
-        self._set_all(self.env_vars)
+        # template file
+        if isinstance(template_file, Path):
+            sources.append(
+                {
+                    "source": str(template_file),
+                    "config": cls._dict_from_template(template_file),
+                }
+            )
 
-    def _process_args(self):
-        self._to_project(self.args)
-        self._to_tests(self.args)
-        self._to_general(self.args)
-        if not self.args:
-            return
-        self._set_all(self.args)
+        # override file
+        if overrides_path.is_file():
+            try:
+                overrides = BaseConfig().to_dict()
+                with open(str(overrides_path), "r") as file_handle:
+                    override_params = yaml.safe_load(file_handle)
+                overrides["project"]["parameters"] = override_params
+                sources.append({"source": str(overrides_path), "config": overrides})
+            except Exception as e:  # pylint: disable=broad-except
+                LOG.debug(str(e), exc_info=True)
+
+        # environment variables
+        sources.append(
+            {
+                "source": "EnvoronmentVariable",
+                "config": cls._dict_from_env_vars(env_vars),
+            }
+        )
+
+        # cli arguments
+        if args:
+            sources.append({"source": "CliArgument", "config": args})
+        return cls(sources=sources, uid=uid)
+
+    # pylint: disable=protected-access
+    @staticmethod
+    def _get_project_source(base_cls, project_config_path, project_root, template_file):
+        try:
+            return {
+                "source": str(project_config_path),
+                "config": base_cls._dict_from_file(project_config_path, fail_ok=False),
+            }
+        except Exception as e:  # pylint: disable=broad-except
+            error = e
+            try:
+                return {
+                    "source": str(project_root / "ci/taskcat.yml"),
+                    "config": base_cls._dict_from_file(
+                        project_config_path, fail_ok=False
+                    ),
+                }
+            except Exception as e:  # pylint: disable=broad-except
+                LOG.debug(str(e), exc_info=True)
+                if not template_file:
+                    raise error
 
     @staticmethod
-    def _to_project(args: dict):
-        if "project" not in args.keys():
-            args["project"] = {}
-        for arg in list(args.keys()):
-            if arg.startswith("project_"):
-                args["project"][arg[8:]] = args[arg]
-                del args[arg]
-
-    def _to_tests(self, args: dict):
-        if (
-            "template_file" in args.keys()
-            or "parameter_input" in args.keys()
-            or "regions" in args.keys()
-        ):
-            template_file = (
-                args["template_file"] if "template_file" in args.keys() else None
-            )
-            parameter_input = (
-                args["parameter_input"] if "parameter_input" in args.keys() else None
-            )
-            regions = (
-                set(args["regions"].split(",")) if "regions" in args.keys() else set()
-            )
-            test = Test(
-                template_file=template_file,
-                parameter_input=parameter_input,
-                regions=regions,
-                project_root=self.project_root,
-            )
-            args["tests"] = {"default": test}
-            del args["template_file"]
-            del args["parameter_input"]
+    def _dict_from_file(file_path: Path, fail_ok=True) -> dict:
+        config_dict = BaseConfig().to_dict()
+        if not file_path.is_file() and fail_ok:
+            return config_dict
+        try:
+            with open(str(file_path), "r") as file_handle:
+                config_dict = yaml.safe_load(file_handle)
+            return config_dict
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.warning(f"failed to load config from {file_path}")
+            LOG.debug(str(e), exc_info=True)
+            if not fail_ok:
+                raise e
+        return config_dict
 
     @staticmethod
-    def _to_general(args: dict):
-        for arg in list(args.keys()):
-            if "general" not in args.keys():
-                args["general"] = {}
-            if arg not in ["project", "tests"]:
-                args["general"][arg] = args[arg]
-                del args[arg]
+    def _dict_from_template(file_path: Path) -> dict:
+        relative_path = str(file_path.relative_to(PROJECT_ROOT))
+        config_dict = (
+            BaseConfig()
+            .from_dict(
+                {"project": {"template": relative_path}, "tests": {"default": {}}}
+            )
+            .to_dict()
+        )
+        if not file_path.is_file():
+            raise TaskCatException(f"invalid template path {file_path}")
+        try:
+            template = Template(str(file_path)).template
+        except Exception as e:
+            LOG.warning(f"failed to load template from {file_path}")
+            LOG.debug(str(e), exc_info=True)
+            raise e
+        if not template.get("Metadata"):
+            return config_dict
+        if not template["Metadata"].get("taskcat"):
+            return config_dict
+        template_config_dict = template["Metadata"]["taskcat"]
+        if not template_config_dict.get("project"):
+            template_config_dict["project"] = {}
+        template_config_dict["project"]["template"] = relative_path
+        if not template_config_dict.get("tests"):
+            template_config_dict["tests"] = {"default": {}}
+        return template_config_dict
 
-    def _harvest_env_vars(self, env_vars):
-        for key, value in env_vars:
+    # pylint: disable=protected-access
+    @staticmethod
+    def _dict_from_env_vars(
+        env_vars: Optional[Union[os._Environ, Dict[str, str]]] = None
+    ):
+        if env_vars is None:
+            env_vars = os.environ
+        config_dict: Dict[str, Dict[str, Union[str, bool, int]]] = {}
+        for key, value in env_vars.items():
             if key.startswith("TASKCAT_"):
                 key = key[8:].lower()
-                if value.isnumeric():
-                    value = int(value)
-                elif value.lower() in ["true", "false"]:
-                    value = value.lower() == "true"
-                self.env_vars[key] = value
+                sub_key = None
+                key_section = None
+                for section in ["general", "project", "tests"]:
+                    if key.startswith(section):
+                        sub_key = key[len(section) + 1 :]
+                        key_section = section
+                if isinstance(sub_key, str) and isinstance(key_section, str):
+                    if value.isnumeric():
+                        value = int(value)
+                    elif value.lower() in ["true", "false"]:
+                        value = value.lower() == "true"
+                    if not config_dict.get(key_section):
+                        config_dict[key_section] = {}
+                    config_dict[key_section][sub_key] = value
+        return config_dict
+
+    def get_regions(self, boto3_cache: Boto3Cache = None):
+        if boto3_cache is None:
+            boto3_cache = Boto3Cache()
+
+        region_objects: Dict[str, Dict[str, RegionObj]] = {}
+        for test_name, test in self.config.tests.items():
+            region_objects[test_name] = {}
+            for region in test.regions:
+                profile = test.auth.get(region, "default") if test.auth else "default"
+                region_objects[test_name][region] = RegionObj(
+                    name=region,
+                    account_id=boto3_cache.account_id(profile),
+                    partition=boto3_cache.partition(profile),
+                    profile=profile,
+                    _boto3_cache=boto3_cache,
+                    taskcat_id=self.uid,
+                )
+        return region_objects
+
+    def get_buckets(self, boto3_cache: Boto3Cache = None):
+        regions = self.get_regions(boto3_cache)
+        bucket_objects: Dict[str, S3BucketObj] = {}
+        bucket_mappings: Dict[str, Dict[str, S3BucketObj]] = {}
+        for test_name, test in self.config.tests.items():
+            bucket_mappings[test_name] = {}
+            for region_name, region in regions[test_name].items():
+                bucket_obj = self._create_bucket_obj(bucket_objects, region, test)
+                bucket_objects[region.account_id] = bucket_obj
+                bucket_mappings[test_name][region_name] = bucket_obj
+        return bucket_mappings
+
+    def _create_bucket_obj(self, bucket_objects, region, test):
+        new = False
+        object_acl = (
+            self.config.project.s3_object_acl
+            if self.config.project.s3_object_acl
+            else "private"
+        )
+        sigv4 = not self.config.project.s3_enable_sig_v2
+        if not test.s3_bucket and not bucket_objects.get(region.account_id):
+            name = generate_bucket_name(self.config.project.name)
+            auto_generated = True
+            new = True
+        elif bucket_objects.get(region.account_id):
+            name = bucket_objects[region.account_id].name
+            auto_generated = bucket_objects[region.account_id].auto_generated
+        else:
+            name = test.s3_bucket
+            auto_generated = False
+        bucket_region = self._get_bucket_region_for_partition(region.partition)
+        bucket_obj = S3BucketObj(
+            name=name,
+            region=bucket_region,
+            account_id=region.account_id,
+            s3_client=region.session.client("s3", region_name=bucket_region),
+            auto_generated=auto_generated,
+            object_acl=object_acl,
+            sigv4=sigv4,
+            taskcat_id=self.uid,
+            partition=region.partition,
+        )
+        if new:
+            bucket_obj.create()
+        return bucket_obj
+
+    @staticmethod
+    def _get_bucket_region_for_partition(partition):
+        region = "us-east-1"
+        if partition == "aws-us-gov":
+            region = "us-gov-east-1"
+        elif partition == "aws-cn":
+            region = "cn-north-1"
+        return region
+
+    def get_rendered_parameters(self, bucket_objects, region_objects, template_objects):
+        parameters = {}
+        template_params = self.get_params_from_templates(template_objects)
+        for test_name, test in self.config.tests.items():
+            parameters[test_name] = {}
+            for region_name in test.regions:
+                region_params = template_params[test_name].copy()
+                for param_key, param_value in test.parameters.items():
+                    if param_key in region_params:
+                        region_params[param_key] = param_value
+                region = region_objects[test_name][region_name]
+                s3bucket = bucket_objects[test_name][region_name]
+                parameters[test_name][region_name] = ParamGen(
+                    region_params, s3bucket.name, region.name, region.client
+                ).results
+        return parameters
+
+    @staticmethod
+    def get_params_from_templates(template_objects):
+        parameters = {}
+        for test_name, template in template_objects.items():
+            parameters[test_name] = template.parameters()
+        return parameters
+
+    def get_templates(self, project_root: Path, boto3_cache: Boto3Cache):
+        templates = {}
+        for test_name, test in self.config.tests.items():
+            templates[test_name] = Template(
+                template_path=project_root / test.template,
+                project_root=project_root,
+                s3_key_prefix=f"{self.config.project.name}/",
+                boto3_cache=boto3_cache,
+                s3_region=self._get_bucket_region_for_partition(
+                    boto3_cache.partition()
+                ),
+            )
+        return templates
+
+    def get_tests(self, project_root, templates, regions, buckets, parameters):
+        tests = {}
+        for test_name, test in self.config.tests.items():
+            region_list = []
+            for region_obj in regions[test_name].values():
+                region_list.append(
+                    TestRegion.from_region_obj(
+                        region_obj,
+                        buckets[test_name][region_obj.name],
+                        parameters[test_name][region_obj.name],
+                    )
+                )
+            tests[test_name] = TestObj(
+                name=test_name,
+                template_path=project_root / test.template,
+                template=templates[test_name],
+                project_root=project_root,
+                regions=region_list,
+            )
+        return tests

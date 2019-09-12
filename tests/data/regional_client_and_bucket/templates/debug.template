@@ -4,7 +4,8 @@
     "Parameters": {
         "StackName": {
             "Description": "StackName",
-            "Type": "String"
+            "Type": "String",
+            "Default": "default-value"
         },
         "RandomString": {
             "Description": "RandomString",
