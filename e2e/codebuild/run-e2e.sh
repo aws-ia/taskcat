@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 SOURCE="../../taskcat/"
 OMIT="../../taskcat/_stacker.py"
@@ -27,5 +27,10 @@ done
 coverage report > ../../cov_report
 
 pyenv shell 3.7.4
+if [[ ${FAILED} -eq 0 ]] ; then
+  echo "ALL TESTS PASSED"
+else
+  echo "TEST FAILED"
+fi
 python /results_comment.py $(git rev-parse HEAD) ${FAILED}
 exit ${FAILED}

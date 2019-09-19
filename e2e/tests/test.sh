@@ -1,7 +1,7 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # pass on CREATE_COMPLETE
-echo  'TODO: Not implemented'
+echo  'test run CREATE_COMPLETE TODO: Not implemented'
 
 # fail with error on CREATE_FAIL
-echo  'TODO: Not implemented'
+echo  'test run CREATE_FAIL TODO: Not implemented'
