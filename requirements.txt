@@ -13,3 +13,4 @@ requests>2.17.0
 jsonschema~=3.0
 docker~=3.7
 dataclasses;python_version<"3.7"
+dataclasses-jsonschema>=2.9.0,<3.0

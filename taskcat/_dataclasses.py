@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, Dict, List, NewType, Optional, Union
 
 import boto3
-
 from dataclasses_jsonschema import FieldEncoder, JsonSchemaMixin
+
 from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_nested_dict

@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Dict, List
 
 import yaml
-
 from dataclasses_jsonschema import JsonSchemaMixin
+
 from taskcat._dataclasses import BaseConfig
 from taskcat.exceptions import TaskCatException
 
