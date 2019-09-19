@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # pass without any nested stacks
-${BIN} lint ../../tests/data/lambda_build_with_submodules/.taskcat.yml >& /tmp/output
+${BIN} lint -p ../../tests/data/lambda_build_with_submodules >& /tmp/output
 cat /tmp/output
 
 if [[ $(cat /tmp/output | grep -c "Lint passed for test mytest on template") -ne 1 ]]
@@ -11,7 +11,7 @@ then
 fi
 
 # pass with 4 descendant templates
-${BIN} lint ../../tests/data/nested-fail/ci/taskcat.yml --project-root ../ >& /tmp/output
+${BIN} lint -p ../../tests/data/nested-fail >& /tmp/output
 cat /tmp/output
 
 if [[ $(cat /tmp/output | grep -c "Lint passed for test taskcat-json on template ") -ne 5 ]]
@@ -21,7 +21,7 @@ then
 fi
 
 # pass with warning
-${BIN} lint ../../tests/data/lint-warning/.taskcat.yml  >& /tmp/output
+${BIN} lint -p ../../tests/data/lint-warning  >& /tmp/output
 cat /tmp/output
 
 if [[ $(cat /tmp/output | grep -c '\[2001\] \[Check if Parameters are Used\]') -ne 1 ]]
@@ -32,7 +32,7 @@ fi
 
 # fail with error
 EXIT_CODE=0
-${BIN} lint ../../tests/data/lint-error/.taskcat.yml >& /tmp/output || EXIT_CODE=$?
+${BIN} lint -p ../../tests/data/lint-error >& /tmp/output || EXIT_CODE=$?
 cat /tmp/output
 
 if [[ ${EXIT_CODE} -ne 1 ]] ; then
