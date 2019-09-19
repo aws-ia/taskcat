@@ -25,8 +25,8 @@ class Package:
         :param zip_folder: folder to output zip files, relative to the project root
         :param config_file: path to taskcat project config file
         """
-        project_config: Path = Path(config_file).expanduser().resolve()
         project_root_path: Path = Path(project_root).expanduser().resolve()
+        project_config: Path = project_root_path / config_file
         config = Config.create(
             project_config_path=project_config,
             project_root=project_root_path,

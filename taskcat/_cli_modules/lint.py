@@ -14,7 +14,7 @@ class Lint:
 
     def __init__(
         self,
-        input_file: str = "./.taskcat.yml",
+        input_file: str = ".taskcat.yml",
         project_root: str = "./",
         strict: bool = False,
     ):
@@ -25,7 +25,7 @@ class Lint:
         """
 
         project_root_path: Path = Path(project_root).expanduser().resolve()
-        input_file_path: Path = Path(input_file).expanduser().resolve()
+        input_file_path: Path = project_root_path / input_file
         config = Config.create(
             project_root=project_root_path, project_config_path=input_file_path
         )
