@@ -32,5 +32,7 @@ if [[ ${FAILED} -eq 0 ]] ; then
 else
   echo "TEST FAILED"
 fi
-python /results_comment.py $(git rev-parse HEAD) ${FAILED}
+if [[ "${LOCAL_TEST}" != "True" ]]; then
+  python /results_comment.py "$(git rev-parse HEAD)" ${FAILED}
+fi
 exit ${FAILED}
