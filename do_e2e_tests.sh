@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 echo "Building codebuild image..."
 cd e2e/codebuild/
@@ -27,8 +27,12 @@ read -r AKI SAK ST <<< $(aws sts assume-role --role-arn ${ROLE_ARN} \
   --output text)
 
 
-echo "executing build... (privileged mode needed for docker in docker)"
+echo "executing e2e test container... (privileged mode needed for docker in docker)"
 docker run -it --privileged --rm --name taskcat-e2e \
   --mount type=bind,source="$(pwd)",target=/taskcat-v9 -e AWS_ACCESS_KEY_ID=${AKI} \
   -e AWS_SECRET_ACCESS_KEY=${SAK} -e AWS_SESSION_TOKEN=${ST} \
   taskcat-e2e-local:latest
+
+echo ""
+cat ./cov_report
+rm ./cov_report
