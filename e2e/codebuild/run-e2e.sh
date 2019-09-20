@@ -18,9 +18,10 @@ function failed() {
 
 for ver in "$@" ; do
     pyenv shell ${ver}
+    echo "running tests using ${ver}..."
     for t in $(ls -1 *.sh) ; do
         chmod +x ./${t}
-        echo "running tests in ${t}..."
+        echo "  running tests in ${t}..."
         BIN=${CMD} ./${t} || failed
     done
 done
