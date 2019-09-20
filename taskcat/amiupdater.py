@@ -277,19 +277,19 @@ class TemplateObject(TemplateClass):
         self.all_regions = all_regions
         self.filters = None
         self.codename = None
-        
+
         # This is where we know the instantation is good (we've passed sanity checks).
         # Looking for Mappings/AWSAMIRegionMap
         if not self._mapping_root:
             return None
 
-        # Sort out what regions are being used. 
+        # Sort out what regions are being used.
         self._determine_regions()
 
         # Appending the object so it can be referenced later.
         self._objs.append(self)
 
-        # Generate RegionalCodename filters based on what's in the template. 
+        # Generate RegionalCodename filters based on what's in the template.
         self._generate_regional_codenames()
 
 
@@ -301,20 +301,14 @@ class TemplateObject(TemplateClass):
         for region in self._regions:
             if region == 'AMI':
                 continue
-            if self.filter_metadata:
-                for k in self.filter_metadata.keys():
-                    RegionalCodename(cn=k, region=region, filters=self.filter_metadata[k])
-            else:
-                # Region Name, Latest AMI Name in Template
-                # - We instantiate them in the RegionalCodename class
-                #   because it allows us to access the attributes as an object.
-                #   It also generates the Filters needed in each API call.
-                #   - This is done in the Codenames class, so check that out.
-                try:
-                    for k in self._mapping_root[region].keys():
+            try:
+                for k in self._mapping_root[region].keys():
+                    if self.filter_metadata and (k in self.filter_metadata.keys()):
+                        RegionalCodename(cn=k, region=region, filters=self.filter_metadata[k])
+                    else:
                         RegionalCodename(cn=k, region=region)
-                except KeyError:
-                    pass
+            except KeyError:
+                pass
 
     def _determine_regions(self):
         self._region_list = list()
@@ -332,6 +326,7 @@ class TemplateObject(TemplateClass):
                 if region not in self._region_list:
                     if region in AMIUpdater.EXCLUDED_REGIONS:
                         print("{} The {} region is currently unsupported. AMI IDs will not be updated for this region.".format(PrintMsg.ERROR, region))
+                        continue
                     else:
                         raise AMIUpdaterFatalException("Template: [{}] Region: [{}] is not a valid region".format(self._filename, region))
                 self._regions.add(region)
