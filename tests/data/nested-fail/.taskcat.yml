@@ -1,0 +1,14 @@
+---
+project:
+  owner: owner@company.com
+  name: nested-fail
+  regions:
+    - us-east-1
+    - us-west-2
+  lambda_source_path: "functions/source"
+  lambda_zip_path: "functions/packages"
+tests:
+  taskcat-json:
+    parameters:
+      QSS3BucketName: "$[taskcat_autobucket]"
+    template: templates/test.template.yaml

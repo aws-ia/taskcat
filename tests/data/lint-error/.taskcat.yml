@@ -19,4 +19,4 @@ project:
     - ap-east-1
 tests:
   json-test:
-    template_file: debug.template
+    template: debug.template

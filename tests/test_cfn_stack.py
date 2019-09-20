@@ -1,4 +1,5 @@
 import unittest
+import uuid
 from datetime import datetime
 from pathlib import Path
 from threading import Timer
@@ -7,7 +8,6 @@ import mock
 
 from taskcat import Config
 from taskcat._cfn.stack import (
-    AWSRegionObject,
     Event,
     Events,
     Output,
@@ -17,6 +17,7 @@ from taskcat._cfn.stack import (
     Stack,
     Tag,
     Tags,
+    TestRegion,
     criteria_matches,
 )
 
@@ -223,18 +224,48 @@ def mock_client_method(*args, **kwargs):
     return m_client
 
 
+@mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
+@mock.patch("taskcat._dataclasses.S3BucketObj")
+def make_test_region_obj(name, m_s3, m_boto):
+    boto_cache = m_boto()
+    s3 = m_s3(
+        name="test_bucket",
+        region="us-east-1",
+        account_id="123412341234",
+        partition="aws",
+        s3_client=boto_cache.client("s3"),
+        sigv4=True,
+        auto_generated=True,
+        object_acl="private",
+        taskcat_id=uuid.UUID(int=1),
+    )
+    region = TestRegion(
+        name=name,
+        account_id="123412341234",
+        partition="aws",
+        profile="default",
+        taskcat_id=uuid.UUID(int=1),
+        _boto3_cache=boto_cache,
+        s3_bucket=s3,
+        parameters={},
+    )
+    region.s3_bucket = s3
+    return region
+
+
+@mock.patch("taskcat._cfn.template.Template", autospec=True)
+def make_test_template(m_template):
+    return m_template(template_path="templates/blah.yaml")
+
+
 class TestStack(unittest.TestCase):
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     def test_create(self, m_s3_url_maker):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
-        stack = Stack.create(region, "stack_name", m_template)
+        region = make_test_region_obj("us-west-2")
+        stack = Stack.create(region, "stack_name", make_test_template())
         self.assertIsInstance(stack._timer, Timer)
         self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
@@ -245,30 +276,28 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     def test_idempotent_properties(self, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
+        region = make_test_region_obj("us-west-2")
         region.client = mock_client_method
-        m_template = mock.Mock()
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
+        no_outp = len(stack.outputs)
+        no_params = len(stack.parameters)
+        no_tags = len(stack.tags)
         # re-invoke timer function manually to check for idempotence
         stack.set_stack_properties()
         stack._timer.cancel()
-        self.assertEqual(len(stack.outputs), 1)
-        self.assertEqual(len(stack.parameters), 1)
-        self.assertEqual(len(stack.tags), 1)
+        self.assertEqual(len(stack.outputs), no_outp)
+        self.assertEqual(len(stack.parameters), no_params)
+        self.assertEqual(len(stack.tags), no_tags)
 
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     def test_import_existing(self, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.import_existing(
             {
                 "StackId": "arn:aws:cloudformation:us-east-1:123456789012:stack/"
@@ -291,11 +320,8 @@ class TestStack(unittest.TestCase):
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_resources")
     @mock.patch("taskcat._cfn.stack.Stack._fetch_children")
     def test_refresh(self, m_kids, m_res, m_eve, m_prop, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
 
@@ -333,11 +359,8 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_events")
     def test_events(self, m_eve, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
         generic_evnt = event_template.copy()
@@ -362,11 +385,8 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Event")
     def test_fetch_stack_events(self, n_evnt, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
         stack.client = mock.Mock()
@@ -397,11 +417,8 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_resources")
     def test_resources(self, m_res, _):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
         stack._resources = Resources([Resource("test_stack_id", resource_template)])
@@ -423,11 +440,8 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Resource")
     def test_fetch_stack_resources(self, _, __):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
         stack.client = mock.Mock()
@@ -458,11 +472,8 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Stack.refresh")
     def test_delete(self, _, __):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
-        region.client = mock_client_method
-        m_template = mock.Mock()
+        region = make_test_region_obj("us-west-2")
+        m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
         stack._timer.cancel()
         stack.client = mock.Mock()
@@ -478,17 +489,16 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Stack.events")
     def test_descentants(self, m_evnts, __):
-        m_cf = mock.Mock()
-        region = AWSRegionObject("us-west-2", m_cf)
-        region.s3bucket = mock.Mock()
+        region = make_test_region_obj("us-west-2")
         region.client = mock_client_method
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
-        c = Config(
-            project_config_path=test_proj / "ci" / "taskcat.yml",
-            project_root=test_proj,
-            create_clients=False,
+        c = Config.create(
+            project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
-        stack = Stack.create(region, "stack_name", c.tests["taskcat-json"].template)
+        templates = c.get_templates(
+            project_root=test_proj, boto3_cache=region._boto3_cache
+        )
+        stack = Stack.create(region, "stack_name", templates["taskcat-json"])
         stack._timer.cancel()
 
         child = event_template.copy()

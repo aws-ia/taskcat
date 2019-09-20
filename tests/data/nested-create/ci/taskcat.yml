@@ -1,0 +1,11 @@
+---
+project:
+  name: nested-create
+  regions:
+    - us-east-1
+    - us-east-2
+tests:
+  test1:
+    template_file: test.template.yaml
+  test2:
+    template_file: test.template.yaml

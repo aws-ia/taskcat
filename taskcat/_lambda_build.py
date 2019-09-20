@@ -12,21 +12,25 @@ LOG = logging.getLogger(__name__)
 class LambdaBuild:
     NULL_UUID = UUID("{00000000-0000-0000-0000-000000000000}")
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, project_root: Path):
         self._docker = docker.from_env()
         self._config = config
-        self._build_lambdas(config.lambda_source_path, config.lambda_zip_path)
+        self._project_root = Path(project_root).expanduser().resolve()
+        self._lambda_source_path = (
+            self._project_root / config.config.project.lambda_source_path
+        ).resolve()
+        self._lambda_zip_path = (
+            self._project_root / config.config.project.lambda_zip_path
+        ).resolve()
+        self._build_lambdas(self._lambda_source_path, self._lambda_zip_path)
         self._build_submodules()
 
     def _build_submodules(self):
-        if not self._config.build_submodules:
+        if not self._config.config.project.build_submodules:
             return
-        lambda_source_path = self._config.lambda_source_path
-        project_root = self._config.project_root
-        lambda_zip_path = self._config.lambda_zip_path
-        rel_source = lambda_source_path.relative_to(project_root)
-        rel_zip = lambda_zip_path.relative_to(project_root)
-        self._recurse(project_root, rel_source, rel_zip)
+        rel_source = self._lambda_source_path.relative_to(self._project_root)
+        rel_zip = self._lambda_zip_path.relative_to(self._project_root)
+        self._recurse(self._project_root, rel_source, rel_zip)
 
     def _recurse(self, base_path, rel_source, rel_zip):
         submodules_path = Path(base_path) / "submodules"
@@ -41,7 +45,7 @@ class LambdaBuild:
             self._recurse(submodule, rel_source, rel_zip)
 
     def _build_lambdas(self, parent_path: Path, output_path):
-        if not parent_path.is_dir:
+        if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
             if not (path / "Dockerfile").is_file():

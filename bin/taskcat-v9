@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from taskcat._cli import main
-from taskcat.exceptions import TaskCatException
 import sys
 
+from taskcat._cli import main
+from taskcat.exceptions import TaskCatException
 
 if __name__ == "__main__":
     if sys.version_info[0] == 3 and sys.version_info[1] >= 6:

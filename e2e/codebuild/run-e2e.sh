@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 SOURCE="../../taskcat/"
 OMIT="../../taskcat/_stacker.py"
@@ -18,8 +18,10 @@ function failed() {
 
 for ver in "$@" ; do
     pyenv shell ${ver}
+    echo "running tests using ${ver}..."
     for t in $(ls -1 *.sh) ; do
         chmod +x ./${t}
+        echo "  running tests in ${t}..."
         BIN=${CMD} ./${t} || failed
     done
 done
@@ -27,5 +29,12 @@ done
 coverage report > ../../cov_report
 
 pyenv shell 3.7.4
-python /results_comment.py $(git rev-parse HEAD) ${FAILED}
+if [[ ${FAILED} -eq 0 ]] ; then
+  echo "ALL TESTS PASSED"
+else
+  echo "TEST FAILED"
+fi
+if [[ "${LOCAL_TEST}" != "True" ]]; then
+  python /results_comment.py "$(git rev-parse HEAD)" ${FAILED}
+fi
 exit ${FAILED}

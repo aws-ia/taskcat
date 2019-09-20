@@ -6,10 +6,9 @@ from typing import Dict, List
 
 import boto3
 
-from taskcat._cfn.stack import Parameter, Stack, Stacks, StackStatus, Tag
+from taskcat._cfn.stack import Stack, Stacks, StackStatus, Tag
 from taskcat._common_utils import merge_dicts
-from taskcat._config import Config
-from taskcat._config_types import AWSRegionObject, Test
+from taskcat._dataclasses import TestObj, TestRegion
 from taskcat.exceptions import TaskCatException
 from taskcat._client_factory import ClientFactory
 
@@ -32,26 +31,27 @@ class Stacker:
 
     def __init__(
         self,
-        config: Config,
+        project_name: str,
+        tests: Dict[str, TestObj],
         uid: uuid.UUID = NULL_UUID,
         stack_name_prefix: str = "tCaT",
         tags: list = None,
     ):
-        self.config = config
-        self.project_name = config.name
+        self.tests = tests
+        self.project_name = project_name
         self.stack_name_prefix = stack_name_prefix
         self.tags = tags if tags else []
         self.uid = uuid.uuid4() if uid == Stacker.NULL_UUID else uid
         self.stacks: Stacks = Stacks()
 
     @staticmethod
-    def _tests_to_list(tests: Dict[str, Test]):
+    def _tests_to_list(tests: Dict[str, TestObj]):
         return [test for test in tests.values()]
 
     def create_stacks(self, threads: int = 8):
         if self.stacks:
             raise TaskCatException("Stacker already initialised with stack objects")
-        tests = self._tests_to_list(self.config.tests)
+        tests = self._tests_to_list(self.tests)
         tags = [Tag({"Key": "taskcat-id", "Value": self.uid.hex})]
         tags += [
             Tag(t)
@@ -70,19 +70,11 @@ class Stacker:
         partial_kwargs = {
             "stack_name": stack_name,
             "template": test.template,
-            "parameters": self._cfn_format_parameters(test.parameters),
             "tags": tags,
             "test_name": test.name,
         }
         stacks = fan_out(Stack.create, partial_kwargs, test.regions, threads)
         self.stacks += stacks
-
-    @staticmethod
-    def _cfn_format_parameters(parameters):
-        return [
-            Parameter({"ParameterKey": k, "ParameterValue": v})
-            for k, v in parameters.items()
-        ]
 
     # Not used by tCat at present
     def update_stacks(self):
@@ -174,7 +166,8 @@ class Stacker:
     def from_existing(
         cls,
         uid: uuid.UUID,
-        config: Config,
+        project_name: str,
+        tests: Dict[str, TestObj],
         include_deleted=False,
         recurse=False,
         threads=32,
@@ -183,8 +176,8 @@ class Stacker:
             raise NotImplementedError("including deleted stacks not implemented")
         if recurse:
             raise NotImplementedError("recurse not implemented")
-        clients: Dict[boto3.client, List[AWSRegionObject]] = {}
-        for test in config.tests.values():
+        clients: Dict[boto3.client, List[TestRegion]] = {}
+        for test in tests.values():
             for region in test.regions:
                 client = region.client("cloudformation")
                 if client not in clients:
@@ -192,11 +185,11 @@ class Stacker:
                 clients[client].append(region)
         results = fan_out(
             Stacker._import_stacks_per_client,
-            {"uid": uid, "project_name": config.name, "tests": config.tests},
+            {"uid": uid, "project_name": project_name, "tests": tests},
             clients.items(),
             threads,
         )
-        stacker = Stacker(config, uid)
+        stacker = Stacker(project_name, tests, uid)
         stacker.stacks = Stacks([item for sublist in results for item in sublist])
         return stacker
 
@@ -231,7 +224,7 @@ class Stacker:
     def _group_stacks(stacks: Stacks) -> List[dict]:
         stacks_by_client: dict = {}
         for stack in stacks:
-            client = stack.region.client
+            client = stack.client
             if client not in stacks_by_client:
                 stacks_by_client[client] = {"Client": client, "Stacks": []}
             stacks_by_client[client]["Stacks"].append(stack)

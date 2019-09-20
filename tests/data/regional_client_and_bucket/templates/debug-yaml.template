@@ -4,6 +4,7 @@ Parameters:
   StackName:
     Description: StackName
     Type: String
+    Default: default-value
   RandomString:
     Description: RandomString
     Type: String

@@ -14,12 +14,17 @@ class TestLambdaPackage(unittest.TestCase):
             Path(__file__).parent / "./data/lambda_build_with_submodules"
         ).resolve()
         copytree(test_proj, tmp / "test")
-        c = Config(
-            project_config_path=str(tmp / "test" / ".taskcat.yml"),
-            project_root=str((tmp / "test").resolve()),
-            create_clients=False,
+        c = Config.create(
+            project_config_path=tmp / "test" / ".taskcat.yml",
+            project_root=(tmp / "test").resolve(),
+            args={
+                "project": {
+                    "lambda_zip_path": "functions/packages",
+                    "lambda_source_path": "functions/source",
+                }
+            },
         )
-        LambdaBuild(c)
+        LambdaBuild(c, project_root=(tmp / "test").resolve())
         path = tmp / "test"
         zip_suffix = Path("functions") / "packages" / "TestFunc" / "lambda.zip"
         self.assertEqual((path / "functions" / "packages").is_dir(), True)

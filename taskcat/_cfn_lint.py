@@ -4,6 +4,7 @@ import textwrap
 
 import cfnlint.core
 from taskcat._config import Config
+from taskcat._dataclasses import Templates
 
 LOG = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ class Lint:
 
     _code_regex = re.compile("^([WER][0-9]*:)")
 
-    def __init__(self, config: Config, strict: bool = False):
+    def __init__(self, config: Config, templates: Templates, strict: bool = False):
         """
         Lints templates using cfn_python_lint. Uses config to define regions and
         templates to test. Recurses into child templates, excluding submodules.
@@ -20,18 +21,18 @@ class Lint:
         :param config: path to tascat ci config file
         """
         self._config: Config = config
+        self._templates: Templates = templates
         self._rules = cfnlint.core.get_rules([], [], [])
         self.lints = self._lint()
         self.strict: bool = strict
 
     @staticmethod
     def _filter_unsupported_regions(regions):
-        region_list = [region.name for region in regions]
         lint_regions = set(cfnlint.core.REGIONS)
-        if set(region_list).issubset(lint_regions):
-            return region_list
-        supported = set(region_list).intersection(lint_regions)
-        unsupported = set(region_list).difference(lint_regions)
+        if set(regions).issubset(lint_regions):
+            return regions
+        supported = set(regions).intersection(lint_regions)
+        unsupported = set(regions).difference(lint_regions)
         LOG.error(
             "The following regions are not supported by cfn-python-lint and will "
             "not be linted %s",
@@ -43,25 +44,18 @@ class Lint:
         lints = {}
         lint_errors = set()
 
-        for name, test in self._config.tests.items():
+        for name, test in self._config.config.tests.items():
             lints[name] = {"regions": self._filter_unsupported_regions(test.regions)}
-            lints[name]["template_file"] = test.template.template_path
+            lints[name]["template"] = self._templates[name].template_path
             lints[name]["results"] = {}
 
-            templates = [t for t in test.template.descendents]
-            templates.append(test.template)
+            templates = []
+            for template in self._templates.values():
+                templates.append(template)
+                templates += list(template.descendents)
             templates = set(templates)
             for template in templates:
-                tpath = str(template.template_path)
-                results = []
-                try:
-                    results = cfnlint.core.run_checks(
-                        tpath, template.template, self._rules, lints[name]["regions"]
-                    )
-                    lints[name]["results"][tpath] = results
-                except cfnlint.core.CfnLintExitException as e:
-                    lint_errors.add(str(e))
-                lints[name]["results"][tpath] = results
+                self._run_checks(template, name, lint_errors, lints)
             for err in lint_errors:
                 LOG.error(err)
         for test in lints:
@@ -70,6 +64,18 @@ class Lint:
                     if self._is_error(lints[test]["results"][result]):
                         lint_errors.add(result)
         return lints, lint_errors
+
+    def _run_checks(self, template, name, lint_errors, lints):
+        tpath = str(template.template_path)
+        results = []
+        try:
+            results = cfnlint.core.run_checks(
+                tpath, template.template, self._rules, lints[name]["regions"]
+            )
+            lints[name]["results"][tpath] = results
+        except cfnlint.core.CfnLintExitException as e:
+            lint_errors.add(str(e))
+        lints[name]["results"][tpath] = results
 
     def output_results(self):
         """

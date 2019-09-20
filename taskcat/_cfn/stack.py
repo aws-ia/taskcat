@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import re
@@ -10,12 +11,12 @@ from typing import Callable, List, Optional, Tuple
 from uuid import UUID, uuid4
 
 import boto3
-import mock
 
 from taskcat._cfn.template import Template
 from taskcat._common_utils import pascal_to_snake, s3_url_maker
-from taskcat._config import S3Bucket
-from taskcat._config_types import AWSRegionObject
+from taskcat._dataclasses import TestRegion
+
+LOG = logging.getLogger(__name__)
 
 GENERIC_ERROR_PATTERNS = [
     r"(The following resource\(s\) failed to create: )",
@@ -198,7 +199,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
-        region: AWSRegionObject,
+        region: TestRegion,
         stack_id: str,
         template: Template,
         test_name,
@@ -210,7 +211,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.id: str = stack_id
         self.template: Template = template
         self.name: str = self._get_name()
-        self.region: AWSRegionObject = region
+        self.region: TestRegion = region
         self.region_name = region.name
         self.client: boto3.client = region.client("cloudformation")
         self.completion_time: timedelta = timedelta(0)
@@ -260,23 +261,19 @@ class Stack:  # pylint: disable=too-many-instance-attributes
     @classmethod
     def create(
         cls,
-        region: AWSRegionObject,
+        region: TestRegion,
         stack_name: str,
         template: Template,
-        parameters: List[Parameter] = None,
         tags: List[Tag] = None,
         disable_rollback: bool = True,
         test_name: str = "",
         uuid: UUID = None,
     ) -> "Stack":
+        parameters = cls._cfn_format_parameters(region.parameters)
         uuid = uuid if uuid else uuid4()
         cfn_client = region.client("cloudformation")
-        parameters = [p.dump() for p in parameters] if parameters else []
         tags = [t.dump() for t in tags] if tags else []
-        if isinstance(region.s3bucket, (S3Bucket, mock.Mock)):
-            bucket_name: str = region.s3bucket.name
-        else:
-            raise TypeError("region object has unset bucket object")
+        bucket_name: str = region.s3_bucket.name
         template.url = s3_url_maker(bucket_name, template.s3_key, region.client("s3"))
         stack_id = cfn_client.create_stack(
             StackName=stack_name,
@@ -290,6 +287,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         # fetch property values from cfn
         stack.refresh()
         return stack
+
+    @staticmethod
+    def _cfn_format_parameters(parameters):
+        return [{"ParameterKey": k, "ParameterValue": v} for k, v in parameters.items()]
 
     @classmethod
     def _import_child(
@@ -323,11 +324,12 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             if not absolute_path.exists():
                 with open(absolute_path, "w") as fh:
                     fh.write(tempate_body)
+        # pylint: disable=protected-access
         template = Template(
             template_path=str(absolute_path),
             project_root=parent_stack.template.project_root,
             url=url,
-            client_factory_instance=parent_stack.client,
+            boto3_cache=parent_stack.region._boto3_cache,
         )
         stack = cls(
             parent_stack.region,
@@ -344,7 +346,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         cls,
         stack_properties: dict,
         template: Template,
-        region: AWSRegionObject,
+        region: TestRegion,
         test_name: str,
         uid: UUID,
     ) -> "Stack":
@@ -455,6 +457,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     def delete(self) -> None:
         self.client.delete_stack(StackName=self.id)
+        LOG.info(f"Deleting stack: {self.name} in Region: {self.region_name}")
         self.refresh()
 
     def update(self, *args, **kwargs):
