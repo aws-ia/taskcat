@@ -24,8 +24,9 @@ done
 
 eval "$(pyenv init -)"
 
-for ver in "3.7.4 3.6.9" ; do
+for ver in "3.7.4" "3.6.9" ; do
     pyenv shell ${ver}
+    pip install --upgrade pip > /dev/null 2> /dev/null
     pip install -r ./dev-requirements.txt > /dev/null
     pip install -e . > /dev/null
 done

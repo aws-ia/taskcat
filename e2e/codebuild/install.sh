@@ -7,6 +7,7 @@ eval "$(pyenv init -)"
 
 for ver in "$@" ; do
     pyenv shell ${ver}
-    pip install -r ./dev-requirements.txt
-    pip install -e .
+    pip install --upgrade pip > /dev/null 2> /dev/null
+    pip install -r ./dev-requirements.txt > /dev/null
+    pip install -e . > /dev/null
 done
