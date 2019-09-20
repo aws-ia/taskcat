@@ -21,13 +21,20 @@ class Boto3Cache:
 
     def session(self, profile: str = "default", region: str = None) -> boto3.Session:
         region = self._get_region(region, profile)
-        return self._cache_lookup(
-            self._session_cache,
-            [profile, region],
-            self._boto3.Session,
-            [],
-            {"region_name": region, "profile_name": profile},
-        )
+        try:
+            session = self._cache_lookup(
+                self._session_cache,
+                [profile, region],
+                self._boto3.Session,
+                [],
+                {"region_name": region, "profile_name": profile},
+            )
+        except ProfileNotFound:
+            if profile != "default":
+                raise
+            session = self._boto3.Session(region_name=region)
+            self._cache_set(self._session_cache, [profile, region], session)
+        return session
 
     def client(
         self, service: str, profile: str = "default", region: str = None
@@ -124,7 +131,12 @@ class Boto3Cache:
         return region
 
     def get_default_region(self, profile_name="default") -> str:
-        region = self._boto3.session.Session(profile_name=profile_name).region_name
+        try:
+            region = self._boto3.session.Session(profile_name=profile_name).region_name
+        except ProfileNotFound:
+            if profile_name != "default":
+                raise
+            region = self._boto3.session.Session().region_name
         if not region:
             LOG.warning("Region not set in credential chain, defaulting to us-east-1")
             region = "us-east-1"
