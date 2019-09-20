@@ -34,6 +34,6 @@ class TestCliCore(unittest.TestCase):
             "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS
         )
         cli._modules["lint"] = mock.Mock()
-        cli.parse(["lint", "test-taskcat.yml", "-p", "./"])
+        cli.parse(["lint", "-i", "test-taskcat.yml", "-p", "./"])
         actual = cli.run()
         self.assertIsInstance(actual, mock.Mock)

@@ -1,0 +1,243 @@
+{
+    "type": "object",
+    "properties": {
+        "general": {
+            "$ref": "#/definitions/GeneralConfig",
+            "default": {
+                "parameters": null,
+                "tags": null,
+                "auth": null,
+                "s3_bucket": null
+            }
+        },
+        "project": {
+            "$ref": "#/definitions/ProjectConfig",
+            "default": {
+                "name": null,
+                "auth": null,
+                "owner": null,
+                "regions": null,
+                "az_blacklist": null,
+                "package_lambda": null,
+                "lambda_zip_path": null,
+                "lambda_source_path": null,
+                "s3_bucket": null,
+                "parameters": null,
+                "build_submodules": null,
+                "template": null,
+                "tags": null
+            }
+        },
+        "tests": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/TestConfig"
+            },
+            "default": {}
+        }
+    },
+    "additionalProperties": false,
+    "description": "BaseConfig(general:taskcat._dataclasses.GeneralConfig=<factory>, project:taskcat._dataclasses.ProjectConfig=<factory>, tests:Dict[TestName, taskcat._dataclasses.TestConfig]=<factory>)",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+        "GeneralConfig": {
+            "type": "object",
+            "properties": {
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "auth": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "s3_bucket": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false,
+            "description": "GeneralConfig(parameters:Union[Dict[ParameterKey, ParameterValue], NoneType]=None, tags:Union[Dict[TagKey, TagValue], NoneType]=None, auth:Union[Dict[Region, str], NoneType]=None, s3_bucket:str=None)"
+        },
+        "ProjectConfig": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[a-z/d-]*$"
+                },
+                "auth": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
+                    }
+                },
+                "az_blacklist": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$"
+                    }
+                },
+                "package_lambda": {
+                    "type": "boolean"
+                },
+                "lambda_zip_path": {
+                    "type": "string"
+                },
+                "lambda_source_path": {
+                    "type": "string"
+                },
+                "s3_bucket": {
+                    "type": "string",
+                    "pattern": "^[a-z/d-]*$"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "build_submodules": {
+                    "type": "boolean"
+                },
+                "template": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "description": "ProjectConfig(name:<function NewType.<locals>.new_type at 0x10a614730>=None, auth:Union[Dict[Region, str], NoneType]=None, owner:Union[str, NoneType]=None, regions:Union[List[Region], NoneType]=None, az_blacklist:Union[List[AzId], NoneType]=None, package_lambda:bool=None, lambda_zip_path:str=None, lambda_source_path:str=None, s3_bucket:Union[S3BucketName, NoneType]=None, parameters:Union[Dict[ParameterKey, ParameterValue], NoneType]=None, build_submodules:Union[bool, NoneType]=None, template:Union[str, NoneType]=None, tags:Union[Dict[TagKey, TagValue], NoneType]=None)"
+        },
+        "TestConfig": {
+            "type": "object",
+            "properties": {
+                "template": {
+                    "type": "string"
+                },
+                "parameters": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "regions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$"
+                    }
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "auth": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "s3_bucket": {
+                    "type": "string",
+                    "pattern": "^[a-z/d-]*$"
+                },
+                "az_blacklist": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "description": "TestConfig(template:Union[str, NoneType]=None, parameters:Union[Dict[ParameterKey, ParameterValue], NoneType]=None, regions:Union[List[Region], NoneType]=None, tags:Union[Dict[TagKey, TagValue], NoneType]=None, auth:Union[Dict[Region, str], NoneType]=None, s3_bucket:Union[S3BucketName, NoneType]=None, az_blacklist:Union[List[AzId], NoneType]=None)"
+        }
+    }
+}

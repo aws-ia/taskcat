@@ -8,7 +8,6 @@ import yaml
 
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
-from taskcat._config_types import AWSRegionObject
 
 
 class MockClientConfig(object):
@@ -29,14 +28,14 @@ test_two_path = str(
 test_cases = [
     {
         "config": {
-            "global": {"qsname": "test-config", "regions": ["eu-west-1"]},
+            "project": {"name": "test-config", "regions": ["eu-west-1"]},
             "tests": {"test1": {}},
         },
         "templates": {"test1": """{"Resources": {}}"""},
         "expected_lints": {
             "test1": {
                 "regions": ["eu-west-1"],
-                "template_file": Path(
+                "template": Path(
                     "/tmp/lint_test/test-config/templates/taskcat_test_template_test1"
                 ).resolve(),
                 "results": {
@@ -52,7 +51,7 @@ test_cases = [
     },
     {
         "config": {
-            "global": {"qsname": "test-config-two", "regions": ["eu-west-1"]},
+            "project": {"name": "test-config-two", "regions": ["eu-west-1"]},
             "tests": {"test1": {}},
         },
         "templates": {
@@ -74,7 +73,7 @@ test_cases = [
                         f"{test_two_path}:1"
                     ]
                 },
-                "template_file": Path(
+                "template": Path(
                     "/tmp/lint_test/test-config-two/templates/taskcat_test_template"
                     "_test1"
                 ).resolve(),
@@ -83,7 +82,7 @@ test_cases = [
     },
     {
         "config": {
-            "global": {"qsname": "test-config-three", "regions": ["eu-west-1"]},
+            "project": {"name": "test-config-three", "regions": ["eu-west-1"]},
             "tests": {"test1": {}},
         },
         "templates": {
@@ -93,7 +92,7 @@ test_cases = [
         "expected_lints": {
             "test1": {
                 "regions": ["eu-west-1"],
-                "template_file": Path(
+                "template": Path(
                     "/tmp/lint_test/test-config-three/templates"
                     "/taskcat_test_template_test1"
                 ).resolve(),
@@ -126,7 +125,7 @@ def flatten_rule(lints):
 
 
 def build_test_case(base_path, test_case):
-    qs_path = base_path + test_case["config"]["global"]["qsname"] + "/"
+    qs_path = base_path + test_case["config"]["project"]["name"] + "/"
     mkdir(qs_path)
     mkdir(qs_path + "ci")
     mkdir(qs_path + "templates")
@@ -135,7 +134,7 @@ def build_test_case(base_path, test_case):
     config_path = "./ci/taskcat_test_config"
     for test in test_case["config"]["tests"].keys():
         template_file = template_path + "_" + test
-        test_case["config"]["tests"][test]["template_file"] = template_file
+        test_case["config"]["tests"][test]["template"] = "templates/" + template_file
         with open("./templates/" + template_file, "w") as f:
             f.write(test_case["templates"][test])
     with open(config_path, "w") as f:
@@ -144,22 +143,22 @@ def build_test_case(base_path, test_case):
 
 
 class TestCfnLint(unittest.TestCase):
-    @mock.patch(
-        "taskcat._client_factory.ClientFactory.create_client",
-        mock.MagicMock(return_value=MockClient()),
-    )
-    def test_lint(self):
+    @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
+    def test_lint(self, m_boto):
         cwd = os.getcwd()
         base_path = "/tmp/lint_test/"
         mkdir(base_path)
         try:
             for test_case in test_cases:
-                config = Config(
-                    project_config_path=str(build_test_case(base_path, test_case)),
-                    project_root="../",
-                    create_clients=False,
+                config_path = Path(build_test_case(base_path, test_case)).resolve()
+                project_root = config_path.parent.parent
+                config = Config.create(
+                    project_config_path=config_path, project_root=project_root
                 )
-                lint = Lint(config=config)
+                templates = config.get_templates(
+                    project_root=project_root, boto3_cache=m_boto
+                )
+                lint = Lint(config=config, templates=templates)
                 self.assertEqual(
                     test_case["expected_lints"], flatten_rule(lint.lints[0])
                 )
@@ -169,36 +168,30 @@ class TestCfnLint(unittest.TestCase):
             pass
 
     def test_filter_unsupported_regions(self):
-        mock_cf = mock.MagicMock()
-        regions = [
-            AWSRegionObject(region_name="us-east-1", client_factory=mock_cf),
-            AWSRegionObject(region_name="us-east-2", client_factory=mock_cf),
-            AWSRegionObject(region_name="eu-central-1", client_factory=mock_cf),
-        ]
+        regions = ["us-east-1", "us-east-2", "eu-central-1"]
         supported = Lint._filter_unsupported_regions(regions)
-        expected = [r.name for r in regions]
-        self.assertCountEqual(supported, expected)
-        supported = Lint._filter_unsupported_regions(
-            regions
-            + [AWSRegionObject(region_name="non-exist-1", client_factory=mock_cf)]
-        )
-        self.assertCountEqual(supported, expected)
+        self.assertCountEqual(supported, regions)
+        supported = Lint._filter_unsupported_regions(regions + ["non-exist-1"])
+        self.assertCountEqual(supported, regions)
 
     @mock.patch("taskcat._cfn_lint.LOG.info")
     @mock.patch("taskcat._cfn_lint.LOG.warning")
     @mock.patch("taskcat._cfn_lint.LOG.error")
-    def test_output_results(self, mock_log_error, mock_log_warning, mock_log_info):
+    @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
+    def test_output_results(
+        self, m_boto, mock_log_error, mock_log_warning, mock_log_info
+    ):
         cwd = os.getcwd()
         try:
-            lint = Lint(
-                config=Config(
-                    project_config_path=str(
-                        build_test_case("/tmp/lint_test_output/", test_cases[0])
-                    ),
-                    project_root="../",
-                    create_clients=False,
-                )
+            config_path = Path(
+                build_test_case("/tmp/lint_test_output/", test_cases[0])
+            ).resolve()
+            project_root = config_path.parent.parent
+            config = Config.create(
+                project_config_path=config_path, project_root=project_root
             )
+            templates = config.get_templates(project_root, m_boto)
+            lint = Lint(config=config, templates=templates)
             lint.output_results()
             self.assertTrue(
                 mock_log_info.call_args[0][0].startswith(
@@ -253,18 +246,19 @@ class TestCfnLint(unittest.TestCase):
             os.chdir(cwd)
             pass
 
-    def test_passed(self):
+    @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
+    def test_passed(self, m_boto):
         cwd = os.getcwd()
         try:
-            lint = Lint(
-                config=Config(
-                    project_config_path=str(
-                        build_test_case("/tmp/lint_test_output/", test_cases[0])
-                    ),
-                    project_root="../",
-                    create_clients=False,
-                )
+            config_path = Path(
+                build_test_case("/tmp/lint_test_output/", test_cases[0])
+            ).resolve()
+            project_root = config_path.parent.parent
+            config = Config.create(
+                project_config_path=config_path, project_root=project_root
             )
+            templates = config.get_templates(project_root, m_boto)
+            lint = Lint(config=config, templates=templates)
             self.assertEqual(lint.passed, True)
 
             lint_key = [t for t in lint.lints[0]][0]

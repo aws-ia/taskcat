@@ -121,20 +121,15 @@ class ParamGen:
             "AvailabilityZones"
         ]:
             if az["ZoneId"] in self.az_excludes:
-                LOG.info(
-                    f"Excluding AZ {az['ZoneName']} as Zone ID {az['ZoneId']} \
-                     is blacklisted."
-                )
                 continue
             available_azs.append(az["ZoneName"])
 
         if len(available_azs) < count:
-            LOG.error(
+            raise TaskCatException(
                 "!Only {0} az's are available in {1}".format(
                     len(available_azs), self.region
                 )
             )
-            raise TaskCatException
         azs = ",".join(available_azs[:count])
         return azs
 
@@ -167,8 +162,6 @@ class ParamGen:
         s3_client = self._boto_client("s3")
         try:
             dict_object = s3_client.get_object(Bucket=bucket, Key=object_key)
-        except TaskCatException:
-            raise
         except Exception:
             LOG.error(
                 "Attempted to fetch Bucket: {}, Key: {}".format(bucket, object_key)
@@ -187,8 +180,6 @@ class ParamGen:
             * A = AlphaNumeric, Example 'vGceIP8EHC'
         :return: Password of given length and type
         """
-        LOG.debug("Auto generating password")
-        LOG.debug("Pass size => {0}".format(pass_length))
 
         password = []
         numbers = "1234567890"
@@ -199,7 +190,6 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase and numeric chars
         if pass_type == "A":  # nosec
-            LOG.debug("Pass type => {0}".format("alpha-numeric"))
 
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
@@ -209,7 +199,6 @@ class ParamGen:
         # Generates password string with:
         # lowercase,uppercase, numbers and special chars
         elif pass_type == "S":
-            LOG.debug("Pass type => {0}".format("specialchars"))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -220,7 +209,6 @@ class ParamGen:
             # Defaults to alpha-numeric
             # Generates password string with:
             # lowercase,uppercase, numbers and special chars
-            LOG.debug("Pass type => default {0}".format("alpha-numeric"))
             while len(password) < pass_length:
                 password.append(random.choice(lowercase))
                 password.append(random.choice(uppercase))
@@ -237,18 +225,12 @@ class ParamGen:
         No parameters. Operates on (ClassInstance).param_value
         """
         if isinstance(self.param_value, (int, bytes)):
-            LOG.debug(
-                "Converting Parameter {} from integer/bytes to string".format(
-                    self.param_name
-                )
-            )
             self.param_value = str(self.param_value)
 
     @staticmethod
     def _gen_rand_str(length):
         random_string_list = []
         lowercase = "abcdefghijklmnopqrstuvwxyz"
-        LOG.debug("Generating a {}-character random string".format(length))
         while len(random_string_list) < length:
             random_string_list.append(random.choice(lowercase))  # nosec
         return "".join(random_string_list)
@@ -257,7 +239,6 @@ class ParamGen:
     def _gen_rand_num(length):
         random_number_list = []
         numbers = "1234567890"
-        LOG.debug("Generating a {}-character random string of numbers".format(length))
         while len(random_number_list) < length:
             random_number_list.append(random.choice(numbers))  # nosec
         return "".join(random_number_list)
@@ -288,7 +269,6 @@ class ParamGen:
                 gentype = "D"
 
             if passlen:
-                LOG.debug("AutoGen values for {}".format(self.param_value))
                 param_value = self.genpassword(passlen, gentype)
                 self._regex_replace_param_value(gen_regex, param_value)
 
@@ -296,8 +276,6 @@ class ParamGen:
         if genaz_regex.search(self.param_value):
             numazs = int(self.regxfind(count_regex, self.param_value))
             if numazs:
-                LOG.debug("Selecting availability zones")
-                LOG.debug("Requested %s az's" % numazs)
 
                 self._regex_replace_param_value(
                     genaz_regex, self.get_available_azs(numazs)
@@ -311,8 +289,6 @@ class ParamGen:
 
     def _gen_single_az_wrapper(self, genaz_regex):
         if genaz_regex.search(self.param_value):
-            LOG.debug("Selecting availability zones")
-            LOG.debug("Requested 1 az")
             az_id = int(genaz_regex.search(self.param_value).group("az_id"))
             self._regex_replace_param_value(genaz_regex, self.get_single_az(az_id))
 
@@ -322,20 +298,16 @@ class ParamGen:
             license_bucket = license_str.split("/")[1]
             licensekey = "/".join(license_str.split("/")[2:])
             param_value = self.get_content(license_bucket, licensekey)
-            LOG.debug(
-                "Getting license content for {}/{}".format(license_bucket, licensekey)
-            )
             self._regex_replace_param_value(re.compile("^.*$"), param_value)
 
     def _get_presigned_url_wrapper(self, presigned_url_regex):
         if presigned_url_regex.search(self.param_value):
             if len(self.param_value) < 2:
-                LOG.error(
+                LOG.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
+                raise TaskCatException(
                     "Syntax error when using $[taskcat_getpresignedurl]; Not "
                     "enough parameters."
                 )
-                LOG.error("Syntax: $[taskcat_presignedurl],bucket,key,OPTIONAL_TIMEOUT")
-                raise TaskCatException
             paramsplit = self.regxfind(presigned_url_regex, self.param_value).split(
                 ","
             )[1:]
@@ -344,11 +316,6 @@ class ParamGen:
                 url_expire_seconds = paramsplit[2]
             else:
                 url_expire_seconds = 3600
-            LOG.debug(
-                "Generating a presigned URL for {}/{} with a {} second timeout".format(
-                    url_bucket, url_key, url_expire_seconds
-                )
-            )
             s3_client = self._boto_client("s3")
             param_value = s3_client.generate_presigned_url(
                 "get_object",
@@ -361,7 +328,6 @@ class ParamGen:
     def _getval_wrapper(self, getval_regex):
         if getval_regex.search(self.param_value):
             requested_key = self.regxfind(getval_regex, self.param_value)
-            LOG.debug("Getting previously assigned value for " + requested_key)
             self._regex_replace_param_value(
                 re.compile("^.*$"), self.mutated_params[requested_key]
             )

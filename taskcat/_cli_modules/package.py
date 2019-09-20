@@ -25,13 +25,16 @@ class Package:
         :param zip_folder: folder to output zip files, relative to the project root
         :param config_file: path to taskcat project config file
         """
-        config = Config(
-            project_config_path=config_file,
-            project_root=project_root,
-            create_clients=False,
+        project_root_path: Path = Path(project_root).expanduser().resolve()
+        project_config: Path = project_root_path / config_file
+        config = Config.create(
+            project_config_path=project_config,
+            project_root=project_root_path,
+            args={
+                "project": {
+                    "lambda_zip_path": zip_folder,
+                    "lambda_source_path": source_folder,
+                }
+            },
         )
-        config.lambda_source_path = (
-            Path(config.project_root) / source_folder
-        ).resolve()
-        config.lambda_zip_path = (Path(config.project_root) / zip_folder).resolve()
-        LambdaBuild(config)
+        LambdaBuild(config, project_root_path)

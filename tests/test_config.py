@@ -2,57 +2,237 @@ import os
 import unittest
 from pathlib import Path
 
+import mock
+
+from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 
 
-class TestConfig(unittest.TestCase):
+class TestNewConfig(unittest.TestCase):
     def test_config(self):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
-        base_path = Path(base_path + "data/").resolve()
+        base_path = Path(base_path + "data/config_inheritance").resolve()
 
-        # ingest config with args:
-        config = Config(
-            project_config_path=base_path
-            / "standalone_template_no_metadata/test.template.yaml",
-            project_root=base_path / "standalone_template_no_metadata",
-            create_clients=False,
-            args={
-                "template_file": "test.template.yaml",
-                "regions": "us-east-1",
-                "parameter_input": "params.json",
-                "no_cleanup": True,
+        config = Config.create(
+            args={"project": {"build_submodules": False}},
+            global_config_path=base_path / ".taskcat_global.yml",
+            project_config_path=base_path / "./.taskcat.yml",
+            overrides_path=base_path / "./.taskcat_overrides.yml",
+            env_vars={"TASKCAT_PROJECT_PACKAGE_LAMBDA": "False"},
+        )
+
+        expected = {
+            "general": {
+                "parameters": {
+                    "GlobalVar": "set_in_global",
+                    "OverridenVar": "set_in_global",
+                },
+                "s3_bucket": "set-in-global",
             },
-        )
-        self.assertEqual(
-            config.tests["default"].template_file.name, "test.template.yaml"
-        )
-        self.assertEqual(config.no_cleanup, True)
+            "project": {
+                "regions": ["us-east-1"],
+                "package_lambda": False,
+                "lambda_zip_path": "lambda_functions/packages",
+                "lambda_source_path": "lambda_functions/source",
+                "parameters": {
+                    "GlobalVar": "set_in_global",
+                    "OverridenVar": "set_in_global",
+                    "ProjectVar": "set_in_project",
+                },
+                "build_submodules": False,
+                "template": "template1.yaml",
+                "s3_bucket": "set-in-global",
+            },
+            "tests": {
+                "default": {
+                    "parameters": {
+                        "MyVar": "set_in_test",
+                        "OverridenVar": "set_in_global",
+                        "ProjectVar": "set_in_project",
+                        "GlobalVar": "set_in_global",
+                    },
+                    "regions": ["us-west-2"],
+                    "s3_bucket": "set-in-global",
+                    "template": "template1.yaml",
+                },
+                "other": {
+                    "template": "other_template.yaml",
+                    "parameters": {
+                        "ProjectVar": "set_in_project",
+                        "OverridenVar": "set_in_global",
+                        "GlobalVar": "set_in_global",
+                    },
+                    "regions": ["us-east-1"],
+                    "s3_bucket": "set-in-global",
+                },
+            },
+        }
 
-        for config_path, project_root in [
-            [None, base_path / "create_fail"],
-            [base_path / "delete_fail/ci/taskcat.yml", base_path / "delete_fail"],
-            [
-                base_path / "lambda_build_with_submodules/.taskcat.yml",
-                base_path / "lambda_build_with_submodules",
-            ],
-            [base_path / "lint-error/.taskcat.yml", base_path / "lint-error"],
-            [base_path / "lint-warning/.taskcat.yml", base_path / "lint-warning"],
-            [base_path / "nested-fail/ci/taskcat.yml", base_path / "nested-fail"],
-            [
-                base_path / "regional_client_and_bucket/ci/taskcat.yml",
-                base_path / "regional_client_and_bucket",
-            ],
-            [
-                base_path / "standalone_template_no_metadata/test.template.yaml",
-                base_path / "standalone_template_no_metadata",
-            ],
-        ]:
-            print(f"testing {config_path} {project_root}")  # noqa: T001
-            Config(
-                project_config_path=config_path,
-                project_root=project_root,
-                create_clients=False,
-            )
+        expected_source = {
+            "general": {
+                "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                "parameters": {
+                    "GlobalVar": str(base_path / ".taskcat_global.yml"),
+                    "OverridenVar": str(base_path / ".taskcat_global.yml"),
+                },
+            },
+            "project": {
+                "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                "package_lambda": "EnvoronmentVariable",
+                "lambda_zip_path": "TASKCAT_DEFAULT",
+                "lambda_source_path": "TASKCAT_DEFAULT",
+                "build_submodules": "CliArgument",
+                "parameters": {
+                    "GlobalVar": str(base_path / ".taskcat_global.yml"),
+                    "OverridenVar": str(base_path / ".taskcat_global.yml"),
+                    "ProjectVar": str(base_path / ".taskcat.yml"),
+                },
+                "regions": str(base_path / ".taskcat.yml"),
+                "template": str(base_path / ".taskcat.yml"),
+            },
+            "tests": {
+                "default": {
+                    "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                    "template": str(base_path / ".taskcat.yml"),
+                    "parameters": {
+                        "GlobalVar": str(base_path / ".taskcat_global.yml"),
+                        "MyVar": str(base_path / ".taskcat.yml"),
+                        "OverridenVar": str(base_path / ".taskcat_global.yml"),
+                        "ProjectVar": str(base_path / ".taskcat.yml"),
+                    },
+                    "regions": str(base_path / ".taskcat.yml"),
+                },
+                "other": {
+                    "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                    "template": str(base_path / ".taskcat.yml"),
+                    "parameters": {
+                        "GlobalVar": str(base_path / ".taskcat_global.yml"),
+                        "ProjectVar": str(base_path / ".taskcat.yml"),
+                        "OverridenVar": str(base_path / ".taskcat_global.yml"),
+                    },
+                    "regions": str(base_path / ".taskcat.yml"),
+                },
+            },
+        }
 
-            # Nothing to assert, as this test is just ensuring that the config can
-            # ingest all the sample configs
+        self.assertEqual(config.config.to_dict(), expected)
+        self.assertEqual(config.config._source, expected_source)
+
+    @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
+    @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
+    def test_get_regions(self, _, __):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
+
+        config = Config.create(
+            args={},
+            global_config_path=base_path / ".taskcat_global.yml",
+            project_config_path=base_path / "./.taskcat.yml",
+            overrides_path=base_path / "./.taskcat_overrides.yml",
+            env_vars={},
+        )
+        sessions = config.get_regions()
+        for test_name, regions in sessions.items():
+            with self.subTest(test=test_name):
+                for region_name, region_obj in regions.items():
+                    with self.subTest(region=region_name):
+                        self.assertEqual(region_name, region_obj.name)
+                        if test_name == "json-test" and region_name == "eu-central-1":
+                            self.assertEqual("special-use-case", region_obj.profile)
+                        elif region_name == "me-south-1":
+                            self.assertEqual("mes1", region_obj.profile)
+                        elif region_name == "ap-east-1":
+                            self.assertEqual("hongkong", region_obj.profile)
+                        else:
+                            self.assertEqual("default", region_obj.profile)
+
+    @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
+    @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
+    @mock.patch("taskcat._config.S3BucketObj.create", return_value=None)
+    @mock.patch("taskcat._client_factory.boto3", autospec=True)
+    def test_get_buckets(self, _, __, ___, m_boto):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
+
+        config = Config.create(
+            args={},
+            global_config_path=base_path / ".taskcat_global.yml",
+            project_config_path=base_path / "./.taskcat.yml",
+            overrides_path=base_path / "./.taskcat_overrides.yml",
+            env_vars={},
+        )
+        mock_boto_cache = Boto3Cache(_boto3=m_boto)
+        buckets = config.get_buckets(boto3_cache=mock_boto_cache)
+        bucket_acct = {}
+        for test_name, regions in buckets.items():
+            with self.subTest(test=test_name):
+                for region_name, region_obj in regions.items():
+                    with self.subTest(region=region_name):
+                        if not bucket_acct.get(region_obj.account_id):
+                            bucket_acct[region_obj.account_id] = region_obj.name
+                        self.assertEqual(
+                            bucket_acct[region_obj.account_id], region_obj.name
+                        )
+                        region_obj.delete()
+
+    @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
+    @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
+    @mock.patch("taskcat._config.S3BucketObj.create", return_value=None)
+    @mock.patch(
+        "taskcat._config.ParamGen._get_license_content_wrapper",
+        return_value="a-license-key",
+    )
+    @mock.patch("taskcat._config.Boto3Cache", autospec=True)
+    def test_get_rendered_params(self, _, __, ___, ____, m_boto):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
+        m_boto.client.return_value = mock_client()
+        config = Config.create(
+            args={},
+            global_config_path=base_path / ".taskcat_global.yml",
+            project_config_path=base_path / "./.taskcat.yml",
+            overrides_path=base_path / "./.taskcat_overrides.yml",
+            env_vars={},
+        )
+        regions = config.get_regions(boto3_cache=m_boto)
+        buckets = config.get_buckets(boto3_cache=m_boto)
+        templates = config.get_templates(base_path, m_boto)
+        rendered_params = config.get_rendered_parameters(buckets, regions, templates)
+        for test_name, regions in rendered_params.items():
+            with self.subTest(test=test_name):
+                for region_name, _params in regions.items():
+                    with self.subTest(region=region_name):
+                        buckets[test_name][region_name].delete()
+
+    @mock.patch("taskcat._config.Boto3Cache", autospec=True)
+    def test_get_templates(self, m_boto):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
+        m_boto.client.return_value = mock_client()
+        config = Config.create(
+            args={},
+            global_config_path=base_path / ".taskcat_global.yml",
+            project_config_path=base_path / "./.taskcat.yml",
+            overrides_path=base_path / "./.taskcat_overrides.yml",
+            env_vars={},
+        )
+        templates = config.get_templates(base_path, m_boto)
+        for test_name, _template in templates.items():
+            with self.subTest(test=test_name):
+                pass
+
+
+def mock_client(*args, **kwargs):
+    m = mock.Mock()
+    m.describe_availability_zones = mock_get_azs
+    return m
+
+
+def mock_get_azs(*args, **kwargs):
+    return {
+        "AvailabilityZones": [
+            {"ZoneName": "mo-ck-1a", "ZoneId": "mockzoneid1a"},
+            {"ZoneName": "mo-ck-1b", "ZoneId": "mockzoneid1b"},
+            {"ZoneName": "mo-ck-1c", "ZoneId": "mockzoneid1c"},
+        ]
+    }

@@ -21,23 +21,13 @@ class S3BucketCreatorException(TaskCatException):
     pass
 
 
-def stage_in_s3(config):
-    """
-    Upload templates and other artifacts to s3.
+def stage_in_s3(buckets, project_name, project_root):
+    distinct_buckets = {}
 
-    This function creates the s3 bucket with name provided in the config yml file. If
-    no bucket name provided, it creates the s3 bucket using project name provided in
-    config yml file. And uploads the templates and other artifacts to the s3 bucket.
-
-    :param config: Taskcat config object.
-
-    """
-    bucket_set: set = set()
-
-    for test in config.tests.values():
-        for region in test.regions:
-            bucket_set.add(region.s3bucket)
-    for bucket in bucket_set:
-        bucket.create()
-    for bucket in bucket_set:
-        S3Sync(bucket.client, bucket.name, config.name, config.project_root, bucket.acl)
+    for test in buckets.values():
+        for bucket in test.values():
+            distinct_buckets[bucket.name] = bucket
+    for bucket in distinct_buckets.values():
+        S3Sync(
+            bucket.s3_client, bucket.name, project_name, project_root, bucket.object_acl
+        )

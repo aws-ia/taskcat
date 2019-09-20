@@ -2,4 +2,8 @@ project:
   name: nested-subs
 tests:
   mytest:
-    template_file: templates/test.template.yaml
+    template: templates/test.template.yaml
+    regions:
+    - us-east-1
+    parameters:
+      MyParam: 1
