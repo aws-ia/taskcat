@@ -20,6 +20,7 @@ for ver in "$@" ; do
     pyenv shell ${ver}
     for t in $(ls -1 *.sh) ; do
         chmod +x ./${t}
+        echo "running tests in ${t}..."
         BIN=${CMD} ./${t} || failed
     done
 done
