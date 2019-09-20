@@ -1409,7 +1409,7 @@ class TaskCat(object):
 
                     for defined in cfg_yml['tests'].keys():
                         run_tests.append(defined)
-                        print(self.nametag + " |Queing test => %s " % defined)
+                        print(self.nametag + " |Queueing test => %s " % defined)
                         for parms in cfg_yml['tests'][defined].keys():
                             for key in required_test_parameters:
                                 if key in cfg_yml['tests'][defined].keys():
