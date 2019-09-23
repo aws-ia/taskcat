@@ -10,4 +10,4 @@ def generate_name():
         raise TaskCatException("cannot find dictionary files")
     animals = open(str(path / "animals.txt"), "r").read().split("\n")
     descriptors = open(str(path / "descriptors.txt"), "r").read().split("\n")
-    return choice(descriptors) + "-" + choice(animals)
+    return choice(descriptors) + "-" + choice(animals)  # nosec: B311

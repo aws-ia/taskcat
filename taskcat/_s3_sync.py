@@ -28,6 +28,7 @@ class S3Sync:
     Does not support buckets with versioning enabled
     """
 
+    # TODO: better exclusions that support path wildcards, eg. "*/.git/*"
     exclude_files = [".*", "*.md"]
     exclude_path_prefixes = ["functions/source/", ".", "venv/", "taskcat_outputs/"]
 

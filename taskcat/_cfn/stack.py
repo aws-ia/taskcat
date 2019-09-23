@@ -156,6 +156,8 @@ class Output:
 
 class Tag:
     def __init__(self, tag_dict: dict):
+        if isinstance(tag_dict, Tag):
+            tag_dict = {"Key": tag_dict.key, "Value": tag_dict.value}
         self.key: str = tag_dict["Key"]
         self.value: str = tag_dict["Value"]
 
@@ -455,10 +457,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 resources.append(Resource(self.id, resource, self.test_name, self.uuid))
         self._resources = resources
 
-    def delete(self) -> None:
-        self.client.delete_stack(StackName=self.id)
-        LOG.info(f"Deleting stack: {self.name} in Region: {self.region_name}")
-        self.refresh()
+    @staticmethod
+    def delete(client, stack_id) -> None:
+        client.delete_stack(StackName=stack_id)
+        LOG.info(f"Deleting stack: {stack_id}")
 
     def update(self, *args, **kwargs):
         raise NotImplementedError("Stack updates not implemented")

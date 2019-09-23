@@ -159,7 +159,7 @@ class Template:
         url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
         return url_prefix
 
-    def _find_children(self) -> None:
+    def _find_children(self) -> None:  # noqa: C901
         children = set()
         if "Resources" not in self.template:
             raise TaskCatException(
@@ -192,7 +192,8 @@ class Template:
                 except Exception:  # pylint: disable=broad-except
                     LOG.debug("Traceback:", exc_info=True)
                     LOG.error(f"Failed to add child template {child}")
-            self.children.append(child_template_instance)
+            if isinstance(child_template_instance, Template):
+                self.children.append(child_template_instance)
 
     @property
     def descendents(self) -> Set["Template"]:

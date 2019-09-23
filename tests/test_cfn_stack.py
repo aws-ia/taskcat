@@ -479,9 +479,8 @@ class TestStack(unittest.TestCase):
         stack.client = mock.Mock()
 
         stack.refresh.reset_mock()
-        stack.delete()
+        stack.delete(client=stack.client, stack_id=stack.id)
         stack.client.delete_stack.assert_called_once()
-        stack.refresh.assert_called_once()
 
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",

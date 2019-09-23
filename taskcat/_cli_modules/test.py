@@ -1,6 +1,9 @@
-# flake8: noqa B950,F841
+# pylint: disable=duplicate-code
+# noqa: B950,F841
 import logging
 from pathlib import Path
+
+import boto3
 
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
@@ -11,6 +14,9 @@ from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
 from taskcat._validate import validate_all_templates
 from taskcat.exceptions import TaskCatException
+
+from .delete import Delete
+from .list import List
 
 LOG = logging.getLogger(__name__)
 
@@ -77,3 +83,37 @@ class Test:
         """resumes a monitoring of a previously started test run"""
         # do some stuff
         raise NotImplementedError()
+
+    @staticmethod
+    def list(profiles: str = "default", regions="ALL", _stack_type="package"):
+        """
+        :param profiles: comma separated list of aws profiles to search
+        :param regions: comma separated list of regions to search, default is to check
+        all commercial regions
+        """
+        List(profiles=profiles, regions=regions, _stack_type="test")
+
+    @staticmethod
+    def clean(project: str, aws_profile: str = "default", region="ALL"):
+        """
+        :param project: project to delete, can be an name or uuid, or ALL to clean all
+        tests
+        :param aws_profile: aws profile to use for deletion
+        :param region: region to delete from, default will scan all regions
+        """
+        if region == "ALL":
+            region_set: set = set()
+            region_set = region_set.union(
+                # pylint: disable=duplicate-code
+                set(
+                    boto3.Session(profile_name=aws_profile).get_available_regions(
+                        "cloudformation"
+                    )
+                )
+            )
+            regions = list(region_set)
+        else:
+            regions = [region]
+        Delete(
+            package=project, aws_profile=aws_profile, region=regions, _stack_type="test"
+        )
