@@ -193,7 +193,7 @@ class ParamGen:
         numbers = "1234567890"
         lowercase = "abcdefghijklmnopqrstuvwxyz"
         uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        specialchars = "!#$&{*:[=,]-_%@+"
+        specialchars = "!#$&{*:[=,]-_%+"
 
         # Generates password string with:
         # lowercase,uppercase and numeric chars
