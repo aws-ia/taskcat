@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 import mock
-
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 

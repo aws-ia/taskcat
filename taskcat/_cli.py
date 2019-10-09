@@ -2,10 +2,10 @@ import argparse
 import signal
 import sys
 
-import pyfiglet
 import requests
 from pkg_resources import get_distribution
 
+import pyfiglet
 from taskcat._cli_core import CliCore
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger
@@ -131,7 +131,6 @@ def check_for_update():
 
 def _welcome():
     banner = pyfiglet.Figlet(font="standard")
-    banner = banner
     LOG.info(f"{banner.renderText(NAME)}\n", extra={"nametag": ""})
     try:
         check_for_update()

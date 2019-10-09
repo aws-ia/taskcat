@@ -5,7 +5,6 @@ from pathlib import Path
 from threading import Timer
 
 import mock
-
 from taskcat import Config
 from taskcat._cfn.stack import (
     Event,

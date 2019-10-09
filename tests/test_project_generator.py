@@ -2,7 +2,6 @@ from unittest import TestCase
 from unittest.mock import Mock, call
 
 from jinja2 import Template
-
 from taskcat._project_generator import ProjectConfiguration, ProjectGenerator, full_path
 
 TEST_OWNER = "owner@example.com"

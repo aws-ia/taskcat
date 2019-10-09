@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 import mock
-
 from taskcat._cli_modules.lint import Lint
 
 

@@ -3,7 +3,6 @@ import uuid
 from pathlib import Path
 
 import mock
-
 from taskcat import Config
 from taskcat._cfn.threaded import Stacker
 

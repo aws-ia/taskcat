@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Optional, Union
 
 import boto3
-from jsonschema import RefResolver, validate
 
+from jsonschema import RefResolver, validate
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)

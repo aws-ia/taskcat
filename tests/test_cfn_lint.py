@@ -3,9 +3,9 @@ import shutil
 import unittest
 from pathlib import Path
 
-import mock
 import yaml
 
+import mock
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
 

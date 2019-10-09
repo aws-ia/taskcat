@@ -2,7 +2,6 @@ import logging
 import time
 
 from reprint import output
-
 from taskcat._cfn.threaded import Stacker as TaskcatStacker
 from taskcat._logger import PrintMsg
 

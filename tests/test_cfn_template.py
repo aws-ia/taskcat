@@ -2,7 +2,6 @@ import unittest
 from pathlib import Path
 
 import mock
-
 from taskcat import Config
 
 

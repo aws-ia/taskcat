@@ -3,7 +3,6 @@ import os
 import unittest
 
 import mock
-
 from taskcat._common_utils import (
     get_s3_domain,
     make_dir,

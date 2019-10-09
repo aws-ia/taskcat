@@ -46,7 +46,7 @@ class Stacker:
 
     @staticmethod
     def _tests_to_list(tests: Dict[str, TestObj]):
-        return [test for test in tests.values()]
+        return list(tests.values())
 
     def create_stacks(self, threads: int = 8):
         if self.stacks:
