@@ -18,7 +18,7 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 
-class Install:
+class Deploy:
     """[ALPHA] installs a stack into an AWS account/region"""
 
     PKG_CACHE_PATH = Path("~/.taskcat_package_cache/").expanduser().resolve()
