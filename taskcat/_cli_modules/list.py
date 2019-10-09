@@ -83,7 +83,10 @@ class List:
         if not jobs:
             LOG.info("no stacks found")
             return
-        header = f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}ID{spaces(34)}REGION"
+        header = (
+            f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}"
+            f"ID{spaces(34)}REGION"
+        )
         LOG.error(header, extra={"nametag": ""})
         column = "{}    {}       {}    {}"
         for job_id, job in jobs.items():

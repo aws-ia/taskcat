@@ -69,7 +69,7 @@ class Deploy:
             else:
                 org, repo = package.split("/")
                 url = f"https://github.com/{org}/{repo}.git"
-            path = Install.PKG_CACHE_PATH / org / repo
+            path = Deploy.PKG_CACHE_PATH / org / repo
             LOG.info(f"fetching git repo {url}")
             self._git_clone(url, path)
             self._recurse_submodules(path, url)
