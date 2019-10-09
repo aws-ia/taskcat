@@ -12,7 +12,6 @@ from taskcat._config import Config
 from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
-from taskcat._validate import validate_all_templates
 from taskcat.exceptions import TaskCatException
 
 from .delete import Delete
@@ -33,45 +32,46 @@ class Test:
 
         :param input_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root: root path of the project relative to input_file
+        :param project_root_path: root path of the project relative to input_file
+        :param no_delete: don't delete stacks after test is complete
         """
-        project_root = Path(project_root).expanduser().resolve()
-        input_file = project_root / input_file
+        project_root_path: Path = Path(project_root).expanduser().resolve()
+        input_file_path: Path = project_root_path / input_file
         config = Config.create(
-            project_root=project_root,
+            project_root=project_root_path,
             # TODO: detect if input file is taskcat config or CloudFormation template
-            project_config_path=input_file,
+            project_config_path=input_file_path,
         )
         boto3_cache = Boto3Cache()
         # 1. build lambdas
-        LambdaBuild(config, project_root)
+        LambdaBuild(config, project_root_path)
         # 2. lint
-        templates = config.get_templates(project_root, boto3_cache)
-        lint = TaskCatLint(config, templates, project_root)
+        templates = config.get_templates(project_root_path)
+        lint = TaskCatLint(config, templates)
         errors = lint.lints[1]
         lint.output_results()
         if errors or not lint.passed:
             raise TaskCatException("Lint failed with errors")
         # 3. s3 sync
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, project_root)
-        # 4. validate
-        validate_all_templates(config, templates, buckets)
-        # 5. launch stacks
+        stage_in_s3(buckets, config.config.project.name, project_root_path)
+        # 4. launch stacks
         regions = config.get_regions(boto3_cache)
         parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(project_root, templates, regions, buckets, parameters)
+        tests = config.get_tests(
+            project_root_path, templates, regions, buckets, parameters
+        )
         test_definition = Stacker(config.config.project.name, tests)
         test_definition.create_stacks()
         terminal_printer = TerminalPrinter()
-        # 6. wait for completion
+        # 5. wait for completion
         terminal_printer.report_test_progress(stacker=test_definition)
         # 7. delete stacks
         test_definition.delete_stacks()
         terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
-        # 8. delete buckets
+        # 7. delete buckets
         for test in buckets.values():
             for bucket in test.values():
                 bucket.delete(delete_objects=True)

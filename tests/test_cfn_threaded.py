@@ -19,7 +19,7 @@ def get_tests(test_proj, _):
         project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
     )
     boto_cache = get_mock_boto_cache()
-    templates = c.get_templates(boto3_cache=boto_cache, project_root=test_proj)
+    templates = c.get_templates(project_root=test_proj)
     regions = c.get_regions(boto3_cache=boto_cache)
     buckets = c.get_buckets(boto_cache)
     params = c.get_rendered_parameters(buckets, regions, templates)

@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 from taskcat._cfn_lint import Lint as TaskCatLint
-from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 from taskcat.exceptions import TaskCatException
 
@@ -30,8 +29,7 @@ class Lint:
             project_root=project_root_path, project_config_path=input_file_path
         )
 
-        boto3_cache = Boto3Cache()
-        templates = config.get_templates(project_root_path, boto3_cache)
+        templates = config.get_templates(project_root_path)
         lint = TaskCatLint(config, templates, strict)
         errors = lint.lints[1]
         lint.output_results()

@@ -92,7 +92,7 @@ class Deploy:
         buckets = config.get_buckets(boto3_cache)
         stage_in_s3(buckets, config.config.project.name, path)
         regions = config.get_regions(boto3_cache)
-        templates = config.get_templates(project_root=path, boto3_cache=boto3_cache)
+        templates = config.get_templates(project_root=path)
         parameters = config.get_rendered_parameters(buckets, regions, templates)
         tests = config.get_tests(path, templates, regions, buckets, parameters)
         tags = [Tag({"Key": "taskcat-installer", "Value": name})]

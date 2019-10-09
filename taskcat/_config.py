@@ -298,17 +298,13 @@ class Config:
             parameters[test_name] = template.parameters()
         return parameters
 
-    def get_templates(self, project_root: Path, boto3_cache: Boto3Cache):
+    def get_templates(self, project_root: Path):
         templates = {}
         for test_name, test in self.config.tests.items():
             templates[test_name] = Template(
                 template_path=project_root / test.template,
                 project_root=project_root,
                 s3_key_prefix=f"{self.config.project.name}/",
-                boto3_cache=boto3_cache,
-                s3_region=self._get_bucket_region_for_partition(
-                    boto3_cache.partition()
-                ),
             )
         return templates
 

@@ -326,12 +326,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             if not absolute_path.exists():
                 with open(absolute_path, "w") as fh:
                     fh.write(tempate_body)
-        # pylint: disable=protected-access
         template = Template(
             template_path=str(absolute_path),
             project_root=parent_stack.template.project_root,
             url=url,
-            boto3_cache=parent_stack.region._boto3_cache,
         )
         stack = cls(
             parent_stack.region,

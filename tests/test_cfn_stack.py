@@ -493,9 +493,7 @@ class TestStack(unittest.TestCase):
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
-        templates = c.get_templates(
-            project_root=test_proj, boto3_cache=region._boto3_cache
-        )
+        templates = c.get_templates(project_root=test_proj)
         stack = Stack.create(region, "stack_name", templates["taskcat-json"])
         stack._timer.cancel()
 
