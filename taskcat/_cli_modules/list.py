@@ -24,6 +24,7 @@ class List:
         :param regions: comma separated list of regions to search, default is to check
         all commercial regions
         """
+        LOG.warning("list is in alpha feature, use with caution")
         if isinstance(profiles, str):
             profiles = profiles.split(",")
         if regions == "ALL":

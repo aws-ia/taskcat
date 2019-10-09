@@ -46,6 +46,7 @@ class Deploy:
         generated
         :param wait: if enabled, taskcat will wait for stack to complete before exiting
         """
+        LOG.warning("deploy is in alpha feature, use with caution")
         boto3_cache = Boto3Cache()
         if not name:
             name = generate_name()

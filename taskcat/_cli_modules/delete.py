@@ -24,6 +24,7 @@ class Delete:
         :param region: region to delete from, default will use aws cli configured
         default
         """
+        LOG.warning("delete is in alpha feature, use with caution")
         boto3_cache = Boto3Cache()
         if region == "default":
             region = boto3_cache.get_default_region(aws_profile)
