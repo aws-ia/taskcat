@@ -27,7 +27,11 @@ class Test:
 
     # pylint: disable=too-many-locals
     @staticmethod
-    def run(input_file="./.taskcat.yml", project_root="./"):
+    def run(
+        input_file: str = "./.taskcat.yml",
+        project_root: str = "./",
+        no_delete: bool = False,
+    ):
         """tests whether CloudFormation templates are able to successfully launch
 
         :param input_file: path to either a taskat project config file or a
@@ -66,9 +70,10 @@ class Test:
         terminal_printer = TerminalPrinter()
         # 5. wait for completion
         terminal_printer.report_test_progress(stacker=test_definition)
-        # 7. delete stacks
-        test_definition.delete_stacks()
-        terminal_printer.report_test_progress(stacker=test_definition)
+        # 6. delete stacks
+        if not no_delete:
+            test_definition.delete_stacks()
+            terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 7. delete buckets
