@@ -129,15 +129,16 @@ class Template:
 
     @property
     def descendents(self) -> List["Template"]:
-        def recurse(template, descendants):
-            paths = [str(d.template_path) for d in descendants]
-            for child in template.children:
-                if str(child.template_path) not in paths:
-                    descendants.append(child)
-                    recurse(child, descendants)
-            return descendants
+        desc_map = {}
 
-        return recurse(self, [])
+        def recurse(template):
+            for child in template.children:
+                desc_map[str(child.template_path)] = child
+                recurse(child)
+
+        recurse(self)
+
+        return list(desc_map.values())
 
     def parameters(
         self
