@@ -62,11 +62,10 @@ class List:
                     }
             else:
                 jobs[stack["taskcat-id"].hex]["active_stacks"] += 1
-        name_lengths = [len(v["name"]) for _, v in jobs.items()]
-        if not name_lengths:
-            longest_name = 0
-        else:
-            longest_name = sorted(name_lengths)[-1]
+
+        def longest(things: list):
+            lengths = [len(thing) for thing in things]
+            return sorted(lengths)[-1] if lengths else 0
 
         def spaces(number):
             ret = ""
@@ -79,15 +78,20 @@ class List:
                 string += " "
             return string
 
-        header = f"NAME{spaces(longest_name)}ID{spaces(34)}NUMBER_OF_STACKS  REGIOM"
+        longest_name = longest([v["name"] for _, v in jobs.items()])
+        longest_project_name = longest([v["project_name"] for _, v in jobs.items()])
+        if not jobs:
+            LOG.info("no stacks found")
+            return
+        header = f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}ID{spaces(34)}REGION"
         LOG.error(header, extra={"nametag": ""})
-        column = "{}    {}    {}                 {}"
+        column = "{}    {}       {}    {}"
         for job_id, job in jobs.items():
             LOG.error(
                 column.format(
                     pad(job["name"], longest_name),
+                    pad(job["project_name"], longest_project_name),
                     job_id,
-                    job["active_stacks"],
                     job["region"],
                 ),
                 extra={"nametag": ""},
