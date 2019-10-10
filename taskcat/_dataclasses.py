@@ -6,18 +6,14 @@ from pathlib import Path
 from typing import Any, Dict, List, NewType, Optional, Union
 
 import boto3
-from dataclasses_jsonschema import FieldEncoder, JsonSchemaMixin
 
+from dataclasses_jsonschema import FieldEncoder, JsonSchemaMixin
 from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_nested_dict
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
-
-
-class StrictSchema(JsonSchemaMixin):
-    allow_unencodable_object_keys = False
 
 
 # types
@@ -43,7 +39,7 @@ class ParameterKeyField(FieldEncoder):
         return {"type": "string", "pattern": r"[a-zA-Z0-9]*^$"}
 
 
-StrictSchema.register_field_encoders({ParameterKey: ParameterKeyField()})
+JsonSchemaMixin.register_field_encoders({ParameterKey: ParameterKeyField()})
 
 
 class RegionField(FieldEncoder):
@@ -56,16 +52,16 @@ class RegionField(FieldEncoder):
         }
 
 
-StrictSchema.register_field_encoders({Region: RegionField()})
+JsonSchemaMixin.register_field_encoders({Region: RegionField()})
 
 
 class AlNumDashField(FieldEncoder):
     @property
     def json_schema(self):
-        return {"type": "string", "pattern": r"^[a-z/d-]*$"}
+        return {"type": "string", "pattern": r"^[a-z0-9-]*$"}
 
 
-StrictSchema.register_field_encoders({AlNumDash: AlNumDashField()})
+JsonSchemaMixin.register_field_encoders({AlNumDash: AlNumDashField()})
 
 
 class AzIdField(FieldEncoder):
@@ -78,7 +74,7 @@ class AzIdField(FieldEncoder):
         }
 
 
-StrictSchema.register_field_encoders({AzId: AzIdField()})
+JsonSchemaMixin.register_field_encoders({AzId: AzIdField()})
 
 
 #
@@ -190,7 +186,7 @@ class S3BucketObj:
 
     def delete(self, delete_objects=False):
         if not self.auto_generated:
-            LOG.error(f"Will not delete bucket created outside of taskcat {self.name}")
+            LOG.info(f"Will not delete bucket created outside of taskcat {self.name}")
             return
         if delete_objects:
             try:
@@ -250,7 +246,7 @@ class TestObj:
 
 
 @dataclass
-class GeneralConfig(StrictSchema):
+class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(default=None)
     tags: Optional[Dict[TagKey, TagValue]] = field(default=None)
     auth: Optional[Dict[Region, str]] = field(default=None)
@@ -258,7 +254,7 @@ class GeneralConfig(StrictSchema):
 
 
 @dataclass
-class TestConfig(StrictSchema):
+class TestConfig(JsonSchemaMixin, allow_additional_props=False):
     template: Optional[str] = field(default=None)
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(default=None)
     regions: Optional[List[Region]] = field(default=None)
@@ -268,8 +264,9 @@ class TestConfig(StrictSchema):
     az_blacklist: Optional[List[AzId]] = field(default=None)
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
-class ProjectConfig(StrictSchema):
+class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):
     name: Optional[ProjectName] = field(default=None)
     auth: Optional[Dict[Region, str]] = field(default=None)
     owner: Optional[str] = field(default=None)
@@ -294,7 +291,7 @@ PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
 # pylint raises false positive due to json-dataclass
 # pylint: disable=no-member
 @dataclass
-class BaseConfig(StrictSchema):
+class BaseConfig(JsonSchemaMixin, allow_additional_props=False):
     general: GeneralConfig = field(default_factory=GeneralConfig)
     project: ProjectConfig = field(default_factory=ProjectConfig)
     tests: Dict[TestName, TestConfig] = field(default_factory=dict)

@@ -3,9 +3,9 @@ import shutil
 import unittest
 from pathlib import Path
 
-import mock
 import yaml
 
+import mock
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
 
@@ -155,9 +155,7 @@ class TestCfnLint(unittest.TestCase):
                 config = Config.create(
                     project_config_path=config_path, project_root=project_root
                 )
-                templates = config.get_templates(
-                    project_root=project_root, boto3_cache=m_boto
-                )
+                templates = config.get_templates(project_root=project_root)
                 lint = Lint(config=config, templates=templates)
                 self.assertEqual(
                     test_case["expected_lints"], flatten_rule(lint.lints[0])
@@ -190,7 +188,7 @@ class TestCfnLint(unittest.TestCase):
             config = Config.create(
                 project_config_path=config_path, project_root=project_root
             )
-            templates = config.get_templates(project_root, m_boto)
+            templates = config.get_templates(project_root)
             lint = Lint(config=config, templates=templates)
             lint.output_results()
             self.assertTrue(
@@ -257,7 +255,7 @@ class TestCfnLint(unittest.TestCase):
             config = Config.create(
                 project_config_path=config_path, project_root=project_root
             )
-            templates = config.get_templates(project_root, m_boto)
+            templates = config.get_templates(project_root)
             lint = Lint(config=config, templates=templates)
             self.assertEqual(lint.passed, True)
 

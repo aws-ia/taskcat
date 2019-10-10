@@ -7,6 +7,7 @@ from typing import Dict, List
 import boto3
 
 from taskcat._cfn.stack import Stack, Stacks, StackStatus, Tag
+from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_dicts
 from taskcat._dataclasses import TestObj, TestRegion
 from taskcat.exceptions import TaskCatException
@@ -45,7 +46,7 @@ class Stacker:
 
     @staticmethod
     def _tests_to_list(tests: Dict[str, TestObj]):
-        return [test for test in tests.values()]
+        return list(tests.values())
 
     def create_stacks(self, threads: int = 8):
         if self.stacks:
@@ -94,7 +95,8 @@ class Stacker:
 
     @staticmethod
     def _delete_stack(stack: Stack):
-        stack.delete()
+        stack.delete(stack_id=stack.id, client=stack.client)
+        stack.refresh()
 
     def status(self, recurse: bool = False, threads: int = 32, **kwargs):
         if recurse:
@@ -228,3 +230,55 @@ class Stacker:
                 stacks_by_client[client] = {"Client": client, "Stacks": []}
             stacks_by_client[client]["Stacks"].append(stack)
         return [stacks_by_client[r] for r in stacks_by_client]
+
+    @staticmethod
+    def list_stacks(profiles, regions):
+        stacks = fan_out(
+            Stacker._list_per_profile,
+            {"regions": regions, "boto_cache": Boto3Cache()},
+            profiles,
+            threads=8,
+        )
+        return [stack for sublist in stacks for stack in sublist]
+
+    @staticmethod
+    def _list_per_profile(profile, regions, boto_cache):
+        stacks = fan_out(
+            Stacker._get_taskcat_stacks,
+            {"boto_cache": boto_cache, "profile": profile},
+            regions,
+            threads=len(regions),
+        )
+        return [stack for sublist in stacks for stack in sublist]
+
+    @staticmethod
+    def _get_taskcat_stacks(region, boto_cache: Boto3Cache, profile: str):
+        stacks = []
+        try:
+            cfn = boto_cache.client("cloudformation", profile=profile, region=region)
+            for page in cfn.get_paginator("describe_stacks").paginate():
+                for stack_props in page["Stacks"]:
+                    if stack_props.get("ParentId"):
+                        continue
+                    stack_id = stack_props["StackId"]
+                    stack_name = stack_id.split("/")[1]
+                    stack = {
+                        "region": region,
+                        "profile": profile,
+                        "stack-id": stack_id,
+                        "stack-name": stack_name,
+                    }
+                    for tag in stack_props["Tags"]:
+                        k, v = (tag["Key"], tag["Value"])
+                        if k.startswith("taskcat-"):
+                            stack[k] = v
+                    if stack.get("taskcat-id"):
+                        stack["taskcat-id"] = uuid.UUID(stack["taskcat-id"])
+                        stacks.append(stack)
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.warning(
+                f"Failed to fetch stacks for region {region} using profile "
+                f"{profile} {type(e)} {e}"
+            )
+            LOG.debug(f"Traceback:", exc_info=True)
+        return stacks

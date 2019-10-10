@@ -43,7 +43,7 @@ class CliCore:
     def _get_params(item):
         params = []
         for param in inspect.signature(item).parameters.values():
-            if param.name == "self":
+            if param.name == "self" or param.name.startswith("_"):
                 continue
             required = param.default == param.empty
             default = param.default if not required else None

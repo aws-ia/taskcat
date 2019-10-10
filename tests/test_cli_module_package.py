@@ -3,11 +3,10 @@ import unittest
 from pathlib import Path
 
 import mock
-
 from taskcat._cli_modules.package import Package
 
 
-class TestNewConfig(unittest.TestCase):
+class TestPackageCli(unittest.TestCase):
     @mock.patch(
         "taskcat._config.Boto3Cache.partition", autospec=True, return_value="aws"
     )

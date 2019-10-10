@@ -7,8 +7,8 @@ from threading import Lock
 
 import boto3
 import botocore
-import mock
 
+import mock
 from taskcat._client_factory import Boto3Cache
 
 

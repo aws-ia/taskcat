@@ -1,6 +1,7 @@
 import logging
 import operator
 from functools import reduce
+from time import sleep
 from typing import Any, Dict, List
 
 import boto3
@@ -12,6 +13,10 @@ LOG = logging.getLogger(__name__)
 
 
 class Boto3Cache:
+    RETRIES = 10
+    BACKOFF = 2
+    DELAY = 0.1
+
     def __init__(self, _boto3=boto3):
         self._boto3 = _boto3
         self._session_cache: Dict[str, Dict[str, boto3.Session]] = {}
@@ -113,9 +118,21 @@ class Boto3Cache:
         except KeyError:
             args = [] if not args else args
             kwargs = {} if not kwargs else kwargs
-            value = create_func(*args, **kwargs)
+            value = self._get_with_retry(create_func, args, kwargs)
             self._cache_set(cache, key_list, value)
         return value
+
+    def _get_with_retry(self, create_func, args, kwargs):
+        retries = self.RETRIES
+        delay = self.DELAY
+        while retries:
+            try:
+                return create_func(*args, **kwargs)
+            except KeyError as e:
+                if str(e) != "credential_provider":
+                    raise
+                backoff = (self.RETRIES - retries + delay) * self.BACKOFF
+                sleep(backoff)
 
     @staticmethod
     def _cache_get(cache: dict, key_list: List[str]):

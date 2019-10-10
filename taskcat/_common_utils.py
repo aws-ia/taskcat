@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import Optional, Union
 
 import boto3
-from jsonschema import RefResolver, validate
 
+from jsonschema import RefResolver, validate
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -146,6 +146,8 @@ def schema_validate(instance, schema_name):
     if isinstance(instance_copy, dict):
         if "tests" in instance_copy.keys():
             instance_copy["tests"] = tests_to_dict(instance_copy["tests"])
+        if "installer" in instance_copy.keys():
+            instance_copy["installer"] = tests_to_dict(instance_copy["installer"])
     schema_path = Path(__file__).parent.absolute() / "cfg"
     with open(schema_path / f"schema_{schema_name}.json", "r") as file_handle:
         schema = json.load(file_handle)

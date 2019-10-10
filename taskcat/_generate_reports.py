@@ -1,9 +1,9 @@
 import logging
 import time
 
-import yattag
 from botocore.vendored import requests
 
+import yattag
 from taskcat._common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
 

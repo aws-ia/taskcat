@@ -5,7 +5,6 @@ from pathlib import Path
 from threading import Timer
 
 import mock
-
 from taskcat import Config
 from taskcat._cfn.stack import (
     Event,
@@ -479,9 +478,8 @@ class TestStack(unittest.TestCase):
         stack.client = mock.Mock()
 
         stack.refresh.reset_mock()
-        stack.delete()
+        stack.delete(client=stack.client, stack_id=stack.id)
         stack.client.delete_stack.assert_called_once()
-        stack.refresh.assert_called_once()
 
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
@@ -495,9 +493,7 @@ class TestStack(unittest.TestCase):
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
-        templates = c.get_templates(
-            project_root=test_proj, boto3_cache=region._boto3_cache
-        )
+        templates = c.get_templates(project_root=test_proj)
         stack = Stack.create(region, "stack_name", templates["taskcat-json"])
         stack._timer.cancel()
 

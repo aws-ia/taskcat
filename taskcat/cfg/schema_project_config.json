@@ -9,6 +9,9 @@
             "$ref": "schema_definitions.json#/definitions/tests",
             "minProperties": 1
         },
+        "installer": {
+            "$ref": "schema_definitions.json#/definitions/installer"
+        },
         "general": {
             "$ref": "schema_definitions.json#/definitions/general"
         }

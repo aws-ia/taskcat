@@ -10,6 +10,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import generate_bucket_name
 from taskcat._dataclasses import BaseConfig, RegionObj, S3BucketObj, TestObj, TestRegion
+from taskcat._legacy_config import parse_legacy_config
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
 
@@ -116,11 +117,10 @@ class Config:
         except Exception as e:  # pylint: disable=broad-except
             error = e
             try:
+                legacy_conf = parse_legacy_config(project_root)
                 return {
                     "source": str(project_root / "ci/taskcat.yml"),
-                    "config": base_cls._dict_from_file(
-                        project_config_path, fail_ok=False
-                    ),
+                    "config": legacy_conf.to_dict(),
                 }
             except Exception as e:  # pylint: disable=broad-except
                 LOG.debug(str(e), exc_info=True)
@@ -298,17 +298,13 @@ class Config:
             parameters[test_name] = template.parameters()
         return parameters
 
-    def get_templates(self, project_root: Path, boto3_cache: Boto3Cache):
+    def get_templates(self, project_root: Path):
         templates = {}
         for test_name, test in self.config.tests.items():
             templates[test_name] = Template(
                 template_path=project_root / test.template,
                 project_root=project_root,
                 s3_key_prefix=f"{self.config.project.name}/",
-                boto3_cache=boto3_cache,
-                s3_region=self._get_bucket_region_for_partition(
-                    boto3_cache.partition()
-                ),
             )
         return templates
 

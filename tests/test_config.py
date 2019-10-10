@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 import mock
-
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 
@@ -196,7 +195,7 @@ class TestNewConfig(unittest.TestCase):
         )
         regions = config.get_regions(boto3_cache=m_boto)
         buckets = config.get_buckets(boto3_cache=m_boto)
-        templates = config.get_templates(base_path, m_boto)
+        templates = config.get_templates(base_path)
         rendered_params = config.get_rendered_parameters(buckets, regions, templates)
         for test_name, regions in rendered_params.items():
             with self.subTest(test=test_name):
@@ -204,11 +203,9 @@ class TestNewConfig(unittest.TestCase):
                     with self.subTest(region=region_name):
                         buckets[test_name][region_name].delete()
 
-    @mock.patch("taskcat._config.Boto3Cache", autospec=True)
-    def test_get_templates(self, m_boto):
+    def test_get_templates(self):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
-        m_boto.client.return_value = mock_client()
         config = Config.create(
             args={},
             global_config_path=base_path / ".taskcat_global.yml",
@@ -216,7 +213,7 @@ class TestNewConfig(unittest.TestCase):
             overrides_path=base_path / "./.taskcat_overrides.yml",
             env_vars={},
         )
-        templates = config.get_templates(base_path, m_boto)
+        templates = config.get_templates(base_path)
         for test_name, _template in templates.items():
             with self.subTest(test=test_name):
                 pass

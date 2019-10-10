@@ -1,7 +1,6 @@
 import unittest
 
 import mock
-
 from taskcat._cli import _setup_logging, check_for_update, main
 from taskcat.exceptions import TaskCatException
 

@@ -93,7 +93,7 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "pattern": "^[a-z/d-]*$"
+                    "pattern": "^[a-z0-9-]*$"
                 },
                 "auth": {
                     "type": "object",
@@ -129,7 +129,7 @@
                 },
                 "s3_bucket": {
                     "type": "string",
-                    "pattern": "^[a-z/d-]*$"
+                    "pattern": "^[a-z0-9-]*$"
                 },
                 "parameters": {
                     "type": "object",
@@ -226,7 +226,7 @@
                 },
                 "s3_bucket": {
                     "type": "string",
-                    "pattern": "^[a-z/d-]*$"
+                    "pattern": "^[a-z0-9-]*$"
                 },
                 "az_blacklist": {
                     "type": "array",
