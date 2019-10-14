@@ -204,7 +204,13 @@ class CliCore:
 
     def _get_plugin_modules(self):
         members = inspect.getmembers(self.module_package, predicate=inspect.isclass)
-        return {name.lower(): cls for name, cls in members}
+        member_name_class = []
+        for name, cls in members:
+            if hasattr(cls, 'CLINAME'):
+                name = getattr(cls, 'CLINAME')
+            member_name_class.append((name, cls))
+        x = {name.lower(): cls for name, cls in member_name_class}
+        return x
 
     @staticmethod
     def _import_plugin_module(class_name, module_name):
