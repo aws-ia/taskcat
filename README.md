@@ -22,11 +22,6 @@ templates across AWS Regions
 ## Installing taskcat
 **taskcat** can be install using `docker` or `pip`
 
-### Windows
-Taskcat on Windows is **not supported**.
-
-If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps below.
-
 ### Installing via docker
 ![Docker Required](https://img.shields.io/badge/Prerequisites-docker-blue.svg)
 
@@ -58,6 +53,11 @@ Note: (the user install dir is platform specific)
 *For Example:* (On Linux: ~/.local/bin)
 
 > **Warning:** Be sure to add the python bin dir to your **$PATH**
+
+### Windows
+Taskcat on Windows is **not supported**.
+
+If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps above.
 
 ### Running taskcat
 Note: If you have AWS credentials sourced (or default boto profile is available)
