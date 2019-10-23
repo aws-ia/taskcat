@@ -35,7 +35,7 @@ import logging
 import cfnlint.core
 import textwrap
 from argparse import RawTextHelpFormatter
-from botocore.vendored import requests
+import requests
 
 from pkg_resources import get_distribution
 
