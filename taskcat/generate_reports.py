@@ -1,7 +1,7 @@
 import time
 import yattag
 
-from botocore.vendored import requests
+import requests
 from taskcat.colored_console import PrintMsg
 from taskcat.common_utils import CommonTools
 from taskcat.exceptions import TaskCatException
