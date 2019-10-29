@@ -208,12 +208,7 @@ class Config:
         for test_name, test in self.config.tests.items():
             region_objects[test_name] = {}
             for region in test.regions:
-                default_auth = (
-                    test.auth.get("default", "default") if test.auth else "default"
-                )
-                profile = (
-                    test.auth.get(region, default_auth) if test.auth else default_auth
-                )
+                profile = test.auth.get(region, "default") if test.auth else "default"
                 region_objects[test_name][region] = RegionObj(
                     name=region,
                     account_id=boto3_cache.account_id(profile),
