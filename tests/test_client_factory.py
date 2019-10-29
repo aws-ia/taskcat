@@ -3,8 +3,6 @@
 import logging
 import os
 import unittest
-from functools import partial
-from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
 import boto3
