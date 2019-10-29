@@ -1,7 +1,7 @@
 import logging
 import time
 
-from botocore.vendored import requests
+import requests
 
 import yattag
 from taskcat._common_utils import CommonTools
