@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 class List:
     """[ALPHA] lists taskcat jobs with active stacks"""
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-branches
     def __init__(  # noqa: C901
         self,
         profiles: Union[str, ListType[str]] = "default",
@@ -43,25 +43,28 @@ class List:
         stacks = Stacker.list_stacks(profiles, regions)
         jobs: dict = {}
         for stack in stacks:
-            if stack["taskcat-id"].hex not in jobs:
+            stack_key = stack["taskcat-id"].hex + "-" + stack["region"]
+            if stack_key not in jobs:
                 name = stack.get("taskcat-installer")
                 if _stack_type == "test" and not name:
                     name = stack["taskcat-project-name"]
-                    jobs[stack["taskcat-id"].hex] = {
+                    jobs[stack_key] = {
                         "name": name,
+                        "id": stack["taskcat-id"].hex,
                         "project_name": stack["taskcat-project-name"],
                         "active_stacks": 1,
                         "region": stack["region"],
                     }
                 elif name and _stack_type == "package":
-                    jobs[stack["taskcat-id"].hex] = {
+                    jobs[stack_key] = {
                         "name": name,
+                        "id": stack["taskcat-id"].hex,
                         "project_name": stack["taskcat-project-name"],
                         "active_stacks": 1,
                         "region": stack["region"],
                     }
             else:
-                jobs[stack["taskcat-id"].hex]["active_stacks"] += 1
+                jobs[stack_key]["active_stacks"] += 1
 
         def longest(things: list):
             lengths = [len(thing) for thing in things]
@@ -83,19 +86,23 @@ class List:
         if not jobs:
             LOG.info("no stacks found")
             return
-        header = (
-            f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}"
-            f"ID{spaces(34)}REGION"
-        )
-        LOG.error(header, extra={"nametag": ""})
-        column = "{}    {}       {}    {}"
-        for job_id, job in jobs.items():
-            LOG.error(
-                column.format(
-                    pad(job["name"], longest_name),
-                    pad(job["project_name"], longest_project_name),
-                    job_id,
-                    job["region"],
-                ),
-                extra={"nametag": ""},
+        if _stack_type == "test":
+            header = (
+                f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}"
+                f"ID{spaces(34)}REGION"
             )
+            column = "{}    {}       {}    {}"
+        else:
+            header = f"NAME{spaces(longest_name)}ID{spaces(34)}REGION"
+            column = "{}    {}    {}"
+        LOG.error(header, extra={"nametag": ""})
+        for job in jobs.values():
+            args = [
+                pad(job["name"], longest_name),
+                pad(job["project_name"], longest_project_name),
+                job["id"],
+                job["region"],
+            ]
+            if _stack_type == "test":
+                args = [pad(job["name"], longest_name), job["id"], job["region"]]
+            LOG.error(column.format(*args), extra={"nametag": ""})
