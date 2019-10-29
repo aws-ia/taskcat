@@ -3,11 +3,10 @@
 import logging
 import os
 import unittest
-from threading import Lock
-from multiprocessing.dummy import Pool as ThreadPool
-from taskcat._client_factory import Boto3Cache
-
 from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
+from threading import Lock
+
 import boto3
 import botocore
 
@@ -16,28 +15,17 @@ from taskcat._client_factory import Boto3Cache
 
 
 class TestBoto3Cache(unittest.TestCase):
-    def test_stable_concurrency(self):
-        # Sometimes boto fails under high concurrency, don't mock boto for
-        # this to ensure changes in behavior in boto are caught
-        regions = ['eu-north-1', 'ap-south-1', 'eu-west-3', 'eu-west-2', 'eu-west-1', 'ap-northeast-3', 'ap-northeast-2', 'ap-northeast-1', 'sa-east-1', 'ca-central-1', 'ap-southeast-1', 'ap-southeast-2', 'eu-central-1', 'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2']
-        # make many, many dupes
-        regions = regions * 8
-        pool = ThreadPool(len(regions))
-        count = 0
-        error = None
-        while count < 16:
-            count += 1
-            c = Boto3Cache()
-            p = partial(c.client, "ec2", "default")
-            try:
-                pool.map(p, regions)
-            except KeyError as e:
-                print(f"KeyError: {e}")
-                error = e
-        self.assertEqual(error, None)
+    @mock.patch("taskcat._client_factory.boto3", autospec=True)
+    def test_stable_concurrency(self, mock_boto3):
+        # Sometimes boto fails with KeyErrors under high concurrency
+        for key_error in ["endpoint_resolver", "credential_provider"]:
+            mock_boto3.Session.side_effect = [KeyError(key_error), mock.DEFAULT]
+            c = Boto3Cache(_boto3=mock_boto3)
+            c.session("default")
 
 
 # Old ClientFactory tests kept for reference until new tests are in place
+
 
 class MockClientConfig(object):
     def __init__(self):
@@ -108,6 +96,7 @@ def boto_cache():
 
 ClientFactory = Boto3Cache
 client_factory_instance = Boto3Cache()
+
 
 # class ClientFactory(unittest.TestCase):
 class DisabledCFTests:
