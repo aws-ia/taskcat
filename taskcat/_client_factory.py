@@ -129,7 +129,7 @@ class Boto3Cache:
             try:
                 return create_func(*args, **kwargs)
             except KeyError as e:
-                if str(e) != "credential_provider":
+                if str(e) not in ["'credential_provider'", "'endpoint_resolver'"]:
                     raise
                 backoff = (self.RETRIES - retries + delay) * self.BACKOFF
                 sleep(backoff)
