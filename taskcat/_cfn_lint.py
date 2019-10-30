@@ -3,6 +3,8 @@ import re
 import textwrap
 
 import cfnlint.core
+from cfnlint.config import ConfigMixIn as CfnLintConfig
+from jsonschema.exceptions import ValidationError
 from taskcat._config import Config
 from taskcat._dataclasses import Templates
 
@@ -22,6 +24,11 @@ class Lint:
         """
         self._config: Config = config
         self._templates: Templates = templates
+        self._cfnlint_config = None
+        try:
+            self._cfnlint_config = CfnLintConfig([])
+        except ValidationError as e:
+            LOG.error("Error parsing cfn-lint config file: %s", str(e))
         self._rules = cfnlint.core.get_rules([], [], [])
         self.lints = self._lint()
         self.strict: bool = strict
@@ -69,9 +76,15 @@ class Lint:
         tpath = str(template.template_path)
         results = []
         try:
-            results = cfnlint.core.run_checks(
-                tpath, template.template, self._rules, lints[name]["regions"]
+            (_, rules, template_matches) = cfnlint.core.get_template_rules(
+                tpath, self._cfnlint_config
             )
+            if template_matches:
+                results = template_matches
+            else:
+                results = cfnlint.core.run_checks(
+                    tpath, template.template, rules, lints[name]["regions"]
+                )
             lints[name]["results"][tpath] = results
         except cfnlint.core.CfnLintExitException as e:
             lint_errors.add(str(e))

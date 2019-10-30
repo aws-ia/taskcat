@@ -54,6 +54,13 @@ repos:
     files: "^taskcat/"
 - repo: local
   hooks:
+  - id: update-schema
+    name: update-schema
+    description: generate schema from dataclasses
+    entry: python generate_schema.py
+    language: system
+    pass_filenames: false
+    always_run: true
   - id: git-secrets-register-aws
     name: git-secrets-register-aws
     description: Register AWS patterns with git-secrets

@@ -12,6 +12,19 @@ import mock
 from taskcat._client_factory import Boto3Cache
 
 
+class TestBoto3Cache(unittest.TestCase):
+    @mock.patch("taskcat._client_factory.boto3", autospec=True)
+    def test_stable_concurrency(self, mock_boto3):
+        # Sometimes boto fails with KeyErrors under high concurrency
+        for key_error in ["endpoint_resolver", "credential_provider"]:
+            mock_boto3.Session.side_effect = [KeyError(key_error), mock.DEFAULT]
+            c = Boto3Cache(_boto3=mock_boto3)
+            c.session("default")
+
+
+# Old ClientFactory tests kept for reference until new tests are in place
+
+
 class MockClientConfig(object):
     def __init__(self):
         self.region_name = "us-east-2"
@@ -79,11 +92,6 @@ def boto_cache():
     return aws_clients
 
 
-class TestBoto3Cache(unittest.TestCase):
-    pass
-
-
-# Old ClientFactory tests kept for reference until new tests are in place
 ClientFactory = Boto3Cache
 client_factory_instance = Boto3Cache()
 
