@@ -34,6 +34,7 @@ class Test:
         input_file: str = "./.taskcat.yml",
         project_root: str = "./",
         no_delete: bool = False,
+        lint_disable: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -41,6 +42,7 @@ class Test:
         CloudFormation template
         :param project_root_path: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
+        :param lint_disable: disable cfn-lint checks
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
@@ -50,13 +52,14 @@ class Test:
             project_config_path=input_file_path,
         )
         boto3_cache = Boto3Cache()
-        # 1. lint
         templates = config.get_templates(project_root_path)
-        lint = TaskCatLint(config, templates)
-        errors = lint.lints[1]
-        lint.output_results()
-        if errors or not lint.passed:
-            raise TaskCatException("Lint failed with errors")
+        # 1. lint
+        if not lint_disable:
+            lint = TaskCatLint(config, templates)
+            errors = lint.lints[1]
+            lint.output_results()
+            if errors or not lint.passed:
+                raise TaskCatException("Lint failed with errors")
         # 2. build lambdas
         LambdaBuild(config, project_root_path)
         # 3. s3 sync
