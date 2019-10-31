@@ -50,7 +50,6 @@ Taskcat on Windows is **not supported**.
 
 If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps above.
 
-```
 ### Files you’ll need to use taskcat
 
 * Step 1: You will need to configure your boto profiles (taskcat will use you default profile if none is explictily provided)
