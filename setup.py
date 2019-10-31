@@ -6,8 +6,10 @@ with open("requirements.txt", encoding="utf-8") as f:
 with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESCRIPTION = fh.read()
 
+with open("VERSION", "r", encoding="utf-8") as fh:
+    VERSION = fh.read()
 setup(
-    version="0.9.0",
+    version=VERSION,
     name="taskcat-v9",
     packages=["taskcat", "taskcat._cfn", "taskcat._cli_modules"],
     description="An OpenSource Cloudformation Deployment Framework",
