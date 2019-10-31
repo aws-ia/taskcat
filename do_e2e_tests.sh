@@ -29,7 +29,7 @@ read -r AKI SAK ST <<< $(aws sts assume-role --role-arn ${ROLE_ARN} \
 
 echo "executing e2e test container... (privileged mode needed for docker in docker)"
 docker run -it --privileged --rm --name taskcat-e2e \
-  --mount type=bind,source="$(pwd)",target=/taskcat-v9 -e AWS_ACCESS_KEY_ID=${AKI} \
+  --mount type=bind,source="$(pwd)",target=/taskcat -e AWS_ACCESS_KEY_ID=${AKI} \
   -e AWS_SECRET_ACCESS_KEY=${SAK} -e AWS_SESSION_TOKEN=${ST} \
   taskcat-e2e-local:latest
 

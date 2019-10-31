@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     version="0.9.0",
-    name="taskcat-v9",
+    name="taskcat",
     packages=["taskcat", "taskcat._cfn", "taskcat._cli_modules"],
     description="An OpenSource Cloudformation Deployment Framework",
     long_description=LONG_DESCRIPTION,
@@ -31,7 +31,7 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X ",
     ],
-    scripts=["bin/taskcat-v9"],
+    scripts=["bin/taskcat"],
     keywords=[
         "aws",
         "cloudformation",

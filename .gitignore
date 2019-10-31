@@ -1,10 +1,6 @@
 # Compile Source #
 ##################
 *.pyc
-bin/
-!bin/taskcat-v9
-!bin/taskcat
-!bin/alchemist
 build/
 include/
 share/
