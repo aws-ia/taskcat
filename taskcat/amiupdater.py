@@ -357,7 +357,8 @@ class AMIUpdater:
             'us-gov-east-1',
             'us-gov-west-1',
             'cn-northwest-1',
-            'cn-north-1'
+            'cn-north-1',
+            'ap-east-1'
     ]
 
     def __init__(self, path_to_templates, user_config_file=None,
