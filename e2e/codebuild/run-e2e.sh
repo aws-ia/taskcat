@@ -2,7 +2,7 @@
 
 SOURCE="../../taskcat/"
 OMIT="../../taskcat/_stacker.py"
-CMD="coverage run -a --source ${SOURCE} --omit ${OMIT} ../../bin/taskcat-v9"
+CMD="coverage run -a --source ${SOURCE} --omit ${OMIT} ../../bin/taskcat"
 
 eval "$(pyenv init -)"
 cd e2e/tests/
