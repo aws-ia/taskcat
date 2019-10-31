@@ -1,11 +1,13 @@
 import logging
 import time
+from pathlib import Path
 
 import requests
 
 import yattag
-from taskcat._common_utils import CommonTools
-from taskcat.exceptions import TaskCatException
+
+from ._cfn.stack import Stack
+from ._cfn.threaded import Stacker
 
 LOG = logging.getLogger(__name__)
 
@@ -16,12 +18,10 @@ class ReportBuilder:
 
     """
 
-    def __init__(self, test_data, dashboard_filename, version, boto_client, taskcat):
-        self.dashboard_filename = dashboard_filename
-        self.test_data = test_data
-        self.version = version
-        self._boto_client = boto_client
-        self.taskcat = taskcat
+    def __init__(self, stacks: Stacker, output_file: Path, version: str = "0.9.0"):
+        self._stacks = stacks
+        self._output_file = output_file
+        self._version = version
 
     # TODO: refactor for readability
     def generate_report(  # noqa: C901
@@ -42,33 +42,14 @@ class ReportBuilder:
                 return str(location)
             return None
 
-        def get_teststate(stackname, region):
-            rstatus = None
-            status_css = None
-            try:
-
-                cfn_client = self._boto_client.get("cloudformation", region)
-                test_query = cfn_client.describe_stacks(StackName=stackname)
-
-                for result in test_query["Stacks"]:
-                    rstatus = result.get("StackStatus")
-                    if rstatus == "CREATE_COMPLETE":
-                        status_css = "class=test-green"
-                    elif rstatus == "CREATE_FAILED":
-                        status_css = "class=test-red"
-                        self.taskcat.one_or_more_tests_failed = True
-                        if self.taskcat.retain_if_failed and self.taskcat.run_cleanup:
-                            self.taskcat.run_cleanup = False
-                    else:
-                        status_css = "class=test-red"
-            except TaskCatException:
-                raise
-            except Exception as e:  # pylint: disable=broad-except
-                LOG.error("Error describing stack named [%s] " % stackname)
-                LOG.debug(str(e), exc_info=True)
-                rstatus = "MANUALLY_DELETED"
-                status_css = "class=test-orange"
-
+        def get_teststate(stack: Stack):
+            rstatus = stack.status
+            if rstatus == "CREATE_COMPLETE":
+                status_css = "class=test-green"
+            elif rstatus == "CREATE_FAILED":
+                status_css = "class=test-red"
+            else:
+                status_css = "class=test-red"
             return rstatus, status_css
 
         tag = doc.tag
@@ -128,51 +109,35 @@ class ReportBuilder:
                             with tag("th", "class=text-left", "width=15%"):
                                 text("Test Logs")
 
-                            for test in self.test_data:
+                            for stack in self._stacks.stacks:
                                 with tag("tr", "class= test-footer"):
                                     with tag("td", "colspan=5"):
                                         text("")
 
-                                testname = test.get_test_name()
-                                LOG.info(f" - Processing {testname}")
-                                for stack in test.get_test_stacks():
-                                    LOG.info(f'Reporting on {str(stack["StackId"])}')
-                                    stack_id = CommonTools(
-                                        stack["StackId"]
-                                    ).parse_stack_info()
-                                    status, css = get_teststate(
-                                        stack_id["stack_name"], stack_id["region"]
-                                    )
+                                testname = stack.test_name
+                                LOG.info(f"Reporting on {str(stack.id)}")
+                                status, css = get_teststate(stack)
 
-                                    with tag("tr"):
-                                        with tag("td", "class=test-info"):
-                                            with tag("h3"):
-                                                text(testname)
-                                        with tag("td", "class=text-left"):
-                                            text(stack_id["region"])
-                                        with tag("td", "class=text-left"):
-                                            text(stack_id["stack_name"])
-                                        with tag("td", css):
-                                            text(str(status))
-                                        with tag("td", "class=text-left"):
-                                            clog = get_output_file(
-                                                stack_id["region"],
-                                                stack_id["stack_name"],
-                                                "cfnlog",
-                                            )
-                                            # rlog = get_output_file(
-                                            #    state['region'],
-                                            #    state['stack_name'],
-                                            #    'resource_log')
-                                            #
-                                            with tag("a", href=clog):
-                                                text("View Logs ")
-                                                # with tag('a', href=rlog):
-                                                #    text('Resource Logs ')
+                                with tag("tr"):
+                                    with tag("td", "class=test-info"):
+                                        with tag("h3"):
+                                            text(testname)
+                                    with tag("td", "class=text-left"):
+                                        text(stack.region_name)
+                                    with tag("td", "class=text-left"):
+                                        text(stack.name)
+                                    with tag("td", css):
+                                        text(str(status))
+                                    with tag("td", "class=text-left"):
+                                        clog = get_output_file(
+                                            stack.region_name, stack.name, "cfnlog"
+                                        )
+                                        with tag("a", href=clog):
+                                            text("View Logs ")
                             with tag("tr", "class= test-footer"):
                                 with tag("td", "colspan=5"):
                                     vtag = "Generated by {} {}".format(
-                                        "taskcat", self.version
+                                        "taskcat", self._version
                                     )
                                     text(vtag)
 
@@ -182,7 +147,7 @@ class ReportBuilder:
                 doc.getvalue(), indentation="    ", newline="\r\n", indent_text=True
             )
 
-            file = open(self.dashboard_filename, "w")
+            file = open(str(self._output_file.resolve()), "w")
             file.write(html_output)
             file.close()
 
