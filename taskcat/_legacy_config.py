@@ -59,6 +59,8 @@ def parse_legacy_config(project_root: Path):
             "parameters": parameters,
             "regions": test_data.regions,
         }
+        if not tests[test_name]["regions"]:
+            del tests[test_name]["regions"]
     new_config_dict = {
         "project": {
             "name": legacy_config.global_.qsname,

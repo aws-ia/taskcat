@@ -2,13 +2,16 @@
 # noqa: B950,F841
 import logging
 from pathlib import Path
+from typing import List as ListType
 
 import boto3
 
+from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
+from taskcat._generate_reports import ReportBuilder
 from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
@@ -70,19 +73,31 @@ class Test:
         terminal_printer = TerminalPrinter()
         # 5. wait for completion
         terminal_printer.report_test_progress(stacker=test_definition)
-        # 6. delete stacks
+        status = test_definition.status()
+        # 6. create report
+        report_path = Path("./taskcat_outputs/").resolve()
+        report_path.mkdir(exist_ok=True)
+        cfn_logs = _CfnLogTools()
+        cfn_logs.createcfnlogs(test_definition, report_path)
+        ReportBuilder(test_definition, report_path / "index.html").generate_report()
+        # 7. delete stacks
         if not no_delete:
             test_definition.delete_stacks()
             terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
-        # 7. delete buckets
+        # 8. delete buckets
+        deleted: ListType[str] = []
         for test in buckets.values():
             for bucket in test.values():
-                bucket.delete(delete_objects=True)
-        # 8. create report
-
+                if bucket.name not in deleted:
+                    bucket.delete(delete_objects=True)
+                    deleted.append(bucket.name)
         # 9. raise if something failed
+        if len(status["FAILED"]) > 0:
+            raise TaskCatException(
+                f'One or more stacks failed tests: {status["FAILED"]}'
+            )
 
     def resume(self, run_id):  # pylint: disable=no-self-use
         """resumes a monitoring of a previously started test run"""
