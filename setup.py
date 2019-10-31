@@ -1,9 +1,9 @@
 from setuptools import setup
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     REQUIRED = f.read().splitlines()
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     LONG_DESCRIPTION = fh.read()
 
 setup(
