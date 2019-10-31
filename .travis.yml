@@ -44,8 +44,8 @@ jobs:
   #   - mkdir ~/.aws/ &&  cp sample-taskcat-project/ci/taskcat_global_override.json  ~/.aws/taskcat_global_override.json
   #   - taskcat -c sample-taskcat-project/ci/taskcat-autobucket.yml -A $AKEY -S $SKEY && export MERGE_TO_MASTER=true
 
-  - stage: "[Ver Bump] Check/Create Release PR"
-    name: "[Ver Bump] Check/Create Release PR"
+  - stage: "[Version Bump] Check/Create Release PR"
+    name: "[Version Bump] Check/Create Release PR"
     if: branch = master AND commit_message !~ /(Bump|Release taskcat)/
     before_script:
     - |
@@ -76,8 +76,8 @@ jobs:
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
           hub api -XPATCH repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR} -f body="${TAG_BODY}"
 
-  - stage: "[Ver Bump] Create PyPI Development release"
-    name: "[Ver Bump] Create PyPI Development release"
+  - stage: "[Version Bump] Create PyPI Development release"
+    name: "[Version Bump] Create PyPI Development release"
     if: branch = master AND commit_message !~ /(Bump|Release taskcat)/
     before_script:
       - pip install bump2version
