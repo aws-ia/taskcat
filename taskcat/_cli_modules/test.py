@@ -35,6 +35,7 @@ class Test:
         project_root: str = "./",
         no_delete: bool = False,
         lint_disable: bool = False,
+        enable_sig_v2: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -43,6 +44,7 @@ class Test:
         :param project_root_path: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
+        :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
@@ -50,6 +52,7 @@ class Test:
             project_root=project_root_path,
             # TODO: detect if input file is taskcat config or CloudFormation template
             project_config_path=input_file_path,
+            args={"project": {"s3_enable_sig_v2": enable_sig_v2}},
         )
         boto3_cache = Boto3Cache()
         templates = config.get_templates(project_root_path)
