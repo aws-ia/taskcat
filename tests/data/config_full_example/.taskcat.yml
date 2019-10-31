@@ -1,0 +1,66 @@
+general:  # [OPTIONAL] General configuration settings.
+  # [OPTIONAL] Parameter key-values to pass to CloudFormation, parameters provided in
+  # global config take precedence
+  parameters:
+    MyParam: my-param-value
+  # [OPTIONAL] Name of S3 bucket to upload project to, if left out a bucket will be
+  # auto-generated
+  s3_bucket: my-bucket
+  tags:  # [OPTIONAL] Tags to apply to CloudFormation template
+    MyTagKey: MyTagValue
+project:  # [REQUIRED] Project specific configuration section
+  # [REQUIRED] Project name, used as s3 key prefix when uploading objects
+  name:  my-cfn-project
+  # [OPTIONAL] List of Availablilty Zones ID's to exclude when generating azs
+  az_blacklist:
+    - use1-az1
+  # build Lambda zips recursively for submodules, set to false to disable
+  build_submodules: false
+  # [OPTIONAL] Path relative to the project root containing Lambda zip files, default
+  # is 'lambda_functions/source'
+  lambda_source_path:  functions/source
+  # [OPTIONAL] Path relative to the project root to place Lambda zip files, default is
+  # 'lambda_functions/zips'
+  lambda_zip_path: functions/packages
+  owner:  # [OPTIONAL] email address for project owner (not used at present)
+  # Package Lambda functions into zips before uploading to s3, set to false to disable
+  package_lambda: false
+  # [OPTIONAL] Parameter key-values to pass to CloudFormation, parameters provided in
+  # general section take precedence
+  parameters:
+    MyOtherParam: OtherValue
+  regions: # List of AWS regions
+    - us-east-1
+    - us-west-2
+  # [OPTIONAL] Name of S3 bucket to upload project to, if left out a bucket will be
+  # auto-generated
+  s3_bucket: my-s3-bucket
+  # [OPTIONAL] Enable (deprecated) sigv2 access to auto-generated buckets
+  s3_enable_sig_v2: true
+  # [OPTIONAL] ACL for uploaded s3 objects, defaults to 'private'
+  s3_object_acl: public-read
+  tags:  # [OPTIONAL] Tags to apply to CloudFormation template
+    MyTagKey: MyTagValue
+  # [REQUIRED] path to template file relative to the project config file path. If
+  # defined, template is optional in tests
+  template: ./relative-path/to/template.yaml
+tests:  # [REQUIRED] Test definition section
+  my-test:
+    # [OPTIONAL] List of Availablilty Zones ID's to exclude when generating azs
+    az_blacklist:
+      - use1-az1
+    # [OPTIONAL] Parameter key-values to pass to CloudFormation, parameters provided in
+    # general section take precedence
+    parameters:
+      MyOtherParam: OtherValue
+    # [OPTIONAL] List of AWS regions, will override any regions defined in project
+    regions:
+      - eu-west-1
+    # [OPTIONAL] Name of S3 bucket to upload project to, if left out a bucket will be
+    # auto-generated
+    s3_bucket: my-s3-bucket
+    tags:  # [OPTIONAL] Tags to apply to CloudFormation template
+      MyTagKey: MyTagValue
+      # [REQUIRED] path to template file relative to the project config file path. If
+      # template is defined in project section this can be ommitted
+      template: ./relative-path/to/template.yaml
