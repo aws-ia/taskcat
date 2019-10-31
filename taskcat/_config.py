@@ -83,15 +83,36 @@ class Config:
             )
 
         # override file
+        legacy_override = Path("./ci/taskcat_project_override.json").resolve()
+        if legacy_override.is_file():
+            with open(str(legacy_override), "r") as file_handle:
+                override_params = yaml.safe_load(file_handle)
+            LOG.warning(
+                f"overrides file {str(legacy_override)} is in legacy "
+                f"format, support for this format will be deprecated "
+                f"in a future version."
+            )
+            override_params = {
+                i["ParameterKey"]: i["ParameterValue"] for i in override_params
+            }
+            if not overrides_path.exists():
+                LOG.warning(
+                    f"Converting overrides to new format and saving in "
+                    f"{overrides_path}"
+                )
+                with open(str(overrides_path), "w") as file_handle:
+                    file_handle.write(yaml.dump(override_params))
+            else:
+                LOG.warning(
+                    f"Ignoring legacy overrides as a current format override "
+                    f"file has been found in {str(overrides_path)}"
+                )
         if overrides_path.is_file():
-            try:
-                overrides = BaseConfig().to_dict()
-                with open(str(overrides_path), "r") as file_handle:
-                    override_params = yaml.safe_load(file_handle)
-                overrides["project"]["parameters"] = override_params
-                sources.append({"source": str(overrides_path), "config": overrides})
-            except Exception as e:  # pylint: disable=broad-except
-                LOG.debug(str(e), exc_info=True)
+            overrides = BaseConfig().to_dict()
+            with open(str(overrides_path), "r") as file_handle:
+                override_params = yaml.safe_load(file_handle)
+            overrides["project"]["parameters"] = override_params
+            sources.append({"source": str(overrides_path), "config": overrides})
 
         # environment variables
         sources.append(
