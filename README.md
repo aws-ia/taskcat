@@ -30,7 +30,7 @@ templates across AWS Regions
 ```
 pip3 install taskcat
 ```
-### Installing via pip3 --user 
+### Installing via pip3 --user
 __(for those who want to install taskcat into their homedir)__
 
 ```
