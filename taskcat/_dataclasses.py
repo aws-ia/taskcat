@@ -15,6 +15,57 @@ from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
+# property descriptions
+
+METADATA = {
+    "project__name": {
+        "description": "Project name, used as s3 key prefix when " "uploading objects"
+    },
+    "auth": {"description": "AWS authentication section"},
+    "project__owner": {
+        "description": "email address for project owner (not used at present)"
+    },
+    "regions": {"description": "List of AWS regions"},
+    "az_ids": {
+        "description": "List of Availablilty Zones ID's to exclude when generating "
+        "availability zones"
+    },
+    "package_lambda": {
+        "description": "Package Lambda functions into zips before uploading to s3, "
+        "set to false to disable"
+    },
+    "lambda_zip_path": {
+        "description": "Path relative to the project root to place Lambda zip "
+        "files, default is 'lambda_functions/zips'"
+    },
+    "lambda_source_path": {
+        "description": "Path relative to the project root containing Lambda zip "
+        "files, default is 'lambda_functions/source'"
+    },
+    "s3_bucket": {
+        "description": "Name of S3 bucket to upload project to, if left out "
+        "a bucket will be auto-generated"
+    },
+    "parameters": {
+        "description": "Parameter key-values to pass to CloudFormation, "
+        "parameters provided in global config take precedence"
+    },
+    "build_submodules": {
+        "description": "Build Lambda zips recursively for submodules, "
+        "set to false to disable"
+    },
+    "template": {
+        "description": "path to template file relative to the project "
+        "config file path"
+    },
+    "tags": {"description": "Tags to apply to CloudFormation template"},
+    "enable_sig_v2": {
+        "description": "Enable (deprecated) sigv2 access to auto-generated buckets"
+    },
+    "s3_object_acl": {
+        "description": "ACL for uploaded s3 objects, defaults to 'private'"
+    },
+}
 
 # types
 
@@ -36,7 +87,12 @@ Templates = NewType("Templates", Dict[TestName, Template])
 class ParameterKeyField(FieldEncoder):
     @property
     def json_schema(self):
-        return {"type": "string", "pattern": r"[a-zA-Z0-9]*^$"}
+        return {
+            "type": "string",
+            "pattern": r"[a-zA-Z0-9]*^$",
+            "Description": "CloudFormation parameter name, can contain letters and "
+            "numbers only",
+        }
 
 
 JsonSchemaMixin.register_field_encoders({ParameterKey: ParameterKeyField()})
@@ -49,6 +105,7 @@ class RegionField(FieldEncoder):
             "type": "string",
             "pattern": r"^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|"
             r"west|southeast|southwest|northeast|northwest)-[0-9]$",
+            "description": "AWS Region name eg.: 'us-east-1'",
         }
 
 
@@ -58,7 +115,11 @@ JsonSchemaMixin.register_field_encoders({Region: RegionField()})
 class AlNumDashField(FieldEncoder):
     @property
     def json_schema(self):
-        return {"type": "string", "pattern": r"^[a-z0-9-]*$"}
+        return {
+            "type": "string",
+            "pattern": r"^[a-z0-9-]*$",
+            "description": "accepts lower case letters, numbers and -",
+        }
 
 
 JsonSchemaMixin.register_field_encoders({AlNumDash: AlNumDashField()})
@@ -71,6 +132,7 @@ class AzIdField(FieldEncoder):
             "type": "string",
             "pattern": r"^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]"
             r"$",
+            "description": "Availability Zone ID, eg.: 'use1-az1'",
         }
 
 
@@ -247,41 +309,81 @@ class TestObj:
 
 @dataclass
 class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):
-    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(default=None)
-    tags: Optional[Dict[TagKey, TagValue]] = field(default=None)
-    auth: Optional[Dict[Region, str]] = field(default=None)
-    s3_bucket: Optional[str] = field(default=None)
+    """General configuration settings."""
+
+    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
+        default=None, metadata=METADATA["parameters"]
+    )
+    tags: Optional[Dict[TagKey, TagValue]] = field(
+        default=None, metadata=METADATA["tags"]
+    )
+    auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
+    s3_bucket: Optional[str] = field(default=None, metadata=METADATA["s3_bucket"])
 
 
 @dataclass
 class TestConfig(JsonSchemaMixin, allow_additional_props=False):
-    template: Optional[str] = field(default=None)
-    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(default=None)
-    regions: Optional[List[Region]] = field(default=None)
-    tags: Optional[Dict[TagKey, TagValue]] = field(default=None)
-    auth: Optional[Dict[Region, str]] = field(default=None)
-    s3_bucket: Optional[S3BucketName] = field(default=None)
-    az_blacklist: Optional[List[AzId]] = field(default=None)
+    """Test specific configuration section."""
+
+    template: Optional[str] = field(default=None, metadata=METADATA["template"])
+    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
+        default=None, metadata=METADATA["parameters"]
+    )
+    regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
+    tags: Optional[Dict[TagKey, TagValue]] = field(
+        default=None, metadata=METADATA["tags"]
+    )
+    auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
+    s3_bucket: Optional[S3BucketName] = field(
+        default=None, metadata=METADATA["s3_bucket"]
+    )
+    az_blacklist: Optional[List[AzId]] = field(
+        default=None, metadata=METADATA["az_ids"]
+    )
 
 
 # pylint: disable=too-many-instance-attributes
 @dataclass
 class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):
-    name: Optional[ProjectName] = field(default=None)
-    auth: Optional[Dict[Region, str]] = field(default=None)
-    owner: Optional[str] = field(default=None)
-    regions: Optional[List[Region]] = field(default=None)
-    az_blacklist: Optional[List[AzId]] = field(default=None)
-    package_lambda: Optional[bool] = field(default=None)
-    lambda_zip_path: Optional[str] = field(default=None)
-    lambda_source_path: Optional[str] = field(default=None)
-    s3_bucket: Optional[S3BucketName] = field(default=None)
-    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(default=None)
-    build_submodules: Optional[bool] = field(default=None)
-    template: Optional[str] = field(default=None)
-    tags: Optional[Dict[TagKey, TagValue]] = field(default=None)
-    s3_enable_sig_v2: Optional[bool] = field(default=None)
-    s3_object_acl: Optional[str] = field(default=None)
+    """Project specific configuration section"""
+
+    name: Optional[ProjectName] = field(
+        default=None, metadata=METADATA["project__name"]
+    )
+    auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
+    owner: Optional[str] = field(default=None, metadata=METADATA["project__owner"])
+    regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
+    az_blacklist: Optional[List[AzId]] = field(
+        default=None, metadata=METADATA["az_ids"]
+    )
+    package_lambda: Optional[bool] = field(
+        default=None, metadata=METADATA["package_lambda"]
+    )
+    lambda_zip_path: Optional[str] = field(
+        default=None, metadata=METADATA["lambda_zip_path"]
+    )
+    lambda_source_path: Optional[str] = field(
+        default=None, metadata=METADATA["lambda_source_path"]
+    )
+    s3_bucket: Optional[S3BucketName] = field(
+        default=None, metadata=METADATA["s3_bucket"]
+    )
+    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
+        default=None, metadata=METADATA["parameters"]
+    )
+    build_submodules: Optional[bool] = field(
+        default=None, metadata=METADATA["build_submodules"]
+    )
+    template: Optional[str] = field(default=None, metadata=METADATA["template"])
+    tags: Optional[Dict[TagKey, TagValue]] = field(
+        default=None, metadata=METADATA["tags"]
+    )
+    s3_enable_sig_v2: Optional[bool] = field(
+        default=None, metadata=METADATA["enable_sig_v2"]
+    )
+    s3_object_acl: Optional[str] = field(
+        default=None, metadata=METADATA["s3_object_acl"]
+    )
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
@@ -292,6 +394,8 @@ PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
 # pylint: disable=no-member
 @dataclass
 class BaseConfig(JsonSchemaMixin, allow_additional_props=False):
+    """Taskcat configuration file"""
+
     general: GeneralConfig = field(default_factory=GeneralConfig)
     project: ProjectConfig = field(default_factory=ProjectConfig)
     tests: Dict[TestName, TestConfig] = field(default_factory=dict)
