@@ -1,7 +1,7 @@
 import unittest
 
 import mock
-from taskcat._cli import _setup_logging, check_for_update, main
+from taskcat._cli import _setup_logging, main
 from taskcat.exceptions import TaskCatException
 
 
@@ -60,12 +60,13 @@ class TestCli(unittest.TestCase):
         _setup_logging(["-d", "-q"], exit_func=m_exit)
         self.assertEqual(True, m_exit.called)
 
-    @mock.patch("taskcat._cli.LOG.info")
-    @mock.patch("taskcat._cli.LOG.warning")
-    def test_check_for_update(self, m_warning, m_info):
-        check_for_update()
-        m_warning.assert_called_once_with("Unable to get version info!!, continuing")
-        with mock.patch("taskcat._cli.get_pip_version") as m_curver:
-            m_curver.return_value = "0.0.1"
-            check_for_update()
-            m_curver.assert_called_once()
+
+#    @mock.patch("taskcat._cli.LOG.info")
+#    @mock.patch("taskcat._cli.LOG.warning")
+#    def test_check_for_update(self, m_warning, m_info):
+#        check_for_update()
+#        m_warning.assert_called_once_with("Unable to get version info!!, continuing")
+#        with mock.patch("taskcat._cli.get_pip_version") as m_curver:
+#            m_curver.return_value = "0.0.1"
+#            check_for_update()
+#            m_curver.assert_called_once()
