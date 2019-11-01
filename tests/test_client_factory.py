@@ -1,9 +1,11 @@
-# -*- coding: UTF-8 -*-
-
 import unittest
+
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
 import mock
 from taskcat._client_factory import Boto3Cache
+from taskcat.exceptions import TaskCatException
 
 
 class TestBoto3Cache(unittest.TestCase):
@@ -14,3 +16,104 @@ class TestBoto3Cache(unittest.TestCase):
             mock_boto3.Session.side_effect = [KeyError(key_error), mock.DEFAULT]
             c = Boto3Cache(_boto3=mock_boto3)
             c.session("default")
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_set", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    def test_session_invalid_profile(self, mock_cache_lookup, mock_cache_set):
+        mock_cache_lookup.side_effect = ProfileNotFound(profile="non-existent-profile")
+        cache = Boto3Cache()
+        with self.assertRaises(ProfileNotFound):
+            cache.session(profile="non-existent-profile")
+        self.assertEqual(mock_cache_lookup.called, False)
+        cache._get_region = mock.Mock(return_value="us-east-1")
+        with self.assertRaises(ProfileNotFound):
+            cache.session(profile="non-existent-profile")
+        self.assertEqual(mock_cache_lookup.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_set", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    @mock.patch("taskcat._client_factory.boto3.Session", autospec=True)
+    def test_session_no_profile(self, mock_boto3, mock_cache_lookup, mock_cache_set):
+        mock_cache_lookup.side_effect = ProfileNotFound(profile="non-existent-profile")
+        Boto3Cache().session()  # default value should be "default" profile
+        self.assertEqual(mock_boto3.called, True)
+        self.assertEqual(mock_cache_lookup.called, True)
+        self.assertEqual(mock_cache_set.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._get_region", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache.session", autospec=True)
+    def test_client(self, mock_session, mock_cache_lookup, mock__get_region):
+        Boto3Cache().client("s3")
+        self.assertEqual(mock_session.called, True)
+        self.assertEqual(mock_cache_lookup.called, True)
+        self.assertEqual(mock__get_region.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._get_region", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache.session", autospec=True)
+    def test_resource(self, mock_session, mock_cache_lookup, mock__get_region):
+        Boto3Cache().resource("s3")
+        self.assertEqual(mock_session.called, True)
+        self.assertEqual(mock_cache_lookup.called, True)
+        self.assertEqual(mock__get_region.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    def test_partition(self, mock_cache_lookup):
+        Boto3Cache().partition()
+        self.assertEqual(mock_cache_lookup.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    def test_account_id(self, mock_cache_lookup):
+        Boto3Cache().account_id()
+        self.assertEqual(mock_cache_lookup.called, True)
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._get_region", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache.session")
+    def test__get_account_info(self, mock_session, mock__get_region):
+        mock__get_region.return_value = "us-east-1"
+        session = boto3.Session()
+        session.get_available_regions = mock.Mock()
+        session.client = mock.Mock()
+        sts = mock.Mock()
+        sts.get_caller_identity.return_value = {"Account": "123412341234"}
+        session.client.return_value = sts
+        mock_session.return_value = session
+        cache = Boto3Cache()
+
+        session.get_available_regions.return_value = ["us-gov-east-1"]
+        partition = cache._get_account_info("default")["partition"]
+        self.assertEqual(partition, "aws-us-gov")
+
+        session.get_available_regions.return_value = ["cn-north-1"]
+        partition = cache._get_account_info("default")["partition"]
+        self.assertEqual(partition, "aws-cn")
+
+        session.get_available_regions.return_value = ["us-east-1"]
+        partition = cache._get_account_info("default")["partition"]
+        self.assertEqual(partition, "aws")
+
+        self.assertEqual(mock_session.call_count, 3)
+        self.assertEqual(sts.get_caller_identity.call_count, 3)
+
+        sts.get_caller_identity.side_effect = ClientError(
+            error_response={"Error": {"Code": "test"}}, operation_name="test"
+        )
+        with self.assertRaises(ClientError):
+            cache._get_account_info("default")
+
+        sts.get_caller_identity.side_effect = ClientError(
+            error_response={"Error": {"Code": "AccessDenied"}}, operation_name="test"
+        )
+        with self.assertRaises(TaskCatException):
+            cache._get_account_info("default")
+
+        sts.get_caller_identity.side_effect = NoCredentialsError()
+        with self.assertRaises(TaskCatException):
+            cache._get_account_info("default")
+
+        sts.get_caller_identity.side_effect = ProfileNotFound(
+            profile="non-existent_profile"
+        )
+        with self.assertRaises(TaskCatException):
+            cache._get_account_info("default")

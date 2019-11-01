@@ -5,7 +5,7 @@ import sys
 import requests
 from pkg_resources import get_distribution
 
-import pyfiglet
+import pyfiglet  # pylint: disable=wrong-import-order
 from taskcat._cli_core import CliCore
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger
