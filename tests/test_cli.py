@@ -1,7 +1,7 @@
 import unittest
 
 import mock
-from taskcat._cli import _setup_logging, main
+from taskcat._cli import _setup_logging, check_for_update, main
 from taskcat.exceptions import TaskCatException
 
 
@@ -59,6 +59,15 @@ class TestCli(unittest.TestCase):
         m_setLevel.reset_mock()
         _setup_logging(["-d", "-q"], exit_func=m_exit)
         self.assertEqual(True, m_exit.called)
+
+    @mock.patch("taskcat._cli.get_distribution", autospec=True)
+    def test_check_for_update(self, mock_get_distribution):
+        mock_get_distribution.return_value.version = "0.1.0"
+        check_for_update()
+        self.assertEqual(mock_get_distribution.call_count, 1)
+        mock_get_distribution.side_effect = TypeError("test")
+        check_for_update()
+        self.assertEqual(mock_get_distribution.call_count, 2)
 
     # TODO: rework test for main repo/pip comatibility
     # @mock.patch("taskcat._cli.LOG.info")

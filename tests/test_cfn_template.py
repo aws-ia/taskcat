@@ -1,13 +1,7 @@
 import unittest
 from pathlib import Path
 
-import mock
 from taskcat import Config
-
-
-@mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
-def get_mock_boto_cache(m_boto):
-    return m_boto()
 
 
 class TestCfnTemplate(unittest.TestCase):
