@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-cd /taskcat-v9
+cd /taskcat
 
 /usr/local/bin/dockerd \
 	--host=unix:///var/run/docker.sock \

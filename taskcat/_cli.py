@@ -21,7 +21,7 @@ class SetVerbosity(argparse.Action):
         LOG.setLevel(_get_log_level([option_string]))
 
 
-NAME = "taskcat-v9"
+NAME = "taskcat"
 DESCRIPTION = (
     "taskcat is a tool that tests AWS CloudFormation templates. It deploys "
     "your AWS CloudFormation template in multiple AWS Regions and "
