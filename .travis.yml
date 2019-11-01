@@ -95,16 +95,16 @@ jobs:
       - echo "${TEST_PYPI_NEW_VERSION}" > VERSION
       - cat VERSION
       - travis_terminate 0
-    # deploy:
-    #   - provider: pypi
-    #     user: $PYPI_USER
-    #     password: $PYPI_PASSWORD
-    #     server: https://test.pypi.org/legacy/
-    #     if: fork = false
-    #     on:
-    #       branch: master
-    # after_deploy:
-    #   - echo "Deployment complete"
+    deploy:
+      - provider: pypi
+        user: $PYPI_USER
+        password: $PYPI_PASSWORD
+        server: https://test.pypi.org/legacy/
+        if: fork = false
+        on:
+          branch: master
+    after_deploy:
+      - echo "Created development build"
 
   - stage: "Build documentation"
     name: "build documentation in gh-pages"
