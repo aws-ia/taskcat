@@ -99,11 +99,6 @@ jobs:
         user: $PYPI_USER
         password: $PYPI_PASSWORD
         server: https://test.pypi.org/legacy/
-        if: fork = false
-        on:
-          branch: master
-    after_deploy:
-      - echo "Created development build"
 
   - stage: "Build documentation"
     name: "build documentation in gh-pages"
@@ -125,7 +120,7 @@ jobs:
         git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
     deploy:
       - provider: releases
-        skip_cleanup: true
+        cleanup: true
         api_key: "$GHT"
         file: directory/*
         on:
