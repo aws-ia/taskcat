@@ -81,16 +81,15 @@ jobs:
     if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
     before_script:
       - pip install bump2version
-      - export TEST_PYPI_VERSION=$(python -c "import requests; version = requests.get('https://test.pypi.org/pypi/taskcat/json').json()['info']['version'];print(version)")
+      - export TEST_PYPI_VERSION=$(python -c "import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [x for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
       - export TEST_PYPI_RELEASE_ID=$(echo ${TEST_PYPI_VERSION} | cut -f1-2 -d .)
       - export RELEASE_ID=$(cut -f1-2 -d . VERSION)
     script:
       - |
         if [[ "${RELEASE_ID}" != "${TEST_PYPI_RELEASE_ID}" ]]; then
-          export TEST_PYPI_NEW_VERSION="$(cat VERSION)-dev0-${TRAVIS_COMMIT:0:7}"
+          export TEST_PYPI_NEW_VERSION="$(cat VERSION)-dev0"
         else
-          BUMPVERSION_STUB=$(bumpversion --dry-run --current-version ${TEST_PYPI_VERSION} build --list | egrep -i 'new_version' | sed -e 's/new_version=//g')
-          export TEST_PYPI_NEW_VERSION="${BUMPVERSION_STUB}-${TRAVIS_COMMIT:0:7}"
+          export TEST_PYPI_NEW_VERSION=$(bumpversion --dry-run --current-version ${TEST_PYPI_VERSION} build --list | egrep -i 'new_version' | sed -e 's/new_version=//g')
         fi
       - echo "${TEST_PYPI_NEW_VERSION}" > VERSION
       - cat VERSION
@@ -98,7 +97,6 @@ jobs:
       - provider: pypi
         user: $PYPI_USER
         password: $PYPI_PASSWORD
-        server: https://test.pypi.org/legacy/
 
   - stage: "Build documentation"
     name: "build documentation in gh-pages"
