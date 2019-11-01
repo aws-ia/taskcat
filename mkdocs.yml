@@ -1,15 +1,15 @@
 site_name: taskcat
 site_author: 'Tony Vattathil, Jay McConnell, Andrew Glenn'
 site_description: Project documentation for taskcat python class.
-site_url: https://avattathil.github.io/taskcat/
+site_url: https://aws-quickstart.github.io/taskcat/
 #site_favicon: 'images/favicon.png'
 docs_dir: docs
 
 repo_url: https://github.com/aws-quickstart/taskcat
-theme: 
+theme:
   name: material
   palette:
-    primary: 'Light Green'
+    primary: 'Blue'
     accent: 'Blue Gray'
   font:
     text: 'Roboto'
