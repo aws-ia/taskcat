@@ -94,7 +94,6 @@ jobs:
         fi
       - echo "${TEST_PYPI_NEW_VERSION}" > VERSION
       - cat VERSION
-      - travis_terminate 0
     deploy:
       - provider: pypi
         user: $PYPI_USER
