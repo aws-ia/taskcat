@@ -20,6 +20,7 @@ coverage.xml
 /.pytest_cache/
 /.mypy_cache/
 taskcat_outputs/
+docs/apidocs/
 # Doc Site
 site/
 *.zip

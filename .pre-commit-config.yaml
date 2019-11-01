@@ -1,4 +1,4 @@
-exclude: ^(.travis.yml|.pre-commit-config.yaml)$
+exclude: ^(.travis.yml|.pre-commit-config.yaml|.bumpversion.cfg)$
 fail_fast: true
 repos:
 - repo: https://github.com/pre-commit/mirrors-isort
