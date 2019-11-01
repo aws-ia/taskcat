@@ -20,7 +20,7 @@ templates across AWS Regions
 [![Frequently Asked Questions](https://img.shields.io/badge/%20-FAQ-yellowgreen.svg)](FAQ.md)
 
 ## Installing taskcat
-**taskcat** can be install using `docker` or `pip`
+**taskcat** can be installed using `docker` or `pip`
 
 ### Installing via docker
 ![Docker Required](https://img.shields.io/badge/Prerequisites-docker-blue.svg)
