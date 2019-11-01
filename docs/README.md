@@ -17,7 +17,6 @@ templates across AWS Regions
 ### Support
 [![Feature Request](https://img.shields.io/badge/Open%20Issues-Feature%20Request-green.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
 [![Report Bugs](https://img.shields.io/badge/Open%20Issue-Report%20Bug-red.svg)](https://github.com/aws-quickstart/taskcat/issues/new/choose)
-[![Frequently Asked Questions](https://img.shields.io/badge/%20-FAQ-yellowgreen.svg)](FAQ.md)
 
 ## Installing taskcat
 **taskcat** install via `pip`
