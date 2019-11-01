@@ -106,9 +106,14 @@ jobs:
     # after_deploy:
     #   - echo "Deployment complete"
 
-  # DOCUMENTATION JOB GOES HERE
-  # - stage: "Build documentation"
-  #   name: "build documentation"
+  - stage: "Build documentation"
+    name: "build documentation in gh-pages"
+    if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci
+    script:
+      - |
+        pip3 install mkdocs mkdocs-material pymdown-extensions pygments pdoc3
+        cd *github.io
+        python3 -m mkdocs gh-deploy --config-file  ../mkdocs.yml
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
