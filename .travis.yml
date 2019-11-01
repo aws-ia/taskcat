@@ -46,7 +46,7 @@ jobs:
 
   - stage: "[Version Bump] Check/Create Release PR"
     name: "[Version Bump] Check/Create Release PR"
-    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/
+    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
     before_script:
     - |
       pip install bump2version
@@ -78,7 +78,7 @@ jobs:
 
   - stage: "[Version Bump] Create PyPI Development release"
     name: "[Version Bump] Create PyPI Development release"
-    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/
+    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
     before_script:
       - pip install bump2version
       - export TEST_PYPI_VERSION=$(python -c "import requests; version = requests.get('https://test.pypi.org/pypi/taskcat/json').json()['info']['version'];print(version)")
@@ -108,7 +108,7 @@ jobs:
 
   - stage: "Build documentation"
     name: "build documentation in gh-pages"
-    if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci
+    if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci AND type = push
     script:
       - |
         pip3 install mkdocs mkdocs-material pymdown-extensions pygments pdoc3
@@ -117,7 +117,7 @@ jobs:
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
-    if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci
+    if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci AND type = push
     script:
       - |
         LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
@@ -134,7 +134,7 @@ jobs:
 
   # - stage: "Build Production PyPI and Production Docker"
   #   name: "Build Production PyPI and Production Docker"
-  #   if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci
+  #   if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci AND type = push
   #   script:
   #     - |
   #       LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
