@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-    
     <url>
-     <loc>http://aws-quickstart.github.io/taskcat//</loc>
-     <lastmod>2018-12-07</lastmod>
+     <loc>https://aws-quickstart.github.io/taskcat/</loc>
+     <lastmod>2019-11-01</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
-     <loc>http://aws-quickstart.github.io/taskcat//FAQ/</loc>
-     <lastmod>2018-12-07</lastmod>
+     <loc>https://aws-quickstart.github.io/taskcat/apidocs/taskcat/</loc>
+     <lastmod>2019-11-01</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
 </urlset>
