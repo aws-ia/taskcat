@@ -83,7 +83,7 @@ class Config:
             )
 
         # override file
-        legacy_override = Path("./ci/taskcat_project_override.json").resolve()
+        legacy_override = project_root / "ci/taskcat_project_override.json"
         if legacy_override.is_file():
             with open(str(legacy_override), "r") as file_handle:
                 override_params = yaml.safe_load(file_handle)

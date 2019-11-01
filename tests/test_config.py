@@ -117,6 +117,42 @@ class TestNewConfig(unittest.TestCase):
         self.assertEqual(config.config.to_dict(), expected)
         self.assertEqual(config.config._source, expected_source)
 
+    def test_legacy_config(self):
+
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/legacy_test").resolve()
+
+        new_config_location = base_path / ".taskcat.yml"
+        new_overrides_location = base_path / ".taskcat_overrides.yml"
+
+        if new_config_location.is_file():
+            new_config_location.unlink()
+        if new_overrides_location.is_file():
+            new_overrides_location.unlink()
+
+        Config.create(
+            project_root=base_path,
+            project_config_path=new_config_location,
+            overrides_path=new_overrides_location,
+        )
+
+        self.assertTrue(new_config_location.is_file())
+        self.assertTrue(new_overrides_location.is_file())
+
+        # should not raise even if both legacy and current format files are present
+        Config.create(
+            project_root=base_path,
+            project_config_path=new_config_location,
+            overrides_path=new_overrides_location,
+        )
+
+    def test_standalone_template(self):
+
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/legacy_test/templates/").resolve()
+
+        Config.create(template_file=base_path / "test.template.yaml")
+
     @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
     @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
     def test_get_regions(self, _, __):
