@@ -224,7 +224,7 @@ class ParamGen:
         Converts a parameter value to string
         No parameters. Operates on (ClassInstance).param_value
         """
-        if isinstance(self.param_value, (int, bytes)):
+        if isinstance(self.param_value, (int, float, bytes)):
             self.param_value = str(self.param_value)
 
     @staticmethod
