@@ -1,0 +1,10 @@
+project:
+  name: delete-fail
+  owner: owner@company.com
+  package_lambda: false
+  regions:
+  - us-east-1
+  - us-west-2
+tests:
+  taskcat-json:
+    template: templates/test.template.yaml

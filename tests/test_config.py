@@ -153,6 +153,14 @@ class TestNewConfig(unittest.TestCase):
 
         Config.create(template_file=base_path / "test.template.yaml")
 
+    def test_no_parameters(self):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/create_no_params/").resolve()
+
+        Config.create(
+            project_root=base_path, project_config_path=base_path / ".taskcat.yml"
+        )
+
     @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
     @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
     def test_get_regions(self, _, __):
