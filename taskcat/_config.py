@@ -10,7 +10,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import generate_bucket_name
 from taskcat._dataclasses import BaseConfig, RegionObj, S3BucketObj, TestObj, TestRegion
-from taskcat._legacy_config import parse_legacy_config
+from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
 
@@ -62,6 +62,11 @@ class Config:
         )
 
         # general
+        legacy_overrides(
+            Path("~/.aws/taskcat_global_override.json").expanduser().resolve(),
+            global_config_path,
+            "global",
+        )
         sources = [
             {
                 "source": str(global_config_path),
@@ -83,30 +88,9 @@ class Config:
             )
 
         # override file
-        legacy_override = project_root / "ci/taskcat_project_override.json"
-        if legacy_override.is_file():
-            with open(str(legacy_override), "r") as file_handle:
-                override_params = yaml.safe_load(file_handle)
-            LOG.warning(
-                f"overrides file {str(legacy_override)} is in legacy "
-                f"format, support for this format will be deprecated "
-                f"in a future version."
-            )
-            override_params = {
-                i["ParameterKey"]: i["ParameterValue"] for i in override_params
-            }
-            if not overrides_path.exists():
-                LOG.warning(
-                    f"Converting overrides to new format and saving in "
-                    f"{overrides_path}"
-                )
-                with open(str(overrides_path), "w") as file_handle:
-                    file_handle.write(yaml.dump(override_params))
-            else:
-                LOG.warning(
-                    f"Ignoring legacy overrides as a current format override "
-                    f"file has been found in {str(overrides_path)}"
-                )
+        legacy_overrides(
+            project_root / "ci/taskcat_project_override.json", overrides_path, "project"
+        )
         if overrides_path.is_file():
             overrides = BaseConfig().to_dict()
             with open(str(overrides_path), "r") as file_handle:
