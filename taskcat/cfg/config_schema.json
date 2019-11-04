@@ -215,6 +215,7 @@
                             }
                         ]
                     },
+                    "default": {},
                     "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
                     "type": "object"
                 },

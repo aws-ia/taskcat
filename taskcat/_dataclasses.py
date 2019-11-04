@@ -326,8 +326,8 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):
     """Test specific configuration section."""
 
     template: Optional[str] = field(default=None, metadata=METADATA["template"])
-    parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
-        default=None, metadata=METADATA["parameters"]
+    parameters: Dict[ParameterKey, ParameterValue] = field(
+        default_factory=dict, metadata=METADATA["parameters"]
     )
     regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
     tags: Optional[Dict[TagKey, TagValue]] = field(
