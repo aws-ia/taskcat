@@ -118,13 +118,15 @@ jobs:
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
-    if: branch = master AND commit_message =~ /Merge.*from\ aws-quickstart\/[Rr]elease\/v.*$/ AND sender == taskcat-ci AND type = push
+    if: branch = master AND commit_message =~ /Merge\ pull\ request\ \#[0-9]{1,9}\ from\ aws-quickstart\/[Rr]elease\/v.*$/ AND type = push
     script:
       - |
         LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
         TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
         git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
         git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+
+  - stage: Deploy release tag and documentation
     deploy:
       - provider: releases
         skip_cleanup: true
