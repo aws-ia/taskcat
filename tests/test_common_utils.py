@@ -4,6 +4,7 @@ import unittest
 
 import mock
 from taskcat._common_utils import (
+    exit_with_code,
     get_s3_domain,
     make_dir,
     merge_dicts,
@@ -11,6 +12,8 @@ from taskcat._common_utils import (
     param_list_to_dict,
     pascal_to_snake,
     region_from_stack_id,
+    s3_bucket_name_from_url,
+    s3_key_from_url,
     s3_url_maker,
 )
 from taskcat.exceptions import TaskCatException
@@ -81,3 +84,22 @@ class TestCommonUtils(unittest.TestCase):
             make_dir(path, False)
         self.assertEqual(cm.exception.errno, errno.EEXIST)
         os.rmdir(path)
+
+    @mock.patch("taskcat._common_utils.sys.exit", autospec=True)
+    @mock.patch("taskcat._common_utils.LOG", autospec=True)
+    def test_exit_with_code(self, mock_log, mock_exit):
+        exit_with_code(1)
+        mock_log.error.assert_not_called()
+        mock_exit.assert_called_once_with(1)
+        mock_exit.reset_mock()
+        exit_with_code(0, "msg")
+        mock_exit.assert_called_once_with(0)
+        mock_exit.assert_called_once()
+
+    def test_s3_key_from_url(self):
+        k = s3_key_from_url("https://testbuk.s3.amazonaws.com/testprefix/testobj.yaml")
+        self.assertEqual("testprefix/testobj.yaml", k)
+
+    def test_s3_bucket_name_from_url(self):
+        bucket = s3_bucket_name_from_url("https://buk.s3.amazonaws.com/obj.yaml")
+        self.assertEqual("buk", bucket)
