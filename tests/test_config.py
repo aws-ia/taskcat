@@ -5,6 +5,7 @@ from pathlib import Path
 import mock
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
+from taskcat.exceptions import TaskCatException
 
 
 class TestNewConfig(unittest.TestCase):
@@ -261,6 +262,59 @@ class TestNewConfig(unittest.TestCase):
         for test_name, _template in templates.items():
             with self.subTest(test=test_name):
                 pass
+
+    @mock.patch("taskcat._config.LOG", autospec=True)
+    def test__dict_from_template(self, mock_log):
+        root_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(root_path + "data/regional_client_and_bucket").resolve()
+        template = base_path / "templates/debug-yaml.template"
+        # valid config
+        template_dict = Config._dict_from_template(template)
+        self.assertEqual(True, isinstance(template_dict, dict))
+
+        # invalid path
+        with self.assertRaises(TaskCatException):
+            Config._dict_from_template(base_path / "invalid-path")
+
+        # cannot create template object
+        with mock.patch("taskcat._config.Template") as mock_template:
+            exc = ValueError("fail")
+            mock_template.side_effect = exc
+            with self.assertRaises(ValueError) as e:
+                Config._dict_from_template(template)
+            self.assertEqual(exc, e.exception)
+            mock_log.warning.assert_called_once()
+
+        base_path = Path(root_path + "data/standalone_template").resolve()
+
+        # metadata in taskcat, but no taskcat key
+        template = base_path / "test.template_no_tc_meta.yaml"
+        template_dict = Config._dict_from_template(template)
+        self.assertEqual(True, isinstance(template_dict, dict))
+        self.assertEqual(
+            True, template_dict["project"]["template"].endswith("no_tc_meta.yaml")
+        )
+        self.assertEqual({}, template_dict["tests"]["default"]["parameters"])
+
+        # empty dict taskcat metadata
+        template = base_path / "test.template_tc_empty_meta.yaml"
+        template_dict = Config._dict_from_template(template)
+        self.assertEqual(True, isinstance(template_dict, dict))
+        self.assertEqual(
+            True, template_dict["project"]["template"].endswith("tc_empty_meta.yaml")
+        )
+        self.assertEqual({}, template_dict["tests"]["default"]["parameters"])
+
+        # populated taskcat metadata
+        template = base_path / "test.template_tc_full_meta.yaml"
+        template_dict = Config._dict_from_template(template)
+        self.assertEqual(True, isinstance(template_dict, dict))
+        self.assertEqual(
+            True, template_dict["project"]["template"].endswith("tc_full_meta.yaml")
+        )
+        self.assertEqual(
+            {"SomeParam": "SomeValue"}, template_dict["tests"]["sometest"]["parameters"]
+        )
 
 
 def mock_client(*args, **kwargs):

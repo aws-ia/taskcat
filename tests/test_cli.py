@@ -1,7 +1,13 @@
 import unittest
 
 import mock
-from taskcat._cli import _setup_logging, check_for_update, main
+from taskcat._cli import (
+    _print_upgrade_msg,
+    _setup_logging,
+    _welcome,
+    check_for_update,
+    main,
+)
 from taskcat.exceptions import TaskCatException
 
 
@@ -69,13 +75,39 @@ class TestCli(unittest.TestCase):
         check_for_update()
         self.assertEqual(mock_get_distribution.call_count, 2)
 
-    # TODO: rework test for main repo/pip comatibility
-    # @mock.patch("taskcat._cli.LOG.info")
-    # @mock.patch("taskcat._cli.LOG.warning")
-    # def test_check_for_update(self, m_warning, m_info):
-    #    check_for_update()
-    #    m_warning.assert_called_once_with("Unable to get version info!!, continuing")
-    #    with mock.patch("taskcat._cli.get_pip_version") as m_curver:
-    #        m_curver.return_value = "0.0.1"
-    #        check_for_update()
-    #        m_curver.assert_called_once()
+    @mock.patch("taskcat._cli.LOG", autospec=True)
+    def test__print_upgrade_msg(self, mock_log):
+        _print_upgrade_msg("0.1.0", "0.0.1")
+        mock_log.warning.assert_called_once()
+        mock_log.info.assert_called()
+
+    @mock.patch("taskcat._cli.get_pip_version", autospec=True)
+    @mock.patch("taskcat._cli.get_installed_version", autospec=True)
+    @mock.patch("taskcat._cli.LOG", autospec=True)
+    @mock.patch("taskcat._cli._print_upgrade_msg")
+    def test_check_for_update_ver_is_sub_of_current(
+        self, mock_upg_msg, mock_log, mock_get_installed, mock_get_pip
+    ):
+        # already latest
+        mock_get_installed.return_value = "0.1.0"
+        mock_get_pip.return_value = "0.1.0"
+        check_for_update()
+        mock_log.info.assert_called()
+        mock_upg_msg.assert_not_called()
+        # upgrade available
+        mock_get_pip.return_value = "0.1.1"
+        check_for_update()
+        mock_upg_msg.assert_called_once()
+
+    @mock.patch("taskcat._cli.check_for_update", autospec=True)
+    @mock.patch("taskcat._cli.LOG", autospec=True)
+    def test__welcome(self, mock_log, mock_check_for_update):
+        _welcome()
+        self.assertTrue(mock_check_for_update.call_count, 1)
+        mock_log.info.assert_called_once()
+
+        # should pass without raising if something unexpected happens
+        mock_check_for_update.side_effect = TypeError("something")
+        _welcome()
+        self.assertTrue(mock_check_for_update.call_count, 2)
+        mock_log.warning.assert_called_once()
