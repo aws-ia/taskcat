@@ -84,9 +84,12 @@ jobs:
       - export TEST_PYPI_VERSION=$(python -c "import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [x for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
     script:
       - |
-        if [[ "${TEST_PYPI_VERSION}" =~ "\.dev[0-9]{1,4}" ]]; then
+        echo "${TEST_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
+        if [[ $? -eq 0 ]]; then
           # v0.9.1.dev0 -> v0.9.1.dev1
-          sed -i "s,$(cat VERSION),${TEST_PYPI_VERSION},g" .bumpversion.cfg VERSION
+          echo "Bumping the development version"
+          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" .bumpversion.cfg
+          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" VERSION
           bumpversion --allow-dirty --no-tag --no-commit build
         else
           # v0.9.0 -> v0.9.1.dev0
@@ -94,7 +97,13 @@ jobs:
         fi
       - cat VERSION
       - |
-        if [[ "$(cat VERSION)" !~ "\.dev[0-9]{1,4}" ]]; then
+        if [[ "$(cat VERSION)" == "${TEST_PYPI_VERSION}" ]]; then
+          echo "Something went wrong when bumping the version. Exiting."
+          travis_terminate 1
+        fi
+      - |
+        egrep -i '\.dev[0-9]{1,4}' VERSION
+        if [[ $? -eq 1 ]]; then
           echo "No .dev pre-release tag found in VERSION. Not building PYPI package"
           travis_terminate 1
         fi
