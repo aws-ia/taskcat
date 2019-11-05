@@ -29,13 +29,14 @@ class Test:
     """
 
     # pylint: disable=too-many-locals
-    @staticmethod
+    @staticmethod  # noqa: C901
     def run(
         input_file: str = "./.taskcat.yml",
         project_root: str = "./",
         no_delete: bool = False,
         lint_disable: bool = False,
         enable_sig_v2: bool = False,
+        keep_failed: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -45,6 +46,7 @@ class Test:
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
+        :param keep_failed: do not delete failed stacks
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
@@ -87,18 +89,26 @@ class Test:
         cfn_logs.createcfnlogs(test_definition, report_path)
         ReportBuilder(test_definition, report_path / "index.html").generate_report()
         # 7. delete stacks
-        if not no_delete:
+        if no_delete:
+            LOG.info("Skipping delete due to cli argument")
+        elif keep_failed:
+            if len(status["COMPLETE"]) > 0:
+                LOG.info("deleting successful stacks")
+                test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
+                terminal_printer.report_test_progress(stacker=test_definition)
+        else:
             test_definition.delete_stacks()
             terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 8. delete buckets
-        deleted: ListType[str] = []
-        for test in buckets.values():
-            for bucket in test.values():
-                if bucket.name not in deleted:
-                    bucket.delete(delete_objects=True)
-                    deleted.append(bucket.name)
+        if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
+            deleted: ListType[str] = []
+            for test in buckets.values():
+                for bucket in test.values():
+                    if bucket.name not in deleted:
+                        bucket.delete(delete_objects=True)
+                        deleted.append(bucket.name)
         # 9. raise if something failed
         if len(status["FAILED"]) > 0:
             raise TaskCatException(
