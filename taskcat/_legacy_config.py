@@ -89,3 +89,30 @@ def parse_legacy_config(project_root: Path):
             config_dict.pop("general")
             yaml.dump(config_dict, file_handle, default_flow_style=False)
     return new_config
+
+
+def legacy_overrides(legacy_override, overrides_path, override_type):
+    if legacy_override.is_file():
+        with open(str(legacy_override), "r") as file_handle:
+            override_params = yaml.safe_load(file_handle)
+        LOG.warning(
+            f"overrides file {str(legacy_override)} is in legacy "
+            f"format, support for this format will be deprecated "
+            f"in a future version."
+        )
+        override_params = {
+            i["ParameterKey"]: i["ParameterValue"] for i in override_params
+        }
+        if override_type == "global":
+            override_params = {"general": {"parameters": override_params}}
+        if not overrides_path.exists():
+            LOG.warning(
+                f"Converting overrides to new format and saving in " f"{overrides_path}"
+            )
+            with open(str(overrides_path), "w") as file_handle:
+                file_handle.write(yaml.dump(override_params, default_flow_style=False))
+        else:
+            LOG.warning(
+                f"Ignoring legacy overrides as a current format "
+                f"file has been found in {str(overrides_path)}"
+            )
