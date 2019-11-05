@@ -78,7 +78,7 @@ jobs:
 
   - stage: "[Version Bump] Create PyPI Development release"
     name: "[Version Bump] Create PyPI Development release"
-    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
+    if: branch = master AND type = push
     before_script:
       - pip install bump2version
       - export TEST_PYPI_VERSION=$(python -c "import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [x for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
@@ -112,19 +112,13 @@ jobs:
         skip_cleanup: true
         user: $PYPI_USER
         password: $PYPI_PASSWORD
-
-  - stage: "Build documentation"
-    name: "build documentation in gh-pages"
-    if: branch = master AND commit_message =~ /^[Rr]elease\ [Tt]askcat.*$/ AND sender == taskcat-ci AND type = push
-    script:
-      - |
-        pip3 install mkdocs mkdocs-material pymdown-extensions pygments pdoc3
-        cd *github.io
-        python3 -m mkdocs gh-deploy --config-file  ../mkdocs.yml
+        on:
+          branch: master
+          tags: false
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
-    if: branch = master AND commit_message =~ /^[Rr]elease\ [Tt]askcat.*$/ AND sender == taskcat-ci AND type = push
+    if: branch = master AND commit_message =~ /Merge.*from\ aws-quickstart\/[Rr]elease\/v.*$/ AND sender == taskcat-ci AND type = push
     script:
       - |
         LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
@@ -133,22 +127,23 @@ jobs:
         git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
     deploy:
       - provider: releases
-        cleanup: true
+        skip_cleanup: true
         api_key: "$GHT"
         file: directory/*
         on:
           branch: master
-
-  # - stage: "Build Production PyPI and Production Docker"
-  #   name: "Build Production PyPI and Production Docker"
-  #   if: branch = master AND commit_message =~ /(Release taskcat)/ AND sender == taskcat-ci AND type = push
-  #   script:
-  #     - |
-  #       LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
-  #       TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
-  #       git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
-  #       git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
-  #   # deploy:
+          tags: true
+          
+      - provider: pages
+        skip_cleanup: true
+        target_branch: gh-pages
+        github_token: $GHT
+        keep_history: true
+        on:
+          branch: master
+          tags: true
+     
+  # Add Docker provider
   #   #   - provider: pypi
   #   #     user: $PYPI_USER
   #   #     password: $PYPI_PASSWORD
