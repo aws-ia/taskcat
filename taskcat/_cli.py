@@ -5,7 +5,6 @@ import sys
 import requests
 from pkg_resources import get_distribution
 
-import pyfiglet  # pylint: disable=wrong-import-order
 from taskcat._cli_core import CliCore
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger
@@ -14,6 +13,11 @@ from taskcat.exceptions import TaskCatException
 from . import _cli_modules
 
 LOG = init_taskcat_cli_logger(loglevel="ERROR")
+BANNER = (
+    " _            _             _   \n| |_ __ _ ___| | _____ __ _| |_ \n| __/ _"
+    "` / __| |/ / __/ _` | __|\n| || (_| \\__ \\   < (_| (_| | |_ \n \\__\\__,_|"
+    "___/_|\\_\\___\\__,_|\\__|\n                                \n"
+)
 
 
 class SetVerbosity(argparse.Action):
@@ -95,24 +99,25 @@ def _get_log_level(args, exit_func=exit_with_code):
     return log_level
 
 
-def check_for_update():
-    def _print_upgrade_msg(new_version):
-        LOG.info("version %s\n" % version, extra={"nametag": ""})
-        LOG.warning("A newer version of %s is available (%s)", NAME, new_version)
-        LOG.info(
-            "To upgrade pip version    %s[ pip install --upgrade %s]%s",
-            PrintMsg.highlight,
-            NAME,
-            PrintMsg.rst_color,
-        )
-        LOG.info(
-            "To upgrade docker version %s[ docker pull %s/%s ]%s\n",
-            PrintMsg.highlight,
-            NAME,
-            NAME,
-            PrintMsg.rst_color,
-        )
+def _print_upgrade_msg(new_version, version):
+    LOG.info("version %s\n" % version, extra={"nametag": ""})
+    LOG.warning("A newer version of %s is available (%s)", NAME, new_version)
+    LOG.info(
+        "To upgrade pip version    %s[ pip install --upgrade %s]%s",
+        PrintMsg.highlight,
+        NAME,
+        PrintMsg.rst_color,
+    )
+    LOG.info(
+        "To upgrade docker version %s[ docker pull %s/%s ]%s\n",
+        PrintMsg.highlight,
+        NAME,
+        NAME,
+        PrintMsg.rst_color,
+    )
 
+
+def check_for_update():
     version = get_installed_version()
     if version != "[local source] no pip module installed":
         if "dev" not in version:
@@ -121,7 +126,7 @@ def check_for_update():
                 if version in current_version:
                     LOG.info("version %s" % version, extra={"nametag": ""})
                 else:
-                    _print_upgrade_msg(current_version)
+                    _print_upgrade_msg(current_version, version)
             except Exception:  # pylint: disable=broad-except
                 LOG.debug("Unexpected error", exc_info=True)
                 LOG.warning("Unable to get version info!!, continuing")
@@ -130,12 +135,9 @@ def check_for_update():
 
 
 def _welcome():
-    banner = pyfiglet.Figlet(font="standard")
-    LOG.info(f"{banner.renderText(NAME)}\n", extra={"nametag": ""})
+    LOG.info(f"{BANNER}\n", extra={"nametag": ""})
     try:
         check_for_update()
-    except TaskCatException:
-        raise
     except Exception:  # pylint: disable=broad-except
         LOG.debug("Unexpected error", exc_info=True)
         LOG.warning("Unable to get version info!!, continuing")
