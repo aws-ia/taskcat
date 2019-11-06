@@ -97,48 +97,49 @@ taskcat has several configuration files which can be used to set behaviors in a 
 #### Global config
 `~/.taskcat.yml` provides global settings that become defaults for all projects.
 
-* `general` *type:* `object` General configuration settings.
-  * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object`
-  * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object`
-  * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
-  * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object`
+* `general` _General configuration settings._
+    * `auth` _AWS authentication section_
+        * `<AUTH_NAME>`
+    * `parameters` _Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence_
+        * `<PARAMETER_NAME>`
+    * `s3_bucket` _Name of S3 bucket to upload project to, if left out a bucket will be auto-generated_
+    * `tags` _Tags to apply to CloudFormation template_
+        * `<TAG_NAME>`
 
 #### Project config
 `<PROJECT_ROOT>/.taskcat.yml` provides project specific configuration.
 
-* `project` *type:* `object` Project specific configuration section
-  * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object`
-  * `az_blacklist` *type:* `array` List of Availablilty Zones ID's to exclude when generating availability zones
-  * `build_submodules` *type:* `boolean` Build Lambda zips recursively for submodules, set to false to disable
-  * `lambda_source_path` *type:* `string` Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'
-  * `lambda_zip_path` *type:* `string` Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'
-  * `name` *type:* `string` Project name, used as s3 key prefix when uploading objects
-  * `owner` *type:* `string` email address for project owner (not used at present)
-  * `package_lambda` *type:* `boolean` Package Lambda functions into zips before uploading to s3, set to false to disable
-  * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object`
-  * `regions` *type:* `array` List of AWS regions
-  * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
-  * `s3_enable_sig_v2` *type:* `boolean` Enable (deprecated) sigv2 access to auto-generated buckets
-  * `s3_object_acl` *type:* `string` ACL for uploaded s3 objects, defaults to 'private'
-  * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object`
-  * `template` *type:* `string` path to template file relative to the project config file path
-* `tests` *type:* `object`
-  * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object`
-  * `az_blacklist` *type:* `array` List of Availablilty Zones ID's to exclude when generating availability zones
-  * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object`
-  * `regions` *type:* `array` List of AWS regions
-  * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
-  * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object`
-  * `template` *type:* `string` path to template file relative to the project config file path
+* `project` _Project specific configuration section_
+    * `auth` _AWS authentication section_
+        * `<AUTH_NAME>`
+    * `az_blacklist` _List of Availablilty Zones ID's to exclude when generating availability zones_
+    * `build_submodules` _Build Lambda zips recursively for submodules, set to false to disable_
+    * `lambda_source_path` _Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'_
+    * `lambda_zip_path` _Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'_
+    * `name` _Project name, used as s3 key prefix when uploading objects_
+    * `owner` _email address for project owner (not used at present)_
+    * `package_lambda` _Package Lambda functions into zips before uploading to s3, set to false to disable_
+    * `parameters` _Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence_
+        * `<PARAMETER_NAME>`
+    * `regions` _List of AWS regions_
+    * `s3_bucket` _Name of S3 bucket to upload project to, if left out a bucket will be auto-generated_
+    * `s3_enable_sig_v2` _Enable (deprecated) sigv2 access to auto-generated buckets_
+    * `s3_object_acl` _ACL for uploaded s3 objects, defaults to 'private'_
+    * `tags` _Tags to apply to CloudFormation template_
+        * `<TAG_NAME>`
+    * `template` _path to template file relative to the project config file path_
+
+* `tests`
+    * `auth` _AWS authentication section_
+        * `<AUTH_NAME>`
+    * `az_blacklist` _List of Availablilty Zones ID's to exclude when generating availability zones_
+    * `parameters` _Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence_
+        * `<PARAMETER_NAME>`
+    * `regions` _List of AWS regions_
+    * `s3_bucket` _Name of S3 bucket to upload project to, if left out a bucket will be auto-generated_
+    * `tags` _Tags to apply to CloudFormation template_
+        * `<TAG_NAME>`
+    * `template` _path to template file relative to the project config file path_
 
 At minimum it must provide a project name, list of regions, template name and one test.
 
