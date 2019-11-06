@@ -1,5 +1,5 @@
 # taskcat
-[![Build Status](https://travis-ci.org/aws-quickstart/taskcat.svg?branch=master)](https://travis-ci.org/aws-quickstart/taskcat) 
+[![Build Status](https://travis-ci.org/aws-quickstart/taskcat.svg?branch=master)](https://travis-ci.org/aws-quickstart/taskcat)
 [![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -13,18 +13,18 @@
 **[Migrating from v0.8.x](#migrating-from-08x)**
 
 ## What is taskcat?
-**taskcat** is a tool that tests AWS CloudFormation templates. It deploys your AWS 
-CloudFormation template in multiple AWS Regions and generates a report with a pass/fail 
-grade for each region. You can specify the regions and number of Availability Zones you 
-want to include in the test, and pass in parameter values from your AWS CloudFormation 
+**taskcat** is a tool that tests AWS CloudFormation templates. It deploys your AWS
+CloudFormation template in multiple AWS Regions and generates a report with a pass/fail
+grade for each region. You can specify the regions and number of Availability Zones you
+want to include in the test, and pass in parameter values from your AWS CloudFormation
 template. taskcat is implemented as a Python class that you import, instantiate, and run.
 
-taskcat was developed by the AWS QuickStart team to test AWS CloudFormation templates 
-that automatically deploy workloads on AWS. We’re pleased to make the tool available to 
-all developers who want to validate their custom AWS CloudFormation templates across 
+taskcat was developed by the AWS QuickStart team to test AWS CloudFormation templates
+that automatically deploy workloads on AWS. We’re pleased to make the tool available to
+all developers who want to validate their custom AWS CloudFormation templates across
 AWS Regions
 
-> Note: taskcat has changed significantly in the 0.9.0 release, for details see 
+> Note: taskcat has changed significantly in the 0.9.0 release, for details see
 >[Migrating from v0.8.x](#migrating-from-08x)
 
 ## Support
@@ -36,11 +36,11 @@ AWS Regions
 Currently only installation via pip is supported. Installation via docker coming soon.
 
 ### Requirements
-![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg) 
+![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/taskcat.svg)](https://pypi.org/project/taskcat/#history)
-![Python pip](https://img.shields.io/badge/Prerequisites-docker-yellow.svg) 
+![Python pip](https://img.shields.io/badge/Prerequisites-docker-yellow.svg)
 
-The host taskcat is run on requires access to an AWS account, this can be done by any 
+The host taskcat is run on requires access to an AWS account, this can be done by any
 of the following mechanisms:
 
 1. Environment variables
@@ -82,7 +82,7 @@ If you are running Windows 10 we recommend that you install [Windows Subsystem f
 ## Usage
 
 ### CLI
-The cli is self documenting by using `--help`. The most common use of tascat is for 
+The cli is self documenting by using `--help`. The most common use of tascat is for
 executing function tests of CloudFormation templates. The command for this is:
 
 ```bash
@@ -95,23 +95,23 @@ add `--help to see the supported flags and arguments`
 taskcat has several configuration files which can be used to set behaviors in a flexible way.
 
 #### Global config
-`~/.taskcat.yml` provides global settings that become defaults for all projects. 
+`~/.taskcat.yml` provides global settings that become defaults for all projects.
 
 * `general` *type:* `object` General configuration settings.
   * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object` 
+    * `<AUTH_NAME>` *type:* `object`
   * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object` 
+    * `<PARAMETER_NAME>` *type:* `object`
   * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
   * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object` 
+    * `<TAG_NAME>` *type:* `object`
 
 #### Project config
-`<PROJECT_ROOT>/.taskcat.yml` provides project specific configuration. 
+`<PROJECT_ROOT>/.taskcat.yml` provides project specific configuration.
 
 * `project` *type:* `object` Project specific configuration section
   * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object` 
+    * `<AUTH_NAME>` *type:* `object`
   * `az_blacklist` *type:* `array` List of Availablilty Zones ID's to exclude when generating availability zones
   * `build_submodules` *type:* `boolean` Build Lambda zips recursively for submodules, set to false to disable
   * `lambda_source_path` *type:* `string` Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'
@@ -120,27 +120,27 @@ taskcat has several configuration files which can be used to set behaviors in a 
   * `owner` *type:* `string` email address for project owner (not used at present)
   * `package_lambda` *type:* `boolean` Package Lambda functions into zips before uploading to s3, set to false to disable
   * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object` 
+    * `<PARAMETER_NAME>` *type:* `object`
   * `regions` *type:* `array` List of AWS regions
   * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
   * `s3_enable_sig_v2` *type:* `boolean` Enable (deprecated) sigv2 access to auto-generated buckets
   * `s3_object_acl` *type:* `string` ACL for uploaded s3 objects, defaults to 'private'
   * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object` 
+    * `<TAG_NAME>` *type:* `object`
   * `template` *type:* `string` path to template file relative to the project config file path
-* `tests` *type:* `object` 
+* `tests` *type:* `object`
   * `auth` *type:* `object` AWS authentication section
-    * `<AUTH_NAME>` *type:* `object` 
+    * `<AUTH_NAME>` *type:* `object`
   * `az_blacklist` *type:* `array` List of Availablilty Zones ID's to exclude when generating availability zones
   * `parameters` *type:* `object` Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence
-    * `<PARAMETER_NAME>` *type:* `object` 
+    * `<PARAMETER_NAME>` *type:* `object`
   * `regions` *type:* `array` List of AWS regions
   * `s3_bucket` *type:* `string` Name of S3 bucket to upload project to, if left out a bucket will be auto-generated
   * `tags` *type:* `object` Tags to apply to CloudFormation template
-    * `<TAG_NAME>` *type:* `object` 
+    * `<TAG_NAME>` *type:* `object`
   * `template` *type:* `string` path to template file relative to the project config file path
 
-At minimum it must provide a project name, list of regions, template name and one test. 
+At minimum it must provide a project name, list of regions, template name and one test.
 
 Minimal example:
 
@@ -158,8 +158,8 @@ tests:
 Complete example with comments: [tests/data/config_full_example/.taskcat.yml](https://raw.githubusercontent.com/taskcat/taskcat/master/tests/data/config_full_example/.taskcat.yml)
 
 ### Parameter overrides
-a parameter override file can be created in `<PROJECT_ROOT>/.taskcat_overrides.yml`. 
-Parameter Keys/Values specified in this file take precedence over values defined in all 
+a parameter override file can be created in `<PROJECT_ROOT>/.taskcat_overrides.yml`.
+Parameter Keys/Values specified in this file take precedence over values defined in all
 other configuration files. For example:
 
 ```yaml
@@ -167,16 +167,16 @@ KeyPair: my-overriden-keypair
 VpcId: vpc-1234abcd
 ```
 
-> Warning: it is recommended to add `.taskcat_overrides.yml` to `.gitignore` to ensure 
+> Warning: it is recommended to add `.taskcat_overrides.yml` to `.gitignore` to ensure
 >it is not accidentally checked into source control
 
 #### Precedence
-With the exception of the `parameters` section, more specific config with the same key 
-takes precedence. 
+With the exception of the `parameters` section, more specific config with the same key
+takes precedence.
 
-> The rationale behind having parameters function this way is so that values can be 
-overridden at a system level outside of a project, that is likely committed to source 
-control. parameters that define account specific things like VPC details, Key Pairs, or 
+> The rationale behind having parameters function this way is so that values can be
+overridden at a system level outside of a project, that is likely committed to source
+control. parameters that define account specific things like VPC details, Key Pairs, or
 secrets like API keys can be defined per host outside of source control.
 
 for example, consider this global config:
@@ -195,7 +195,7 @@ given a simple project config:
 project:
   name: my-project
   regions:
-  - us-east-2 
+  - us-east-2
 tests:
   default:
     template: ./template.yaml
@@ -212,16 +212,16 @@ tests:
       KeyPair: my-global-ec2-keypair
 ```
 
-if any item is re-defined in a project it takes precedence over the global value. 
-Anything defined in a test takes precedence over what is defined in the project or 
-global configuration. with the **exception** of the `parameters` section which works in 
-reverse. For example, using the same global config as above, given this project config: 
+if any item is re-defined in a project it takes precedence over the global value.
+Anything defined in a test takes precedence over what is defined in the project or
+global configuration. with the **exception** of the `parameters` section which works in
+reverse. For example, using the same global config as above, given this project config:
 
 ```yaml
 project:
   name: my-project
   regions:
-  - us-east-2 
+  - us-east-2
   s3_bucket: my-project-s3-bucket
 tests:
   default:
@@ -244,14 +244,14 @@ tests:
 Notice that `s3_bucket` took the most specific value and `KeyPair` the most general.
 
 ## Migrating from 0.8.x
-taskcat 0.9.0 is a major re-write of the project and the opportunity was taken to 
-modernise the cli interface update the config file format based on learnings from the 
+taskcat 0.9.0 is a major re-write of the project and the opportunity was taken to
+modernise the cli interface update the config file format based on learnings from the
 previous releases.
 
 ### CLI interface
-taskcat adopts a similar cli command structure to `git` with a 
-`taskcat command subcommand --flag` style. The cli is also designed to be simplest if 
-run from the root of a project. Let's hava a look at equivalent command to run a test: 
+taskcat adopts a similar cli command structure to `git` with a
+`taskcat command subcommand --flag` style. The cli is also designed to be simplest if
+run from the root of a project. Let's hava a look at equivalent command to run a test:
 
 v0.8.x
 ```bash
@@ -270,8 +270,8 @@ taskcat test run -p ./quickstart-aws-vpc
 ```
 
 ### Configuration files
-The configuration files required for tascat have changed, to ease migration, if taskcat 
-is run and legacy config files are found, they are converted and written to new file 
+The configuration files required for tascat have changed, to ease migration, if taskcat
+is run and legacy config files are found, they are converted and written to new file
 locations. For more information on the new format, see the [config file docs](#config-files).
 
 ----
