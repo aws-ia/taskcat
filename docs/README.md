@@ -53,9 +53,7 @@ If you are running Windows 10 we recommend that you install [Windows Subsystem f
 
 * Step 1: You will need to configure your boto profiles (taskcat will use you default profile if none is explictily provided)
 * Step 2: Create a taskcat test configurations
-
-example here:
-[taskcat.yml](https://raw.githubusercontent.com/taskcat/taskcat/master/tests/data/config_full_example/.taskcat.yml)
+    * [Config file schema](TASKCAT_CONFIG_FILE.md)
 
 ----
 **GitHub:**
