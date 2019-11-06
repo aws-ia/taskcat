@@ -125,8 +125,6 @@ jobs:
         TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
         git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
         git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
-
-  - stage: Deploy release tag and documentation
     deploy:
       - provider: releases
         skip_cleanup: true
@@ -134,8 +132,6 @@ jobs:
         file: directory/*
         on:
           branch: master
-          tags: true
-          
       - provider: pages
         skip_cleanup: true
         target_branch: gh-pages
@@ -143,7 +139,6 @@ jobs:
         keep_history: true
         on:
           branch: master
-          tags: true
      
   # Add Docker provider
   #   #   - provider: pypi
