@@ -420,7 +420,7 @@
 
 
   <li class="md-nav__item">
-    <a href="apidocs/taskcat/" title="API" class="md-nav__link">
+    <a href="apidocs/taskcat/index.html" title="API" class="md-nav__link">
       API
     </a>
   </li>
@@ -692,66 +692,76 @@ executing function tests of CloudFormation templates. The command for this is:</
 <h4 id="global-config">Global config<a class="headerlink" href="#global-config" title="Permanent link">&para;</a></h4>
 <p><code class="codehilite"><span class="o">~/</span><span class="p">.</span><span class="n">taskcat</span><span class="p">.</span><span class="n">yml</span></code> provides global settings that become defaults for all projects.</p>
 <ul>
-<li><code class="codehilite"><span class="k">general</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> General configuration settings.</li>
-<li><code class="codehilite"><span class="n">auth</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> AWS authentication section<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="k">general</span></code> <em>General configuration settings.</em><ul>
+<li><code class="codehilite"><span class="n">auth</span></code> <em>AWS authentication section</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="k">parameters</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="k">parameters</span></code> <em>Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</li>
-<li><code class="codehilite"><span class="n">tags</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Tags to apply to CloudFormation template<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</em></li>
+<li><code class="codehilite"><span class="n">tags</span></code> <em>Tags to apply to CloudFormation template</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <h4 id="project-config">Project config<a class="headerlink" href="#project-config" title="Permanent link">&para;</a></h4>
 <p><code class="codehilite"><span class="o">&lt;</span><span class="n">PROJECT_ROOT</span><span class="o">&gt;/</span><span class="p">.</span><span class="n">taskcat</span><span class="p">.</span><span class="n">yml</span></code> provides project specific configuration.</p>
 <ul>
-<li><code class="codehilite"><span class="n">project</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Project specific configuration section</li>
-<li><code class="codehilite"><span class="n">auth</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> AWS authentication section<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li>
+<p><code class="codehilite"><span class="n">project</span></code> <em>Project specific configuration section</em></p>
+<ul>
+<li><code class="codehilite"><span class="n">auth</span></code> <em>AWS authentication section</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="n">az_blacklist</span></code> <em>type:</em> <code class="codehilite"><span class="nb">array</span></code> List of Availablilty Zones ID's to exclude when generating availability zones</li>
-<li><code class="codehilite"><span class="n">build_submodules</span></code> <em>type:</em> <code class="codehilite"><span class="nb">boolean</span></code> Build Lambda zips recursively for submodules, set to false to disable</li>
-<li><code class="codehilite"><span class="n">lambda_source_path</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'</li>
-<li><code class="codehilite"><span class="n">lambda_zip_path</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'</li>
-<li><code class="codehilite"><span class="n">name</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Project name, used as s3 key prefix when uploading objects</li>
-<li><code class="codehilite"><span class="k">owner</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> email address for project owner (not used at present)</li>
-<li><code class="codehilite"><span class="n">package_lambda</span></code> <em>type:</em> <code class="codehilite"><span class="nb">boolean</span></code> Package Lambda functions into zips before uploading to s3, set to false to disable</li>
-<li><code class="codehilite"><span class="k">parameters</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="n">az_blacklist</span></code> <em>List of Availablilty Zones ID's to exclude when generating availability zones</em></li>
+<li><code class="codehilite"><span class="n">build_submodules</span></code> <em>Build Lambda zips recursively for submodules, set to false to disable</em></li>
+<li><code class="codehilite"><span class="n">lambda_source_path</span></code> <em>Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'</em></li>
+<li><code class="codehilite"><span class="n">lambda_zip_path</span></code> <em>Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'</em></li>
+<li><code class="codehilite"><span class="n">name</span></code> <em>Project name, used as s3 key prefix when uploading objects</em></li>
+<li><code class="codehilite"><span class="k">owner</span></code> <em>email address for project owner (not used at present)</em></li>
+<li><code class="codehilite"><span class="n">package_lambda</span></code> <em>Package Lambda functions into zips before uploading to s3, set to false to disable</em></li>
+<li><code class="codehilite"><span class="k">parameters</span></code> <em>Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="n">regions</span></code> <em>type:</em> <code class="codehilite"><span class="nb">array</span></code> List of AWS regions</li>
-<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</li>
-<li><code class="codehilite"><span class="n">s3_enable_sig_v2</span></code> <em>type:</em> <code class="codehilite"><span class="nb">boolean</span></code> Enable (deprecated) sigv2 access to auto-generated buckets</li>
-<li><code class="codehilite"><span class="n">s3_object_acl</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> ACL for uploaded s3 objects, defaults to 'private'</li>
-<li><code class="codehilite"><span class="n">tags</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Tags to apply to CloudFormation template<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="n">regions</span></code> <em>List of AWS regions</em></li>
+<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</em></li>
+<li><code class="codehilite"><span class="n">s3_enable_sig_v2</span></code> <em>Enable (deprecated) sigv2 access to auto-generated buckets</em></li>
+<li><code class="codehilite"><span class="n">s3_object_acl</span></code> <em>ACL for uploaded s3 objects, defaults to 'private'</em></li>
+<li><code class="codehilite"><span class="n">tags</span></code> <em>Tags to apply to CloudFormation template</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="k">template</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> path to template file relative to the project config file path</li>
-<li><code class="codehilite"><span class="n">tests</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
-<li><code class="codehilite"><span class="n">auth</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> AWS authentication section<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="k">template</span></code> <em>path to template file relative to the project config file path</em></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="n">az_blacklist</span></code> <em>type:</em> <code class="codehilite"><span class="nb">array</span></code> List of Availablilty Zones ID's to exclude when generating availability zones</li>
-<li><code class="codehilite"><span class="k">parameters</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li>
+<p><code class="codehilite"><span class="n">tests</span></code></p>
+<ul>
+<li><code class="codehilite"><span class="n">auth</span></code> <em>AWS authentication section</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">AUTH_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="n">regions</span></code> <em>type:</em> <code class="codehilite"><span class="nb">array</span></code> List of AWS regions</li>
-<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</li>
-<li><code class="codehilite"><span class="n">tags</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code> Tags to apply to CloudFormation template<ul>
-<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code> <em>type:</em> <code class="codehilite"><span class="k">object</span></code></li>
+<li><code class="codehilite"><span class="n">az_blacklist</span></code> <em>List of Availablilty Zones ID's to exclude when generating availability zones</em></li>
+<li><code class="codehilite"><span class="k">parameters</span></code> <em>Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">PARAMETER_NAME</span><span class="o">&gt;</span></code></li>
 </ul>
 </li>
-<li><code class="codehilite"><span class="k">template</span></code> <em>type:</em> <code class="codehilite"><span class="n">string</span></code> path to template file relative to the project config file path</li>
+<li><code class="codehilite"><span class="n">regions</span></code> <em>List of AWS regions</em></li>
+<li><code class="codehilite"><span class="n">s3_bucket</span></code> <em>Name of S3 bucket to upload project to, if left out a bucket will be auto-generated</em></li>
+<li><code class="codehilite"><span class="n">tags</span></code> <em>Tags to apply to CloudFormation template</em><ul>
+<li><code class="codehilite"><span class="o">&lt;</span><span class="n">TAG_NAME</span><span class="o">&gt;</span></code></li>
+</ul>
+</li>
+<li><code class="codehilite"><span class="k">template</span></code> <em>path to template file relative to the project config file path</em></li>
+</ul>
+</li>
 </ul>
 <p>At minimum it must provide a project name, list of regions, template name and one test.</p>
 <p>Minimal example:</p>
@@ -887,27 +897,6 @@ locations. For more information on the new format, see the <a href="#config-file
       
         
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid">
-        
-        
-          <a href="apidocs/taskcat/" title="API" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                API
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
