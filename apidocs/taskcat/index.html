@@ -127,6 +127,11 @@ __all__ = [&#34;Stack&#34;, &#34;Template&#34;, &#34;Config&#34;, &#34;main&#34;
         )
 
         # general
+        legacy_overrides(
+            Path(&#34;~/.aws/taskcat_global_override.json&#34;).expanduser().resolve(),
+            global_config_path,
+            &#34;global&#34;,
+        )
         sources = [
             {
                 &#34;source&#34;: str(global_config_path),
@@ -148,30 +153,9 @@ __all__ = [&#34;Stack&#34;, &#34;Template&#34;, &#34;Config&#34;, &#34;main&#34;
             )
 
         # override file
-        legacy_override = Path(&#34;./ci/taskcat_project_override.json&#34;).resolve()
-        if legacy_override.is_file():
-            with open(str(legacy_override), &#34;r&#34;) as file_handle:
-                override_params = yaml.safe_load(file_handle)
-            LOG.warning(
-                f&#34;overrides file {str(legacy_override)} is in legacy &#34;
-                f&#34;format, support for this format will be deprecated &#34;
-                f&#34;in a future version.&#34;
-            )
-            override_params = {
-                i[&#34;ParameterKey&#34;]: i[&#34;ParameterValue&#34;] for i in override_params
-            }
-            if not overrides_path.exists():
-                LOG.warning(
-                    f&#34;Converting overrides to new format and saving in &#34;
-                    f&#34;{overrides_path}&#34;
-                )
-                with open(str(overrides_path), &#34;w&#34;) as file_handle:
-                    file_handle.write(yaml.dump(override_params))
-            else:
-                LOG.warning(
-                    f&#34;Ignoring legacy overrides as a current format override &#34;
-                    f&#34;file has been found in {str(overrides_path)}&#34;
-                )
+        legacy_overrides(
+            project_root / &#34;ci/taskcat_project_override.json&#34;, overrides_path, &#34;project&#34;
+        )
         if overrides_path.is_file():
             overrides = BaseConfig().to_dict()
             with open(str(overrides_path), &#34;r&#34;) as file_handle:
@@ -418,7 +402,7 @@ __all__ = [&#34;Stack&#34;, &#34;Template&#34;, &#34;Config&#34;, &#34;main&#34;
 <h3>Static methods</h3>
 <dl>
 <dt id="taskcat.Config.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>template_file=None, args=None, global_config_path=PosixPath('/Users/tonynv/.taskcat.yml'), project_config_path=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/taskcat/aws-quickstart.github.io/.taskcat.yml'), overrides_path=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/taskcat/aws-quickstart.github.io/.taskcat_overrides.yml'), env_vars=None, project_root=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/taskcat/aws-quickstart.github.io'), uid=None)</span>
+<span>def <span class="ident">create</span></span>(<span>template_file=None, args=None, global_config_path=PosixPath('/Users/tonynv/.taskcat.yml'), project_config_path=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/aws-quickstart/taskcat/aws-quickstart.github.io/.taskcat.yml'), overrides_path=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/aws-quickstart/taskcat/aws-quickstart.github.io/.taskcat_overrides.yml'), env_vars=None, project_root=PosixPath('/Users/tonynv/PycharmProjects/_taskcat-v9/aws-quickstart/taskcat/aws-quickstart.github.io'), uid=None)</span>
 </code></dt>
 <dd>
 <section class="desc"></section>
@@ -445,6 +429,11 @@ def create(
     )
 
     # general
+    legacy_overrides(
+        Path(&#34;~/.aws/taskcat_global_override.json&#34;).expanduser().resolve(),
+        global_config_path,
+        &#34;global&#34;,
+    )
     sources = [
         {
             &#34;source&#34;: str(global_config_path),
@@ -466,30 +455,9 @@ def create(
         )
 
     # override file
-    legacy_override = Path(&#34;./ci/taskcat_project_override.json&#34;).resolve()
-    if legacy_override.is_file():
-        with open(str(legacy_override), &#34;r&#34;) as file_handle:
-            override_params = yaml.safe_load(file_handle)
-        LOG.warning(
-            f&#34;overrides file {str(legacy_override)} is in legacy &#34;
-            f&#34;format, support for this format will be deprecated &#34;
-            f&#34;in a future version.&#34;
-        )
-        override_params = {
-            i[&#34;ParameterKey&#34;]: i[&#34;ParameterValue&#34;] for i in override_params
-        }
-        if not overrides_path.exists():
-            LOG.warning(
-                f&#34;Converting overrides to new format and saving in &#34;
-                f&#34;{overrides_path}&#34;
-            )
-            with open(str(overrides_path), &#34;w&#34;) as file_handle:
-                file_handle.write(yaml.dump(override_params))
-        else:
-            LOG.warning(
-                f&#34;Ignoring legacy overrides as a current format override &#34;
-                f&#34;file has been found in {str(overrides_path)}&#34;
-            )
+    legacy_overrides(
+        project_root / &#34;ci/taskcat_project_override.json&#34;, overrides_path, &#34;project&#34;
+    )
     if overrides_path.is_file():
         overrides = BaseConfig().to_dict()
         with open(str(overrides_path), &#34;r&#34;) as file_handle:

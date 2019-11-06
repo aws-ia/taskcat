@@ -2,12 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
      <loc>https://aws-quickstart.github.io/taskcat/</loc>
-     <lastmod>2019-11-01</lastmod>
+     <lastmod>2019-11-06</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>https://aws-quickstart.github.io/taskcat/apidocs/taskcat/</loc>
-     <lastmod>2019-11-01</lastmod>
+     <lastmod>2019-11-06</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
