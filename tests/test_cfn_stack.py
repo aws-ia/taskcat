@@ -257,8 +257,8 @@ def make_test_template(m_template):
     return m_template(template_path="templates/blah.yaml")
 
 
+@mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
 class TestStack(unittest.TestCase):
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -274,7 +274,6 @@ class TestStack(unittest.TestCase):
         m_s3_url_maker.assert_called_once()
         self.assertNotEquals(template, stack.template)
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -295,7 +294,6 @@ class TestStack(unittest.TestCase):
         self.assertEqual(len(stack.parameters), no_params)
         self.assertEqual(len(stack.tags), no_tags)
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -316,7 +314,6 @@ class TestStack(unittest.TestCase):
         stack._timer.cancel()
         self.assertEqual(stack.name, "SampleStack")
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -359,7 +356,6 @@ class TestStack(unittest.TestCase):
         m_prop.assert_not_called()
         m_res.assert_not_called()
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -386,7 +382,6 @@ class TestStack(unittest.TestCase):
         m_eve.assert_called_once()
         self.assertEqual(len(actual), 1)
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -419,7 +414,6 @@ class TestStack(unittest.TestCase):
         stack.client.get_paginator.assert_called_once()
         self.assertEqual(len(stack._events), 1)
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -443,7 +437,6 @@ class TestStack(unittest.TestCase):
         stack.resources(refresh=True)
         m_res.assert_called_once()
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
@@ -476,7 +469,6 @@ class TestStack(unittest.TestCase):
         stack.client.get_paginator.assert_called_once()
         self.assertEqual(len(stack._resources), 1)
 
-    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
