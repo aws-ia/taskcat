@@ -275,8 +275,12 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         uuid = uuid if uuid else uuid4()
         cfn_client = region.client("cloudformation")
         tags = [t.dump() for t in tags] if tags else []
-        bucket_name: str = region.s3_bucket.name
-        template.url = s3_url_maker(bucket_name, template.s3_key, region.client("s3"))
+        template = Template(
+            template_path=template.template_path,
+            project_root=template.project_root,
+            s3_key_prefix=template._s3_key_prefix,
+            url=s3_url_maker(region.s3_bucket.name, template.s3_key, region.client("s3"))
+        )
         stack_id = cfn_client.create_stack(
             StackName=stack_name,
             TemplateURL=template.url,
