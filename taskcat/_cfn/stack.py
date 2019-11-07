@@ -11,9 +11,10 @@ from typing import Callable, List, Optional, Tuple
 from uuid import UUID, uuid4
 
 import boto3
+import yaml
 
 from taskcat._cfn.template import Template
-from taskcat._common_utils import pascal_to_snake, s3_url_maker
+from taskcat._common_utils import ordered_dump, pascal_to_snake, s3_url_maker
 from taskcat._dataclasses import TestRegion
 
 LOG = logging.getLogger(__name__)
@@ -295,7 +296,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         return [{"ParameterKey": k, "ParameterValue": v} for k, v in parameters.items()]
 
     @classmethod
-    def _import_child(
+    def _import_child(  # pylint: disable=too-many-locals
         cls, stack_properties: dict, parent_stack: "Stack"
     ) -> Optional["Stack"]:
         url = ""
@@ -309,23 +310,33 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             )
             absolute_path = parent_stack.template.project_root / relative_path
         else:
-            # Assuming template is remote to project and downloading it
-            cfn_client = parent_stack.client
-            tempate_body = cfn_client.get_template(
-                StackName=stack_properties["StackId"]
-            )["TemplateBody"]
-            path = parent_stack.template.project_root / Stack.REMOTE_TEMPLATE_PATH
-            os.makedirs(path, exist_ok=True)
-            fname = (
-                "".join(
-                    random.choice(string.ascii_lowercase) for _ in range(16)  # nosec
+            try:
+                # Assuming template is remote to project and downloading it
+                cfn_client = parent_stack.client
+                tempate_body = cfn_client.get_template(
+                    StackName=stack_properties["StackId"]
+                )["TemplateBody"]
+                path = parent_stack.template.project_root / Stack.REMOTE_TEMPLATE_PATH
+                os.makedirs(path, exist_ok=True)
+                fname = (
+                    "".join(
+                        random.choice(string.ascii_lowercase)  # nosec
+                        for _ in range(16)
+                    )
+                    + ".template"
                 )
-                + ".template"
-            )
-            absolute_path = path / fname
-            if not absolute_path.exists():
-                with open(absolute_path, "w") as fh:
-                    fh.write(tempate_body)
+                absolute_path = path / fname
+                template_str = ordered_dump(tempate_body, Dumper=yaml.SafeDumper)
+                if not absolute_path.exists():
+                    with open(absolute_path, "w") as fh:
+                        fh.write(template_str)
+            except Exception as e:  # pylint: disable=broad-except
+                LOG.warning(
+                    f"Failed to attach child stack "
+                    f'{stack_properties["StackId"]} {str(e)}'
+                )
+                LOG.debug("traceback", exc_info=True)
+                return None
         template = Template(
             template_path=str(absolute_path),
             project_root=parent_stack.template.project_root,
@@ -472,7 +483,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 if "ParentId" in stack.keys():
                     if self.id == stack["ParentId"]:
                         stack_obj = Stack._import_child(stack, self)
-                        self._children.append(stack_obj)
+                        if stack_obj:
+                            self._children.append(stack_obj)
 
     def children(self, refresh=False) -> Stacks:
         if (
