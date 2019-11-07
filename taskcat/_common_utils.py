@@ -5,8 +5,10 @@ import random
 import re
 import string
 import sys
+from collections import OrderedDict
 
 import boto3
+import yaml
 
 from taskcat.exceptions import TaskCatException
 
@@ -143,3 +145,16 @@ def merge_nested_dict(old, new):
             merge_nested_dict(old[k], v)
         else:
             old[k] = v
+
+
+def ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwds):
+    class OrderedDumper(dumper):  # pylint: disable=too-many-ancestors
+        pass
+
+    def _dict_representer(dumper, data):
+        return dumper.represent_mapping(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, data.items()
+        )
+
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
