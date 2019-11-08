@@ -254,7 +254,12 @@ def make_test_region_obj(name, m_s3, m_boto):
 
 @mock.patch("taskcat._cfn.template.Template", autospec=True)
 def make_test_template(m_template):
-    return m_template(template_path="templates/blah.yaml")
+    mock_template = m_template(template_path="templates/blah.yaml")
+    mock_template.template_path = Path("blah")
+    mock_template.url = "blah"
+    mock_template.s3_key_prefix = "blah"
+    mock_template.project_root = Path("./")
+    return mock_template
 
 
 class TestStack(unittest.TestCase):
@@ -262,20 +267,25 @@ class TestStack(unittest.TestCase):
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
-    def test_create(self, m_s3_url_maker):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_create(self, mock_template, m_s3_url_maker):
         region = make_test_region_obj("us-west-2")
-        stack = Stack.create(region, "stack_name", make_test_template())
+        template = make_test_template()
+        stack = Stack.create(region, "stack_name", template)
         self.assertIsInstance(stack._timer, Timer)
         # disabled due to a concurrency issue with the tests
         # self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
         m_s3_url_maker.assert_called_once()
+        self.assertNotEquals(template, stack.template)
+        mock_template.assert_called_once()
 
     @mock.patch(
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
-    def test_idempotent_properties(self, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_idempotent_properties(self, mock_template, _):
         region = make_test_region_obj("us-west-2")
         region.client = mock_client_method
         m_template = make_test_template()
@@ -295,7 +305,8 @@ class TestStack(unittest.TestCase):
         "taskcat._cfn.stack.s3_url_maker",
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
-    def test_import_existing(self, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_import_existing(self, mock_template, _):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.import_existing(
@@ -319,7 +330,8 @@ class TestStack(unittest.TestCase):
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_events")
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_resources")
     @mock.patch("taskcat._cfn.stack.Stack._fetch_children")
-    def test_refresh(self, m_kids, m_res, m_eve, m_prop, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_refresh(self, mock_template, m_kids, m_res, m_eve, m_prop, _):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
@@ -358,7 +370,8 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_events")
-    def test_events(self, m_eve, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_events(self, mock_template, m_eve, _):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
@@ -384,7 +397,8 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Event")
-    def test_fetch_stack_events(self, n_evnt, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_fetch_stack_events(self, mock_template, n_evnt, _):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
@@ -416,7 +430,8 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Stack._fetch_stack_resources")
-    def test_resources(self, m_res, _):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_resources(self, mock_template, m_res, _):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
@@ -439,7 +454,8 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Resource")
-    def test_fetch_stack_resources(self, _, __):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_fetch_stack_resources(self, mock_template, _, __):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)
@@ -471,7 +487,8 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Stack.refresh")
-    def test_delete(self, _, __):
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_delete(self, mock_template, _, __):
         region = make_test_region_obj("us-west-2")
         m_template = make_test_template()
         stack = Stack.create(region, "stack_name", m_template)

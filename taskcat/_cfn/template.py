@@ -41,6 +41,10 @@ class Template:
         return self._s3_key_prefix + suffix
 
     @property
+    def s3_key_prefix(self):
+        return self._s3_key_prefix
+
+    @property
     def linesplit(self):
         return self.raw_template.split("\n")
 
