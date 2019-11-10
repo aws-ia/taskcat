@@ -10,7 +10,11 @@ from collections import OrderedDict
 import boto3
 import yaml
 
+from jsonschema import RefResolver, validate
+from dulwich.config import ConfigFile, parse_submodules
 from taskcat.exceptions import TaskCatException
+from functools import reduce
+from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
@@ -146,7 +150,6 @@ def merge_nested_dict(old, new):
         else:
             old[k] = v
 
-
 def ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwds):
     class OrderedDumper(dumper):  # pylint: disable=too-many-ancestors
         pass
@@ -158,3 +161,37 @@ def ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwds):
 
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
     return yaml.dump(data, stream, OrderedDumper, **kwds)
+
+def deep_get(dictionary, keys, default=None):
+    zulu = reduce(
+        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
+        keys.split("/"),
+        dictionary,
+    )
+    return zulu
+
+
+def neglect_submodule_templates(project_root, template_list):
+    template_dict = {}
+    ## one template object per path.
+    for template in template_list:
+        template_dict[template.template_path] = template
+        for template_descendent in template.descendents:
+            template_dict[template_descendent.template_path] = template_descendent
+
+    # Removing those within a submodule.
+    submodule_path_prefixes = []
+    gitmodule_config = ConfigFile.from_path(Path(project_root / '.gitmodules'))
+
+    for submodule_path, _, _ in parse_submodules(gitmodule_config):
+        submodule_path_prefixes.append(Path(project_root / submodule_path.decode('utf-8')))
+
+    finalized_templates = []
+    for template_obj in list(template_dict.values()):
+        gitmodule_template = False
+        for gm_path in submodule_path_prefixes:
+            if gm_path in template_obj.template_path.parents:
+                gitmodule_template = True
+        if not gitmodule_template:
+            finalized_templates.append(template_obj)
+    return finalized_templates

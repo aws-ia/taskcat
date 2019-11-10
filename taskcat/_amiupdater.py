@@ -15,11 +15,22 @@ import yaml
 from taskcat._common_utils import deep_get
 from dataclasses import dataclass, field
 from taskcat._dataclasses import RegionObj
+from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
-class AMIUpdaterException(Exception):
+class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
+    def __init__(self, message=None):
+        if message:
+            print("{} {}".format(PrintMsg.ERROR, message))
+
+class AMIUpdaterNoFiltersException(TaskCatException):
+    def __init__(self, message=None):
+        if message:
+            print("{} {}".format(PrintMsg.ERROR, message))
+
+class AMIUpdaterCommitNeededException(TaskCatException):
     pass
 
 def build_codenames(tobj, config):
@@ -55,7 +66,7 @@ def query_codenames(codename_list, region_dict):
     """Fetches AMI IDs from AWS"""
 
     if len(codename_list) == 0:
-        raise AMIUpdaterException(
+        raise AMIUpdaterFatalException(
             "No AMI filters were found. Nothing to fetch from the EC2 API."
         )
 
@@ -78,7 +89,7 @@ def reduce_api_results(raw_results):
         return int(ts_int)
 
     unsorted_results = []
-    sorted_results = []
+    missing_results = []
     final_results = []
     result_state = {}
 
@@ -92,9 +103,16 @@ def reduce_api_results(raw_results):
                 ) for x in query_result['api_results']
             ]
             unsorted_results = cn_api_results_data + unsorted_results
+        else:
+            missing_results.append(query_result)
+
+    if missing_results:
+        LOG.warning("No results were available for the following CODENAME / Region combination")
+
+    for missing_result in missing_results:
+        LOG.warning(f"- f{missing_result['cn']} in {region}")
 
     sorted_results = sorted(unsorted_results, reverse=True)
-
     for r in sorted_results:
         found_key = f"{r.region}-{r.codename}"
         already_found = result_state.get(found_key, False)
