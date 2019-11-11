@@ -279,9 +279,12 @@ class Config:
             region = "cn-north-1"
         return region
 
-    def get_rendered_parameters(self, bucket_objects, region_objects, template_objects):
+    def get_rendered_parameters(
+        self, bucket_objects, region_objects, template_objects
+    ):  # pylint: disable=too-many-locals
         parameters = {}
         template_params = self.get_params_from_templates(template_objects)
+        param_values_missing = set()
         for test_name, test in self.config.tests.items():
             parameters[test_name] = {}
             for region_name in test.regions:
@@ -291,9 +294,21 @@ class Config:
                         region_params[param_key] = param_value
                 region = region_objects[test_name][region_name]
                 s3bucket = bucket_objects[test_name][region_name]
-                parameters[test_name][region_name] = ParamGen(
-                    region_params, s3bucket.name, region.name, region.client
-                ).results
+                failed = False
+                for param_key, param_value in region_params.items():
+                    if param_value is None:
+                        param_values_missing.add((test_name, param_key))
+                        failed = True
+                if not failed:
+                    parameters[test_name][region_name] = ParamGen(
+                        region_params, s3bucket.name, region.name, region.client
+                    ).results
+        if param_values_missing:
+            for test, param in param_values_missing:
+                LOG.error(
+                    f"Test {test} is missing value for required parameter" f" {param}"
+                )
+            raise TaskCatException("Required parameter values missing")
         return parameters
 
     @staticmethod
