@@ -8,6 +8,10 @@ lib/
 dist/
 .cache/
 
+# Files generate during legacy cfg converstions
+tests/data/legacy_test/.taskcat.yml
+tests/data/legacy_test/.taskcat_overrides.yml
+
 # Misc #
 .idea/
 .project
