@@ -1,4 +1,3 @@
----
 project:
   owner: owner@company.com
   name: generic
@@ -7,4 +6,4 @@ project:
     - us-west-2
 tests:
   taskcat-json:
-    template: templates/test.generic.template.json
+    template: no_value.template.json

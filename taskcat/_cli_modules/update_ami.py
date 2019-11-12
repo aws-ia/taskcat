@@ -2,8 +2,8 @@ import logging
 import os
 from taskcat._config import Config
 from taskcat._client_factory import Boto3Cache
-from taskcat._amiupdater import AMIUpdater
-from taskcat._common_utils import neglect_submodule_templates
+from taskcat._amiupdater import AMIUpdater, AMIUpdaterFatalException, AMIUpdaterNoFiltersException, AMIUpdaterCommitNeededException
+from taskcat._common_utils import neglect_submodule_templates, exit_with_code
 from pathlib import Path
 
 LOG = logging.getLogger(__name__)
@@ -54,4 +54,11 @@ class UpdateAMI:
         )
 
         amiupdater = AMIUpdater(template_list=finalized_templates, regions=regions[rk], boto3cache=_boto3cache)
-        amiupdater.update_amis()
+        try:
+            amiupdater.update_amis()
+        except AMIUpdaterCommitNeededException:
+            exit_with_code(100)
+        except AMIUpdaterFatalException:
+            exit_with_code(1)
+        except AMIUpdaterFatalException:
+            pass

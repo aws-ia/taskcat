@@ -23,12 +23,12 @@ class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
     def __init__(self, message=None):
         if message:
-            print("{} {}".format(PrintMsg.ERROR, message))
+            LOG.error(message)
 
 class AMIUpdaterNoFiltersException(TaskCatException):
     def __init__(self, message=None):
         if message:
-            print("{} {}".format(PrintMsg.ERROR, message))
+            LOG.error(message)
 
 class AMIUpdaterCommitNeededException(TaskCatException):
     pass
@@ -110,7 +110,7 @@ def reduce_api_results(raw_results):
         LOG.warning("No results were available for the following CODENAME / Region combination")
 
     for missing_result in missing_results:
-        LOG.warning(f"- f{missing_result['cn']} in {region}")
+        LOG.warning(f"- f{missing_result['cn']} in {missing_result['region']}")
 
     sorted_results = sorted(unsorted_results, reverse=True)
     for r in sorted_results:
@@ -141,7 +141,7 @@ class Config:
         except Exception as e:
             LOG.error("{} config file [{}] is not structured properly!", configtype, fn)
             LOG.error("{}", e)
-            raise AMIUpdaterException
+            raise AMIUpdaterFatalException
 
     @classmethod
     def update_filter(cls, dn):
@@ -323,16 +323,15 @@ class AMIUpdater:
 
     def update_amis(self):
         templates = []
-        regions = []
         codenames = set()
-        _regions_with_creds = self.regions.keys()
+        regions_with_creds = self.regions.keys()
 
         LOG.info("Determining templates and supported regions")
         # Flush out templates and supported regions
         for tc_template in self.template_list:
             _t = Template(underlying=tc_template,
                           excluded_regions=self.EXCLUDED_REGIONS,
-                          regions_with_creds=_regions_with_creds)
+                          regions_with_creds=regions_with_creds)
             templates.append(_t)
 
         LOG.info("Determining regional search params for each AMI")

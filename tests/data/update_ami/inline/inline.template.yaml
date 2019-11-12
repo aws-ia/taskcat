@@ -1,0 +1,36 @@
+{
+        "Metadata": {
+            "AWSAMIRegionMap": {
+                "Filters": {
+                    "NON_STANDARD_TEST": {
+                        "name": "amzn-ami-hvm-????.??.?.*-x86_64-gp2",
+                        "owner-alias": "amazon",
+                    }
+                }
+            }
+        },
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "us-east-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-east-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+            }
+        },
+    }:

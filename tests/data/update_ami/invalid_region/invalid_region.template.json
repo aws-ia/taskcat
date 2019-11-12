@@ -1,0 +1,26 @@
+{
+        "Mappings": {
+            "AWSAMIRegionMap": {
+                "ASKDJSALKD": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-east-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-1": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+                "us-west-2": {
+                    "AMZNLINUXHVM": "FOOBAR",
+                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
+                    "NON_STANDARD_TEST": "FOOBAR",
+                },
+            }
+        }
+    }

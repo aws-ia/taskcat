@@ -12,7 +12,7 @@ import yaml
 logger = logging.getLogger("taskcat")
 
 
-class MockClientFactory:
+class MockBoto3Cache:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -783,156 +783,25 @@ class TestAMIUpdater(unittest.TestCase):
         else:
             return AMIUpdater, AMIUpdaterException
 
-    generic_skeleton_template = {
-        "Mappings": {
-            "AWSAMIRegionMap": {
-                "us-east-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-east-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-            }
-        }
-    }
-
-    inline_skeleton_template = {
-        "Metadata": {
-            "AWSAMIRegionMap": {
-                "Filters": {
-                    "NON_STANDARD_TEST": {
-                        "name": "amzn-ami-hvm-????.??.?.*-x86_64-gp2",
-                        "owner-alias": "amazon",
-                    }
-                }
-            }
-        },
-        "Mappings": {
-            "AWSAMIRegionMap": {
-                "us-east-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-east-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-            }
-        },
-    }
-
-    no_mapping_skeleton_template = {
-        "Mappings": {
-            "AWSAMIRegionMap": {
-                "us-east-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-east-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-            }
-        }
-    }
-
-    invalid_region_skeleton_template = {
-        "Mappings": {
-            "AWSAMIRegionMap": {
-                "ASKDJSALKD": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-east-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-1": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-                "us-west-2": {
-                    "AMZNLINUXHVM": "FOOBAR",
-                    "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
-                    "NON_STANDARD_TEST": "FOOBAR",
-                },
-            }
-        }
-    }
-
     ami_regex_pattern = re.compile("ami-([0-9a-z]{8}|[0-9a-z]{17})")
 
-    def create_ephemeral_template(self, template_type="generic"):
-        if template_type == "generic":
-            data = self.generic_skeleton_template
-        elif template_type == "inline":
-            data = self.inline_skeleton_template
-        elif template_type == "no_mapping":
-            data = self.no_mapping_skeleton_template
-        elif template_type == "invalid_region":
-            data = self.invalid_region_skeleton_template
+    def create_ephemeral_template_object(self, template_type="generic"):
+        test_proj = (Path(__file__).parent / "./data/{template_type}").resolve()
+        c = Config.create(
+            project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
+        )
+        templates = c.get_templates(project_root=test_proj)
+        return templates
 
-        fd, file = tempfile.mkstemp()
-        with open(file, "w") as f:
-            f.write(json.dumps(data))
-        os.close(fd)
-        return file
-
-    def load_modified_template(self, fn):
-        with open(fn) as f:
-            t = f.read()
-        return json.loads(t)
-
-    def client_factory_handler(self):
-        return MockClientFactory()
 
     def test_upstream_config_ALAMI(self):
         au, AMIUpdaterException, tcau = self._module_loader(return_module=True)
-        cf = self.client_factory_handler()
         mapping_name = "AMZNLINUXHVM"
-        template_file = self.create_ephemeral_template()
-        amiupdater_args = {"path_to_templates": template_file, "client_factory": cf}
+        templates = self.create_ephemeral_template_object()
+        amiupdater_args = {
+            "template_list": templates
+            "boto3cache": MockBoto3Cache()
+        }
         au.upstream_config_file = "{}/{}".format(
             os.path.dirname(tcau.__file__), "cfg/amiupdater.cfg.yml"
         )
@@ -969,13 +838,12 @@ class TestAMIUpdater(unittest.TestCase):
         with open(user_config_file, "w") as f:
             f.write(yaml.dump(config_file_dict))
         mapping_name = "AMZNLINUXHVM_CUSTOM_CONFIG"
-        template_file = self.create_ephemeral_template()
+        template_file = self.create_ephemeral_template_object()
 
         amiupdater_args = {
+            "template_list": [template_file],
             "use_upstream_mappings": False,
-            "path_to_templates": template_file,
-            "user_config_file": user_config_file,
-            "client_factory": cf,
+            "boto3cache": MockBoto3Cache()
         }
         a = au(**amiupdater_args)
         a.update_amis()
@@ -997,11 +865,11 @@ class TestAMIUpdater(unittest.TestCase):
         au, AMIUpdaterException = self._module_loader()
         cf = self.client_factory_handler()
         mapping_name = "NON_STANDARD_TEST"
-        template_file = self.create_ephemeral_template(template_type="inline")
+        template_file = self.create_ephemeral_template_object(template_type="inline")
         amiupdater_args = {
-            "path_to_templates": template_file,
+            "template_list": [template_file],
             "use_upstream_mappings": False,
-            "client_factory": cf,
+            "boto3cache": MockBoto3Cache()
         }
         a = au(**amiupdater_args)
         a.update_amis()
@@ -1022,11 +890,11 @@ class TestAMIUpdater(unittest.TestCase):
     def test_invalid_region_exception(self):
         au, AMIUpdaterException = self._module_loader()
         cf = self.client_factory_handler()
-        template_file = self.create_ephemeral_template(template_type="invalid_region")
+        template_file = self.create_ephemeral_template_object(template_type="invalid_region")
         amiupdater_args = {
-            "path_to_templates": template_file,
+            "template_list": [template_file],
             "use_upstream_mappings": False,
-            "client_factory": cf,
+            "boto3cache": MockBoto3Cache()
         }
         a = au(**amiupdater_args)
 
@@ -1034,12 +902,11 @@ class TestAMIUpdater(unittest.TestCase):
 
     def test_no_filters_exception(self):
         au, AMIUpdaterException = self._module_loader()
-        cf = self.client_factory_handler()
-        template_file = self.create_ephemeral_template()
+        template_file = self.create_ephemeral_template_object()
         amiupdater_args = {
-            "path_to_templates": template_file,
+            "template_list": [template_file],
             "use_upstream_mappings": False,
-            "client_factory": cf,
+            "boto3cache": MockBoto3Cache()
         }
         a = au(**amiupdater_args)
         self.assertRaises(AMIUpdaterException, a.update_amis)
@@ -1052,7 +919,7 @@ class TestAMIUpdater(unittest.TestCase):
             "ami_id": "ami-12345abcde",
             "creation_date": datetime(2010, 1, 23),
             "region": "us-east-1",
-            "custom_comparisions": False,
+            "custom_comparisons": False,
         }
         a = APIResultsData(**instance_args)
 
@@ -1071,7 +938,7 @@ class TestAMIUpdater(unittest.TestCase):
             "ami_id": "ami-12345abcde",
             "creation_date": datetime(2010, 1, 23),
             "region": "us-east-1",
-            "custom_comparisions": False,
+            "custom_comparisons": False,
         }
         a = APIResultsData(**instance_args)
 
