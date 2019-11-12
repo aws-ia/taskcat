@@ -118,7 +118,7 @@ jobs:
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
-    if: branch = master AND commit_message =~ /Merge\ pull\ request\ \#[0-9]{1,9}\ from\ aws-quickstart\/[Rr]elease\/v.*$/ AND type = push
+    if: branch = master AND fork = false AND type = push AND env(TRAVIS_PULL_REQUEST_BRANCH) =~ /(?:Release taskcat)/
     script:
       - |
         LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
