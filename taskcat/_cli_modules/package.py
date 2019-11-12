@@ -14,8 +14,8 @@ class Package:
     def __init__(
         self,
         project_root: str = "./",
-        source_folder: str = "functions/source",
-        zip_folder: str = "functions/packages",
+        source_folder: str = "lambda_functions/source",
+        zip_folder: str = "lambda_functions/packages",
         config_file: str = ".taskcat.yml",
     ):
         """
