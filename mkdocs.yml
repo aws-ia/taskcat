@@ -9,7 +9,7 @@ repo_url: https://github.com/aws-quickstart/taskcat
 theme:
   name: material
   palette:
-    primary: 'Blue'
+    primary: 'Light Green'
     accent: 'Blue Gray'
   font:
     text: 'Roboto'

@@ -118,13 +118,17 @@ jobs:
 
   - stage: "Tag next release & include changelog"
     name: "Tag next release & include changelog"
-    if: branch = master AND fork = false AND type = push AND env(TRAVIS_PULL_REQUEST_BRANCH) =~ /(?:Release taskcat)/
+    if: branch = master AND fork = false AND type = push 
     script:
       - |
-        LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
-        TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
-        git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
-        git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+        echo ${TRAVIS_PULL_REQUEST_BRANCH} | egrep -i 'Release taskcat'
+        if [[ $? -eq 0 ]]; then
+          LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
+          TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
+          git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
+          git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+        fi
+        
     deploy:
       - provider: releases
         skip_cleanup: true
@@ -132,6 +136,8 @@ jobs:
         file: directory/*
         on:
           branch: master
+          tags: true
+          fork: false
       - provider: pages
         skip_cleanup: true
         target_branch: gh-pages
@@ -139,6 +145,8 @@ jobs:
         keep_history: true
         on:
           branch: master
+          tags: true
+          fork: false
      
   # Add Docker provider
   #   #   - provider: pypi
