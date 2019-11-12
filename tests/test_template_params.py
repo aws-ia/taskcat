@@ -1,3 +1,4 @@
+import copy
 import logging
 import re
 import unittest
@@ -374,6 +375,12 @@ class TestParamGen(unittest.TestCase):
             x for x in dir(ParamGen) if type(getattr(ParamGen, x)) == regex_type
         }
         self.assertEqual(all_expressions, tested_expressions)
+
+    def test_param_value_none_raises_exception(self):
+        params = copy.deepcopy(self.class_kwargs)
+        params["param_dict"] = {"Foo": None}
+        with self.assertRaises(TaskCatException):
+            _ = ParamGen(**params)
 
     def test_regex_replace_param_value(self):
         pg = ParamGen(**self.class_kwargs)
