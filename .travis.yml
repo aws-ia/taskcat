@@ -81,7 +81,7 @@ jobs:
     if: branch = master AND type = push
     before_script:
       - pip install bump2version
-      - export TEST_PYPI_VERSION=$(python -c "import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [x for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
+      - export TEST_PYPI_VERSION=$(python -c "from distutils.version import LooseVersion; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [LooseVersion(x) for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
     script:
       - |
         echo "${TEST_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
