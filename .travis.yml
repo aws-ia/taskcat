@@ -121,14 +121,15 @@ jobs:
     if: branch = master AND fork = false AND type = push 
     script:
       - |
-        echo ${TRAVIS_PULL_REQUEST_BRANCH} | egrep -i '[rR]elease'
+        echo "${TRAVIS_COMMIT_MESSAGE}" | egrep -i 'Merge pull request.*from aws-quickstart/release.*$'
         if [[ $? -eq 0 ]]; then
           LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
           git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
           git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
         fi
-        
+
+  - stage: "Release the hounds! (...to production)"
     deploy:
       - provider: releases
         skip_cleanup: true
