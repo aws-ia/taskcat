@@ -121,7 +121,7 @@ jobs:
     if: branch = master AND fork = false AND type = push 
     script:
       - |
-        echo ${TRAVIS_PULL_REQUEST_BRANCH} | egrep -i 'Release taskcat'
+        echo ${TRAVIS_PULL_REQUEST_BRANCH} | egrep -i '[rR]elease'
         if [[ $? -eq 0 ]]; then
           LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
