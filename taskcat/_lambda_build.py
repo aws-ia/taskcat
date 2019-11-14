@@ -2,7 +2,7 @@ import logging
 import shutil
 import tempfile
 from pathlib import Path
-from subprocess import CalledProcessError, run as subprocess_run  # nosec
+from subprocess import PIPE, CalledProcessError, run as subprocess_run  # nosec
 from uuid import UUID, uuid5
 
 import docker
@@ -96,10 +96,9 @@ class LambdaBuild:
             LOG.info("Starting pip build.")
             try:
                 completed_proc = subprocess_run(  # nosec
-                    command, capture_output=True, cwd=build_path, check=True
+                    command, cwd=build_path, check=True, stdout=PIPE, stderr=PIPE
                 )
             except (FileNotFoundError, CalledProcessError) as e:
-                shutil.rmtree(tmp_path, ignore_errors=True)
                 raise TaskCatException("pip build failed") from e
             LOG.debug("--- pip stdout:\n%s", completed_proc.stdout)
             LOG.debug("--- pip stderr:\n%s", completed_proc.stderr)
@@ -111,7 +110,7 @@ class LambdaBuild:
 
     @staticmethod
     def _zip_dir(build_path, output_path):
-        output_path.mkdir(exist_ok=True)
+        output_path.mkdir(parents=True, exist_ok=True)
         zip_path = output_path / "lambda.zip"
         if zip_path.is_file():
             zip_path.unlink()
