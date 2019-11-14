@@ -107,8 +107,8 @@ jobs:
           branch: master
           tags: false
 
-  - stage: "Tag next release & include changelog"
-    name: "Tag next release & include changelog"
+  - stage: "Tag build changelog/Push pypi and github release/Update docs"
+    name: "Tag build changelog/Push pypi and github release/Update docs"
     if: branch = master AND fork = false AND type = push 
     script:
       - |
@@ -126,7 +126,6 @@ jobs:
         file: directory/*
         on:
           branch: master
-          tags: true
           fork: false
       - provider: pages
         skip_cleanup: true
@@ -135,7 +134,6 @@ jobs:
         keep_history: true
         on:
           branch: master
-          tags: true
           fork: false
      
   # Add Docker provider
