@@ -35,15 +35,6 @@ after_success:
 
 jobs:
   include:
-  # - stage: "Functional test"
-  #   name: "taskcat (sample-taskcat-project/ci/taskcat-autobucket.yml)"
-  #   if: branch =~ /(release.*|develop|master)/ AND commit_message !~ /(Bump)/ AND type = push
-  #   before_script:
-  #   script:
-  #   - cd examples && pwd
-  #   - mkdir ~/.aws/ &&  cp sample-taskcat-project/ci/taskcat_global_override.json  ~/.aws/taskcat_global_override.json
-  #   - taskcat -c sample-taskcat-project/ci/taskcat-autobucket.yml -A $AKEY -S $SKEY && export MERGE_TO_MASTER=true
-
   - stage: "[Version Bump] Check/Create Release PR"
     name: "[Version Bump] Check/Create Release PR"
     if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
@@ -128,8 +119,6 @@ jobs:
           git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
           git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
         fi
-
-  - stage: "Release the hounds! (...to production)"
     deploy:
       - provider: releases
         skip_cleanup: true
@@ -150,8 +139,3 @@ jobs:
           fork: false
      
   # Add Docker provider
-  #   #   - provider: pypi
-  #   #     user: $PYPI_USER
-  #   #     password: $PYPI_PASSWORD
-  #   #     on:
-  #   #       branch: master
