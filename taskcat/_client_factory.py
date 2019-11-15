@@ -1,0 +1,160 @@
+import logging
+import operator
+from functools import reduce
+from time import sleep
+from typing import Any, Dict, List
+
+import boto3
+from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
+
+from taskcat.exceptions import TaskCatException
+
+LOG = logging.getLogger(__name__)
+
+
+class Boto3Cache:
+    RETRIES = 10
+    BACKOFF = 2
+    DELAY = 0.1
+
+    def __init__(self, _boto3=boto3):
+        self._boto3 = _boto3
+        self._session_cache: Dict[str, Dict[str, boto3.Session]] = {}
+        self._client_cache: Dict[str, Dict[str, Dict[str, boto3.client]]] = {}
+        self._resource_cache: Dict[str, Dict[str, Dict[str, boto3.resource]]] = {}
+        self._account_info: Dict[str, Dict[str, str]] = {}
+
+    def session(self, profile: str = "default", region: str = None) -> boto3.Session:
+        region = self._get_region(region, profile)
+        try:
+            session = self._cache_lookup(
+                self._session_cache,
+                [profile, region],
+                self._boto3.Session,
+                [],
+                {"region_name": region, "profile_name": profile},
+            )
+        except ProfileNotFound:
+            if profile != "default":
+                raise
+            session = self._boto3.Session(region_name=region)
+            self._cache_set(self._session_cache, [profile, region], session)
+        return session
+
+    def client(
+        self, service: str, profile: str = "default", region: str = None
+    ) -> boto3.client:
+        region = self._get_region(region, profile)
+        session = self.session(profile, region)
+        return self._cache_lookup(
+            self._client_cache, [profile, region, service], session.client, [service]
+        )
+
+    def resource(
+        self, service: str, profile: str = "default", region: str = None
+    ) -> boto3.resource:
+        region = self._get_region(region, profile)
+        session = self.session(profile, region)
+        return self._cache_lookup(
+            self._resource_cache,
+            [profile, region, service],
+            session.resource,
+            [service],
+        )
+
+    def partition(self, profile: str = "default") -> str:
+        return self._cache_lookup(
+            self._account_info, [profile], self._get_account_info, [profile]
+        )["partition"]
+
+    def account_id(self, profile: str = "default") -> str:
+        return self._cache_lookup(
+            self._account_info, [profile], self._get_account_info, [profile]
+        )["account_id"]
+
+    def _get_account_info(self, profile):
+        region = self._get_region(None, profile)
+        session = self.session(profile, region)
+        avail_regions = session.get_available_regions("s3")
+        partition = "aws"
+        region = "us-east-1"
+        if "us-gov-east-1" in avail_regions:
+            partition = "aws-us-gov"
+            region = "us-gov-east-1"
+        elif "cn-north-1" in avail_regions:
+            partition = "aws-cn"
+            region = "cn-north-1"
+        sts_client = session.client("sts", region_name=region)
+        try:
+            account_id = sts_client.get_caller_identity()["Account"]
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "AccessDenied":
+                raise TaskCatException(
+                    f"Not able to fetch account number from {region} using profile "
+                    f"{profile}. {str(e)}"
+                )
+            raise
+        except NoCredentialsError as e:
+            raise TaskCatException(
+                f"Not able to fetch account number from {region} using profile "
+                f"{profile}. {str(e)}"
+            )
+        except ProfileNotFound as e:
+            raise TaskCatException(
+                f"Not able to fetch account number from {region} using profile "
+                f"{profile}. {str(e)}"
+            )
+        return {"partition": partition, "account_id": account_id}
+
+    def _make_parent_keys(self, cache: dict, keys: list):
+        if keys:
+            if not cache.get(keys[0]):
+                cache[keys[0]] = {}
+            self._make_parent_keys(cache[keys[0]], keys[1:])
+
+    def _cache_lookup(self, cache, key_list, create_func, args=None, kwargs=None):
+        try:
+            value = self._cache_get(cache, key_list)
+        except KeyError:
+            args = [] if not args else args
+            kwargs = {} if not kwargs else kwargs
+            value = self._get_with_retry(create_func, args, kwargs)
+            self._cache_set(cache, key_list, value)
+        return value
+
+    def _get_with_retry(self, create_func, args, kwargs):
+        retries = self.RETRIES
+        delay = self.DELAY
+        while retries:
+            try:
+                return create_func(*args, **kwargs)
+            except KeyError as e:
+                if str(e) not in ["'credential_provider'", "'endpoint_resolver'"]:
+                    raise
+                backoff = (self.RETRIES - retries + delay) * self.BACKOFF
+                sleep(backoff)
+
+    @staticmethod
+    def _cache_get(cache: dict, key_list: List[str]):
+        return reduce(operator.getitem, key_list, cache)
+
+    def _cache_set(self, cache: dict, key_list: list, value: Any):
+        self._make_parent_keys(cache, key_list[:-1])
+        self._cache_get(cache, key_list[:-1])[key_list[-1]] = value
+
+    def _get_region(self, region, profile):
+        if not region:
+            region = self.get_default_region(profile)
+        return region
+
+    def get_default_region(self, profile_name="default") -> str:
+        try:
+            region = self._boto3.session.Session(profile_name=profile_name).region_name
+        except ProfileNotFound:
+            if profile_name != "default":
+                raise
+            region = self._boto3.session.Session().region_name
+        if not region:
+            LOG.warning("Region not set in credential chain, defaulting to us-east-1")
+            region = "us-east-1"
+        return region

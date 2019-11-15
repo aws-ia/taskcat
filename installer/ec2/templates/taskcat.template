@@ -1,0 +1,167 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create TaskCat instance on Amazon EC2
+Metadata:
+  License: Apache 2.0
+  Authors:
+  - Santiago Cardenas (sancard@amazon.com)
+  - Tony Vattathil (tonynv@amazon.com)
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Network Configuration
+      Parameters:
+      - VPCID
+      - PublicSubnetID
+      - RemoteAccessCIDR
+    - Label:
+        default: Amazon EC2 Configuration
+      Parameters:
+      - KeyPairName
+      - InstanceType
+    ParameterLabels:
+      InstanceType:
+        default: Instance Type
+      KeyPairName:
+        default: SSH Key Name
+      PublicSubnetID:
+        default: Public Subnet ID
+      RemoteAccessCIDR:
+        default: Remote Access CIDR
+      VPCID:
+        default: VPC ID
+Parameters:
+  InstanceType:
+    AllowedValues:
+    - t2.medium
+    - t2.large
+    ConstraintDescription: Must contain valid instance type
+    Default: t2.medium
+    Description: Type of EC2 instance for the TaskCat instance
+    Type: String
+  KeyPairName:
+    Description: Name of an existing EC2 KeyPair
+    Type: AWS::EC2::KeyPair::KeyName
+  PublicSubnetID:
+    Description: Public Subnet ID for TaskCat instance
+    Type: AWS::EC2::Subnet::Id
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: Allowed CIDR block for external SSH access to TaskCat instance
+    Type: String
+  VPCID:
+    Description: VPC ID for TaskCat instance
+    Type: AWS::EC2::VPC::Id
+Rules:
+  KeyPairsNotEmpty:
+    Assertions:
+    - Assert:
+        Fn::Not:
+        - Fn::EachMemberEquals:
+          - Fn::RefAll: AWS::EC2::KeyPair::KeyName
+          - ''
+      AssertDescription: All key pair parameters must not be empty
+  SubnetsInVPC:
+    Assertions:
+    - Assert:
+        Fn::EachMemberIn:
+        - Fn::ValueOfAll:
+          - AWS::EC2::Subnet::Id
+          - VpcId
+        - Fn::RefAll: AWS::EC2::VPC::Id
+      AssertDescription: All subnets must in the VPC
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      AMZNLINUXHVM: amzn-ami-hvm-2017.09.1.20180307-x86_64-gp2
+    ap-northeast-1:
+      AMZNLINUXHVM: ami-a77c30c1
+    ap-northeast-2:
+      AMZNLINUXHVM: ami-5e1ab730
+    ap-northeast-3:
+      AMZNLINUXHVM: ami-df2729a2
+    ap-south-1:
+      AMZNLINUXHVM: ami-7c87d913
+    ap-southeast-1:
+      AMZNLINUXHVM: ami-e2adf99e
+    ap-southeast-2:
+      AMZNLINUXHVM: ami-43874721
+    ca-central-1:
+      AMZNLINUXHVM: ami-5b55d23f
+    eu-central-1:
+      AMZNLINUXHVM: ami-ac442ac3
+    eu-west-1:
+      AMZNLINUXHVM: ami-3bfab942
+    eu-west-2:
+      AMZNLINUXHVM: ami-dff017b8
+    eu-west-3:
+      AMZNLINUXHVM: ami-4f55e332
+    sa-east-1:
+      AMZNLINUXHVM: ami-5339733f
+    us-east-1:
+      AMZNLINUXHVM: ami-1853ac65
+    us-east-2:
+      AMZNLINUXHVM: ami-25615740
+    us-west-1:
+      AMZNLINUXHVM: ami-bf5540df
+    us-west-2:
+      AMZNLINUXHVM: ami-d874e0a0
+Resources:
+  TaskCatInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+        !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - AMZNLINUXHVM
+      InstanceType: !Ref InstanceType
+      NetworkInterfaces:
+      - DeviceIndex: 0
+        SubnetId: !Ref PublicSubnetID
+        GroupSet:
+        - !Ref TaskCatSG
+      Tags:
+      - Key: Name
+        Value: TaskCat
+      KeyName: !Ref KeyPairName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -x
+          function error_exit
+          {
+            /opt/aws/bin/cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource TaskCatInstance
+            exit 1
+          }
+          yum update -y || error_exit
+          yum install python36 python36-pip git -y || error_exit
+          unlink /usr/bin/python || error_exit
+          unlink /usr/bin/pip || error_exit
+          ln -s /usr/bin/python36 /usr/bin/python || error_exit
+          ln -s /usr/bin/pip-3.6 /usr/bin/pip || error_exit
+          ln -s /usr/bin/pip-3.6 /usr/bin/pip3 || error_exit
+          export PATH=$PATH:/usr/local/bin/ || error_exit
+          /usr/bin/pip install taskcat || error_exit
+          /opt/aws/bin/cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource TaskCatInstance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
+  TaskCatSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH access to TaskCat instance
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: !Ref RemoteAccessCIDR
+Outputs:
+  TaskCatInstancePublicDNSName:
+    Value: !Sub ec2-user@${TaskCatInstance.PublicDnsName}
+    Description: Public DNS name for the TaskCat instance
+  TaskCatInstancePublicIPAddress:
+    Value: !Sub ec2-user@${TaskCatInstance.PublicIp}
+    Description: Public IP address for the TaskCat instance
+...

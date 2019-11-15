@@ -1,0 +1,155 @@
+# Owner-id must be in quotes
+# Whereas, all other filters do not need quotes,
+# because they are not in a number format
+
+global:
+  AMIs:
+    AMZNLINUX:
+      name: amzn-ami-hvm-????.??.?.*-x86_64-gp2
+      owner-alias: amazon
+    AMZNLINUXHVM:
+      name: amzn-ami-hvm-????.??.?.*-x86_64-gp2
+      owner-alias: amazon
+    AMZNLINUXPV:
+      name: amzn-ami-pv-????.??.?.*-x86_64-ebs
+      owner-alias: amazon
+    AMZNLINUX2:
+      name: amzn2-ami-hvm-*-x86_64-gp2
+      owner-alias: amazon
+      architecture: x86_64
+    AMZNLINUX2ARM:
+      name: amzn2-ami-hvm-*-arm64-gp2
+      owner-alias: amazon
+      architecture: arm64
+    AMZNECSHVM:
+      name: amzn-ami-????.??.?-amazon-ecs-optimized
+      owner-alias: amazon
+    AWSNAT:
+      name: amzn-ami-vpc-nat-hvm-????.??.?.*-x86_64-ebs
+      owner-alias: amazon
+    AWSNATHVM:
+      name: amzn-ami-vpc-nat-hvm-????.??.?.*-x86_64-ebs
+      owner-alias: amazon
+    CENTOS7:
+      name: CentOS Linux 7 x86_64 HVM EBS*
+      owner-alias: aws-marketplace
+      product-code.type: marketplace
+    CENTOS7HVM:
+      name: CentOS Linux 7 x86_64 HVM EBS*
+      owner-alias: aws-marketplace
+      product-code.type: marketplace
+    RHEL66HVM:
+      name: RHEL-6.6_HVM_GA-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
+    RHEL71HVM:
+      name: RHEL-7.1_HVM-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
+    RHEL72HVM:
+      name: RHEL-7.2_HVM-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
+    RHEL76HVM:
+      name: RHEL-7.6_HVM-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
+    RHEL76HVMARM:
+      name: RHEL-7.6_HVM-????????-arm64-?-Hourly2-GP2
+      owner-id: '309956199498'
+      architecture: arm64
+    SLES11SP3HVM:
+      name: suse-sles-11-sp3-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES11SP4HVM:
+      name: suse-sles-11-sp4-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12HVM:
+      name: suse-sles-12-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP1HVM:
+      name: suse-sles-12-sp1-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP1SAPBYOSHVM:
+      name: suse-sles-sap-12-sp1-byos-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP2HVM:
+      name: suse-sles-12-sp2-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP2SAPBYOSHVM:
+      name: suse-sles-sap-12-sp2-byos-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP3HVM:
+      name: suse-sles-12-sp3-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES12SP3SAPBYOSHVM:
+      name: suse-sles-sap-12-sp3-byos-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES15SAPBYOSHVM:
+      name: 'suse-sles-sap-15-byos-v????????-hvm-ssd-x86_64'
+      owner-alias: amazon
+    SLES15HVM:
+      name: suse-sles-15-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
+    SLES15HVMARM:
+      name: suse-sles-15-v????????-hvm-ssd-arm64
+      owner-alias: amazon
+      architecture: arm64
+    US1404HVM:
+      name: ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-????????*
+      owner-id: '099720109477'
+    US1604HVM:
+      name: ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-????????*
+      owner-id: '099720109477'
+    US1604HVMARM:
+      name: ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-arm64-server-????????*
+      owner-id: '099720109477'
+      architecture: arm64
+    US1804HVM:
+      name: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????*
+      owner-id: '099720109477'
+    US1804HVMARM:
+      name: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-arm64-server-????????*
+      owner-id: '099720109477'
+      architecture: arm64
+    WS2012R2:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-Base-????.??.??
+      owner-alias: amazon
+    WS2012R2SQL2014SP2ENT:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2014_SP2_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2012R2SQL2016SP1ENT:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2016_SP1_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2012R2SQLENT2014:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2014_SP1_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2012R2SQLENT2016:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2016_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2012R2SQLSTD2016:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2016_SP1_Standard-????.??.??
+      owner-alias: amazon
+    WS2012R2SQLSTD2014:
+      name: Windows_Server-2012-R2_RTM-English-64Bit-SQL_2014_SP1_Standard-????.??.??
+      owner-alias: amazon
+    WS2012SQLSTD2012:
+      name: Windows_Server-2012-RTM-English-64Bit-SQL_2012_SP2_Standard-????.??.??
+      owner-alias: amazon
+    WS2016COREBASE:
+      name: Windows_Server-2016-English-Core-Base-????.??.??
+      owner-alias: amazon
+    WS2016CORECONTAINERS:
+      name: Windows_Server-2016-English-Core-Containers-????.??.??
+      owner-alias: amazon
+    WS2016FULLBASE:
+      name: Windows_Server-2016-English-Full-Base-????.??.??
+      owner-alias: amazon
+    WS2016FULLCONTAINERS:
+      name: Windows_Server-2016-English-Full-Containers-????.??.??
+      owner-alias: amazon
+    WS2016FULLSQL2016SP1ENT:
+      name: Windows_Server-2016-English-Full-SQL_2016_SP1_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2016FULLSQL2017ENT:
+      name: Windows_Server-2016-English-Full-SQL_2017_Enterprise-????.??.??
+      owner-alias: amazon
+    WS2016NANOBASE:
+      name: Windows_Server-2016-English-Nano-Base-????.??.??
+      owner-alias: amazon

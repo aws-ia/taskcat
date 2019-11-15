@@ -1,0 +1,291 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "additionalProperties": false,
+    "definitions": {
+        "GeneralConfig": {
+            "additionalProperties": false,
+            "description": "General configuration settings.",
+            "properties": {
+                "auth": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "AWS authentication section",
+                    "type": "object"
+                },
+                "parameters": {
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
+                    "type": "object"
+                },
+                "s3_bucket": {
+                    "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "type": "string"
+                },
+                "tags": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Tags to apply to CloudFormation template",
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectConfig": {
+            "additionalProperties": false,
+            "description": "Project specific configuration section",
+            "properties": {
+                "auth": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "AWS authentication section",
+                    "type": "object"
+                },
+                "az_blacklist": {
+                    "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
+                    "items": {
+                        "description": "Availability Zone ID, eg.: 'use1-az1'",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "build_submodules": {
+                    "description": "Build Lambda zips recursively for submodules, set to false to disable",
+                    "type": "boolean"
+                },
+                "lambda_source_path": {
+                    "description": "Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'",
+                    "type": "string"
+                },
+                "lambda_zip_path": {
+                    "description": "Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Project name, used as s3 key prefix when uploading objects",
+                    "pattern": "^[a-z0-9-]*$",
+                    "type": "string"
+                },
+                "owner": {
+                    "description": "email address for project owner (not used at present)",
+                    "type": "string"
+                },
+                "package_lambda": {
+                    "description": "Package Lambda functions into zips before uploading to s3, set to false to disable",
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
+                    "type": "object"
+                },
+                "regions": {
+                    "description": "List of AWS regions",
+                    "items": {
+                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "s3_bucket": {
+                    "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "pattern": "^[a-z0-9-]*$",
+                    "type": "string"
+                },
+                "s3_enable_sig_v2": {
+                    "description": "Enable (deprecated) sigv2 access to auto-generated buckets",
+                    "type": "boolean"
+                },
+                "s3_object_acl": {
+                    "description": "ACL for uploaded s3 objects, defaults to 'private'",
+                    "type": "string"
+                },
+                "tags": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Tags to apply to CloudFormation template",
+                    "type": "object"
+                },
+                "template": {
+                    "description": "path to template file relative to the project config file path",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "TestConfig": {
+            "additionalProperties": false,
+            "description": "Test specific configuration section.",
+            "properties": {
+                "auth": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "AWS authentication section",
+                    "type": "object"
+                },
+                "az_blacklist": {
+                    "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
+                    "items": {
+                        "description": "Availability Zone ID, eg.: 'use1-az1'",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "parameters": {
+                    "additionalProperties": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "type": "array"
+                            }
+                        ]
+                    },
+                    "default": {},
+                    "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
+                    "type": "object"
+                },
+                "regions": {
+                    "description": "List of AWS regions",
+                    "items": {
+                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "s3_bucket": {
+                    "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "pattern": "^[a-z0-9-]*$",
+                    "type": "string"
+                },
+                "tags": {
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Tags to apply to CloudFormation template",
+                    "type": "object"
+                },
+                "template": {
+                    "description": "path to template file relative to the project config file path",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "description": "Taskcat configuration file",
+    "properties": {
+        "general": {
+            "$ref": "#/definitions/GeneralConfig",
+            "default": {
+                "auth": null,
+                "parameters": null,
+                "s3_bucket": null,
+                "tags": null
+            }
+        },
+        "project": {
+            "$ref": "#/definitions/ProjectConfig",
+            "default": {
+                "auth": null,
+                "az_blacklist": null,
+                "build_submodules": null,
+                "lambda_source_path": null,
+                "lambda_zip_path": null,
+                "name": null,
+                "owner": null,
+                "package_lambda": null,
+                "parameters": null,
+                "regions": null,
+                "s3_bucket": null,
+                "s3_enable_sig_v2": null,
+                "s3_object_acl": null,
+                "tags": null,
+                "template": null
+            }
+        },
+        "tests": {
+            "additionalProperties": {
+                "$ref": "#/definitions/TestConfig"
+            },
+            "default": {},
+            "type": "object"
+        }
+    },
+    "type": "object"
+}

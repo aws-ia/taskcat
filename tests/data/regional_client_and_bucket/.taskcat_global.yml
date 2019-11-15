@@ -1,0 +1,3 @@
+general:
+  parameters:
+    GlobalOverrideTest: success

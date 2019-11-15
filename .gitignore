@@ -1,0 +1,30 @@
+# Compile Source #
+##################
+*.pyc
+build/
+include/
+share/
+lib/
+dist/
+.cache/
+
+# Files generate during legacy cfg converstions
+tests/data/legacy_test/.taskcat.yml
+tests/data/legacy_test/.taskcat_overrides.yml
+
+# Misc #
+.idea/
+.project
+.eggs/
+*.egg-info/
+venv/
+.venv/
+.coverage
+coverage.xml
+/.pytest_cache/
+/.mypy_cache/
+taskcat_outputs/
+docs/apidocs/
+# Doc Site
+site/
+*.zip
