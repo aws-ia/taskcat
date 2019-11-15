@@ -86,7 +86,7 @@ class List:
         if not jobs:
             LOG.info("no stacks found")
             return
-        if _stack_type == "test":
+        if _stack_type != "test":
             header = (
                 f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}"
                 f"ID{spaces(34)}REGION"

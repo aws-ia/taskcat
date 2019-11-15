@@ -34,9 +34,8 @@ def name_from_stack_id(stack_id):
 
 def s3_url_maker(bucket, key, s3_client):
     location = s3_client.get_bucket_location(Bucket=bucket)["LocationConstraint"]
-    url = (
-        f"https://{bucket}.s3.amazonaws.com/{key}"
-    )  # default case for us-east-1 which returns no location
+    # default case for us-east-1 which returns no location
+    url = f"https://{bucket}.s3.amazonaws.com/{key}"
     if location:
         domain = get_s3_domain(location)
         url = f"https://{bucket}.s3-{location}.{domain}/{key}"
