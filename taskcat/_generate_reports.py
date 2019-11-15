@@ -25,7 +25,7 @@ class ReportBuilder:
 
     # TODO: refactor for readability
     def generate_report(  # noqa: C901
-        self
+        self,
     ):  # pylint: disable=too-many-locals, too-many-statements
         doc = yattag.Doc()
 

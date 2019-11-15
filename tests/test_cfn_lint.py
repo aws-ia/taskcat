@@ -200,8 +200,8 @@ class TestCfnLint(unittest.TestCase):
             self.assertEqual(mock_log_warning.called, False)
 
             mock_log_info.reset_mock()
-            lint_key = [t for t in lint.lints[0]][0]
-            result_key = [t for t in lint.lints[0][lint_key]["results"]][0]
+            lint_key = list(lint.lints[0])[0]
+            result_key = list(lint.lints[0][lint_key]["results"])[0]
             test = lint.lints[0][lint_key]["results"][result_key]
             rule = mock.Mock(return_val="[W0001] some warning")
             rule.rule.id = "W0001"
@@ -259,8 +259,8 @@ class TestCfnLint(unittest.TestCase):
             lint = Lint(config=config, templates=templates)
             self.assertEqual(lint.passed, True)
 
-            lint_key = [t for t in lint.lints[0]][0]
-            result_key = [t for t in lint.lints[0][lint_key]["results"]][0]
+            lint_key = list(lint.lints[0])[0]
+            result_key = list(lint.lints[0][lint_key]["results"])[0]
             test = lint.lints[0][lint_key]["results"][result_key]
             rule = mock.Mock(return_val="[E0001] some error")
             rule.rule.id = "E0001"

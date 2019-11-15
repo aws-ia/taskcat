@@ -308,7 +308,7 @@ class TestObj:
 
 
 @dataclass
-class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):
+class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     """General configuration settings."""
 
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
@@ -322,7 +322,7 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):
 
 
 @dataclass
-class TestConfig(JsonSchemaMixin, allow_additional_props=False):
+class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     """Test specific configuration section."""
 
     template: Optional[str] = field(default=None, metadata=METADATA["template"])
@@ -344,7 +344,7 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):
 
 # pylint: disable=too-many-instance-attributes
 @dataclass
-class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):
+class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     """Project specific configuration section"""
 
     name: Optional[ProjectName] = field(
@@ -393,7 +393,7 @@ PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
 # pylint raises false positive due to json-dataclass
 # pylint: disable=no-member
 @dataclass
-class BaseConfig(JsonSchemaMixin, allow_additional_props=False):
+class BaseConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     """Taskcat configuration file"""
 
     general: GeneralConfig = field(default_factory=GeneralConfig)
