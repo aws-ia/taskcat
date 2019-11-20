@@ -1,4 +1,0 @@
-include requirements.txt
-include VERSION
-recursive-include taskcat/project_templates *
-recursive-include taskcat/cfg *

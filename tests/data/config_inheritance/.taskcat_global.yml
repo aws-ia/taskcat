@@ -1,5 +1,0 @@
-general:
-  s3_bucket: "set-in-global"
-  parameters:
-    GlobalVar: set_in_global
-    OverridenVar: set_in_global

@@ -1,4 +1,0 @@
-# Do not add any additional owners to this file, this is being used to ensure that
-# functional tests are run before merge, the taskcat-ci bot will auto-approve once
-# tests have passed
-*       @taskcat-ci @jaymccon @andrew-glenn @avattathil
