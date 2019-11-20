@@ -332,10 +332,11 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                     + ".template"
                 )
                 absolute_path = path / fname
-                template_str = ordered_dump(tempate_body, dumper=yaml.SafeDumper)
+                if not isinstance(tempate_body, str):
+                    tempate_body = ordered_dump(tempate_body, dumper=yaml.SafeDumper)
                 if not absolute_path.exists():
                     with open(absolute_path, "w") as fh:
-                        fh.write(template_str)
+                        fh.write(tempate_body)
             except Exception as e:  # pylint: disable=broad-except
                 LOG.warning(
                     f"Failed to attach child stack "
