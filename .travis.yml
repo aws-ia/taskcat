@@ -127,13 +127,5 @@ jobs:
         on:
           branch: master
           fork: false
-      - provider: pages
-        skip_cleanup: true
-        target_branch: gh-pages
-        github_token: $GHT
-        keep_history: true
-        on:
-          branch: master
-          fork: false
      
   # Add Docker provider
