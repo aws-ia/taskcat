@@ -68,7 +68,7 @@ div.header-table-fill {
     padding: 0px;
     margin: auto;
     width: 100%;
-    padding: 5px
+    padding: 5px;
 }
 .table-title h3 {
     font-size: 20px;
@@ -89,14 +89,14 @@ div.header-table-fill {
     border-bottom: 4px solid #3498db;
     margin: auto;
     width: 100%;
-    padding: 5px
+    padding: 5px;
 }
 .header-table-fill tr {
     border: 0;
     border-right: none;
 }
 .header-table-fill td {
-    color: #933333
+    color: #933333;
     font-size: 14px;
     border: 0;
 }
@@ -110,11 +110,10 @@ div.header-table-fill {
     box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
 }
 a {
-    text-decoration: none
+    text-decoration: none;
 }
 th {
     color: #D5DDE5;
-    ;
     background: #1b1e24;
     border-bottom: 4px solid #9ea7af;
     border-right: 1px solid #343a45;
@@ -134,7 +133,7 @@ th:last-child {
 }
 tr {
     border-top: 1px solid #C1C3D1;
-    border-bottom-: 1px solid #C1C3D1;
+    border-bottom: 1px solid #C1C3D1;
     color: #666B85;
     font-size: 16px;
     font-weight: normal;
