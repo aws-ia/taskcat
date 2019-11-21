@@ -281,7 +281,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             project_root=template.project_root,
             s3_key_prefix=template.s3_key_prefix,
             url=s3_url_maker(
-                region.s3_bucket.name, template.s3_key, region.client("s3")
+                region.s3_bucket.name,
+                template.s3_key,
+                region.client("s3"),
+                region.s3_bucket.auto_generated,
             ),
         )
         stack_id = cfn_client.create_stack(
@@ -332,10 +335,11 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                     + ".template"
                 )
                 absolute_path = path / fname
-                template_str = ordered_dump(tempate_body, dumper=yaml.SafeDumper)
+                if not isinstance(tempate_body, str):
+                    tempate_body = ordered_dump(tempate_body, dumper=yaml.SafeDumper)
                 if not absolute_path.exists():
                     with open(absolute_path, "w") as fh:
-                        fh.write(template_str)
+                        fh.write(tempate_body)
             except Exception as e:  # pylint: disable=broad-except
                 LOG.warning(
                     f"Failed to attach child stack "

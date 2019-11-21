@@ -19,29 +19,29 @@ if [[ $(cat /tmp/output | grep -c 'Packaging lambda source from ') -ne 3 ]] ; th
     exit 1
 fi
 
-if [[ ! -f ${PROJECT_ROOT}/functions/packages/TestFunc/lambda.zip ]] ; then
+if [[ ! -f ${PROJECT_ROOT}/lambda_functions/packages/TestFunc/lambda.zip ]] ; then
     echo '$ taskcat package -p ./tests/data/lambda_build_with_submodules'
     cat /tmp/output
     echo "expected packages/TestFunc/lambda.zip zip file to be present"
     exit 1
 fi
-rm -rf ${PROJECT_ROOT}/functions/packages/
+rm -rf ${PROJECT_ROOT}/lambda_functions/packages/
 
 PROJECT_ROOT=${PROJECT_ROOT}/submodules/SomeSub
-if [[ ! -f ${PROJECT_ROOT}/functions/packages/TestFunc/lambda.zip ]] ; then
+if [[ ! -f ${PROJECT_ROOT}/lambda_functions/packages/TestFunc/lambda.zip ]] ; then
     echo '$ taskcat package -p ./tests/data/lambda_build_with_submodules'
     cat /tmp/output
     echo "expected submodule packages/TestFunc/lambda.zip zip file to be present"
     exit 1
 fi
-rm -rf ${PROJECT_ROOT}/functions/packages/
+rm -rf ${PROJECT_ROOT}/lambda_functions/packages/
 
 PROJECT_ROOT=${PROJECT_ROOT}/submodules/DeepSub
-if [[ ! -f ${PROJECT_ROOT}/functions/packages/TestFunc/lambda.zip ]] ; then
+if [[ ! -f ${PROJECT_ROOT}/lambda_functions/packages/TestFunc/lambda.zip ]] ; then
     echo '$ taskcat package -p ./tests/data/lambda_build_with_submodules'
     cat /tmp/output
     echo "expected submodule DeepSub packages/TestFunc/lambda.zip zip file to be
     present"
     exit 1
 fi
-rm -rf ${PROJECT_ROOT}/functions/packages/
+rm -rf ${PROJECT_ROOT}/lambda_functions/packages/

@@ -6,6 +6,7 @@ import re
 import string
 import sys
 from collections import OrderedDict
+from time import sleep
 
 import boto3
 import yaml
@@ -36,14 +37,24 @@ def name_from_stack_id(stack_id):
     return stack_id.split(":")[5].split("/")[1]
 
 
-def s3_url_maker(bucket, key, s3_client):
-    location = s3_client.get_bucket_location(Bucket=bucket)["LocationConstraint"]
-    url = (
-        f"https://{bucket}.s3.amazonaws.com/{key}"
-    )  # default case for us-east-1 which returns no location
+def s3_url_maker(bucket, key, s3_client, autobucket=False):
+    retries = 10
+    while True:
+        try:
+            response = s3_client.get_bucket_location(Bucket=bucket)
+            location = response["LocationConstraint"]
+            break
+        except s3_client.exceptions.NoSuchBucket:
+            if not autobucket or retries < 1:
+                raise
+            retries -= 1
+            sleep(5)
+
+    # default case for us-east-1 which returns no location
+    url = f"https://{bucket}.s3.us-east-1.amazonaws.com/{key}"
     if location:
         domain = get_s3_domain(location)
-        url = f"https://{bucket}.s3-{location}.{domain}/{key}"
+        url = f"https://{bucket}.s3.{location}.{domain}/{key}"
     return url
 
 

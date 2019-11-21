@@ -1,10 +1,14 @@
 import logging
+import shutil
+import tempfile
 from pathlib import Path
+from subprocess import PIPE, CalledProcessError, run as subprocess_run  # nosec
 from uuid import UUID, uuid5
 
 import docker
 
 from ._config import Config
+from .exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
@@ -48,12 +52,69 @@ class LambdaBuild:
         if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
-            if not (path / "Dockerfile").is_file():
-                continue
-            tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
-            LOG.info(f"Packaging lambda source from {path} using docker image {tag}")
-            self._docker_build(path, tag)
-            self._docker_extract(tag, output_path / path.stem)
+            if (path / "Dockerfile").is_file():
+                tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
+                LOG.info(
+                    f"Packaging lambda source from {path} using docker image {tag}"
+                )
+                self._docker_build(path, tag)
+                self._docker_extract(tag, output_path / path.stem)
+            elif (path / "requirements.txt").is_file():
+                LOG.info(f"Packaging python lambda source from {path} using pip")
+                self._pip_build(path, output_path / path.stem)
+            else:
+                LOG.info(
+                    f"Packaging lambda source from {path} without building "
+                    f"dependencies"
+                )
+                self._zip_dir(path, output_path / path.stem)
+
+    @staticmethod
+    def _make_pip_command(base_path):
+        return [
+            "pip",
+            "install",
+            "--no-cache-dir",
+            "--no-color",
+            "--disable-pip-version-check",
+            "--upgrade",
+            "--requirement",
+            str(base_path / "requirements.txt"),
+            "--target",
+            str(base_path),
+        ]
+
+    @classmethod
+    def _pip_build(cls, base_path, output_path):
+        tmp_path = Path(tempfile.mkdtemp())
+        try:
+            build_path = tmp_path / "build"
+            shutil.copytree(base_path, build_path)
+            command = cls._make_pip_command(build_path)
+            LOG.debug("command is '%s'", command)
+
+            LOG.info("Starting pip build.")
+            try:
+                completed_proc = subprocess_run(  # nosec
+                    command, cwd=build_path, check=True, stdout=PIPE, stderr=PIPE
+                )
+            except (FileNotFoundError, CalledProcessError) as e:
+                raise TaskCatException("pip build failed") from e
+            LOG.debug("--- pip stdout:\n%s", completed_proc.stdout)
+            LOG.debug("--- pip stderr:\n%s", completed_proc.stderr)
+            cls._zip_dir(build_path, output_path)
+            shutil.rmtree(tmp_path, ignore_errors=True)
+        except Exception as e:  # pylint: disable=broad-except
+            shutil.rmtree(tmp_path, ignore_errors=True)
+            raise e
+
+    @staticmethod
+    def _zip_dir(build_path, output_path):
+        output_path.mkdir(parents=True, exist_ok=True)
+        zip_path = output_path / "lambda.zip"
+        if zip_path.is_file():
+            zip_path.unlink()
+        shutil.make_archive(output_path / "lambda", "zip", build_path)
 
     @staticmethod
     def _clean_build_log(line):

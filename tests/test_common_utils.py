@@ -40,12 +40,14 @@ class TestCommonUtils(unittest.TestCase):
         m_s3.get_bucket_location.return_value = {"LocationConstraint": None}
         actual = s3_url_maker("test-bucket", "test-key/1", m_s3)
 
-        self.assertEqual("https://test-bucket.s3.amazonaws.com/test-key/1", actual)
+        self.assertEqual(
+            "https://test-bucket.s3.us-east-1.amazonaws.com/test-key/1", actual
+        )
         m_s3.get_bucket_location.return_value = {"LocationConstraint": "us-west-2"}
 
         actual = s3_url_maker("test-bucket", "test-key/1", m_s3)
         self.assertEqual(
-            "https://test-bucket.s3-us-west-2.amazonaws.com/test-key/1", actual
+            "https://test-bucket.s3.us-west-2.amazonaws.com/test-key/1", actual
         )
         m_get_s3_domain.assert_called_once()
 

@@ -30,7 +30,13 @@ class S3Sync:
 
     # TODO: better exclusions that support path wildcards, eg. "*/.git/*"
     exclude_files = [".*", "*.md"]
-    exclude_path_prefixes = ["functions/source/", ".", "venv/", "taskcat_outputs/"]
+    exclude_path_prefixes = [
+        "lambda_functions/source/",
+        "functions/source/",
+        ".",
+        "venv/",
+        "taskcat_outputs/",
+    ]
 
     exclude_remote_path_prefixes: List[str] = []
 

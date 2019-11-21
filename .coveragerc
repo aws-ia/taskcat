@@ -1,3 +1,5 @@
 [run]
-include = taskcat/*
-branch = True
+source = taskcat/
+
+[report]
+fail_under = 75

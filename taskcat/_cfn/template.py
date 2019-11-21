@@ -72,7 +72,7 @@ class Template:
         template_path = self.project_root / template_path
         if template_path.is_file():
             return template_path
-        LOG.error(
+        LOG.warning(
             "Failed to discover path for %s, path %s does not exist",
             template_url,
             template_path,
@@ -145,7 +145,7 @@ class Template:
         return list(desc_map.values())
 
     def parameters(
-        self
+        self,
     ) -> Dict[str, Union[None, str, int, bool, List[Union[int, str]]]]:
         parameters = {}
         for param_key, param in self.template.get("Parameters", {}).items():

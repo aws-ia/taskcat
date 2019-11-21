@@ -19,19 +19,19 @@ class TestLambdaPackage(unittest.TestCase):
             project_root=(tmp / "test").resolve(),
             args={
                 "project": {
-                    "lambda_zip_path": "functions/packages",
-                    "lambda_source_path": "functions/source",
+                    "lambda_zip_path": "lambda_functions/packages",
+                    "lambda_source_path": "lambda_functions/source",
                 }
             },
         )
         LambdaBuild(c, project_root=(tmp / "test").resolve())
         path = tmp / "test"
-        zip_suffix = Path("functions") / "packages" / "TestFunc" / "lambda.zip"
-        self.assertEqual((path / "functions" / "packages").is_dir(), True)
+        zip_suffix = Path("lambda_functions") / "packages" / "TestFunc" / "lambda.zip"
+        self.assertEqual((path / "lambda_functions" / "packages").is_dir(), True)
         self.assertEqual((path / zip_suffix).is_file(), True)
         path = path / "submodules" / "SomeSub"
-        self.assertEqual((path / "functions" / "packages").is_dir(), True)
+        self.assertEqual((path / "lambda_functions" / "packages").is_dir(), True)
         self.assertEqual((path / zip_suffix).is_file(), True)
         path = path / "submodules" / "DeepSub"
-        self.assertEqual((path / "functions" / "packages").is_dir(), True)
+        self.assertEqual((path / "lambda_functions" / "packages").is_dir(), True)
         self.assertEqual((path / zip_suffix).is_file(), True)
