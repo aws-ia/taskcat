@@ -11,6 +11,8 @@ from taskcat._config import Config
 import mock
 import yaml
 
+from taskcat._amiupdater import AMIUpdater, AMIUpdaterFatalException, query_codenames
+
 logger = logging.getLogger("taskcat")
 
 
@@ -795,7 +797,6 @@ class TestAMIUpdater(unittest.TestCase):
         templates = c.get_templates(project_root=test_proj)
         return templates
 
-
     def test_upstream_config_ALAMI(self):
         au, AMIUpdaterException, tcau = self._module_loader(return_module=True)
         mapping_name = "AMZNLINUXHVM"
@@ -865,7 +866,6 @@ class TestAMIUpdater(unittest.TestCase):
 
     def test_in_template_ALAMI(self):
         au, AMIUpdaterException = self._module_loader()
-        cf = self.client_factory_handler()
         mapping_name = "NON_STANDARD_TEST"
         template_file = self.create_ephemeral_template_object(template_type="inline")
         amiupdater_args = {
@@ -900,11 +900,46 @@ class TestAMIUpdater(unittest.TestCase):
         }
         a = au(**amiupdater_args)
 
-        self.assertRaises(AMIUpdaterException, a.update_amis)
+        with self.assertRaises(AMIUpdaterException):
+            a.update_amis()
+
+    def test_query_codenames_raises(self):
+        with self.assertRaises(AMIUpdaterFatalException):
+            query_codenames([], {})
+
+    def test_query_codenames(self):
+        mock_boto_cache = mock.Mock("taskcat._client_factory.Boto3Cache", autospec=True)()
+        mock_client = mock.Mock()
+        mock_client.describe_images.return_value = {"Images": []}
+        mock_boto_cache.client.return_value = mock_client
+        mock_regional_codename = mock.Mock("taskcat._amiupdater.RegionalCodename", autospec=True)()
+        mock_regional_codename.region = 'us-east-1'
+        mock_regional_codename.cn = "MOCK_CN"
+        actual = query_codenames({mock_regional_codename}, {"us-east-1": mock_boto_cache})
+        expected = [{'api_results': [], 'cn': 'MOCK_CN', 'region': 'us-east-1'}]
+        self.assertEqual(actual, expected)
+
+    @mock.patch("taskcat._amiupdater.RegionObj", autospec=True)
+    def test_update_amis(self, patched_region_obj):
+        templates = self.create_ephemeral_template_object()
+        mock_boto_cache = mock.Mock("taskcat._client_factory.Boto3Cache", autospec=True)()
+        mock_client = mock.Mock()
+        mock_client.describe_regions.return_value = {"Regions": []}
+        mock_boto_cache.client.return_value = mock_client
+        mock_region_obj = mock.Mock("taskcat._dataclasses.RegionObj", autospec=True)
+        amiupdater_args = {
+            "template_list": templates,
+            "use_upstream_mappings": False,
+            "boto3cache": mock_boto_cache,
+            "regions": {"us-east-1": mock_region_obj()},
+        }
+        a = AMIUpdater(**amiupdater_args)
+        with self.assertRaises(AMIUpdaterFatalException):
+            a.update_amis()
 
 
     @mock.patch("taskcat._amiupdater.RegionObj", autospec=True)
-    def test_no_filters_exception(self, *args, **kwargs):
+    def test_no_filters_exception_old(self, *args, **kwargs):
         au, AMIUpdaterFatalException = self._module_loader()
         templates = self.create_ephemeral_template_object()
         amiupdater_args = {
@@ -932,7 +967,8 @@ class TestAMIUpdater(unittest.TestCase):
         instance_args["creation_date"] = datetime(2012, 1, 23)
         b = APIResultsData(**instance_args)
 
-        self.assertRaises(TypeError, a < b)
+        with self.assertRaises(TypeError):
+            a < b
 
     def test_APIResults_greaterthan_comparison_standard(self):
         from taskcat._amiupdater import APIResultsData
@@ -951,7 +987,9 @@ class TestAMIUpdater(unittest.TestCase):
         instance_args["creation_date"] = datetime(2012, 1, 23)
         b = APIResultsData(**instance_args)
 
-        self.assertRaises(TypeError, a > b)
+        with self.assertRaises(TypeError):
+            a > b
+
 
     def test_APIResults_lessthan_comparison_custom(self):
         from taskcat._amiupdater import APIResultsData

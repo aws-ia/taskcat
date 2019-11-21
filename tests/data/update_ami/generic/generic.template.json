@@ -20,7 +20,13 @@
                     "AMZNLINUXHVM": "FOOBAR",
                     "AMZNLINUXHVM_CUSTOM_CONFIG": "FOOBAR",
                     "NON_STANDARD_TEST": "FOOBAR",
-                },
+                }
+            }
+        },
+        "Resources": {
+            "S3Bucket": {
+                "Type": "AWS::s3::Bucket",
+                "Properties": {}
             }
         }
     }
