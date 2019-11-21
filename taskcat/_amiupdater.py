@@ -261,21 +261,8 @@ class AMIUpdater:
         if user_config_file:
             Config.load(user_config_file, configtype="User")
         self.template_list = template_list
-        self.regions = self._determine_testable_regions(regions)
         self.boto3_cache = boto3cache
-
-    @classmethod
-    def check_updated_upstream_mapping_spec(cls):
-        # TODO: add v9 compatible logic to check versions
-        return False
-
-    @classmethod
-    def update_upstream_mapping_spec(cls):
-        r = requests.get(cls.upstream_config_file_url)
-        if r.ok:
-            with open(cls.upstream_config_file) as f:
-                f.write(r.content)
-
+        self.regions = self._determine_testable_regions(regions)
 
     #TODO FIXME
     def list_unknown_mappings(self):

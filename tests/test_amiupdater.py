@@ -6,7 +6,9 @@ import sys
 import tempfile
 import unittest
 from datetime import datetime
-
+from pathlib import Path
+from taskcat._config import Config
+import mock
 import yaml
 
 logger = logging.getLogger("taskcat")
@@ -774,19 +776,19 @@ class TestAMIUpdater(unittest.TestCase):
             del sys.modules["taskcat._amiupdater"]
         except KeyError:
             pass
-        from taskcat._amiupdater import AMIUpdater, AMIUpdaterException
+        from taskcat._amiupdater import AMIUpdater, AMIUpdaterFatalException
 
         if return_module:
             import taskcat._amiupdater
 
-            return AMIUpdater, AMIUpdaterException, taskcat._amiupdater
+            return AMIUpdater, AMIUpdaterFatalException, taskcat._amiupdater
         else:
-            return AMIUpdater, AMIUpdaterException
+            return AMIUpdater, AMIUpdaterFatalException
 
     ami_regex_pattern = re.compile("ami-([0-9a-z]{8}|[0-9a-z]{17})")
 
     def create_ephemeral_template_object(self, template_type="generic"):
-        test_proj = (Path(__file__).parent / "./data/{template_type}").resolve()
+        test_proj = (Path(__file__).parent / f"./data/update_ami/{template_type}").resolve()
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
@@ -799,7 +801,7 @@ class TestAMIUpdater(unittest.TestCase):
         mapping_name = "AMZNLINUXHVM"
         templates = self.create_ephemeral_template_object()
         amiupdater_args = {
-            "template_list": templates
+            "template_list": templates,
             "boto3cache": MockBoto3Cache()
         }
         au.upstream_config_file = "{}/{}".format(
@@ -900,16 +902,19 @@ class TestAMIUpdater(unittest.TestCase):
 
         self.assertRaises(AMIUpdaterException, a.update_amis)
 
-    def test_no_filters_exception(self):
-        au, AMIUpdaterException = self._module_loader()
-        template_file = self.create_ephemeral_template_object()
+
+    @mock.patch("taskcat._amiupdater.RegionObj", autospec=True)
+    def test_no_filters_exception(self, *args, **kwargs):
+        au, AMIUpdaterFatalException = self._module_loader()
+        templates = self.create_ephemeral_template_object()
         amiupdater_args = {
-            "template_list": [template_file],
+            "template_list": templates,
             "use_upstream_mappings": False,
-            "boto3cache": MockBoto3Cache()
+            "boto3cache": MockBoto3Cache(),
+            "regions": {},
         }
         a = au(**amiupdater_args)
-        self.assertRaises(AMIUpdaterException, a.update_amis)
+        self.assertRaises(AMIUpdaterFatalException, a.update_amis)
 
     def test_APIResults_lessthan_comparison_standard(self):
         from taskcat._amiupdater import APIResultsData
