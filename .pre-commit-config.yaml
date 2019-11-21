@@ -84,7 +84,7 @@ repos:
   - id: pytest-local
     name: pytest-local
     description: Run pytest in the local virtualenv
-    entry: pytest --cov="taskcat" --doctest-modules --ignore "tests/data" "tests/"
+    entry: pytest --cov="./taskcat/"
     language: system
     pass_filenames: false
     always_run: true
