@@ -13,6 +13,12 @@ branches:
   only:
   - master
 
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/pre-commit
+    - $TRAVIS_BUILD_DIR/.mypy_cache
+
 python:
   - "3.6"
   - "3.7"
