@@ -50,7 +50,7 @@ def s3_url_maker(bucket, key, s3_client, autobucket=False):
     url = f"https://{bucket}.s3.us-east-1.amazonaws.com/{key}"
     if location:
         domain = get_s3_domain(location)
-        url = f"https://{bucket}.s3-{location}.{domain}/{key}"
+        url = f"https://{bucket}.s3.{location}.{domain}/{key}"
     return url
 
 

@@ -281,7 +281,10 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             project_root=template.project_root,
             s3_key_prefix=template.s3_key_prefix,
             url=s3_url_maker(
-                region.s3_bucket.name, template.s3_key, region.client("s3")
+                region.s3_bucket.name,
+                template.s3_key,
+                region.client("s3"),
+                region.s3_bucket.auto_generated,
             ),
         )
         stack_id = cfn_client.create_stack(

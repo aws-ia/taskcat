@@ -47,7 +47,7 @@ class TestCommonUtils(unittest.TestCase):
 
         actual = s3_url_maker("test-bucket", "test-key/1", m_s3)
         self.assertEqual(
-            "https://test-bucket.s3-us-west-2.amazonaws.com/test-key/1", actual
+            "https://test-bucket.s3.us-west-2.amazonaws.com/test-key/1", actual
         )
         m_get_s3_domain.assert_called_once()
 
