@@ -108,6 +108,12 @@ class Template:
             self.region_names.add(region_name)
             for codename, cnvalue in region_data.items():
                 key = f"{codename}/{region_name}"
+                line_no = codename.start_mark.line
+                if cnvalue == '':
+                    if '""' in self._ls[line_no]:
+                        cnvalue = '\"\"'
+                    elif "''" in self._ls[line_no]:
+                        cnvalue = "\'\'"
                 self.region_codename_lineno[key] = {
                     "line": line_no,
                     "old": cnvalue,
@@ -132,6 +138,8 @@ class Template:
                 return False
         except KeyError:
             return False
+        if old_ami == '""':
+            new_ami = f'"{new_ami}"'
         new_record = re.sub(old_ami, new_ami, self._ls[line_no])
         self._ls[line_no] = new_record
         return True
@@ -139,6 +147,147 @@ class Template:
     def write(self):
         self.underlying.raw_template = "\n".join(self._ls)
         self.underlying.write()
+
+
+class AMIUpdaterFatalException(TaskCatException):
+    """Raised when AMIUpdater experiences a fatal error"""
+
+    def __init__(self, message=None):
+        if message:
+            LOG.error(message)
+
+
+class AMIUpdaterNoFiltersException(TaskCatException):
+    def __init__(self, message=None):
+        if message:
+            LOG.error(message)
+
+
+class AMIUpdaterCommitNeededException(TaskCatException):
+    def __init__(self, message=None):
+        if message:
+            LOG.error(message)
+
+
+def _construct_filters(cname: str, config: Config) -> List[EC2FilterValue]:
+    formatted_filters: List[EC2FilterValue] = []
+    fetched_filters = config.get_filter(cname)
+    formatted_filters = [EC2FilterValue(k, [v]) for k, v in fetched_filters.items()]
+    if formatted_filters:
+        formatted_filters.append(EC2FilterValue("state", ["available"]))
+    return formatted_filters
+
+
+def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
+    """Builds regional codename objects"""
+
+    built_cn = []
+    filters = deep_get(tobj.underlying.template, tobj.metadata_path, {})
+    mappings = deep_get(tobj.underlying.template, tobj.mapping_path, {})
+
+    for cname, cfilters in filters.items():
+        config.update_filter({cname: cfilters})
+
+    for region, cndata in mappings.items():
+        _missing_filters: Set[str] = set()
+        if region == "AMI":
+            continue
+        if not REGION_REGEX.search(region):
+            LOG.error(f"[{region}] is not a valid region. Please check your template!")
+            raise AMIUpdaterFatalException
+        for cnname in cndata.keys():
+            _filters = _construct_filters(cnname, config)
+            if not _filters:
+                if cnname not in _missing_filters:
+                    _missing_filters.add(cnname)
+                    LOG.warning(
+                        f"No query parameters were found for: {cnname.upper()}.",
+                        f"(Results for this codename are not possible.",
+                    )
+                continue
+            region_cn = RegionalCodename(region=region, cn=cnname, filters=_filters)
+            built_cn.append(region_cn)
+    return built_cn
+
+
+def query_codenames(
+        codename_list: Set[RegionalCodename], region_dict: Dict[str, RegionObj]
+):
+    """Fetches AMI IDs from AWS"""
+
+    if len(codename_list) == 0:
+        raise AMIUpdaterFatalException(
+            "No AMI filters were found. Nothing to fetch from the EC2 API."
+        )
+
+    def _per_codename_amifetch(region_dict, regional_cn):
+        new_filters = []
+        for filter in regional_cn.filters:
+            new_filters.append(dataclasses.asdict(filter))
+        image_results = (
+            region_dict.get(regional_cn.region)
+                .client("ec2")
+                .describe_images(Filters=new_filters)["Images"]
+        )
+        return {
+            "region": regional_cn.region,
+            "cn": regional_cn.cn,
+            "api_results": image_results,
+        }
+
+    for region in list(region_dict.keys()):
+        _ = region_dict[region].client("ec2")
+
+    pool = ThreadPool(len(region_dict))
+    p = partial(_per_codename_amifetch, region_dict)
+    response = pool.map(p, codename_list)
+    return response
+
+
+def _image_timestamp(raw_ts):
+    ts_int = datetime.datetime.strptime(raw_ts, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()
+    return int(ts_int)
+
+
+def reduce_api_results(raw_results):
+    unsorted_results = []
+    missing_results = []
+    final_results = []
+    result_state = {}
+
+    for query_result in raw_results:
+        if query_result["api_results"]:
+            cn_api_results_data = [
+                APIResultsData(
+                    query_result["cn"],
+                    x["ImageId"],
+                    _image_timestamp(x["CreationDate"]),
+                    query_result["region"],
+                )
+                for x in query_result["api_results"]
+            ]
+            unsorted_results = cn_api_results_data + unsorted_results
+        else:
+            missing_results.append(query_result)
+
+    if missing_results:
+        LOG.warning(
+            "No results were available for the following CODENAME / Region combination"
+        )
+
+    for missing_result in missing_results:
+        LOG.warning(f"- f{missing_result['cn']} in {missing_result['region']}")
+
+    sorted_results = sorted(unsorted_results, reverse=True)
+    for r in sorted_results:
+        found_key = f"{r.region}-{r.codename}"
+        already_found = result_state.get(found_key, False)
+        if already_found:
+            continue
+        result_state[found_key] = True
+        final_results.append(r)
+    return final_results
+
 
 class AMIUpdater:
     upstream_config_file = pkg_resources.resource_filename(
@@ -204,6 +353,50 @@ class AMIUpdater:
 
     def _determine_templates_regions(self):
         templates = []
+
+        for tc_template in self.template_list:
+            _t = Template(git
+            underlying = tc_template, regions_with_creds = self.regions.keys()
+            )
+            templates.append(_t)
+
+        regions_without_creds = set()
+        regions_excluded = set()
+        for template in templates:
+            for region in template.regions_without_creds:
+                if region in self.EXCLUDED_REGIONS:
+                    regions_excluded.add(region)
+                else:
+                    regions_without_creds.add(region)
+
+        if regions_excluded:
+            LOG.info(
+                ("FYI - Your templates use the following regions,"),
+                ("however no credentials were detected"),
+            )
+            LOG.info(", ".join([r.upper() for r in regions_excluded]))
+            LOG.info(
+                "These regions are not within the default AWS Partition. Continuing..."
+            )
+
+        if regions_without_creds:
+            LOG.error(
+                ("Your templates use the following regions")(
+                    "and no credentials were detected for them"
+                )
+            )
+            LOG.error(", ".join([r.upper() for r in regions_without_creds]))
+            LOG.error("This can lead to inconsistent results. Not querying the API.")
+            LOG.error("Verify your taskcat auth config or opt-in region status")
+            LOG.error("- https://aws-quickstart.github.io/taskcat/#global-config")
+            LOG.error(
+                "- https://docs.aws.amazon.com/general/latest/gr/rande-manage.html"
+            )
+            raise AMIUpdaterFatalException
+
+        return templates
+
+    def update_amis(self):
         codenames = set()
 
         LOG.info("Determining templates and supported regions")
