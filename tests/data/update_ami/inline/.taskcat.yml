@@ -1,9 +1,0 @@
-project:
-  owner: owner@company.com
-  name: generic
-  regions:
-    - us-east-1
-    - us-west-2
-tests:
-  taskcat-json:
-    template: inline.template.json
