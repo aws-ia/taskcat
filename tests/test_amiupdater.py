@@ -768,12 +768,12 @@ class TestAMIUpdater(unittest.TestCase):
         result = actual[0]
         self.assertEqual(result.codename, "MOCK_CN")
         self.assertEqual(result.ami_id, "ami-0080e4c5bc078760e")
-        self.assertEqual(result.creation_date, 1543460891)
+        self.assertEqual(result.creation_date, 1543468091)
         self.assertEqual(result.region, "us-east-1")
 
     def test__image_timestamp(self):
         sample_timestamp = "2018-06-22T22:26:53.000Z"
-        expected_value = 1529724413
+        expected_value = 1529731613
         actual_value = _image_timestamp(sample_timestamp)
         self.assertEqual(expected_value, actual_value)
 
