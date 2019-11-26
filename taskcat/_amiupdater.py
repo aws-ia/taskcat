@@ -18,47 +18,54 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 REGION_REGEX = re.compile(
-    "((eu|ap|us|af|me|ca|cn|sa)-|(us-gov-))(north(east|west)?|south(east|west)?|central|east|west)-[0-9]",
-    re.IGNORECASE)
+    "((eu|ap|us|af|me|ca|cn|sa)-|(us-gov-))"
+    "(north(east|west)?|south(east|west)?|central|east|west)-[0-9]",
+    re.IGNORECASE,
+)
+
+
 class Config:
     raw_dict: dict = {"global": {"AMIs": {}}}
     codenames: Set[Dict[str, str]] = set()
 
     @classmethod
-    def load(cls, fn, configtype=None):
-        with open(fn, "r") as f:
+    def load(cls, file_name, configtype=None):
+        with open(file_name, "r") as _f:
             try:
-                cls.raw_dict = yaml.safe_load(f)
+                cls.raw_dict = yaml.safe_load(_f)
             except yaml.YAMLError as e:
-                LOG.error("[{}] - YAML Syntax Error!", fn)
-                LOG.error("{}", e)
+                LOG.error(f"[{file_name}] - YAML Syntax Error!")
+                LOG.error(f"{e}")
         try:
-            for x in cls.raw_dict.get("global").get("AMIs").keys():
-                cls.codenames.add(x)
+            for _x in cls.raw_dict.get("global").get("AMIs").keys():
+                cls.codenames.add(_x)
 
         except Exception as e:
-            LOG.error("{} config file [{}] is not structured properly!", configtype, fn)
-            LOG.error("{}", e)
+            LOG.error(
+                f"{configtype} config file [{file_name}]" f"is not structured properly!"
+            )
+            LOG.error(f"{e}")
             raise AMIUpdaterFatalException
 
     @classmethod
-    def update_filter(cls, dn):
-        cls.raw_dict["global"]["AMIs"].update(dn)
+    def update_filter(cls, code_name):
+        cls.raw_dict["global"]["AMIs"].update(code_name)
 
     @classmethod
-    def get_filter(cls, dn):
-        x = deep_get(cls.raw_dict, f"global/AMIs/{dn}", {})
-        return x
+    def get_filter(cls, code_name):
+        _x = deep_get(cls.raw_dict, f"global/AMIs/{code_name}", {})
+        return _x
 
 
 @dataclass
 class EC2FilterValue:
+    # pylint: disable=invalid-name
     Name: str
     Values: List[str]
 
 
 @dataclass
-class APIResultsData(object):
+class APIResultsData:
     codename: str
     ami_id: str
     creation_date: int
@@ -69,19 +76,18 @@ class APIResultsData(object):
         # See Codenames.parse_api_results for notes on why this is here.
         if self.custom_comparisons:
             return self.creation_date < other.creation_date
-        else:
-            return object.__lt__(self, other)
+        return object.__lt__(self, other)
 
     def __gt__(self, other):
         # See Codenames.parse_api_results for notes on why this is here.
         if self.custom_comparisons:
             return self.creation_date > other.creation_date
-        else:
-            return object.__gt__(self, other)
+        return object.__gt__(self, other)
 
 
 @dataclass
 class RegionalCodename:
+    # pylint: disable=invalid-name
     region: str
     cn: str
     new_ami: str = ""
@@ -109,11 +115,11 @@ class Template:
             for codename, cnvalue in region_data.items():
                 key = f"{codename}/{region_name}"
                 line_no = codename.start_mark.line
-                if cnvalue == '':
+                if cnvalue == "":
                     if '""' in self._ls[line_no]:
-                        cnvalue = '\"\"'
+                        cnvalue = '""'
                     elif "''" in self._ls[line_no]:
-                        cnvalue = "\'\'"
+                        cnvalue = "''"
                 self.region_codename_lineno[key] = {
                     "line": line_no,
                     "old": cnvalue,
@@ -153,20 +159,20 @@ class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
 
     def __init__(self, message=None):
-        if message:
-            LOG.error(message)
+        super(AMIUpdaterFatalException, self).__init__(message)
+        self.message = message
 
 
 class AMIUpdaterNoFiltersException(TaskCatException):
     def __init__(self, message=None):
-        if message:
-            LOG.error(message)
+        super(AMIUpdaterNoFiltersException, self).__init__(message)
+        self.message = message
 
 
 class AMIUpdaterCommitNeededException(TaskCatException):
     def __init__(self, message=None):
-        if message:
-            LOG.error(message)
+        super(AMIUpdaterCommitNeededException, self).__init__(message)
+        self.message = message
 
 
 def _construct_filters(cname: str, config: Config) -> List[EC2FilterValue]:
@@ -211,7 +217,7 @@ def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
 
 
 def query_codenames(
-        codename_list: Set[RegionalCodename], region_dict: Dict[str, RegionObj]
+    codename_list: Set[RegionalCodename], region_dict: Dict[str, RegionObj]
 ):
     """Fetches AMI IDs from AWS"""
 
@@ -222,12 +228,12 @@ def query_codenames(
 
     def _per_codename_amifetch(region_dict, regional_cn):
         new_filters = []
-        for filter in regional_cn.filters:
-            new_filters.append(dataclasses.asdict(filter))
+        for _filter in regional_cn.filters:
+            new_filters.append(dataclasses.asdict(_filter))
         image_results = (
             region_dict.get(regional_cn.region)
-                .client("ec2")
-                .describe_images(Filters=new_filters)["Images"]
+            .client("ec2")
+            .describe_images(Filters=new_filters)["Images"]
         )
         return {
             "region": regional_cn.region,
@@ -239,8 +245,8 @@ def query_codenames(
         _ = region_dict[region].client("ec2")
 
     pool = ThreadPool(len(region_dict))
-    p = partial(_per_codename_amifetch, region_dict)
-    response = pool.map(p, codename_list)
+    _p = partial(_per_codename_amifetch, region_dict)
+    response = pool.map(_p, codename_list)
     return response
 
 
@@ -279,13 +285,13 @@ def reduce_api_results(raw_results):
         LOG.warning(f"- f{missing_result['cn']} in {missing_result['region']}")
 
     sorted_results = sorted(unsorted_results, reverse=True)
-    for r in sorted_results:
-        found_key = f"{r.region}-{r.codename}"
+    for _r in sorted_results:
+        found_key = f"{_r.region}-{_r.codename}"
         already_found = result_state.get(found_key, False)
         if already_found:
             continue
         result_state[found_key] = True
-        final_results.append(r)
+        final_results.append(_r)
     return final_results
 
 
@@ -355,8 +361,8 @@ class AMIUpdater:
         templates = []
 
         for tc_template in self.template_list:
-            _t = Template(git
-            underlying = tc_template, regions_with_creds = self.regions.keys()
+            _t = Template(
+                underlying=tc_template, regions_with_creds=self.regions.keys()
             )
             templates.append(_t)
 
@@ -371,8 +377,8 @@ class AMIUpdater:
 
         if regions_excluded:
             LOG.info(
-                ("FYI - Your templates use the following regions,"),
-                ("however no credentials were detected"),
+                "FYI - Your templates use the following regions,"
+                "however no credentials were detected"
             )
             LOG.info(", ".join([r.upper() for r in regions_excluded]))
             LOG.info(
@@ -381,9 +387,8 @@ class AMIUpdater:
 
         if regions_without_creds:
             LOG.error(
-                ("Your templates use the following regions")(
-                    "and no credentials were detected for them"
-                )
+                "Your templates use the following regions"
+                "and no credentials were detected for them"
             )
             LOG.error(", ".join([r.upper() for r in regions_without_creds]))
             LOG.error("This can lead to inconsistent results. Not querying the API.")

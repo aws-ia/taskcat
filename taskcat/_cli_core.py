@@ -203,6 +203,7 @@ class CliCore:
         return self.USAGE.format(**args)
 
     def _get_plugin_modules(self):
+        # pylint: disable=invalid-name
         members = inspect.getmembers(self.module_package, predicate=inspect.isclass)
         member_name_class = []
         for name, cls in members:

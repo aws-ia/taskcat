@@ -31,11 +31,11 @@ class UpdateAMI:
         else:
             _project_root = Path(project_root)
 
-        c = Config.create(project_config_path=Path(_project_root / ".taskcat.yml"))
+        _c = Config.create(project_config_path=Path(_project_root / ".taskcat.yml"))
         _boto3cache = Boto3Cache()
 
         # Stripping out any test-specific regions/auth.
-        config_dict = c.config.to_dict()
+        config_dict = _c.config.to_dict()
         for _, test_config in config_dict["tests"].items():
             if test_config.get("auth", None):
                 del test_config["auth"]
@@ -47,7 +47,7 @@ class UpdateAMI:
 
         # Fetching the region objects.
         regions = new_config.get_regions(boto3_cache=_boto3cache)
-        rk = list(regions.keys())[0]
+        region_key = list(regions.keys())[0]
 
         unprocessed_templates = new_config.get_templates(
             project_root=Path(_project_root)
@@ -58,7 +58,7 @@ class UpdateAMI:
 
         amiupdater = AMIUpdater(
             template_list=finalized_templates,
-            regions=regions[rk],
+            regions=regions[region_key],
             boto3cache=_boto3cache,
         )
         try:

@@ -4,10 +4,11 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-import mock
 import requests
 
+import mock
 from taskcat._amiupdater import (
+    REGION_REGEX,
     AMIUpdaterFatalException,
     Config as AUConfig,
     EC2FilterValue,
@@ -18,7 +19,6 @@ from taskcat._amiupdater import (
     build_codenames,
     query_codenames,
     reduce_api_results,
-    REGION_REGEX
 )
 from taskcat._config import Config
 
@@ -714,7 +714,7 @@ class TestAMIUpdater(unittest.TestCase):
 
     def create_ephemeral_template_object(self, template_type="generic"):
         test_proj = (
-                Path(__file__).parent / f"./data/update_ami/{template_type}"
+            Path(__file__).parent / f"./data/update_ami/{template_type}"
         ).resolve()
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
@@ -744,6 +744,7 @@ class TestAMIUpdater(unittest.TestCase):
         )()
         mock_regional_codename.region = "us-east-1"
         mock_regional_codename.cn = "MOCK_CN"
+        mock_regional_codename.filters = []
         actual = query_codenames(
             {mock_regional_codename}, {"us-east-1": mock_boto_cache}
         )
@@ -923,9 +924,11 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertFalse(actual)
 
     def test_amiupdater_region_regex_matches_all_published_regions(self):
-        ip_ranges = requests.get("https://ip-ranges.amazonaws.com/ip-ranges.json").json()
-        regions = list(set([x['region'] for x in ip_ranges['prefixes']]))
-        _ridx = regions.index('GLOBAL')
+        ip_ranges = requests.get(
+            "https://ip-ranges.amazonaws.com/ip-ranges.json"
+        ).json()
+        regions = list(set([x["region"] for x in ip_ranges["prefixes"]]))  # noqa: C403
+        _ridx = regions.index("GLOBAL")
         _ = regions.pop(_ridx)
         for region in regions:
             with self.subTest(region=region):

@@ -12,8 +12,8 @@ from time import sleep
 
 import boto3
 import yaml
-from dulwich.config import ConfigFile, parse_submodules
 
+from dulwich.config import ConfigFile, parse_submodules
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
