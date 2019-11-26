@@ -1,14 +1,18 @@
 import logging
 import re
+import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch, sentinel
 
 import requests
 
 import mock
 from taskcat._amiupdater import (
     REGION_REGEX,
+    AMIUpdater,
+    AMIUpdaterCommitNeededException,
     AMIUpdaterFatalException,
     Config as AUConfig,
     EC2FilterValue,
@@ -21,6 +25,7 @@ from taskcat._amiupdater import (
     reduce_api_results,
 )
 from taskcat._config import Config
+from taskcat.exceptions import TaskCatException
 
 logger = logging.getLogger("taskcat")
 
@@ -915,6 +920,16 @@ class TestAMIUpdater(unittest.TestCase):
         )
         self.assertTrue(actual)
 
+    def test_template_write(self):
+        mock_temp = unittest.mock.Mock(
+            "taskcat._cfn.template.Template", autospec=True
+        )()
+        mock_temp.raw_template = "some-template-data"
+        au_template = Template(underlying=mock_temp, regions_with_creds=["us-east-1"])
+        au_template._ls = "some-other-data"
+        au_template.write()
+        mock_temp.write.assert_called_once()
+
     def test_template_set_codename_ami_no_region(self):
         tc_template = self.create_ephemeral_template_object()["taskcat-json"]
         au_template = Template(underlying=tc_template, regions_with_creds=[])
@@ -933,3 +948,60 @@ class TestAMIUpdater(unittest.TestCase):
         for region in regions:
             with self.subTest(region=region):
                 self.assertRegex(region, REGION_REGEX)
+
+    def test_config_load_invalid_config(self):
+        # invalid, but yaml is valid
+        config_file = tempfile.NamedTemporaryFile(mode="w")
+        config_file.write('{"this-is-invalid": 1}')
+        config_file.file.close()
+        with self.assertRaises(AMIUpdaterFatalException):
+            AUConfig.load(config_file.name)
+        config_file.close()
+        # invalid, but yaml is valid
+        config_file = tempfile.NamedTemporaryFile(mode="w")
+        config_file.write('{"this-is-totally-invalid": 1')
+        config_file.file.close()
+        with self.assertRaises(AMIUpdaterFatalException):
+            AUConfig.load(config_file.name)
+        config_file.close()
+
+    def test_config_load_valid_config(self):
+        config_file = tempfile.NamedTemporaryFile(mode="w")
+        config_file.write('{"global": {"AMIs": {"some_ami": {}}}}')
+        config_file.file.close()
+        AUConfig.load(config_file.name)
+        config_file.close()
+        self.assertEqual({"some_ami"}, AUConfig.codenames)
+
+    def test_config_update_filter(self):
+        AUConfig.raw_dict = {"global": {"AMIs": {"some_ami": {}}}}
+        AUConfig.update_filter({"some__other_ami": {}})
+        self.assertEqual(
+            {"global": {"AMIs": {"some__other_ami": {}, "some_ami": {}}}},
+            AUConfig.raw_dict,
+        )
+
+    @patch("taskcat._amiupdater.AMIUpdater._determine_testable_regions", autospec=True)
+    @patch("taskcat._amiupdater.Config", autospec=True)
+    def test_amiupdater__init__(self, mock_config, mock_det_test_reg):
+        resp = AMIUpdater(sentinel.template_list, sentinel.regions, sentinel.boto3cache)
+        mock_config.load.assert_called_once()
+        mock_det_test_reg.assert_called_once()
+        self.assertEqual(resp.regions, mock_det_test_reg.return_value)
+
+    def test_amiupdater_commit_needed_exception(self):
+        e = AMIUpdaterCommitNeededException("foobar")
+        self.assertEqual("foobar", e.message)
+        self.assertTrue(isinstance(e, TaskCatException))
+
+    def test_regional_codename__hash__(self):
+        rc = RegionalCodename(
+            region="us-east-1",
+            cn="AMZNLINUXHVM",
+            filters=[
+                EC2FilterValue("name", ["amzn-ami-hvm-????.??.?.*-x86_64-gp2"]),
+                EC2FilterValue("owner-alias", ["amazon"]),
+                EC2FilterValue("state", ["available"]),
+            ],
+        )
+        self.assertTrue(isinstance(rc.__hash__(), int))
