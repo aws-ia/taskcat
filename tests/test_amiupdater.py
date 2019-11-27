@@ -768,12 +768,12 @@ class TestAMIUpdater(unittest.TestCase):
         result = actual[0]
         self.assertEqual(result.codename, "MOCK_CN")
         self.assertEqual(result.ami_id, "ami-0080e4c5bc078760e")
-        self.assertEqual(result.creation_date, 1543468091)
+        self.assertEqual(result.creation_date, 1543439291)
         self.assertEqual(result.region, "us-east-1")
 
     def test__image_timestamp(self):
         sample_timestamp = "2018-06-22T22:26:53.000Z"
-        expected_value = 1529731613
+        expected_value = 1529706413
         actual_value = _image_timestamp(sample_timestamp)
         self.assertEqual(expected_value, actual_value)
 
@@ -820,16 +820,7 @@ class TestAMIUpdater(unittest.TestCase):
                     EC2FilterValue("owner-alias", ["amazon"]),
                     EC2FilterValue("state", ["available"]),
                 ],
-            ),
-            RegionalCodename(
-                region="us-east-2",
-                cn="AMZNLINUXHVM",
-                filters=[
-                    EC2FilterValue("name", ["amzn-ami-hvm-????.??.?.*-x86_64-gp2"]),
-                    EC2FilterValue("owner-alias", ["amazon"]),
-                    EC2FilterValue("state", ["available"]),
-                ],
-            ),
+            )
         ]
         actual = build_codenames(au_template, example_config_obj)
         _mocked_dt = datetime.now()

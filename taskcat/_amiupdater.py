@@ -1,6 +1,5 @@
 import dataclasses
 import datetime
-import dateutil.parser
 import logging
 import re
 from dataclasses import dataclass, field
@@ -11,6 +10,7 @@ from typing import Dict, List, Set
 import pkg_resources
 import yaml  # pylint: disable=wrong-import-order
 
+import dateutil.parser
 from taskcat._cfn.template import Template as TCTemplate
 from taskcat._common_utils import deep_get
 from taskcat._dataclasses import RegionObj
@@ -248,9 +248,7 @@ def query_codenames(
 
 
 def _image_timestamp(raw_ts):
-    ts = dateutil.parser.parse(raw_ts)
-    ts_int = int(ts.timestamp())
-    return ts_int
+    return int(dateutil.parser.parse(raw_ts).timestamp())
 
 
 def reduce_api_results(raw_results):
