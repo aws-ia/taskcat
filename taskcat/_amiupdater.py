@@ -9,7 +9,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from typing import Dict, List, Set
 
 import pkg_resources
-import yaml
+import yaml  # pylint: disable=wrong-import-order
 
 from taskcat._cfn.template import Template as TCTemplate
 from taskcat._common_utils import deep_get
@@ -36,7 +36,7 @@ class Config:
                 cls.raw_dict = yaml.safe_load(_f)
             except yaml.YAMLError as e:
                 LOG.error(f"[{file_name}] - YAML Syntax Error!")
-                LOG.error(f"{e}")
+                raise AMIUpdaterFatalException(str(e))
         try:
             for _x in cls.raw_dict.get("global").get("AMIs").keys():
                 cls.codenames.add(_x)
@@ -46,7 +46,7 @@ class Config:
                 f"{configtype} config file [{file_name}]" f"is not structured properly!"
             )
             LOG.error(f"{e}")
-            raise AMIUpdaterFatalException
+            raise AMIUpdaterFatalException(str(e))
 
     @classmethod
     def update_filter(cls, code_name):
@@ -161,12 +161,6 @@ class AMIUpdaterFatalException(TaskCatException):
 
     def __init__(self, message=None):
         super(AMIUpdaterFatalException, self).__init__(message)
-        self.message = message
-
-
-class AMIUpdaterNoFiltersException(TaskCatException):
-    def __init__(self, message=None):
-        super(AMIUpdaterNoFiltersException, self).__init__(message)
         self.message = message
 
 
@@ -366,7 +360,7 @@ class AMIUpdater:
 
         for tc_template in self.template_list:
             _t = Template(
-                underlying=tc_template, regions_with_creds=self.regions.keys()
+                underlying=tc_template, regions_with_creds=list(self.regions.keys())
             )
             templates.append(_t)
 
