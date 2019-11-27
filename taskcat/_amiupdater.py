@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+import dateutil.parser
 import logging
 import re
 from dataclasses import dataclass, field
@@ -201,6 +202,8 @@ def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
         if not REGION_REGEX.search(region):
             LOG.error(f"[{region}] is not a valid region. Please check your template!")
             raise AMIUpdaterFatalException
+        if region in tobj.regions_without_creds:
+            continue
         for cnname in cndata.keys():
             _filters = _construct_filters(cnname, config)
             if not _filters:
@@ -251,8 +254,9 @@ def query_codenames(
 
 
 def _image_timestamp(raw_ts):
-    ts_int = datetime.datetime.strptime(raw_ts, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp()
-    return int(ts_int)
+    ts = dateutil.parser.parse(raw_ts)
+    ts_int = int(ts.timestamp())
+    return ts_int
 
 
 def reduce_api_results(raw_results):
