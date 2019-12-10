@@ -23,6 +23,7 @@ class Boto3Cache:
         self._client_cache: Dict[str, Dict[str, Dict[str, boto3.client]]] = {}
         self._resource_cache: Dict[str, Dict[str, Dict[str, boto3.resource]]] = {}
         self._account_info: Dict[str, Dict[str, str]] = {}
+        self._lock_cache_update = False
 
     def session(self, profile: str = "default", region: str = None) -> boto3.Session:
         region = self._get_region(region, profile)
