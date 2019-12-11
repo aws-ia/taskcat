@@ -5,11 +5,15 @@ from time import sleep
 from typing import Any, Dict, List
 
 import boto3
+import botocore.loaders as boto_loader
+import botocore.regions as boto_regions
 from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
+
+REGIONAL_ENDPOINT_SERVICES = ["sts"]
 
 
 class Boto3Cache:
@@ -47,8 +51,15 @@ class Boto3Cache:
     ) -> boto3.client:
         region = self._get_region(region, profile)
         session = self.session(profile, region)
+        kwargs = None
+        if service in REGIONAL_ENDPOINT_SERVICES:
+            kwargs = {"endpoint_url": self._get_endpoint_url(service, region)}
         return self._cache_lookup(
-            self._client_cache, [profile, region, service], session.client, [service]
+            self._client_cache,
+            [profile, region, service],
+            session.client,
+            [service],
+            kwargs,
         )
 
     def resource(
@@ -134,6 +145,18 @@ class Boto3Cache:
                     raise
                 backoff = (self.RETRIES - retries + delay) * self.BACKOFF
                 sleep(backoff)
+
+    @staticmethod
+    def _get_endpoint_url(service, region):
+        data = boto_loader.create_loader().load_data("endpoints")
+        endpoint_data = boto_regions.EndpointResolver(data).construct_endpoint(
+            service, region
+        )
+        if not endpoint_data:
+            raise TaskCatException(
+                f"unable to resolve endpoint for {service} in {region}"
+            )
+        return f"https://{service}.{region}.{endpoint_data['dnsSuffix']}"
 
     @staticmethod
     def _cache_get(cache: dict, key_list: List[str]):

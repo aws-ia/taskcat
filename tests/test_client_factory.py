@@ -49,6 +49,20 @@ class TestBoto3Cache(unittest.TestCase):
         self.assertEqual(mock_cache_lookup.called, True)
         self.assertEqual(mock__get_region.called, True)
 
+    @mock.patch("taskcat._client_factory.Boto3Cache._get_endpoint_url")
+    @mock.patch("taskcat._client_factory.Boto3Cache._get_region", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache.session", autospec=True)
+    def test_client_sts(
+        self, mock_session, mock_cache_lookup, mock__get_region, mock__get_endpoint_url
+    ):
+        mock__get_endpoint_url.return_value = "https://sts.us-east-1.amazonaws.com"
+        Boto3Cache().client("sts")
+        self.assertEqual(mock_session.called, True)
+        self.assertEqual(mock_cache_lookup.called, True)
+        self.assertEqual(mock__get_region.called, True)
+        self.assertEqual(mock__get_endpoint_url.called, True)
+
     @mock.patch("taskcat._client_factory.Boto3Cache._get_region", autospec=True)
     @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
     @mock.patch("taskcat._client_factory.Boto3Cache.session", autospec=True)
