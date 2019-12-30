@@ -23,6 +23,7 @@ OVERRIDES = Path("./.taskcat_overrides.yml").resolve()
 
 DEFAULTS = {
     "project": {
+        "s3_enable_sig_v2": False,
         "build_submodules": True,
         "package_lambda": True,
         "lambda_zip_path": "lambda_functions/packages",

@@ -42,6 +42,7 @@ class TestNewConfig(unittest.TestCase):
                 "build_submodules": False,
                 "template": "template1.yaml",
                 "s3_bucket": "set-in-global",
+                "s3_enable_sig_v2": False,
             },
             "tests": {
                 "default": {
@@ -78,6 +79,7 @@ class TestNewConfig(unittest.TestCase):
             },
             "project": {
                 "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                "s3_enable_sig_v2": "TASKCAT_DEFAULT",
                 "package_lambda": "EnvoronmentVariable",
                 "lambda_zip_path": "TASKCAT_DEFAULT",
                 "lambda_source_path": "TASKCAT_DEFAULT",
