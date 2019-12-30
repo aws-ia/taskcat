@@ -130,8 +130,8 @@ class AzIdField(FieldEncoder):
     def json_schema(self):
         return {
             "type": "string",
-            "pattern": r"^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]"
-            r"$",
+            "pattern": r"^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)"
+            r"[0-9]-az[0-9]|usw2-lax1-az1)$",
             "description": "Availability Zone ID, eg.: 'use1-az1'",
         }
 
