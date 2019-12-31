@@ -288,6 +288,18 @@ class S3BucketObj:
         return False
 
 
+class Tag:
+    def __init__(self, tag_dict: dict):
+        if isinstance(tag_dict, Tag):
+            tag_dict = {"Key": tag_dict.key, "Value": tag_dict.value}
+        self.key: str = tag_dict["Key"]
+        self.value: str = tag_dict["Value"]
+
+    def dump(self):
+        tag_dict = {"Key": self.key, "Value": self.value}
+        return tag_dict
+
+
 @dataclass
 class TestRegion(RegionObj):
     s3_bucket: S3BucketObj
@@ -305,6 +317,7 @@ class TestObj:
     project_root: Path
     name: TestName
     regions: List[TestRegion]
+    tags: List[Tag]
 
 
 @dataclass

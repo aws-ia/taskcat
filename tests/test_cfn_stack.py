@@ -14,11 +14,11 @@ from taskcat._cfn.stack import (
     Resource,
     Resources,
     Stack,
-    Tag,
     Tags,
     TestRegion,
     criteria_matches,
 )
+from taskcat._dataclasses import Tag
 
 event_template = {
     "EventId": "test_event_id",
@@ -41,7 +41,7 @@ class TestCriteriaMatcher(unittest.TestCase):
             tag = Tag({"Key": "my_key", "Value": "my_value"})
             criteria_matches({"invalid": "blah"}, tag)
         self.assertEqual(
-            "invalid is not a valid property of <class 'taskcat._cfn.stack.Tag'>",
+            "invalid is not a valid property of <class 'taskcat._dataclasses.Tag'>",
             str(cm.exception),
         )
 

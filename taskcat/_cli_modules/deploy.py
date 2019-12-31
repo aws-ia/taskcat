@@ -6,10 +6,10 @@ from time import sleep
 
 from dulwich import porcelain
 from dulwich.config import ConfigFile, parse_submodules
-from taskcat._cfn.stack import Tag
 from taskcat._cfn.threaded import Stacker
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
+from taskcat._dataclasses import Tag
 from taskcat._name_generator import generate_name
 from taskcat._s3_stage import stage_in_s3
 from taskcat.exceptions import TaskCatException
