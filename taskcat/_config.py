@@ -9,7 +9,14 @@ import yaml
 from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import generate_bucket_name
-from taskcat._dataclasses import BaseConfig, RegionObj, S3BucketObj, TestObj, TestRegion
+from taskcat._dataclasses import (
+    BaseConfig,
+    RegionObj,
+    S3BucketObj,
+    Tag,
+    TestObj,
+    TestRegion,
+)
 from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
@@ -317,6 +324,10 @@ class Config:
         tests = {}
         for test_name, test in self.config.tests.items():
             region_list = []
+            tag_list = []
+            if test.tags:
+                for tag_key, tag_value in test.tags.items():
+                    tag_list.append(Tag({"Key": tag_key, "Value": tag_value}))
             for region_obj in regions[test_name].values():
                 region_list.append(
                     TestRegion.from_region_obj(
@@ -331,5 +342,6 @@ class Config:
                 template=templates[test_name],
                 project_root=project_root,
                 regions=region_list,
+                tags=tag_list,
             )
         return tests
