@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 import uuid
@@ -388,6 +389,15 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
 PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
+
+
+def generate_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
+    if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
+        raise TaskCatException("prefix must be between 1 and 8 characters long")
+    hashed_account_id = hashlib.sha256(
+        bytes(region_obj.account_id.encode("utf-8"))
+    ).hexdigest()[0:12]
+    return f"{prefix}-{hashed_account_id}-{region_obj.name}"
 
 
 # pylint raises false positive due to json-dataclass

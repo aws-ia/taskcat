@@ -8,8 +8,14 @@ import yaml
 
 from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
-from taskcat._common_utils import generate_bucket_name
-from taskcat._dataclasses import BaseConfig, RegionObj, S3BucketObj, TestObj, TestRegion
+from taskcat._dataclasses import (
+    BaseConfig,
+    RegionObj,
+    S3BucketObj,
+    TestObj,
+    TestRegion,
+    generate_bucket_name,
+)
 from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException
@@ -226,13 +232,18 @@ class Config:
 
     def get_buckets(self, boto3_cache: Boto3Cache = None):
         regions = self.get_regions(boto3_cache)
-        bucket_objects: Dict[str, S3BucketObj] = {}
+        bucket_objects: Dict[str, Dict[str, S3BucketObj]] = {}
         bucket_mappings: Dict[str, Dict[str, S3BucketObj]] = {}
         for test_name, test in self.config.tests.items():
             bucket_mappings[test_name] = {}
             for region_name, region in regions[test_name].items():
                 bucket_obj = self._create_bucket_obj(bucket_objects, region, test)
-                bucket_objects[region.account_id] = bucket_obj
+                if not bucket_objects.get(region.account_id):
+                    bucket_objects.update(
+                        {region.account_id: {region.name: bucket_obj}}
+                    )
+                else:
+                    bucket_objects[region.account_id][region.name] = bucket_obj
                 bucket_mappings[test_name][region_name] = bucket_obj
         return bucket_mappings
 
@@ -244,22 +255,25 @@ class Config:
             else "private"
         )
         sigv4 = not self.config.project.s3_enable_sig_v2
-        if not test.s3_bucket and not bucket_objects.get(region.account_id):
-            name = generate_bucket_name(self.config.project.name)
+        if not test.s3_bucket and not bucket_objects.get(region.account_id, {}).get(
+            region.name
+        ):
+            name = generate_bucket_name(region)
             auto_generated = True
             new = True
-        elif bucket_objects.get(region.account_id):
-            name = bucket_objects[region.account_id].name
-            auto_generated = bucket_objects[region.account_id].auto_generated
+        elif bucket_objects.get(region.account_id, {}).get(region.name):
+            name = bucket_objects[region.account_id][region.name].name
+            auto_generated = bucket_objects[region.account_id][
+                region.name
+            ].auto_generated
         else:
             name = test.s3_bucket
             auto_generated = False
-        bucket_region = self._get_bucket_region_for_partition(region.partition)
         bucket_obj = S3BucketObj(
             name=name,
-            region=bucket_region,
+            region=region.name,
             account_id=region.account_id,
-            s3_client=region.session.client("s3", region_name=bucket_region),
+            s3_client=region.session.client("s3", region_name=region.name),
             auto_generated=auto_generated,
             object_acl=object_acl,
             sigv4=sigv4,

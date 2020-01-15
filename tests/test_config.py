@@ -210,14 +210,19 @@ class TestNewConfig(unittest.TestCase):
         bucket_acct = {}
         for test_name, regions in buckets.items():
             with self.subTest(test=test_name):
-                for region_name, region_obj in regions.items():
+                for region_name, bucket_obj in regions.items():
                     with self.subTest(region=region_name):
-                        if not bucket_acct.get(region_obj.account_id):
-                            bucket_acct[region_obj.account_id] = region_obj.name
+                        if not bucket_acct.get(bucket_obj.account_id, {}).get(
+                            bucket_obj.region
+                        ):
+                            bucket_acct[bucket_obj.account_id] = {
+                                bucket_obj.region: bucket_obj.name
+                            }
                         self.assertEqual(
-                            bucket_acct[region_obj.account_id], region_obj.name
+                            bucket_acct[bucket_obj.account_id][bucket_obj.region],
+                            bucket_obj.name,
                         )
-                        region_obj.delete()
+                        bucket_obj.delete()
 
     @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
     @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
