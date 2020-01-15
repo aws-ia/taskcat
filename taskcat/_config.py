@@ -15,6 +15,9 @@ from taskcat._dataclasses import (
     TestObj,
     TestRegion,
     generate_bucket_name,
+    Tag,
+    TestObj,
+    TestRegion,
 )
 from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen
@@ -331,6 +334,10 @@ class Config:
         tests = {}
         for test_name, test in self.config.tests.items():
             region_list = []
+            tag_list = []
+            if test.tags:
+                for tag_key, tag_value in test.tags.items():
+                    tag_list.append(Tag({"Key": tag_key, "Value": tag_value}))
             for region_obj in regions[test_name].values():
                 region_list.append(
                     TestRegion.from_region_obj(
@@ -345,5 +352,6 @@ class Config:
                 template=templates[test_name],
                 project_root=project_root,
                 regions=region_list,
+                tags=tag_list,
             )
         return tests

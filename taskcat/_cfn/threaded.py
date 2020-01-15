@@ -6,10 +6,10 @@ from typing import Dict, List
 
 import boto3
 
-from taskcat._cfn.stack import Stack, Stacks, StackStatus, Tag
+from taskcat._cfn.stack import Stack, Stacks, StackStatus
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_dicts
-from taskcat._dataclasses import TestObj, TestRegion
+from taskcat._dataclasses import Tag, TestObj, TestRegion
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -67,6 +67,7 @@ class Stacker:
         )
         tags.append(Tag({"Key": "taskcat-project-name", "Value": self.project_name}))
         tags.append(Tag({"Key": "taskcat-test-name", "Value": test.name}))
+        tags += test.tags
         partial_kwargs = {
             "stack_name": stack_name,
             "template": test.template,

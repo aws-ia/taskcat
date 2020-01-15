@@ -72,7 +72,7 @@
                     "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
                     "items": {
                         "description": "Availability Zone ID, eg.: 'use1-az1'",
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$",
+                        "pattern": "^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]|usw2-lax1-az1)$",
                         "type": "string"
                     },
                     "type": "array"
@@ -183,7 +183,7 @@
                     "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
                     "items": {
                         "description": "Availability Zone ID, eg.: 'use1-az1'",
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]$",
+                        "pattern": "^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]|usw2-lax1-az1)$",
                         "type": "string"
                     },
                     "type": "array"

@@ -131,8 +131,8 @@ class AzIdField(FieldEncoder):
     def json_schema(self):
         return {
             "type": "string",
-            "pattern": r"^(ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]"
-            r"$",
+            "pattern": r"^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)"
+            r"[0-9]-az[0-9]|usw2-lax1-az1)$",
             "description": "Availability Zone ID, eg.: 'use1-az1'",
         }
 
@@ -289,6 +289,18 @@ class S3BucketObj:
         return False
 
 
+class Tag:
+    def __init__(self, tag_dict: dict):
+        if isinstance(tag_dict, Tag):
+            tag_dict = {"Key": tag_dict.key, "Value": tag_dict.value}
+        self.key: str = tag_dict["Key"]
+        self.value: str = tag_dict["Value"]
+
+    def dump(self):
+        tag_dict = {"Key": self.key, "Value": self.value}
+        return tag_dict
+
+
 @dataclass
 class TestRegion(RegionObj):
     s3_bucket: S3BucketObj
@@ -306,6 +318,7 @@ class TestObj:
     project_root: Path
     name: TestName
     regions: List[TestRegion]
+    tags: List[Tag]
 
 
 @dataclass

@@ -15,7 +15,7 @@ import yaml
 
 from taskcat._cfn.template import Template
 from taskcat._common_utils import ordered_dump, pascal_to_snake, s3_url_maker
-from taskcat._dataclasses import TestRegion
+from taskcat._dataclasses import Tag, TestRegion
 
 LOG = logging.getLogger(__name__)
 
@@ -153,18 +153,6 @@ class Output:
             self.description = output_dict["Description"]
         if "ExportName" in output_dict.keys():
             self.export_name = output_dict["ExportName"]
-
-
-class Tag:
-    def __init__(self, tag_dict: dict):
-        if isinstance(tag_dict, Tag):
-            tag_dict = {"Key": tag_dict.key, "Value": tag_dict.value}
-        self.key: str = tag_dict["Key"]
-        self.value: str = tag_dict["Value"]
-
-    def dump(self):
-        tag_dict = {"Key": self.key, "Value": self.value}
-        return tag_dict
 
 
 class FilterableList(list):
