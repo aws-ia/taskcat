@@ -73,14 +73,15 @@ jobs:
     before_script:
       - pip install bump2version
       - export TEST_PYPI_VERSION=$(python -c "from distutils.version import LooseVersion; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [LooseVersion(x) for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
+      - export DEV_VERSION=$(echo $TEST_PYPI_VERSION| awk -F. '{print $NF}')
     script:
       - |
         echo "${TEST_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
         if [[ $? -eq 0 ]]; then
           # v0.9.1.dev0 -> v0.9.1.dev1
           echo "Bumping the development version"
-          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" .bumpversion.cfg
-          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" VERSION
+          sed -i -e "s,$(cat VERSION),$(cat VERSION).${DEV_VERSION},g" .bumpversion.cfg
+          sed -i -e "s,$(cat VERSION),$(cat VERSION).${DEV_VERSION},g" VERSION
           bumpversion --allow-dirty --no-tag --no-commit build
         else
           # v0.9.0 -> v0.9.1.dev0
