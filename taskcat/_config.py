@@ -12,12 +12,10 @@ from taskcat._dataclasses import (
     BaseConfig,
     RegionObj,
     S3BucketObj,
-    TestObj,
-    TestRegion,
-    generate_bucket_name,
     Tag,
     TestObj,
     TestRegion,
+    generate_bucket_name,
 )
 from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen

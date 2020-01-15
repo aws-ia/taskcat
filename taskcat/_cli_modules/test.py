@@ -1,7 +1,6 @@
 # pylint: disable=duplicate-code
 # noqa: B950,F841
 import logging
-import uuid
 from pathlib import Path
 from typing import List as ListType
 
@@ -70,7 +69,7 @@ class Test:
         LambdaBuild(config, project_root_path)
         # 3. s3 sync
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, str(uuid.uuid1()), project_root_path)
+        stage_in_s3(buckets, config.config.project.name, project_root_path)
         # 4. launch stacks
         regions = config.get_regions(boto3_cache)
         parameters = config.get_rendered_parameters(buckets, regions, templates)

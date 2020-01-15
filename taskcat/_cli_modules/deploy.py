@@ -1,6 +1,5 @@
 # pylint: disable=duplicate-code
 import logging
-import uuid
 from io import BytesIO
 from pathlib import Path
 from time import sleep
@@ -91,7 +90,7 @@ class Deploy:
             if test_name != "default":
                 del config.config.tests[test_name]
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, str(uuid.uuid1()), path)
+        stage_in_s3(buckets, config.config.project.name, path)
         regions = config.get_regions(boto3_cache)
         templates = config.get_templates(project_root=path)
         parameters = config.get_rendered_parameters(buckets, regions, templates)
