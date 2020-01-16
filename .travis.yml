@@ -106,7 +106,6 @@ jobs:
         password: $PYPI_PASSWORD
         on:
           branch: master
-          tags: false
 
   - stage: "Tag build changelog/Push pypi and github release/Update docs"
     name: "Tag build changelog/Push pypi and github release/Update docs"
