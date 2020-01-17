@@ -129,5 +129,14 @@ jobs:
           branch: master
           fork: false
           condition: $RELEASE_THE_KRAKEN = true
+          
+      - provider: pypi
+        skip_cleanup: true
+        user: $PYPI_USER
+        password: $PYPI_PASSWORD
+        on:
+          branch: master
+          fork: false
+          condition: $RELEASE_THE_KRAKEN = true
      
   # Add Docker provider
