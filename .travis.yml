@@ -118,6 +118,7 @@ jobs:
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
           git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
           git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+          export RELEASE_THE_KRAKEN=true
         fi
     deploy:
       - provider: releases
@@ -127,5 +128,6 @@ jobs:
         on:
           branch: master
           fork: false
+          condition: $RELEASE_THE_KRAKEN = true
      
   # Add Docker provider
