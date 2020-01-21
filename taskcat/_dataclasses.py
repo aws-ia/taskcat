@@ -333,6 +333,7 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     )
     auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
     s3_bucket: Optional[str] = field(default=None, metadata=METADATA["s3_bucket"])
+    s3_enable_regional_buckets: Optional[bool] = field(default=False, metadata=METADATA["s3_enable_regional_buckets"])
 
 
 @dataclass
@@ -398,13 +399,13 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     s3_object_acl: Optional[str] = field(
         default=None, metadata=METADATA["s3_object_acl"]
     )
-
+    s3_enable_regional_buckets: Optional[bool] = field(default=False, metadata=METADATA["s3_enable_regional_buckets"])
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
 PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
 
 
-def generate_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
+def generate_regional_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
     if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
         raise TaskCatException("prefix must be between 1 and 8 characters long")
     hashed_account_id = hashlib.sha256(
@@ -412,6 +413,16 @@ def generate_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
     ).hexdigest()[0:12]
     return f"{prefix}-{hashed_account_id}-{region_obj.name}"
 
+
+def generate_bucket_name(project: str, prefix: str = "tcat"):
+    if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
+        raise TaskCatException("prefix must be between 1 and 8 characters long")
+    alnum = string.ascii_lowercase + string.digits
+    suffix = "".join(random.choice(alnum) for i in range(8))  # nosec: B311
+    mid = f"-{project}-"
+    avail_len = 63 - len(mid)
+    mid = mid[:avail_len]
+    return f"{prefix}{mid}{suffix}"
 
 # pylint raises false positive due to json-dataclass
 # pylint: disable=no-member

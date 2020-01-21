@@ -233,22 +233,22 @@ class Config:
 
     def get_buckets(self, boto3_cache: Boto3Cache = None):
         regions = self.get_regions(boto3_cache)
-        bucket_objects: Dict[str, Dict[str, S3BucketObj]] = {}
+        bucket_objects: Dict[str, S3BucketObj] = {}
         bucket_mappings: Dict[str, Dict[str, S3BucketObj]] = {}
         for test_name, test in self.config.tests.items():
             bucket_mappings[test_name] = {}
             for region_name, region in regions[test_name].items():
-                bucket_obj = self._create_bucket_obj(bucket_objects, region, test)
-                if not bucket_objects.get(region.account_id):
-                    bucket_objects.update(
-                        {region.account_id: {region.name: bucket_obj}}
-                    )
+                if self.s3_enable_regional_buckets:
+                    bucket_obj = self._create_regional_bucket_obj(bucket_objects, region, test)
+                    bucket_objects[f"{region.account_id}{region.name}"] = bucket_obj
                 else:
-                    bucket_objects[region.account_id][region.name] = bucket_obj
+                    bucket_obj = self._create_legacy_bucket_obj(bucket_objects, region, test)
+                    bucket_objects[region.account_id] = bucket_obj
                 bucket_mappings[test_name][region_name] = bucket_obj
+
         return bucket_mappings
 
-    def _create_bucket_obj(self, bucket_objects, region, test):
+    def _create_legacy_bucket_obj(self, bucket_objects, region, test):
         new = False
         object_acl = (
             self.config.project.s3_object_acl
@@ -256,17 +256,48 @@ class Config:
             else "private"
         )
         sigv4 = not self.config.project.s3_enable_sig_v2
-        if not test.s3_bucket and not bucket_objects.get(region.account_id, {}).get(
-            region.name
-        ):
-            name = generate_bucket_name(region)
+        if not test.s3_bucket and not bucket_objects.get(region.account_id):
+            name = generate_bucket_name(self.config.project.name)
             auto_generated = True
             new = True
-        elif bucket_objects.get(region.account_id, {}).get(region.name):
-            name = bucket_objects[region.account_id][region.name].name
-            auto_generated = bucket_objects[region.account_id][
-                region.name
-            ].auto_generated
+        elif bucket_objects.get(region.account_id):
+            name = bucket_objects[region.account_id].name
+            auto_generated = bucket_objects[region.account_id].auto_generated
+        else:
+            name = test.s3_bucket
+            auto_generated = False
+        bucket_region = self._get_bucket_region_for_partition(region.partition)
+        bucket_obj = S3BucketObj(
+            name=name,
+            region=bucket_region,
+            account_id=region.account_id,
+            s3_client=region.session.client("s3", region_name=bucket_region),
+            auto_generated=auto_generated,
+            object_acl=object_acl,
+            sigv4=sigv4,
+            taskcat_id=self.uid,
+            partition=region.partition,
+        )
+        if new:
+            bucket_obj.create()
+        return bucket_obj
+
+    def _create_regional_bucket_obj(self, bucket_objects, region, test):
+        _bucket_obj_key = f"{region.account_id}{region.name}"
+        new = False
+        object_acl = (
+            self.config.project.s3_object_acl
+            if self.config.project.s3_object_acl
+            else "private"
+        )
+        sigv4 = not self.config.project.s3_enable_sig_v2
+        if not test.s3_bucket and not bucket_objects.get(_bucket_obj_key):
+            name = generate_regional_bucket_name(region)
+            auto_generated = True
+            new = True
+        elif bucket_objects.get(_bucket_obj_key):
+            name = bucket_objects[_bucket_obj_key].name
+            auto_generated = bucket_objects[_bucket_obj_key].auto_generated
         else:
             name = test.s3_bucket
             auto_generated = False
