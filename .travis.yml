@@ -72,17 +72,19 @@ jobs:
     if: branch = master AND type = push
     before_script:
       - pip install bump2version
-      - export TEST_PYPI_VERSION=$(python -c "from distutils.version import LooseVersion; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [LooseVersion(x) for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
+      - export UPSTREAM_PYPI_VERSION=$(python -c "from packaging import version; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [version.Version(x) for x in versions]; print(sorted(versions, reverse=True)[0])")
       - export DEV_VERSION=$(echo $TEST_PYPI_VERSION| awk -F. '{print $NF}')
     script:
       - |
-        echo "${TEST_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
+        echo "${UPSTREAM_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
         if [[ $? -eq 0 ]]; then
-          # v0.9.1.dev0 -> v0.9.1.dev1
           echo "Bumping the development version"
-          sed -i -e "s,$(cat VERSION),$(cat VERSION).${DEV_VERSION},g" .bumpversion.cfg
-          sed -i -e "s,$(cat VERSION),$(cat VERSION).${DEV_VERSION},g" VERSION
+          # Replacing VERSION (ex: 0.9.12) with upstream value (ex: 0.9.13.dev0)
+          sed -i -e "s,$(cat VERSION),${UPSTREAM_PYPI_VERSION},g" .bumpversion.cfg
+          sed -i -e "s,$(cat VERSION),${UPSTREAM_PYPI_VERSION},g" VERSION
+          # Now bumping 0.9.13.dev0 -> 0.9.13.dev1
           bumpversion --allow-dirty --no-tag --no-commit build
+          export NEW_DEV_BUILD=true
         else
           # v0.9.0 -> v0.9.1.dev0
           bumpversion --allow-dirty --no-tag --no-commit patch
