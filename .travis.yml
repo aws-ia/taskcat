@@ -29,9 +29,6 @@ before_install:
 install:
   - pip install .
 script: pre-commit run --all-files
-after_success:
-  - coverage run ./setup.py test > /dev/null
-  - codecov --token=$CODECOV_TOKEN
 
 jobs:
   include:

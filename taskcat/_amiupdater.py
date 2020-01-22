@@ -10,7 +10,7 @@ from typing import Dict, List, Set
 import pkg_resources
 import yaml  # pylint: disable=wrong-import-order
 
-import dateutil.parser
+import dateutil.parser  # pylint: disable=wrong-import-order
 from taskcat._cfn.template import Template as TCTemplate
 from taskcat._common_utils import deep_get
 from taskcat._dataclasses import RegionObj
