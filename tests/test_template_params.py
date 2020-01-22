@@ -449,3 +449,25 @@ class TestParamGen(unittest.TestCase):
             for _param_key, param_value in pg.results.items():
                 if _param_key == "SingleAZ":
                     self.assertEqual(param_value, "us-east-1b")
+
+    def test_list_as_param_value(self):
+        input_params = {
+            "ExampleList": [
+                "$[taskcat_getsingleaz_1]",
+                "$[taskcat_getsingleaz_2]",
+                "foobar",
+            ],
+            "ExampleString": "$[taskcat_getsingleaz_1]",
+        }
+        bclient = MockClient
+        bclient.logger = logger
+        class_kwargs = self.class_kwargs
+        class_kwargs["param_dict"] = input_params
+        class_kwargs["boto_client"] = bclient
+        pg = ParamGen(**class_kwargs)
+        pg.transform_parameter()
+        expected_result = {
+            "ExampleList": ["us-east-1a", "us-east-1b", "foobar"],
+            "ExampleString": "us-east-1a",
+        }
+        self.assertEqual(pg.results, expected_result)
