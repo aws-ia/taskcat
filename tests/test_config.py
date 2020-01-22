@@ -185,10 +185,14 @@ class TestNewConfig(unittest.TestCase):
                         self.assertEqual(region_name, region_obj.name)
                         if test_name == "json-test" and region_name == "eu-central-1":
                             self.assertEqual("special-use-case", region_obj.profile)
+                        elif test_name == "yaml-test" and region_name == "sa-east-1":
+                            self.assertEqual("default", region_obj.profile)
                         elif region_name == "me-south-1":
                             self.assertEqual("mes1", region_obj.profile)
                         elif region_name == "ap-east-1":
                             self.assertEqual("hongkong", region_obj.profile)
+                        elif test_name == "yaml-test":
+                            self.assertEqual("foobar", region_obj.profile)
                         else:
                             self.assertEqual("default", region_obj.profile)
 
