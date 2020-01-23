@@ -69,8 +69,8 @@ jobs:
     if: branch = master AND type = push
     before_script:
       - pip install bump2version
+      - pip install packaging
       - export UPSTREAM_PYPI_VERSION=$(python -c "from packaging import version; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [version.Version(x) for x in versions]; print(sorted(versions, reverse=True)[0])")
-      - export DEV_VERSION=$(echo $TEST_PYPI_VERSION| awk -F. '{print $NF}')
     script:
       - |
         echo "${UPSTREAM_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
@@ -88,7 +88,7 @@ jobs:
         fi
       - cat VERSION
       - |
-        if [[ "$(cat VERSION)" == "${TEST_PYPI_VERSION}" ]]; then
+        if [[ "$(cat VERSION)" == "${UPSTREAM_PYPI_VERSION}" ]]; then
           echo "Something went wrong when bumping the version. Exiting."
           travis_terminate 1
         fi
