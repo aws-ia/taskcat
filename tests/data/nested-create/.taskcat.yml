@@ -1,0 +1,9 @@
+project:
+  name: nested-create
+  regions:
+  - us-east-1
+tests:
+  nested-create:
+     template: templates/test.template.yaml
+     parameters:
+       QSS3BucketName: $[taskcat_autobucket]
