@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 import boto3
 import botocore.loaders as boto_loader
 import botocore.regions as boto_regions
+from botocore.config import Config as BotoConfig
 from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
 from taskcat.exceptions import TaskCatException
@@ -20,6 +21,7 @@ class Boto3Cache:
     RETRIES = 10
     BACKOFF = 2
     DELAY = 0.1
+    CLIENT_THROTTLE_RETRIES = 20
 
     def __init__(self, _boto3=boto3):
         self._boto3 = _boto3
@@ -51,9 +53,9 @@ class Boto3Cache:
     ) -> boto3.client:
         region = self._get_region(region, profile)
         session = self.session(profile, region)
-        kwargs = None
+        kwargs = {"config": BotoConfig(retries={"max_attempts": 20})}
         if service in REGIONAL_ENDPOINT_SERVICES:
-            kwargs = {"endpoint_url": self._get_endpoint_url(service, region)}
+            kwargs.update({"endpoint_url": self._get_endpoint_url(service, region)})
         return self._cache_lookup(
             self._client_cache,
             [profile, region, service],
