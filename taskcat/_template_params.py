@@ -65,6 +65,25 @@ class ParamGen:
         # - $[taskcat_gets3contents]
         # - $[taskcat_geturl]
         for param_name, param_value in self._param_dict.items():
+            if isinstance(param_value, list):
+                _results_list = []
+                _nested_param_dict = {}
+                for idx, value in enumerate(param_value):
+                    _nested_param_dict[idx] = value
+                nested_pg = ParamGen(
+                    _nested_param_dict,
+                    self.bucket_name,
+                    self.region,
+                    self._boto_client,
+                    self.az_excludes,
+                )
+                nested_pg.transform_parameter()
+                for result_value in nested_pg.results.values():
+                    _results_list.append(result_value)
+                self.param_value = _results_list
+                self.results.update({param_name: _results_list})
+                continue
+
             # Setting the instance variables to reflect key/value pair we're working on.
             self.param_name = param_name
             self.param_value = param_value
