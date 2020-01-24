@@ -1,0 +1,11 @@
+{
+    "Parameters": {
+        "Tag": {
+            "Fn::GetParam": [
+                "BuildOutput",
+                "build.json",
+                "tag"
+            ]
+        }
+    }
+}

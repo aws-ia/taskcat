@@ -1,0 +1,69 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'v5.17: This template creates the security group to allow communication
+  from Deep Security Managers to their RDS Instance. (qs-1ngr590j9)'
+Parameters:
+  AWSIVPC:
+    Description: Existing VPC to deploy Deep Security Manager
+    Type: AWS::EC2::VPC::Id
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[-_a-zA-Z0-9]*'
+  DBPEngine:
+    Description: Choose PostgreSQL, MSSQL or Oracle for DSM database Engine
+    Type: String
+    Default: PostgreSQL
+    AllowedValues:
+    - SQL
+    - Oracle
+    - PostgreSQL
+  DSMSG:
+    Type: AWS::EC2::SecurityGroup::Id
+Resources:
+  RDSSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow DSM to Database communication
+      VpcId: !Ref AWSIVPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort:
+          !If
+          - DBTypeIsOracle
+          - '1521'
+          - !If
+            - DBTypeIsPostgreSQL
+            - '5432'
+            - '1433'
+        ToPort:
+          !If
+          - DBTypeIsOracle
+          - '1521'
+          - !If
+            - DBTypeIsPostgreSQL
+            - '5432'
+            - '1433'
+        SourceSecurityGroupId: !Ref DSMSG
+      SecurityGroupEgress:
+      - IpProtocol: '-1'
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: DSMRDSSG
+Conditions:
+  DBTypeIsOracle:
+    !Equals
+    - !Ref DBPEngine
+    - Oracle
+  DBTypeIsSQL:
+    !Equals
+    - !Ref DBPEngine
+    - SQL
+  DBTypeIsPostgreSQL:
+    !Equals
+    - !Ref DBPEngine
+    - PostgreSQL
+Outputs:
+  RDSSG:
+    Value: !GetAtt RDSSG.GroupId
+...

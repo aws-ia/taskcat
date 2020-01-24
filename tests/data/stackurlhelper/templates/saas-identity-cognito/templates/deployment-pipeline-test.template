@@ -1,0 +1,319 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: This CloudFormation Template creates the CD & CI Pipeline for the Docker
+  Containers. (qs-1nlegmi23)
+Parameters:
+  Cluster:
+    Type: String
+  TemplateBucket:
+    Type: String
+  TemplatePrefix:
+    Type: String
+  VPC:
+    Type: AWS::EC2::VPC::Id
+  ServiceUrl:
+    Type: String
+  SnsRole:
+    Type: String
+  UserTable:
+    Type: String
+  TenantTable:
+    Type: String
+  ProductTable:
+    Type: String
+  OrderTable:
+    Type: String
+  Listener:
+    Type: String
+  Path:
+    Type: String
+  HealthCheck:
+    Type: String
+  ServiceName:
+    Type: String
+  Priority:
+    Type: String
+  ContainerPort:
+    Type: String
+  WaitURL:
+    Type: String
+  CloudFormationExecutionRole:
+    Type: String
+  Repository:
+    Type: String
+  ArtifactBucket:
+    Type: String
+Resources:
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Resource: '*'
+            Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - ecr:GetAuthorizationToken
+          - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+            Effect: Allow
+            Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:GetObjectVersion
+          - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+            Effect: Allow
+            Action:
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:PutImage
+            - ecr:InitiateLayerUpload
+            - ecr:UploadLayerPart
+            - ecr:CompleteLayerUpload
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: codepipeline.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Resource:
+            - !Sub arn:aws:s3:::${ArtifactBucket}/*
+            - !Sub arn:aws:s3:::${ArtifactBucket}
+            - !Sub arn:aws:s3:::${TemplateBucket}
+            - !Sub arn:aws:s3:::${TemplateBucket}/*
+            Effect: Allow
+            Action:
+            - s3:*
+          - Resource: '*'
+            Effect: Allow
+            Action:
+            - codebuild:StartBuild
+            - codebuild:BatchGetBuilds
+            - cloudformation:*
+            - iam:PassRole
+            - ec2:*
+            - elasticloadbalancing:*
+            - logs:*
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn:
+    - CodeBuildServiceRole
+    Properties:
+      Name: !Sub ${AWS::StackName}-BuildProject
+      Artifacts:
+        Location: !Ref ArtifactBucket
+        Type: S3
+      Source:
+        Location: !Sub ${ArtifactBucket}/source.zip
+        Type: S3
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - ls -al
+                - cd "${SERVICE_NAME}"
+                - ls -al
+                - $(aws ecr get-login)
+                - TAG="$SERVICE_NAME"
+            build:
+              commands:
+                - docker build --tag "${REPOSITORY_URI}:${TAG}" .
+            post_build:
+              commands:
+                - docker push "${REPOSITORY_URI}:${TAG}"
+                - printf '{"tag":"%s"}' $TAG > ../build.json
+          artifacts:
+            files: build.json
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/docker:1.12.1
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+        - Name: AWS_DEFAULT_REGION
+          Value: !Ref AWS::Region
+        - Name: SERVICE_NAME
+          Value: !Ref ServiceName
+        - Name: REPOSITORY_URI
+          Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+      ServiceRole: !Ref CodeBuildServiceRole
+      TimeoutInMinutes: 120
+  TestProject:
+    Type: AWS::CodeBuild::Project
+    DependsOn:
+    - CodeBuildServiceRole
+    Properties:
+      Name: !Sub ${AWS::StackName}-TestProject
+      Artifacts:
+        Location: !Ref ArtifactBucket
+        Type: S3
+      Source:
+        Location: !Sub ${ArtifactBucket}/source.zip
+        Type: S3
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - sudo apt-get update && sudo apt-get install -y curl
+            build:
+              commands:
+                - echo $SERVICE_URL
+                - echo $HEALTH_CHECK
+                - CODE="$(curl -s -o /dev/null -w "%{http_code}" https://"${SERVICE_URL}""${HEALTH_CHECK}")"
+                - echo $CODE
+                - if [ $CODE -eq 200 ]; then echo 'SUCCESS'; else exit 1; fi
+            post_build:
+              commands:
+                - echo "Test Completed"
+                - ls -al
+                - cd "${SERVICE_NAME}"
+                - curl -T body.json "${WAIT_HANDLE}"
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/ubuntu-base:14.04
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+        - Name: AWS_DEFAULT_REGION
+          Value: !Ref AWS::Region
+        - Name: SERVICE_NAME
+          Value: !Ref ServiceName
+        - Name: SERVICE_URL
+          Value: !Ref ServiceUrl
+        - Name: HEALTH_CHECK
+          Value: !Ref HealthCheck
+        - Name: WAIT_HANDLE
+          Value: !Ref WaitURL
+      ServiceRole: !Ref CodeBuildServiceRole
+      TimeoutInMinutes: 120
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    DependsOn:
+    - CodePipelineServiceRole
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: App
+          ActionTypeId:
+            Category: Source
+            Owner: AWS
+            Version: 1
+            Provider: S3
+          OutputArtifacts:
+          - Name: App
+          RunOrder: 1
+          Configuration:
+            S3Bucket: !Sub ${TemplateBucket}
+            S3ObjectKey: !Sub ${TemplatePrefix}app/packages/${ServiceName}/${ServiceName}.zip
+        - Name: Template
+          ActionTypeId:
+            Category: Source
+            Owner: AWS
+            Version: 1
+            Provider: S3
+          OutputArtifacts:
+          - Name: Template
+          RunOrder: 1
+          Configuration:
+            S3Bucket: !Sub ${TemplateBucket}
+            S3ObjectKey: !Sub ${TemplatePrefix}templates/service.template.zip
+      - Name: Build
+        Actions:
+        - Name: Build
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: 1
+            Provider: CodeBuild
+          Configuration:
+            ProjectName: !Ref CodeBuildProject
+          InputArtifacts:
+          - Name: App
+          OutputArtifacts:
+          - Name: BuildOutput
+          RunOrder: 1
+      - Name: Deploy
+        Actions:
+        - Name: Deploy
+          ActionTypeId:
+            Category: Deploy
+            Owner: AWS
+            Version: 1
+            Provider: CloudFormation
+          Configuration:
+            ChangeSetName: Deploy
+            ActionMode: CREATE_UPDATE
+            StackName: !Sub ${AWS::StackName}-Service
+            Capabilities: CAPABILITY_IAM
+            TemplatePath: Template::service.template
+            TemplateConfiguration: Template::config.template
+            RoleArn: !Ref CloudFormationExecutionRole
+            ParameterOverrides: !Sub |
+              {
+                "Cluster": "${Cluster}",
+                "VPC": "${VPC}",
+                "ServiceUrl": "${ServiceUrl}",
+                "UserTable": "${UserTable}",
+                "TenantTable": "${TenantTable}",
+                "ProductTable": "${ProductTable}",
+                "OrderTable": "${OrderTable}",
+                "SnsRole": "${SnsRole}",
+                "Path": "${Path}",
+                "HealthCheck": "${HealthCheck}",
+                "Listener": "${Listener}",
+                "ServiceName": "${ServiceName}",
+                "Priority": "${Priority}",
+                "ContainerPort": "${ContainerPort}",
+                "Repository": "${Repository}"
+              }
+          InputArtifacts:
+          - Name: Template
+          - Name: BuildOutput
+          RunOrder: 1
+      - Name: Test
+        Actions:
+        - Name: Test
+          ActionTypeId:
+            Category: Test
+            Owner: AWS
+            Version: 1
+            Provider: CodeBuild
+          Configuration:
+            ProjectName: !Ref TestProject
+          InputArtifacts:
+          - Name: App
+          RunOrder: 1
+Outputs:
+  PipelineUrl:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+  ServiceStack:
+    Value: !Sub ${AWS::StackName}-Service
+...

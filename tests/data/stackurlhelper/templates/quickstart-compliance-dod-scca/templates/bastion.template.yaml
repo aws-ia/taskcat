@@ -1,0 +1,147 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provides a Bastion Instance running Amazon Linux for connectivety into
+  a VPC
+
+  '
+Parameters:
+  pEC2KeyPairBastion:
+    Description: Name of existing EC2 key pair for BASTION hosts
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: ''
+  pBastionInstanceType:
+    Description: Bastion EC2 instance type
+    Type: String
+    Default: m4.large
+  pBastionSSHCIDR:
+    Type: String
+    Default: 0.0.0.0/0
+  pBastionAmi:
+    Description: AMI to use for bastion host
+    Type: String
+    Default: ''
+  pBastionVPC:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC where the bastion host will reside
+  pBastionSubnet:
+    Type: AWS::EC2::Subnet::Id
+    Description: The Subnet where the bastion host will reside
+  pVDMSCIDR:
+    Type: String
+    Description: The CDIR range of the VDMS Subnet
+  pDeepSecurityAgentDownload:
+    Description: Base URL for download of Deep Security Agent Software
+    Type: String
+    Default: https://fqdn:port/
+  pDeepSecurityHeartbeat:
+    Description: Complete URL for activation of Deep Security Agent
+    Type: String
+    Default: dsm://fqdn:4120/
+  pEnvironment:
+    Type: String
+    Default: development
+Resources:
+  rSecurityGroupBastion:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Secures the bastion host
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: -1
+      SecurityGroupIngress:
+      - CidrIp: !Ref pBastionSSHCIDR
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      - CidrIp: !Ref pBastionSSHCIDR
+        FromPort: 3389
+        IpProtocol: tcp
+        ToPort: 3389
+      - CidrIp: !Ref pVDMSCIDR
+        IpProtocol: tcp
+        FromPort: 4118
+        ToPort: 4118
+      VpcId: !Ref pBastionVPC
+      Tags:
+      - Key: Name
+        Value: !Sub ${pBastionVPC} Bastion SecurityGroup
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rMgmtBastionInstance:
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          bootstrap:
+          - installDeepSecurityAgent
+        installDeepSecurityAgent:
+          commands:
+            0-download-DSA:
+              command:
+                Fn::Sub: 'curl -k ${pDeepSecurityAgentDownload}/software/agent/amzn1/x86_64 -o /tmp/agent.rpm'
+            1-install-DSA:
+              command: rpm -ivh /tmp/agent.rpm
+            2-sleep-for-rpm-install:
+              command: sleep 10
+            3-activate-DSA:
+              command:
+                Fn::Sub: '/opt/ds_agent/dsa_control -a ${pDeepSecurityHeartbeat} "policy:Linux Server"'
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType:
+        Ref: pBastionInstanceType
+      KeyName:
+        Ref: pEC2KeyPairBastion
+      Tags:
+      - Key: Name
+        Value:
+          !Sub
+          - ${VPC} Bastion Server
+          - VPC: !Ref pBastionVPC
+      - Key: Environment
+        Value: !Ref pEnvironment
+      ImageId:
+        Ref: pBastionAmi
+      NetworkInterfaces:
+      - NetworkInterfaceId:
+          Ref: rBastionInstanceEni
+        DeviceIndex: '0'
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - "#!/bin/bash -v\nyum install -y aws-cfn-bootstrap\n/opt/aws/bin/cfn-init\
+              \ -v --stack "
+            - !Ref AWS::StackName
+            - ' --configsets bootstrap --resource rMgmtBastionInstance --region '
+            - !Ref AWS::Region
+            - "\n/opt/aws/bin/cfn-signal -e $?  --stack "
+            - !Ref AWS::StackName
+            - ' --resource rMgmtBastionInstance --region '
+            - !Ref AWS::Region
+  rBastionInstanceEni:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref pBastionSubnet
+      GroupSet:
+      - !Ref rSecurityGroupBastion
+      Description: Interface for bastion
+      Tags:
+      - Key: Network
+        Value: Bastion
+  rEIPProdBastion:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  rAssociateEipInstance:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+        - rEIPProdBastion
+        - AllocationId
+      NetworkInterfaceId:
+        Ref: rBastionInstanceEni

@@ -1,0 +1,63 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Builds out a backend infrastructure for handling the messaging for
+  CloudFormation Custom Resources.
+Resources:
+  CustomResourceQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      ReceiveMessageWaitTimeSeconds: '20'
+      VisibilityTimeout: '30'
+  CustomResourceTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+      - Endpoint:
+          Fn::GetAtt:
+          - CustomResourceQueue
+          - Arn
+        Protocol: sqs
+  CustomResourceQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: '2008-10-17'
+        Id:
+          Fn::Join:
+          - /
+          - - Fn::GetAtt:
+              - CustomResourceQueue
+              - Arn
+            - CustomResourceQueuePolicy
+        Statement:
+        - Sid: AllowTopicToPublishMessages
+          Effect: Allow
+          Principal:
+            AWS: '*'
+          Action: SQS:SendMessage
+          Resource:
+            Fn::GetAtt:
+            - CustomResourceQueue
+            - Arn
+          Condition:
+            ArnEquals:
+              aws:SourceArn:
+                Ref: CustomResourceTopic
+      Queues:
+      - Ref: CustomResourceQueue
+Outputs:
+  CustomResourceTopicARN:
+    Value:
+      Ref: CustomResourceTopic
+  CustomResourceQueueURL:
+    Description: URL of newly created SQS Queue
+    Value:
+      Ref: CustomResourceQueue
+  CustomResourceQueueARN:
+    Description: ARN of newly created SQS Queue
+    Value:
+      Fn::GetAtt:
+      - CustomResourceQueue
+      - Arn
+...

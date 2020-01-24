@@ -1,0 +1,184 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Provides a Palo Alto VM Series firewall and bootstraps it with the configuration from the specified S3 Bucket
+  resources (for demonstration/POC/testing)
+Parameters:
+  pSubnetId:
+    Type: String
+    Description: The VPC Subnet where the firewall device will be created
+  pVpcId:
+    Type: String
+    Description: The VPC where the Subnet resides
+  pInstanceType:
+    Type: String
+    Description: The InstanceType for the firewall device
+    Default: m4.xlarge
+    AllowedValues:
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+  pInstanceKeyPair:
+    Type: String
+    Description: The SSH Keypair for the instance
+  pBootstrapBucket:
+    Type: String
+    Description: The S3 Bucket containing the PaloAlto Bootstrap configuration
+  pEnvironment:
+    Type: String
+    Default: development
+Mappings:
+  PaloAltoRegionMap:
+    us-east-1:
+      AMI: ami-a2fa3bdf
+    us-east-2:
+      AMI: ami-9ef3c5fb
+    us-west-1:
+      AMI: ami-854551e5
+    us-west-2:
+      AMI: ami-9a29b8e2
+    eu-west-1:
+      AMI: ami-1fb1ff66
+    eu-central-1:
+      AMI: ami-1ebdd571
+    us-gov-west-1:
+      AMI: ami-d4a923b5
+
+Resources:
+  paloAltoEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  paloAltoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Instance Security Group for Palo Alto Firewall. Allows RFC1918
+        10.0.0.0/8 block HTTPS
+      SecurityGroupEgress:
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: '-1'
+      SecurityGroupIngress:
+      - CidrIp: 10.0.0.0/8
+        IpProtocol: 6
+        FromPort: 1
+        ToPort: 65535
+      VpcId: !Ref pVpcId
+      Tags:
+      - Key: Name
+        Value: !Sub ${pVpcId} PaloAlto  SecurityGroup
+      - Key: Environment
+        Value: !Ref pEnvironment
+  paloAltoInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+        !FindInMap
+        - PaloAltoRegionMap
+        - !Ref AWS::Region
+        - AMI
+      InstanceType: !Ref pInstanceType
+      IamInstanceProfile: !Ref Profile
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: true
+        DeleteOnTermination: true
+        Description: PAN Management Interface
+        DeviceIndex: 0
+        GroupSet:
+        - !Ref paloAltoSecurityGroup
+        SubnetId: !Ref pSubnetId
+      KeyName: !Ref pInstanceKeyPair
+      Tags:
+      - Key: Name
+        Value: !Sub ${pVpcId} PaloAlto Instance
+      - Key: Environment
+        Value: !Ref pEnvironment
+      UserData:
+        Fn::Base64:
+          Fn::Sub:
+          - vmseries-bootstrap-aws-s3bucket=${bucket}
+          - bucket: !Ref pBootstrapBucket
+  paloAltoETH1:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: PAN Ethernet1/1
+      GroupSet:
+      - !Ref paloAltoSecurityGroup
+      SubnetId: !Ref pSubnetId
+      SourceDestCheck: false
+  paloAltoETH1Attachment:
+    Type: AWS::EC2::NetworkInterfaceAttachment
+    Properties:
+      DeleteOnTermination: true
+      DeviceIndex: 1
+      InstanceId: !Ref paloAltoInstance
+      NetworkInterfaceId: !Ref paloAltoETH1
+  paloEIPAssoc:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt paloAltoEIP.AllocationId
+      NetworkInterfaceId: !Ref paloAltoETH1
+  paloAltoETH2:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Description: PAN Ethernet1/2
+      GroupSet:
+      - !Ref paloAltoSecurityGroup
+      SubnetId: !Ref pSubnetId
+      SourceDestCheck: false
+  paloAltoETH2Attachment:
+    Type: AWS::EC2::NetworkInterfaceAttachment
+    Properties:
+      DeleteOnTermination: true
+      DeviceIndex: 2
+      InstanceId: !Ref paloAltoInstance
+      NetworkInterfaceId: !Ref paloAltoETH2
+  paloAltoRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+  paloAltoRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: root
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:Get*
+          - s3:List*
+          Resource:
+          - !Sub
+            - arn:*:s3:::${bucket}/*
+            - bucket: !Ref pBootstrapBucket
+          - !Sub
+            - arn:*:s3:::${bucket}
+            - bucket: !Ref pBootstrapBucket
+      Roles:
+      - Ref: paloAltoRole
+  Profile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - !Ref paloAltoRole
+Outputs:
+  rPaloAltoIPAddress:
+    Description: The EIP address attached to the palo alto firewall device
+    Value: !Ref paloAltoEIP
+  rPaloAltoMgmtIPAddress:
+    Description: The EIP address attached to the palo alto firewall device
+    Value: !GetAtt paloAltoInstance.PrivateIp
+  rPaloAltoEni:
+    Description: The ENI traffic may be routed to (to traverse the tunnel later built)
+    Value: !Ref paloAltoETH1
+...

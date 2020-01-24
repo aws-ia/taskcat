@@ -1,0 +1,982 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Enterprise Accelerator - Provides nesting for required stacks to
+  deploy a full sample web application with reverse proxy, ELBs, IAM, and other
+  resources (for demonstration/POC/testing)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: 'Please provide the following parameter values:'
+      Parameters:
+      - pDBPassword
+      - pNotifyEmail
+      - pEC2KeyPairBastion
+      - pEC2KeyPair
+      - pSupportsConfig
+      - pAvailabilityZones
+    - Label:
+        default: 'Deep Security Configuration:'
+      Parameters:
+      - pDeepSecurityAdminUserName
+      - pDeepSecurityAdminPass
+      - pDeepSecurityAcceptEula
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    ParameterLabels:
+      pDBPassword:
+        default: Database Password
+      pNotifyEmail:
+        default: Notification Email Address
+      pEC2KeyPairBastion:
+        default: Existing SSH Key for the Bastion Instance
+      pEC2KeyPair:
+        default: Existing SSH Key for Other Instances
+      pSupportsConfig:
+        default: Support Config
+      pAvailabilityZones:
+        default: List of Availability Zones
+      pDeepSecurityAdminUserName:
+        default: Username for Deep Security Manager Web Console Administrator
+      pDeepSecurityAdminPass:
+        default: Password for Deep Security Manager Admin user
+      pDeepSecurityAcceptEula:
+        default: Accept Trend Micro EULA
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+  Stack:
+    Value: '0'
+  VersionDate:
+    Value: '20170119'
+  Identifier:
+    Value: main
+  Input:
+    Description: Input of all required parameters in nested stacks
+  Output:
+    Description: N/A
+Parameters:
+  pDBPassword:
+    Description: |
+      Mixed alphanumeric and must be between 8 and 28 characters and contain at
+      least one capital letter
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 28
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: Can only contain alphanumeric characters or the following
+      special characters !^*-_+, between 8 and 28 characters
+  pNotifyEmail:
+    Description: |
+      Notification email address for security events (you will receive a
+      confirmation email)
+    Type: String
+    Default: distlist@example.org
+  pEC2KeyPairBastion:
+    Description: The SSH key pair in your account to use for the bastion host login
+    Type: AWS::EC2::KeyPair::KeyName
+  pEC2KeyPair:
+    Description: The SSH key pair in your account to use for all other EC2 instance
+      logins
+    Type: AWS::EC2::KeyPair::KeyName
+  pSupportsConfig:
+    Description: |
+      Is AWS Config already configured for this region? Use "No" if you are
+      uncertain. See AWS Config VDMS Console or Deployment Guide for details.
+    AllowedValues:
+    - 'Yes'
+    - 'No'
+    Default: 'No'
+    Type: String
+  pAvailabilityZones:
+    Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
+      The logical order is preserved.'
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  pDeepSecurityAdminUserName:
+    Description: The Deep Security Manager administrator username for Web Console
+      Access.
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: |
+      Must begin with a letter and contain only alphanumeric characters. Min
+      length 1, max length 16
+  pDeepSecurityAdminPass:
+    NoEcho: true
+    Description: |
+      The Deep Security Manager administrator password. Must be 8-41 characters
+      long and can only contain alphanumeric characters or the following special
+      characters !^*-_+
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: |
+      Can only contain alphanumeric characters or the following special
+      characters !^*-_+ Min length 8, max length 41
+  pDeepSecurityAcceptEula:
+    Description: |
+      By launching this CloudFormation Stack that installs Trend Micro's Deep
+      Security, you accept the terms and conditions of Trend Micro's EULA (see
+      http://www.trendmicro.com/cloud-content/us/pdfs/eula/en-english_multicountry-smb-enterprise_eula_june_2016.pdf
+      ).
+    Type: String
+    AllowedValues:
+    - 'Yes'
+    - 'No'
+    Default: 'Yes'
+    ConstraintDescription: Must accept license agreement to launch stack
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, periods (.), and hyphens (-). It cannot start or
+      end with a hyphen (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/). It cannot start or end
+      with forward slash (/) because they are automatically appended.
+    Default: quickstart-compliance-dod-scca
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/). It cannot start or end with forward slash (/) because they
+      are automatically appended.
+    Type: String
+Mappings:
+  CustomVariables:
+    vResourceEnvironmentTagKey:
+      Value: Environment
+    vResourceEnvironmentTagValue:
+      Value: development
+  AWSInfoRegionMap:
+    ap-northeast-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-northeast-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-south-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-southeast-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-southeast-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ca-central-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-central-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-west-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-west-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    sa-east-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-east-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-east-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-gov-west-1:
+      Partition: aws-us-gov
+      QuickStartS3URL: https://s3-us-gov-west-1.amazonaws.com
+    us-west-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-west-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+  RegionServiceSupport:
+    us-east-1:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    us-east-2:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    us-west-1:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    us-west-2:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    ca-central-1:
+      ConfigRules: false
+      NatGateway: true
+      Glacier: true
+    eu-central-1:
+      NatGateway: true
+      ConfigRules: true
+      Glacier: true
+    eu-west-1:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    eu-west-2:
+      ConfigRules: false
+      NatGateway: true
+      Glacier: true
+    ap-northeast-1:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    ap-northeast-2:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    ap-south-1:
+      ConfigRules: false
+      NatGateway: true
+      Glacier: true
+    ap-southeast-1:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: false
+    ap-southeast-2:
+      ConfigRules: true
+      NatGateway: true
+      Glacier: true
+    sa-east-1:
+      ConfigRules: false
+      NatGateway: true
+      Glacier: false
+    us-gov-west-1:
+      ConfigRules: false
+      NatGateway: true
+      Glacier: false
+  RegionMap:
+    us-east-1:
+      AMI: ami-14c5486b
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    us-east-2:
+      AMI: ami-922914f7
+      InstanceType: m4.large
+      InstanceTypeDatabase: db.m4.large
+    us-west-1:
+      AMI: ami-25110f45
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    us-west-2:
+      AMI: ami-e251209a
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    eu-west-1:
+      AMI: ami-ca0135b3
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    eu-central-1:
+      AMI: ami-9a91b371
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    ap-southeast-1:
+      AMI: ami-de90a5a2
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    ap-southeast-2:
+      AMI: ami-423bec20
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    ap-northeast-1:
+      AMI: ami-92df37ed
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    ap-northeast-2:
+      AMI: ami-c10fa6af
+      InstanceType: m4.large
+      InstanceTypeDatabase: db.m4.large
+    us-gov-west-1:
+      AMI: ami-ffa61d9e
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    sa-east-1:
+      AMI: ami-3885d854
+      InstanceType: m3.large
+      InstanceTypeDatabase: db.m3.large
+    ap-south-1:
+      AMI: ami-76d6f519
+      InstanceType: m4.large
+      InstanceTypeDatabase: db.m4.large
+Conditions:
+  LoadConfigRulesTemplate:
+    Fn::Equals:
+    - !Ref pSupportsConfig
+    - 'Yes'
+  LoadConfigRulesTemplateAuto:
+    Fn::Equals:
+    - Fn::FindInMap:
+      - RegionServiceSupport
+      - !Ref AWS::Region
+      - ConfigRules
+    - 'true'
+  EulaAccepted:
+    Fn::Equals:
+    - !Ref pDeepSecurityAcceptEula
+    - 'Yes'
+Resources:
+  IamTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: EulaAccepted
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-compliance-common/templates/iam.template
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+  LoggingTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: EulaAccepted
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-compliance-common/templates/logging.template
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pNotifyEmail:
+          !Ref pNotifyEmail
+        pSupportsGlacier:
+          Fn::FindInMap:
+          - RegionServiceSupport
+          - !Ref AWS::Region
+          - Glacier
+  ProductionVpcTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: EulaAccepted
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/vpc-production-isolated.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pRegionAZ1Name:
+          !Select
+          - 0
+          - !Ref pAvailabilityZones
+        pRegionAZ2Name:
+          !Select
+          - 1
+          - !Ref pAvailabilityZones
+        pProductionVPCName: Production VPC
+        pVDMSCIDR: 10.10.0.0/16
+        pVDSSCIDR: 10.20.0.0/16
+        pProductionCIDR: 10.100.0.0/16
+        pAppPrivateSubnetACIDR: 10.100.96.0/21
+        pAppPrivateSubnetBCIDR: 10.100.119.0/21
+        pDBPrivateSubnetACIDR: 10.100.194.0/21
+        pDBPrivateSubnetBCIDR: 10.100.212.0/21
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+        pEC2KeyPair:
+          !Ref pEC2KeyPair
+  VDSSvpcTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: EulaAccepted
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/vpc-vdss.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pRegionAZ1Name:
+          !Select
+          - 0
+          - !Ref pAvailabilityZones
+        pRegionAZ2Name:
+          !Select
+          - 1
+          - !Ref pAvailabilityZones
+        pVDSSVPCName: VDSS VPC
+        pVDMSCIDR: 10.10.0.0/16
+        pVDMSVPCId:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rVPCManagement
+        pVDSSCIDR: 10.20.0.0/16
+        pSubnetACIDR: 10.20.96.0/21
+        pSubnetBCIDR: 10.20.119.0/21
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+  VDMSvpcTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: ProductionVpcTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-compliance-common/templates/vpc-management.template
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        pCreateBastionHost: false
+        pManagementCIDR: 10.10.0.0/16
+        pManagementDMZSubnetACIDR: 10.10.1.0/24
+        pManagementDMZSubnetBCIDR: 10.10.2.0/24
+        pManagementPrivateSubnetACIDR: 10.10.20.0/24
+        pManagementPrivateSubnetBCIDR: 10.10.30.0/24
+        pManagementVPCName: VDMS VPC
+        pManagementDMZSubnetPublicIP: true
+        pEC2KeyPair:
+          !Ref pEC2KeyPair
+        pRegionAZ1Name:
+          !Select
+          - 0
+          - !Ref pAvailabilityZones
+        pRegionAZ2Name:
+          !Select
+          - 1
+          - !Ref pAvailabilityZones
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+        pSupportsNatGateway:
+          Fn::FindInMap:
+          - RegionServiceSupport
+          - !Ref AWS::Region
+          - NatGateway
+        pNatAmi:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pNatInstanceType:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceType
+  RouteFromVDSSToProduction:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 10.100.0.0/16
+      NetworkInterfaceId:
+        Fn::GetAtt:
+        - PaloAltoProductionVPCFirewallTemplate
+        - Outputs.rPaloAltoEni
+      RouteTableId:
+        Fn::GetAtt:
+        - VDSSvpcTemplate
+        - Outputs.rRouteTableProd
+  TrendMicroDeepSecurityTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - LoggingTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-trendmicro-deepsecurity/templates/marketplace/master-mp.template
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '60'
+      Parameters:
+        AWSIKeyPairName: !Ref pEC2KeyPair
+        AWSIVPC:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rVPCManagement
+        DSISubnetID:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rManagementDMZSubnetA
+        DBIRDSInstanceSize:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceTypeDatabase
+        DBIStorageAllocation: '200'
+        DBPBackupDays: '5'
+        DBPCreateDbInstance: 'Yes'
+        DBICAdminName: dsmadmin
+        DBICAdminPassword: !Ref pDeepSecurityAdminPass
+        DBPEngine: PostgreSQL
+        DBPEndpoint: ''
+        DBPName: dsm
+        DSCAdminName: !Ref pDeepSecurityAdminUserName
+        DSCAdminPassword: !Ref pDeepSecurityAdminPass
+        DSIMultiNode: '2'
+        DSIPLicense: PerHost
+        DSIPLicenseKey: XX-XXXX-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+        DSIPHeartbeatPort: '4120'
+        DSIPGUIPort: '443'
+        DSIPInstanceType:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceType
+        DBISubnet1:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rManagementPrivateSubnetA
+        DBISubnet2:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rManagementPrivateSubnetB
+        DBPMultiAZ: false
+        DSELBPosture: Internet-facing
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}/submodules/quickstart-trendmicro-deepsecurity/
+  PaloAltoBootStrapConfigurationTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - LoggingTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/paloalto-bootstrap.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pBootStrapConfigurationXML:
+          !Sub
+          - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/PAN-bootstrap.xml
+          - QuickStartS3URL:
+              !FindInMap
+              - AWSInfoRegionMap
+              - !Ref AWS::Region
+              - QuickStartS3URL
+        pInitCfgTXT:
+          !Sub
+          - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/PAN-init-cfg.txt
+          - QuickStartS3URL:
+              !FindInMap
+              - AWSInfoRegionMap
+              - !Ref AWS::Region
+              - QuickStartS3URL
+  PaloAltoProductionVPCFirewallTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - ProductionVpcTemplate
+    - VDSSvpcTemplate
+    - VDMSvpcTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/paloalto-firewall.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pBootstrapBucket:
+          Fn::GetAtt:
+          - PaloAltoBootStrapConfigurationTemplate
+          - Outputs.S3BucketName
+        pSubnetId:
+          Fn::GetAtt:
+          - VDSSvpcTemplate
+          - Outputs.rSubnetA
+        pVpcId:
+          Fn::GetAtt:
+          - VDSSvpcTemplate
+          - Outputs.rVPC
+        pInstanceKeyPair: !Ref pEC2KeyPair
+  VPNtoProductionVPC:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - LoggingTemplate
+    - PaloAltoProductionVPCFirewallTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/vpn.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pVpcRouteTable:
+          Fn::GetAtt:
+          - ProductionVpcTemplate
+          - Outputs.rRouteTableProdPrivate
+        pVpcId:
+          Fn::GetAtt:
+          - VDSSvpcTemplate
+          - Outputs.rVPC
+        pCustomerGatewayIP:
+          Fn::GetAtt:
+          - PaloAltoProductionVPCFirewallTemplate
+          - Outputs.rPaloAltoIPAddress
+        pVpcToConnect:
+          Fn::GetAtt:
+          - ProductionVpcTemplate
+          - Outputs.rVPCProduction
+        pVpcToConnectNacl:
+          Fn::GetAtt:
+          - ProductionVpcTemplate
+          - Outputs.rNACLPrivate
+  VPNBootStrapConfigurationTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - VPNtoProductionVPC
+    - PaloAltoProductionVPCFirewallTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/vpn-bootstrap.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pAMI:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pEC2KeyPair:
+          !Ref pEC2KeyPair
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+        pVPNTunnelNameOffset: 1
+        pVPN:
+          Fn::GetAtt:
+          - VPNtoProductionVPC
+          - Outputs.vpnId
+        pPaloAltoIP:
+          Fn::GetAtt:
+          - PaloAltoProductionVPCFirewallTemplate
+          - Outputs.rPaloAltoMgmtIPAddress
+        pSubnetId:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rManagementDMZSubnetA
+        pVpcId:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rVPCManagement
+        pTemplateUrlPrefix:
+          !Sub
+          - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/
+          - QuickStartS3URL:
+              !FindInMap
+              - AWSInfoRegionMap
+              - !Ref AWS::Region
+              - QuickStartS3URL
+  ConfigRulesTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: LoadConfigRulesTemplate
+    DependsOn:
+    - IamTemplate
+    - ProductionVpcTemplate
+    - VDMSvpcTemplate
+    - LoggingTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-compliance-common/templates/config-rules.template
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pRequiredTagKey:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagKey
+          - Value
+  RouteFromVDMSdmzToVDSS:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 10.20.0.0/16
+      VpcPeeringConnectionId:
+        Fn::GetAtt:
+        - VDSSvpcTemplate
+        - Outputs.rPeeringToVDMS
+      RouteTableId:
+        Fn::GetAtt:
+        - VDMSvpcTemplate
+        - Outputs.rRouteTableMgmtDMZ
+  RouteFromVDMSprivateToVDSS:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 10.20.0.0/16
+      VpcPeeringConnectionId:
+        Fn::GetAtt:
+        - VDSSvpcTemplate
+        - Outputs.rPeeringToVDMS
+      RouteTableId:
+        Fn::GetAtt:
+        - VDMSvpcTemplate
+        - Outputs.rRouteTableMgmtPrivate
+  ApplicationTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - ProductionVpcTemplate
+    - RouteFromVDMSdmzToVDSS
+    - RouteFromVDMSprivateToVDSS
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/application.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: 30
+      Parameters:
+        pDeepSecurityAgentDownload:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityConsole
+        pDeepSecurityHeartbeat:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityHeartbeat
+        pSecurityAlarmTopic:
+          !GetAtt
+          - LoggingTemplate
+          - Outputs.rSecurityAlarmTopic
+        pEC2KeyPair: !Ref pEC2KeyPair
+        pProductionCIDR: 10.100.0.0/16
+        pProductionVPC:
+          !GetAtt
+          - ProductionVpcTemplate
+          - Outputs.rVPCProduction
+        pAppPrivateSubnetA:
+          !GetAtt
+          - ProductionVpcTemplate
+          - Outputs.rAppPrivateSubnetA
+        pAppPrivateSubnetB:
+          !GetAtt
+          - ProductionVpcTemplate
+          - Outputs.rAppPrivateSubnetB
+        pWebInstanceType:
+          !FindInMap
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceType
+        pAppInstanceType:
+          !FindInMap
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceType
+        pDBPrivateSubnetA:
+          !GetAtt
+          - ProductionVpcTemplate
+          - Outputs.rDBPrivateSubnetA
+        pDBPrivateSubnetB:
+          !GetAtt
+          - ProductionVpcTemplate
+          - Outputs.rDBPrivateSubnetB
+        pVDMSCIDR: 10.10.0.0/16
+        pRegionAZ1Name:
+          !Select
+          - 0
+          - !Ref pAvailabilityZones
+        pRegionAZ2Name:
+          !Select
+          - 1
+          - !Ref pAvailabilityZones
+        pWebServerAMI:
+          !FindInMap
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pAppAmi:
+          !FindInMap
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pDBUser: testuserdb
+        pDBName: testDB
+        pDBPassword: !Ref pDBPassword
+        pDBClass:
+          !FindInMap
+          - RegionMap
+          - !Ref AWS::Region
+          - InstanceTypeDatabase
+        pDBAllocatedStorage: 10
+        pEnvironment:
+          !FindInMap
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+        pBastionSSHCIDR: 0.0.0.0/0
+        pSupportsGlacier:
+          !FindInMap
+          - RegionServiceSupport
+          - !Ref AWS::Region
+          - Glacier
+        pTemplateUrlPrefix:
+          !Sub
+          - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/
+          - QuickStartS3URL:
+              !FindInMap
+              - AWSInfoRegionMap
+              - !Ref AWS::Region
+              - QuickStartS3URL
+  VMDSBastionTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - VDMSvpcTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/bastion.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pDeepSecurityAgentDownload:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityConsole
+        pDeepSecurityHeartbeat:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityHeartbeat
+        pEC2KeyPairBastion: !Ref pEC2KeyPair
+        pBastionInstanceType: m4.large
+        pBastionSSHCIDR: 0.0.0.0/0
+        pVDMSCIDR: 10.10.0.0/16
+        pBastionAmi:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pBastionVPC:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rVPCManagement
+        pBastionSubnet:
+          Fn::GetAtt:
+          - VDMSvpcTemplate
+          - Outputs.rManagementDMZSubnetA
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+  VDSSBastionTemplate:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+    - VDMSvpcTemplate
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/bastion.template.yaml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL
+      TimeoutInMinutes: '20'
+      Parameters:
+        pDeepSecurityAgentDownload:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityConsole
+        pDeepSecurityHeartbeat:
+          !GetAtt
+          - TrendMicroDeepSecurityTemplate
+          - Outputs.DeepSecurityHeartbeat
+        pEC2KeyPairBastion: !Ref pEC2KeyPair
+        pBastionInstanceType: m4.large
+        pBastionSSHCIDR: 0.0.0.0/0
+        pVDMSCIDR: 10.10.0.0/16
+        pBastionAmi:
+          Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+        pBastionVPC:
+          Fn::GetAtt:
+          - VDSSvpcTemplate
+          - Outputs.rVPC
+        pBastionSubnet:
+          Fn::GetAtt:
+          - VDSSvpcTemplate
+          - Outputs.rSubnetA
+        pEnvironment:
+          Fn::FindInMap:
+          - CustomVariables
+          - vResourceEnvironmentTagValue
+          - Value
+Outputs:
+  TemplateType:
+    Value: Standard Multi-Tier Web Application
+  TemplateVersion:
+    Value: '2.0'
+  SurveyLink:
+    Description: Please take a moment to complete the survey by clicking this link
+    Value: ''
+  Help:
+    Description: For assistance or questions regarding this quickstart please email
+      compliance-accelerator@amazon.com
+    Value: ''
+...

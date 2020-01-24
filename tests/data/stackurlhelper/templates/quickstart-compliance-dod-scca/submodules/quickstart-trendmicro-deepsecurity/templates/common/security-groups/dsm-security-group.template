@@ -1,0 +1,42 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'v5.17: This template creates the security group to allow inbound communication
+  to Deep Security Manager. (qs-1ngr590iu)'
+Parameters:
+  AWSIVPC:
+    Description: Existing VPC to deploy Deep Security Manager
+    Type: AWS::EC2::VPC::Id
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[-_a-zA-Z0-9]*'
+  DSIPGUIPort:
+    Description: The Deep Security Manager application and GUI port.
+    Type: Number
+    MinValue: 0
+    MaxValue: 65535
+    Default: '4119'
+    ConstraintDescription: Must be a valid TCP port.
+  DSIPHeartbeatPort:
+    Description: The heartbeat port used by Deep Security Agents and appliances to
+      communicate with the Deep Security Manager.
+    Type: Number
+    MinValue: 0
+    MaxValue: 65535
+    Default: '4120'
+    ConstraintDescription: Must be a valid TCP port.
+Resources:
+  DSMSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow GUI, Hearbeat, and 4122 inbound to DSMs from ELB
+      VpcId: !Ref AWSIVPC
+      SecurityGroupEgress:
+      - IpProtocol: '-1'
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: DSMSG
+Outputs:
+  DSMSG:
+    Value: !Ref DSMSG
+...

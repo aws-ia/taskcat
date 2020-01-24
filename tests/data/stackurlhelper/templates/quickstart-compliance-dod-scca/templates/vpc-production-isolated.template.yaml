@@ -1,0 +1,455 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Provides networking configuration for a standard, isolated application
+  vpc
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Region Config
+      Parameters:
+      - pRegionAZ1Name
+      - pRegionAZ2Name
+    - Label:
+        default: Production VPC Config
+      Parameters:
+      - pProductionVPCName
+      - pProductionCIDR
+      - pAppPrivateSubnetACIDR
+      - pAppPrivateSubnetBCIDR
+      - pDBPrivateSubnetACIDR
+      - pDBPrivateSubnetBCIDR
+      - pEC2KeyPair
+      - pVPCTenancy
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QuickStartS3URL
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    ParameterLabels:
+      pProductionVPCName:
+        default: Name of Production VPC
+      pProductionCIDR:
+        default: Production VPC CIDR block
+      pAppPrivateSubnetACIDR:
+        default: CIDR block of Application B subnet (private)
+      pAppPrivateSubnetBCIDR:
+        default: CIDR block of Application A subnet (private)
+      pDBPrivateSubnetACIDR:
+        default: CIDR block of Database A subnet (private)
+      pDBPrivateSubnetBCIDR:
+        default: CIDR block of Database B subnet (private)
+      pEC2KeyPair:
+        default: Name of existing SSH Key for NAT Instance
+      pVPCTenancy:
+        default: Instance tenancy
+      QuickStartS3URL:
+        default: Quick Start URL
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+  Stack:
+    Value: '2'
+  VersionDate:
+    Value: '20161208'
+  Identifier:
+    Value: template-vpc-production-isolated
+  Input:
+    Description: CIDR blocks, VPC names, KeyName, EC2 instance size
+  Output:
+    Description: Outputs ID of all deployed resources
+Parameters:
+  pRegionAZ1Name:
+    Description: Availability Zone 1 Name in Region
+    Type: AWS::EC2::AvailabilityZone::Name
+  pRegionAZ2Name:
+    Description: Availability Zone 2 Name in Region
+    Type: AWS::EC2::AvailabilityZone::Name
+  pProductionVPCName:
+    Description: Production VPC Name
+    Type: String
+    Default: CommandCentral-Production
+  pProductionCIDR:
+    Description: CIDR block for Production VPC
+    Type: String
+    Default: 10.100.0.0/16
+  pVDMSCIDR:
+    Description: CIDR of VDMS VPC
+    Type: String
+  pVDSSCIDR:
+    Description: CIDR of VDSS VPC
+    Type: String
+  pAppPrivateSubnetACIDR:
+    Description: CIDR block for Application AZ-1a subnet
+    Type: String
+    Default: 10.100.96.0/21
+  pAppPrivateSubnetBCIDR:
+    Description: CIDR block for Application AZ-1b subnet
+    Type: String
+    Default: 10.100.119.0/21
+  pDBPrivateSubnetACIDR:
+    Description: CIDR block for Private AZ-1a subnet
+    Type: String
+    Default: 10.100.194.0/21
+  pDBPrivateSubnetBCIDR:
+    Description: CIDR block for Private AZ-1b subnet
+    Type: String
+    Default: 10.100.212.0/21
+  pEC2KeyPair:
+    Description: Name of existing EC2 key pair for production hosts
+    Type: String
+    Default: ''
+  pVPCTenancy:
+    Description: Instance tenancy behavior for this VPC
+    Type: String
+    Default: default
+    AllowedValues:
+    - default
+    - dedicated
+  pEnvironment:
+    Description: Environment (development, test, or production)
+    Type: String
+    Default: development
+  QuickStartS3URL:
+    Description: Quick Start S3 URL prefix.
+    Default: https://s3.amazonaws.com
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/). It cannot start or end
+      with forward slash (/) because they are automatically appended.
+    Default: quickstart-enterprise-accelerator-nist
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/). It cannot start or end with forward slash (/) because they
+      are automatically appended.
+    Type: String
+Resources:
+  rVPCProduction:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: pProductionCIDR
+      InstanceTenancy:
+        Ref: pVPCTenancy
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: Name
+        Value:
+          Ref: pProductionVPCName
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rSecurityGroupSSHFromProd:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      VpcId:
+        Ref: rVPCProduction
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp:
+          Ref: pProductionCIDR
+      Tags:
+      - Key: Name
+        Value: sg-enable-ssh-access
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rAppPrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:
+        Ref: pAppPrivateSubnetACIDR
+      AvailabilityZone:
+        Ref: pRegionAZ1Name
+      VpcId:
+        Ref: rVPCProduction
+      Tags:
+      - Key: Name
+        Value: Production App Subnet A
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rAppPrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:
+        Ref: pAppPrivateSubnetBCIDR
+      AvailabilityZone:
+        Ref: pRegionAZ2Name
+      VpcId:
+        Ref: rVPCProduction
+      Tags:
+      - Key: Name
+        Value: Production App Subnet B
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rDBPrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:
+        Ref: pDBPrivateSubnetACIDR
+      AvailabilityZone:
+        Ref: pRegionAZ1Name
+      VpcId:
+        Ref: rVPCProduction
+      Tags:
+      - Key: Name
+        Value: Production DB Subnet A
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rDBPrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock:
+        Ref: pDBPrivateSubnetBCIDR
+      AvailabilityZone:
+        Ref: pRegionAZ2Name
+      VpcId:
+        Ref: rVPCProduction
+      Tags:
+      - Key: Name
+        Value: Production DB Subnet B
+      - Key: Environment
+        Value:
+          Ref: pEnvironment
+  rNACLPrivate:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: rVPCProduction
+  rAppPrivateSubnetAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: rRouteTableProdPrivate
+      SubnetId:
+        Ref: rAppPrivateSubnetA
+  rAppPrivateSubnetAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: rRouteTableProdPrivate
+      SubnetId:
+        Ref: rAppPrivateSubnetB
+  rRouteAssocDBPrivateA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: rRouteTableProdPrivate
+      SubnetId:
+        Ref: rDBPrivateSubnetA
+  rRouteAssocDBPrivateB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: rRouteTableProdPrivate
+      SubnetId:
+        Ref: rDBPrivateSubnetB
+  rRouteTableProdPrivate:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: rVPCProduction
+      Tags:
+      - Key: Name
+        Value: rt-private-network
+  rNACLRuleAllowAllTCPInternal:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pProductionCIDR
+      Protocol: '6'
+      PortRange:
+        From: '1'
+        To: '65535'
+      RuleAction: allow
+      RuleNumber: '120'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowHTTPMgmt:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDMSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '80'
+        To: '80'
+      RuleAction: allow
+      RuleNumber: '300'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowHTTPSMgmt:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDMSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '443'
+        To: '443'
+      RuleAction: allow
+      RuleNumber: '310'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowHTTPVDSS:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDSSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '80'
+        To: '80'
+      RuleAction: allow
+      RuleNumber: '400'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowHTTPSVDSS:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDSSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '443'
+        To: '443'
+      RuleAction: allow
+      RuleNumber: '410'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowDSMtoAgentMgmt:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDMSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '4118'
+        To: '4118'
+      RuleAction: allow
+      RuleNumber: '315'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowMgmtAccessSSHtoPrivate:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock:
+        Ref: pVDMSCIDR
+      Protocol: '6'
+      PortRange:
+        From: '22'
+        To: '22'
+      RuleAction: allow
+      RuleNumber: '125'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowReturnTCPPriv:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Protocol: '6'
+      PortRange:
+        From: '1024'
+        To: '65535'
+      RuleAction: allow
+      RuleNumber: '140'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowALLfromPrivEgress:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      Protocol: '6'
+      PortRange:
+        From: '1'
+        To: '65535'
+      RuleAction: allow
+      RuleNumber: '120'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLRuleAllowAllTCPInternalEgress:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      Protocol: '6'
+      PortRange:
+        From: '1'
+        To: '65535'
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId:
+        Ref: rNACLPrivate
+  rNACLAssocAppPrivSubnetB:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: rNACLPrivate
+      SubnetId:
+        Ref: rAppPrivateSubnetB
+  rNACLAssocAppPrivSubnetA:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: rNACLPrivate
+      SubnetId:
+        Ref: rAppPrivateSubnetA
+  rNACLAssocDBPrivSubnetA:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: rNACLPrivate
+      SubnetId:
+        Ref: rDBPrivateSubnetA
+  rNACLAssocDBPrivSubnetB:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: rNACLPrivate
+      SubnetId:
+        Ref: rDBPrivateSubnetB
+Outputs:
+  rVPCProduction:
+    Value:
+      Ref: rVPCProduction
+  rRouteTableProdPrivate:
+    Value:
+      Ref: rRouteTableProdPrivate
+  rAppPrivateSubnetA:
+    Value:
+      Ref: rAppPrivateSubnetA
+  rAppPrivateSubnetB:
+    Value:
+      Ref: rAppPrivateSubnetB
+  rDBPrivateSubnetA:
+    Value:
+      Ref: rDBPrivateSubnetA
+  rDBPrivateSubnetB:
+    Value:
+      Ref: rDBPrivateSubnetB
+  rNACLPrivate:
+    Value:
+      Ref: rNACLPrivate
+...

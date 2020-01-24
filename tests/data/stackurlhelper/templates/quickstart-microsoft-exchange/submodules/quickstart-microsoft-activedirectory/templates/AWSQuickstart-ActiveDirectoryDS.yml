@@ -1,0 +1,289 @@
+---
+schemaVersion: "0.3"
+description: "Deploy AD with SSM Automation"
+# Role that is utilized to perform the steps within the Automation Document. In this case to be able to Signal CFN and Describe Instances. 
+assumeRole: "{{AutomationAssumeRole}}"
+# Gathering parameters needed to configure DCs in the Quick Start
+parameters: 
+  ADServer1NetBIOSName:
+    default: "DC1"
+    description: "NetBIOS name of the first Active Directory server (up to 15 characters)"
+    type: "String"
+  ADServer1PrivateIP:
+    default: "10.0.0.10"
+    description: "Fixed private IP for the first Active Directory server located in Availability Zone 1"
+    type: "String"
+  ADServer2NetBIOSName:
+    default: "DC2"
+    description: "NetBIOS name of the first Active Directory server (up to 15 characters)"
+    type: "String"
+  ADServer2PrivateIP:
+    default: "10.0.32.10"
+    description: "Fixed private IP for the first Active Directory server located in Availability Zone 1"
+    type: "String"
+  VPCCIDR:
+    default: '10.0.0.0/16'
+    description: "CIDR block for VPC."
+    type: "String"
+  ADAdminSecParamName:
+    description: "AWS Secrets Parameter Name that has Password and User namer for the domain administrator."
+    type: "String"
+  ADAltUserSecParamName:
+    description: "AWS Secrets Parameter Name for the account that will be added as Domain Administrator. This is separate from the default Administrator account"
+    type: "String"
+  RestoreModeSecParamName:
+    description: "AWS Secrets Parameter Name for the Restore Mode Password"
+    type: "String"
+  DomainDNSName: 
+    default: "example.com"
+    description: "Fully qualified domain name (FQDN) of the forest root domain e.g. example.com"
+    type: "String"
+  DomainNetBIOSName: 
+    default: "example"
+    description: "NetBIOS name of the domain (up to 15 characters) for users of earlier versions of Windows e.g. EXAMPLE"
+    type: "String"
+  QSS3BucketName:
+    default: "aws-quickstart"
+    description: "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-)."
+    type: "String"
+  QSS3KeyPrefix:
+    default: "quickstart-microsoft-activedirectory/"
+    description: "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/)."
+    type: "String"
+  StackName:
+    default: ""
+    description: "Stack Name Input for cfn resource signal"
+    type: "String"
+  AutomationAssumeRole:
+    default: ""
+    description: "(Optional) The ARN of the role that allows Automation to perform the actions on your behalf."
+    type: "String"
+
+mainSteps:
+# This step grabs the Instance IDs for both nodes that will be configured as DCs in the Quick Start and Instance IDs for the for next steps.
+- name: "dcsInstanceIds"
+  action: aws:executeAwsApi
+  onFailure: "step:signalfailure"
+  nextStep: "dcsInstallDscModules"
+  inputs:
+    Service: ec2
+    Api: DescribeInstances
+    Filters:  
+    - Name: "tag:Name"
+      Values: [ "{{ADServer1NetBIOSName}}","{{ADServer2NetBIOSName}}" ]
+    - Name: "instance-state-name"
+      Values: [ "running" ]
+  outputs:
+  - Name: InstanceIds
+    Selector: "$.Reservations..Instances..InstanceId"
+    Type: "StringList"
+# Installs needed Powershell DSC Modules and components on both nodes.
+- name: "dcsInstallDscModules"
+  action: "aws:runCommand"
+  onFailure: "step:signalfailure"
+  nextStep: "dcsLCMConfig"
+  inputs:
+    DocumentName: "AWS-RunRemoteScript"
+    InstanceIds:
+    - "{{dcsInstanceIds.InstanceIds}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      sourceType: "S3"
+      sourceInfo: '{"path": "https://s3.amazonaws.com/{{QSS3BucketName}}/{{QSS3KeyPrefix}}scripts/install-ad-modules.ps1"}'
+      commandLine: "./install-ad-modules.ps1"
+# Configures Local Configuration Manager on each of the nodes.
+- name: "dcsLCMConfig"
+  action: "aws:runCommand"
+  onFailure: "step:signalfailure"
+  nextStep: "dc1InstanceId"
+  inputs:
+    DocumentName: "AWS-RunRemoteScript"
+    InstanceIds:
+    - "{{dcsInstanceIds.InstanceIds}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      sourceType: "S3"
+      sourceInfo: '{"path": "https://s3.amazonaws.com/{{QSS3BucketName}}/{{QSS3KeyPrefix}}scripts/LCM-Config.ps1"}'
+      commandLine: "./LCM-Config.ps1"
+# This step grabs the Instance ID for the node that will be configured as the first DC in the new domain.
+- name: "dc1InstanceId"
+  action: aws:executeAwsApi
+  onFailure: "step:signalfailure"
+  nextStep: "2AZor3AZ"
+  inputs:
+    Service: ec2
+    Api: DescribeInstances
+    Filters:  
+    - Name: "tag:Name"
+      Values: [ "{{ADServer1NetBIOSName}}" ]
+    - Name: "instance-state-name"
+      Values: [ "running" ]
+  outputs:
+  - Name: InstanceId
+    Selector: "$.Reservations[0].Instances[0].InstanceId"
+    Type: "String"
+# Generates MOF file on first DC Node to be processed by LCM.
+- name: "createDC1Mof"
+  action: "aws:runCommand"
+  onFailure: "step:signalfailure"
+  nextStep: "configDC1"
+  inputs:
+    DocumentName: "AWS-RunRemoteScript"
+    InstanceIds:
+    - "{{dc1InstanceId.InstanceId}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      sourceType: "S3"
+      sourceInfo: '{"path": "https://s3.amazonaws.com/{{QSS3BucketName}}/{{QSS3KeyPrefix}}scripts/ConfigDC1.ps1"}'
+      commandLine: "./ConfigDC1.ps1 -ADServer1NetBIOSName {{ADServer1NetBIOSName}} -DomainNetBIOSName {{DomainNetBIOSName}} -DomainDNSName {{DomainDNSName}} -ADAdminSecParam {{ADAdminSecParamName}} -ADAltUserSecParam {{ADAltUserSecParamName}} -RestoreModeSecParam {{RestoreModeSecParamName}} -SiteName {{global:REGION}} -VPCCIDR {{VPCCIDR}}"
+# Kicks off DSC Configuration and loops\reboots until Node matches Configuration defined in MOF file.
+- name: "configDC1"
+  action: aws:runCommand
+  onFailure: "step:signalfailure"
+  nextStep: "dc2InstanceId"
+  inputs:
+    DocumentName: AWS-RunPowerShellScript
+    InstanceIds: 
+      - "{{dc1InstanceId.InstanceId}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      commands: 
+        - |     
+           function DscStatusCheck () {
+               $LCMState = (Get-DscLocalConfigurationManager).LCMState
+               if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
+                   'returning 3010, should continue after reboot'
+                   exit 3010
+               } else {
+                 Get-ChildItem C:\Windows\system32\CertSrv\CertEnroll *.crt | Copy-Item -Destination c:\inetpub\wwwroot\cert.crt  
+                 'Completed'
+               }
+           }
+           
+           Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC1' -Wait -Verbose -Force
+           
+           DscStatusCheck
+# This step grabs the Instance ID for the node that will be configured as the second DC in the new domain.
+- name: "dc2InstanceId"
+  action: aws:executeAwsApi
+  onFailure: "step:signalfailure"
+  nextStep: "createDC2Mof"
+  inputs:
+    Service: ec2
+    Api: DescribeInstances
+    Filters:  
+    - Name: "tag:Name"
+      Values: [ "{{ADServer2NetBIOSName}}" ]
+    - Name: "instance-state-name"
+      Values: [ "running" ]
+  outputs:
+  - Name: InstanceId
+    Selector: "$.Reservations[0].Instances[0].InstanceId"
+    Type: "String"
+# Generates MOF file on second DC Node to be processed by LCM.
+- name: "createDC2Mof"
+  action: "aws:runCommand"
+  onFailure: "step:signalfailure"
+  nextStep: "configDC2"
+  inputs:
+    DocumentName: "AWS-RunRemoteScript"
+    InstanceIds:
+    - "{{dc2InstanceId.InstanceId}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      sourceType: "S3"
+      sourceInfo: '{"path": "https://s3.amazonaws.com/{{QSS3BucketName}}/{{QSS3KeyPrefix}}scripts/ConfigDC2.ps1"}'
+      commandLine: "./ConfigDC2.ps1 -ADServer2NetBIOSName {{ADServer2NetBIOSName}} -DomainNetBIOSName {{DomainNetBIOSName}} -DomainDNSName {{DomainDNSName}} -ADServer1PrivateIP {{ADServer1PrivateIP}} -ADAdminSecParam {{ADAdminSecParamName}}"
+# Kicks off DSC Configuration and loops\reboots until Node matches Configuration defined in MOF file.
+- name: "configDC2"
+  action: aws:runCommand
+  onFailure: "step:signalfailure"
+  nextStep: "DnsConfig"
+  inputs:
+    DocumentName: AWS-RunPowerShellScript
+    InstanceIds: 
+      - "{{dc2InstanceId.InstanceId}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      commands: 
+        - |     
+           function DscStatusCheck () {
+               $LCMState = (Get-DscLocalConfigurationManager).LCMState
+               if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
+                   'returning 3010, should continue after reboot'
+                   exit 3010
+               } else {
+                   Get-ChildItem C:\Windows\system32\CertSrv\CertEnroll *.crt | Copy-Item -Destination c:\inetpub\wwwroot\cert.crt
+                   'Completed'
+               }
+           }
+           
+           Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC2' -Wait -Verbose -Force
+           
+           DscStatusCheck
+# Ensure that AD servers point to themselves for DNS
+- name: "DnsConfig"
+  action: "aws:runCommand"
+  onFailure: "step:signalfailure"
+  inputs:
+    DocumentName: "AWS-RunRemoteScript"
+    InstanceIds:
+      - "{{dc2InstanceId.InstanceId}}"
+    CloudWatchOutputConfig:
+      CloudWatchOutputEnabled: "true"
+      CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
+    Parameters:
+      sourceType: S3
+      sourceInfo: '{"path": "https://s3.amazonaws.com/{{QSS3BucketName}}/{{QSS3KeyPrefix}}scripts/Dns-Config.ps1"}'
+      commandLine: "./Dns-Config.ps1 -ADServer1NetBIOSName {{ADServer1NetBIOSName}} -ADServer2NetBIOSName {{ADServer2NetBIOSName}} -ADServer1PrivateIP {{ADServer1PrivateIP}} -ADServer2PrivateIP {{ADServer2PrivateIP}} -DomainDNSName {{DomainDNSName}} -ADAdminSecParam {{ADAdminSecParamName}}"
+# Determines if CFN Needs to be Signaled or if Work flow should just end
+- name: CFNSignalEnd
+  action: aws:branch
+  inputs:
+    Choices:
+    - NextStep: signalsuccess
+      Not: 
+        Variable: "{{StackName}}"
+        StringEquals: ""
+    - NextStep: sleepend
+      Variable: "{{StackName}}"
+      StringEquals: ""
+# If all steps complete successfully signals CFN of Success
+- name: "signalsuccess"
+  action: "aws:executeAwsApi"
+  isEnd: True
+  inputs:
+    Service: cloudformation
+    Api: SignalResource
+    LogicalResourceId: "DomainController2"
+    StackName: "{{StackName}}"
+    Status: SUCCESS
+    UniqueId: "{{dc2InstanceId.InstanceId}}"
+# If CFN Signl Not Needed this sleep ends work flow
+- name: "sleepend"
+  action: "aws:sleep"
+  isEnd: True
+  inputs:
+    Duration: PT1S
+# If any steps fails signals CFN of Failure
+- name: "signalfailure"
+  action: "aws:executeAwsApi"
+  inputs:
+    Service: cloudformation
+    Api: SignalResource
+    LogicalResourceId: "DomainController2"
+    StackName: "{{StackName}}"
+    Status: FAILURE
+    UniqueId: "{{dc2InstanceId.InstanceId}}"

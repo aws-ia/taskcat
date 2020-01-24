@@ -1,0 +1,120 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provides a VPN connection to the production VPC
+
+  '
+Parameters:
+  pVpcId:
+    Type: String
+    Description: The VPC where the bootstrap instance will be launched
+  pCustomerGatewayIP:
+    Description: The IP of the customer gateway (left side of the vpn)
+    Type: String
+  pVpcToConnect:
+    Description: The VPC the to connect with (right side of the vpn)
+    Type: String
+  pVpcToConnectNacl:
+    Description: (optional) The NACL used in the VpcToConnect. If specified ISAKMP
+      (udp port 500), ESP (protocal 50), and AH (protocol 51) will be allowed for
+      the customer gateway IP.
+    Type: String
+    Default: ''
+  pBgpAsn:
+    Description: The Bgp Asn for the left side of the connection. Defaults to the
+      second private ASN (the first is used as the router default asn)
+    Type: Number
+    Default: 64513
+  pVpcRouteTable:
+    Description: (optional) If specified, the provided route table will be updated
+      to use the VPN gateway as a default route
+    Default: ''
+    Type: String
+Conditions:
+  extendNACL:
+    !Not
+    - !Equals
+      - !Ref pVpcToConnectNacl
+      - ''
+  defaultRoute:
+    !Not
+    - !Equals
+      - !Ref pVpcRouteTable
+      - ''
+Resources:
+  rTargetDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn:
+    - rVPNGW
+    - rVPNGWAttachment
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref rVPNGW
+      RouteTableId: !Ref pVpcRouteTable
+  rTargetESPACLEntry:
+    Condition: extendNACL
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref pVpcToConnectNacl
+      CidrBlock:
+        !Join
+        - /
+        - - !Ref pCustomerGatewayIP
+          - '32'
+      Protocol: 50
+      RuleAction: allow
+      RuleNumber: '200'
+  rTargetHAACLEntry:
+    Condition: extendNACL
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref pVpcToConnectNacl
+      CidrBlock:
+        !Join
+        - /
+        - - !Ref pCustomerGatewayIP
+          - '32'
+      Protocol: 51
+      RuleAction: allow
+      RuleNumber: '210'
+  rTargetIsaKmpACLEntry:
+    Condition: extendNACL
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId: !Ref pVpcToConnectNacl
+      CidrBlock:
+        !Join
+        - /
+        - - !Ref pCustomerGatewayIP
+          - '32'
+      Protocol: 17
+      PortRange:
+        From: 500
+        To: 500
+      RuleAction: allow
+      RuleNumber: '220'
+  rVPNGW:
+    Type: AWS::EC2::VPNGateway
+    Properties:
+      Type: ipsec.1
+  rCGW:
+    Type: AWS::EC2::CustomerGateway
+    Properties:
+      BgpAsn: !Ref pBgpAsn
+      IpAddress: !Ref pCustomerGatewayIP
+      Type: ipsec.1
+  rVPNGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref pVpcToConnect
+      VpnGatewayId: !Ref rVPNGW
+  rVPNConnection:
+    Type: AWS::EC2::VPNConnection
+    Properties:
+      Type: ipsec.1
+      CustomerGatewayId: !Ref rCGW
+      VpnGatewayId: !Ref rVPNGW
+Outputs:
+  vpnId:
+    Value: !Ref rVPNConnection
+    Description: The id of the vpn connection resource
+...

@@ -1,0 +1,3771 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'This template deploys two Windows Server Failover Clustering (Exchange)
+  with Exchange Server 2016 / 2019. This template is intended to be installed into
+  an existing VPC that was built using the sample reference architecture titled: "Implementing
+  Active Directory Domain Services in the AWS Cloud" **WARNING** This template creates
+  Amazon EC2 Windows instance and related resources. You will be billed for the AWS
+  resources used if you create a stack from this template. 2016 QS(0042) / 2019 (000E)'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Network Configuration
+      Parameters:
+      - ThirdAZ
+      - VPCID
+      - VPCCidrBlock
+      - PrivateSubnet1ID
+      - PrivateSubnet1CIDR
+      - PrivateSubnet2ID
+      - PrivateSubnet2CIDR
+      - PrivateSubnet3ID
+      - PrivateSubnet3CIDR
+      - PublicSubnet1ID
+      - PublicSubnet2ID
+    - Label:
+        default: Amazon EC2 Configuration
+      Parameters:
+      - KeyPairName
+      - WS2016FULLBASE
+      - WS2019FULLBASE
+    - Label:
+        default: Microsoft Active Directory Configuration
+      Parameters:
+      - DomainDNSName
+      - DomainNetBIOSName
+      - DomainAdminUser
+      - DomainAdminPassword
+      - ADServer1NetBIOSName
+      - ADServer1PrivateIP
+      - ADServer2NetBIOSName
+      - DomainMemberSGID
+    - Label:
+        default: Microsoft Exchange Server Configuration
+      Parameters:
+      - ExchangeServerVersion
+      - IncludeEdgeTransportRole
+      - EdgeInstanceType
+      - EdgeNode1NetBIOSName
+      - EdgeNode1PrivateIP1
+      - EdgeNode2NetBIOSName
+      - EdgeNode2PrivateIP1
+      - EnableReFSVolumes
+      - EncryptDataVolumes
+      - EncryptionKmsKey
+      - VolumeSize
+      - VolumeType
+      - VolumeIops
+      - Exchange2016Source
+      - Exchange2019Source
+    - Label:
+        default: Load Balancer Configuration
+      Parameters:
+      - DeployLoadBalancer
+      - CertificateArn
+    - Label:
+        default: Failover Cluster Configuration
+      Parameters:
+      - FileServerInstanceType
+      - FileServerNetBIOSName
+      - FileServerPrivateIP
+      - ExchangeNodeInstanceType
+      - ExchangeNode1NetBIOSName
+      - ExchangeNode1PrivateIP1
+      - ExchangeNode1PrivateIP2
+      - ExchangeNode2NetBIOSName
+      - ExchangeNode2PrivateIP1
+      - ExchangeNode2PrivateIP2
+      - ExchangeNode3NetBIOSName
+      - ExchangeNode3PrivateIP1
+      - ExchangeNode3PrivateIP2
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    ParameterLabels:
+      ADServer1NetBIOSName:
+        default: Domain Controller 1 NetBIOS name
+      ADServer1PrivateIP:
+        default: Domain Controller 1 private IP address
+      ADServer2NetBIOSName:
+        default: Domain Controller 2 NetBIOS name
+      CertificateArn:
+        default: Application Load Balancer Certificate
+      DeployLoadBalancer:
+        default: Deploy Application Load Balancer
+      DomainAdminPassword:
+        default: Domain Admin password
+      DomainAdminUser:
+        default: Domain Admin user name
+      DomainDNSName:
+        default: Domain DNS name
+      DomainMemberSGID:
+        default: Security Group ID for AD domain members
+      DomainNetBIOSName:
+        default: Domain NetBIOS name
+      ExchangeServerVersion:
+        default: Exchange Server version
+      EdgeInstanceType:
+        default: Instance type for Edge server
+      EnableReFSVolumes:
+        default: Enable or disable ReFS
+      EncryptDataVolumes:
+        default: Encrypt Data volumes
+      EncryptionKmsKey:
+        default: KMS key to encrypt volumes
+      Exchange2016Source:
+        default: Path to Exchange 2016 ISO
+      Exchange2019Source:
+        default: Path to Exchange 2019 ISO
+      IncludeEdgeTransportRole:
+        default: Deploy Edge servers
+      KeyPairName:
+        default: Key Pair Name
+      PrivateSubnet1ID:
+        default: Private Subnet 1 ID
+      PrivateSubnet1CIDR:
+        default: Private Subnet 1 CIDR
+      PrivateSubnet2ID:
+        default: Private Subnet 2 ID
+      PrivateSubnet2CIDR:
+        default: Private Subnet 2 CIDR
+      PrivateSubnet3ID:
+        default: Private Subnet 3 ID
+      PrivateSubnet3CIDR:
+        default: Private Subnet 3 CIDR
+      PublicSubnet1ID:
+        default: Public Subnet 1 ID
+      PublicSubnet2ID:
+        default: Public Subnet 2 ID
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+      ThirdAZ:
+        default: Third Availability Zone
+      VPCID:
+        default: VPC for Exchange deployment
+      VPCCidrBlock:
+        default: CIDR block of VPC
+      VolumeIops:
+        default: Data Volume IOPS
+      VolumeSize:
+        default: Data Volume size (GiB)
+      VolumeType:
+        default: Data Volume type
+      WS2016FULLBASE:
+        default: Windows Server 2016 AMI name
+      WS2019FULLBASE:
+        default: Windows Server 2019 AMI name
+      FileServerInstanceType:
+        default: File Server instance type
+      FileServerNetBIOSName:
+        default: File Server NetBIOS name
+      FileServerPrivateIP:
+        default: File Server private IP address
+      ExchangeNodeInstanceType:
+        default: Instance type for Exchange nodes
+      ExchangeNode1NetBIOSName:
+        default: Exchange Node 1 NetBIOS name
+      ExchangeNode1PrivateIP1:
+        default: Exchange Node 1 private IP address 1
+      ExchangeNode1PrivateIP2:
+        default: Exchange Node 1 private IP address 2
+      ExchangeNode2NetBIOSName:
+        default: Exchange Node 2 NetBIOS name
+      ExchangeNode2PrivateIP1:
+        default: Exchange Node 2 private IP address 1
+      ExchangeNode2PrivateIP2:
+        default: Exchange Node 2 private IP address 2
+      ExchangeNode3NetBIOSName:
+        default: Exchange Node 3 NetBIOS Name
+      ExchangeNode3PrivateIP1:
+        default: Exchange Node 3 private IP address 1
+      ExchangeNode3PrivateIP2:
+        default: Exchange Node 3 private IP address 2
+      EdgeNode1NetBIOSName:
+        default: Edge Node 1 NetBIOS Name
+      EdgeNode1PrivateIP1:
+        default: Edge Node 1 private IP address
+      EdgeNode2NetBIOSName:
+        default: Edge Node 2 NetBIOS name
+      EdgeNode2PrivateIP1:
+        default: Edge Node 2 private IP address
+Parameters:
+  ADServer1NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: DC1
+    Description: The NetBIOS name of the first Active Directory server (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ADServer1PrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.10
+    Description: The private IP for the first Active Directory server located in Availability
+      Zone 1.
+    Type: String
+  ADServer2NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: DC2
+    Description: The NetBIOS name of the second Active Directory server (up to 15
+      characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  CertificateArn:
+    Default: ''
+    Description: (Conditional) If 'true' was chosen in Deploy Application Load Balancer
+      option, specify the Certificate arn to be used by load balancer in arn:aws:acm:[REGION]:[ACCOUNTNUMBER]:certificate/[GUID]
+      format.
+    MaxLength: '90'
+    Type: String
+  DeployLoadBalancer:
+    AllowedValues:
+    - 'false'
+    - 'true'
+    Default: 'false'
+    Description: Choose true to deploy an Application Load Balancer (ALB).
+    Type: String
+  DomainAdminPassword:
+    AllowedPattern: (?=^.{6,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
+    Description: The password for the domain admin user. Must be at least 8 characters
+      containing letters, numbers and symbols.
+    MaxLength: '32'
+    MinLength: '8'
+    NoEcho: 'true'
+    Type: String
+  DomainAdminUser:
+    AllowedPattern: '[a-zA-Z0-9]*'
+    Default: StackAdmin
+    Description: The user name for the account that will be used as Domain Administrator.
+      This is separate from the default "Administrator" account.
+    MaxLength: '25'
+    MinLength: '5'
+    Type: String
+  DomainDNSName:
+    AllowedPattern: '[a-zA-Z0-9]+\..+'
+    Default: example.com
+    Description: The fully qualified domain name (FQDN) of the forest root domain
+      (e.g. example.com).
+    MaxLength: '25'
+    MinLength: '3'
+    Type: String
+  DomainMemberSGID:
+    Description: The ID of the Domain Member Security Group (e.g., sg-7f16e910).
+    Type: AWS::EC2::SecurityGroup::Id
+  DomainNetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: EXAMPLE
+    Description: The NetBIOS name of the domain (up to 15 characters) for users of
+      earlier versions of Windows (e.g. EXAMPLE).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ExchangeServerVersion:
+    AllowedValues:
+    - '2016'
+    - '2019'
+    Default: '2016'
+    Description: Version of Exchange Server to install. Options include either "2016"
+      or "2019"
+    Type: String
+  EdgeInstanceType:
+    Description: The Amazon EC2 instance type for the Exchange Edge Transport servers.
+    Type: String
+    Default: t3.large
+    AllowedValues:
+    - t3.large
+    - t3.large
+    - m5.large
+    - m5.xlarge
+    ConstraintDescription: Select a general purpose instance type
+  EdgeNode1NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: EdgeNode1
+    Description: The NetBIOS name of the first Edge Server (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  EdgeNode1PrivateIP1:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.128.12
+    Description: The primary private IP for the first Edge Server located in Availability
+      Zone 1.
+    Type: String
+  EdgeNode2NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: EdgeNode2
+    Description: The NetBIOS name of the second Edge Server (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  EdgeNode2PrivateIP1:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.144.12
+    Description: The primary private IP for the second Edge Server located in Availability
+      Zone 2.
+    Type: String
+  EnableReFSVolumes:
+    AllowedValues:
+      - 'false'
+      - 'true'
+    Default: 'true'
+    Description: Choose false to format the data and log volumes on Exchange nodes using NTFS instead of ReFS. 
+    Type: String
+  EncryptDataVolumes:
+    AllowedValues:
+    - 'false'
+    - 'true'
+    Default: 'false'
+    Description: Choose true to encrypt the data and log volumes on Exchange nodes.
+    Type: String
+  EncryptionKmsKey:
+    Default: ''
+    Description: (Optional) Specify the KMS encryption arn in format arn:aws:kms:[REGION]:[ACCOUNTNUMBER]:key/[GUID].
+      Leave blank to use default EBS encryption key.
+    MaxLength: '90'
+    Type: String
+  IncludeEdgeTransportRole:
+    AllowedValues:
+    - 'yes'
+    - 'no'
+    Default: 'no'
+    Description: Choose yes to deploy Exchange Edge Transport servers in the public
+      subnets.
+    Type: String
+  KeyPairName:
+    Description: The public/private key pair, which allows you to connect securely
+      to your instance after it launches. When you created an AWS account, this is
+      the key pair you created in your preferred region.
+    Type: AWS::EC2::KeyPair::KeyName
+  PrivateSubnet1ID:
+    Description: The ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd).
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Default: 10.0.0.0/19
+    Description: The CIDR block for the private subnet 1 located in Availability Zone
+      1.
+    Type: String
+  PrivateSubnet2ID:
+    Description: The ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-a0246dcd).
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Default: 10.0.32.0/19
+    Description: The CIDR block for the private subnet 2 located in Availability Zone
+      2.
+    Type: String
+  PrivateSubnet3ID:
+    Default: ''
+    Description: (Optional) The ID of the private subnet 3 in Availability Zone 3
+      (e.g., subnet-a0246dcd)
+    Type: String
+  PrivateSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Default: 10.0.64.0/19
+    Description: (Optional) The CIDR block for private subnet 3 located in Availability
+      Zone 3.
+    Type: String
+  PublicSubnet1ID:
+    Description: (Optional) The ID of the public subnet 1 in Availability Zone 1 (e.g.,
+      subnet-a0246dcd).
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: (Optional) The ID of the public subnet 2 in Availability Zone 2 (e.g.,
+      subnet-a0246dcd).
+    Type: AWS::EC2::Subnet::Id
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-microsoft-exchange/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+  ThirdAZ:
+    AllowedValues:
+    - 'no'
+    - witness
+    - full
+    Default: 'no'
+    Description: Enables you to deploy three Availability Zones. The third Availability
+      Zone can either be used just for the witness, or can be a full Exchange node.
+      If you use the Availability Zone for the witness, you must set the File Server
+      Private IP Address parameter to an IP in the third subnet range.
+    Type: String
+  VPCID:
+    Description: The ID of the VPC (e.g., vpc-0343606e).
+    Type: AWS::EC2::VPC::Id
+  VPCCidrBlock:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: The CIDR block for the VPC.
+    Type: String
+  VolumeIops:
+    Default: '1000'
+    Description: The Iops for the Exchange Data drive (Only used when volume type
+      is io1).
+    MaxValue: '20000'
+    MinValue: '100'
+    Type: Number
+  VolumeSize:
+    Default: '500'
+    Description: The volume size for the Exchange data drive.
+    MaxValue: '16000'
+    MinValue: '100'
+    Type: Number
+  VolumeType:
+    AllowedValues:
+    - gp2
+    - io1
+    Default: gp2
+    Description: The volume type for the Exchange data drive.
+    Type: String
+  FileServerInstanceType:
+    Default: t3.small
+    Description: The Amazon EC2 instance type for the file-share witness server.
+    Type: String
+  FileServerNetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: FileServer
+    Description: The NetBIOS name of the file-share witness server (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  FileServerPrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.200
+    Description: The primary private IP for the file-share witness server.
+    Type: String
+  ExchangeNodeInstanceType:
+    AllowedValues:
+    - m5.xlarge
+    - r4.xlarge
+    - r4.2xlarge
+    - r4.4xlarge
+    - r4.8xlarge
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.8xlarge
+    ConstraintDescription: Only EBS Optimized instance types r4.*, r5.* allowed
+    Default: r5.xlarge
+    Description: The Amazon EC2 instance type for the Exchange nodes.
+    Type: String
+  ExchangeNode1NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: ExchangeNode1
+    Description: The NetBIOS name of the first Exchange Node (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ExchangeNode1PrivateIP1:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.100
+    Description: The primary private IP for Exchange node 1.
+    Type: String
+  ExchangeNode1PrivateIP2:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.101
+    Description: The secondary private IP for Exchange node 1.
+    Type: String
+  ExchangeNode2NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: ExchangeNode2
+    Description: The NetBIOS name of the second Exchange Node (up to 15 characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ExchangeNode2PrivateIP1:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.32.100
+    Description: The primary private IP for Exchange node 2.
+    Type: String
+  ExchangeNode2PrivateIP2:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.32.101
+    Description: The secondary private IP for Exchange node 2.
+    Type: String
+  ExchangeNode3NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9]+'
+    Default: ExchangeNode3
+    Description: (Optional) The NetBIOS name of the third Exchange node (up to 15
+      characters).
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ExchangeNode3PrivateIP1:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.64.100
+    Description: (Optional) The primary private IP for the Exchange node 3.
+    Type: String
+  ExchangeNode3PrivateIP2:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.64.101
+    Description: (Optional) The secondary private IP for the Exchange node 3.
+    Type: String
+  WS2016FULLBASE:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base'
+    Description: The image name for the AWS Systems Manager Windows Server 2016 AMI ID lookup
+  WS2019FULLBASE:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base'
+    Description: The image name for the AWS Systems Manager Windows Server 2019 AMI ID lookup
+  Exchange2016Source:
+    Default: 'https://download.microsoft.com/download/f/4/e/f4e4b3a0-925b-4eff-8cc7-8b5932d75b49/ExchangeServer2016-x64-cu14.iso'
+    Description: Full URL (including https://) for Exchange 2016 ISO.
+    MaxLength: '2000'
+    MinLength: '1'
+    Type: String
+  Exchange2019Source:
+    Default: 'https://'
+    Description: Full URL (including https://) for Exchange 2019 ISO.
+    MaxLength: '2000'
+    MinLength: '1'
+    Type: String
+Conditions:
+  DeployEdge:
+    !Equals
+    - !Ref IncludeEdgeTransportRole
+    - 'yes'
+  DeployLoadBalancer:
+    !Equals
+    - !Ref DeployLoadBalancer
+    - 'true'
+  Exchange2016Selected:
+    !Equals
+    - !Ref ExchangeServerVersion
+    - '2016'
+  GovCloudCondition:
+    !Equals
+    - !Ref AWS::Region
+    - us-gov-west-1
+  EncryptionKmsKeySelected:
+    !Not
+    - !Equals
+      - !Ref EncryptionKmsKey
+      - ''
+  IsTwoNode:
+    !Not
+    - !Equals
+      - !Ref ThirdAZ
+      - full
+  ThirdAzIsFullNode:
+    !Equals
+    - !Ref ThirdAZ
+    - full
+  ThirdAzIsWitness:
+    !Equals
+    - !Ref ThirdAZ
+    - witness
+  UseEncryptedDataVolumes:
+    !Equals
+    - !Ref EncryptDataVolumes
+    - 'true'
+  UseReFSDataVolumes:
+    !Equals
+    - !Ref EnableReFSVolumes
+    - 'true'
+  VolIsIo1:
+    !Equals
+    - !Ref VolumeType
+    - io1
+Rules:
+  SubnetsInVPC:
+    Assertions:
+    - Assert:
+        !EachMemberIn
+        - !ValueOfAll
+          - AWS::EC2::Subnet::Id
+          - VpcId
+        - !RefAll AWS::EC2::VPC::Id
+      AssertDescription: All subnets must in the VPC
+Mappings:
+  MediaLinksMapper:
+    UCMA:
+      ALL: https://download.microsoft.com/download/2/C/4/2C47A5C1-A1F3-4843-B9FE-84C0032C61EC/UcmaRuntimeSetup.exe
+    NetFramework:
+      v472: https://download.microsoft.com/download/6/E/4/6E48E8AB-DC00-419E-9704-06DD46E5F81D/NDP472-KB4054530-x86-x64-AllOS-ENU.exe
+      v48: https://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/abd170b4b0ec15ad0222a809b761a036/ndp48-x86-x64-allos-enu.exe
+    VisualCRuntime:
+      2012x64: https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe
+      2013x64: https://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe
+Resources:
+  ExchangeAdminSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 'ExAltUserSecrets-${AWS::StackName}'
+      Description: Exchange Admin User from AD Quick Start
+      SecretString: !Sub '{"username":"${DomainAdminUser}","password":"${DomainAdminPassword}"}'
+  EDGE1:
+    DependsOn: ExchangeNode1WaitCondition
+    Condition: DeployEdge
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup:
+          commands:
+            a-disable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Disable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            b-enable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Enable"
+              waitAfterCompletion: '0'
+            c-remove-wsmantrustedhost:
+              command: powershell.exe -Command "Set-Item WSMan:\localhost\Client\TrustedHosts -value '' -Force"
+              waitAfterCompletion: '0'
+        Finalize:
+          commands:
+            a-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            b-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install:
+          commands:
+            a-install-exchange-edge:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeEdgeServer.ps1
+                    -EdgeNodeNetBIOSName '
+                  - !Ref EdgeNode1NetBIOSName
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: '0'
+            b-create-edge-dnsrecord:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Configure-EdgeDnsRecord.ps1
+                    -EdgeNodeNetBIOSName '
+                  - !Ref EdgeNode1NetBIOSName
+                  - ''' -EdgeNodePrivateIP '''
+                  - !Ref EdgeNode1PrivateIP1
+                  - ''' -DnsServer '''
+                  - !Ref ADServer1PrivateIP
+                  - ''' -DomainNetBIOSName '''
+                  - !Ref DomainDNSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - '''"'
+              waitAfterCompletion: '0'
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref EdgeNode1NetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-set-DnsSuffix:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -command "c:\cfn\scripts\Set-PrimaryDNSSuffix.ps1
+                    -Suffix '
+                  - !Ref DomainDNSName
+                  - '''"'
+              waitAfterCompletion: forever
+            c-install-edge-prerequisites:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-EdgePrerequisites.ps1
+                    -ExchangeServerVersion '
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: '0'
+            d-reset-local-admin:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -command C:\cfn\scripts\Reset-LocalAdminPassword.ps1
+                    -password '
+                  - !Ref DomainAdminPassword
+                  - ''''
+              waitAfterCompletion: '0'
+            e-enable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Enable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            f-disable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Disable"
+              waitAfterCompletion: '0'
+            g-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            h-download-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            i-expand-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Expand-Exchange.ps1 -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExchangeDownloadLink '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            j-configure-wsmantrustedhost:
+              command: !Sub |
+                powershell.exe -command "Set-Item WSMan:\localhost\Client\TrustedHosts -value '${ADServer1PrivateIP}' -Force"
+              waitAfterCompletion: '0'
+            k-download-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            l-download-netframework:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+            m-install-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref EdgeNode1NetBIOSName
+                  - ''' -DomainAdminUser ''Administrator'
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            n-install-netframework:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-NetFramework.ps1
+                    -DomainNetBIOSName '
+                  - !Ref EdgeNode1NetBIOSName
+                  - ''' -DomainAdminUser ''Administrator'
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -NetFrameworkDownloadLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+              waitAfterCompletion: '0'
+            o-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref EdgeNode1WaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Restart-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Restart-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Enable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Enable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Disable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Disable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Expand-Exchange.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Expand-Exchange.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-EdgePrerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-EdgePrerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeEdgeServer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeEdgeServer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Set-PrimaryDNSSuffix.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Set-PrimaryDNSSuffix.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-EdgeDnsRecord.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-EdgeDnsRecord.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Reset-LocalAdminPassword.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Reset-LocalAdminPassword.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-UAC.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-UAC.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Download-Prerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Download-Prerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-VisualCRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-VisualCRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-NetFramework.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-NetFramework.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      - DeviceName: /dev/xvdca
+        VirtualName: ephemeral0
+      ImageId:
+        !If
+        - Exchange2016Selected
+        - !Ref WS2016FULLBASE
+        - !Ref WS2019FULLBASE
+      IamInstanceProfile: !Ref ExchangeProfile
+      InstanceType: !Ref EdgeInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref EXCHEdgeSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref EdgeNode1PrivateIP1
+        SubnetId: !Ref PublicSubnet1ID
+      Tags:
+      - Key: Name
+        Value: !Ref EdgeNode1NetBIOSName
+      Tenancy: default
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r EDGE1 '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+    Type: AWS::EC2::Instance
+  EdgeNode1EIP:
+    Condition: DeployEdge
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref EDGE1
+  EDGE2:
+    DependsOn: ExchangeNode1WaitCondition
+    Condition: DeployEdge
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup:
+          commands:
+            a-disable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Disable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            b-enable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Enable"
+              waitAfterCompletion: '0'
+            c-remove-wsmantrustedhost:
+              command: powershell.exe -Command "Set-Item WSMan:\localhost\Client\TrustedHosts -value '' -Force"
+              waitAfterCompletion: '0'
+        Finalize:
+          commands:
+            a-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            b-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install:
+          commands:
+            a-install-exchange-edge:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeEdgeServer.ps1
+                    -EdgeNodeNetBIOSName '
+                  - !Ref EdgeNode2NetBIOSName
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: '0'
+            b-create-edge-dnsrecord:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Configure-EdgeDnsRecord.ps1
+                    -EdgeNodeNetBIOSName '
+                  - !Ref EdgeNode2NetBIOSName
+                  - ''' -EdgeNodePrivateIP '''
+                  - !Ref EdgeNode2PrivateIP1
+                  - ''' -DnsServer '''
+                  - !Ref ADServer1PrivateIP
+                  - ''' -DomainNetBIOSName '''
+                  - !Ref DomainDNSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - '''"'
+              waitAfterCompletion: '0'
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref EdgeNode2NetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-set-DnsSuffix:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -command "c:\cfn\scripts\Set-PrimaryDNSSuffix.ps1
+                    -Suffix '
+                  - !Ref DomainDNSName
+                  - '''"'
+              waitAfterCompletion: forever
+            c-install-edge-prerequisites:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-EdgePrerequisites.ps1
+                    -ExchangeServerVersion '
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: '0'
+            d-reset-local-admin:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -command C:\cfn\scripts\Reset-LocalAdminPassword.ps1
+                    -password '
+                  - !Ref DomainAdminPassword
+                  - ''''
+              waitAfterCompletion: '0'
+            e-enable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Enable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            f-disable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Disable"
+              waitAfterCompletion: '0'
+            g-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            h-download-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            i-expand-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Expand-Exchange.ps1 -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExchangeDownloadLink '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            j-configure-wsmantrustedhost:
+              command: !Sub |
+                powershell.exe -command "Set-Item WSMan:\localhost\Client\TrustedHosts -value '${ADServer1PrivateIP}' -Force"
+              waitAfterCompletion: '0'
+            k-download-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            l-download-netframework:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+            m-install-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref EdgeNode2NetBIOSName
+                  - ''' -DomainAdminUser ''Administrator'
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            n-install-netframework:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-NetFramework.ps1
+                    -DomainNetBIOSName '
+                  - !Ref EdgeNode2NetBIOSName
+                  - ''' -DomainAdminUser ''Administrator'
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -NetFrameworkDownloadLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+              waitAfterCompletion: '0'
+            o-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref EdgeNode2WaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Restart-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Restart-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Enable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Enable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Disable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Disable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Expand-Exchange.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Expand-Exchange.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-EdgePrerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-EdgePrerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeEdgeServer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeEdgeServer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Set-PrimaryDNSSuffix.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Set-PrimaryDNSSuffix.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-EdgeDnsRecord.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-EdgeDnsRecord.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Reset-LocalAdminPassword.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Reset-LocalAdminPassword.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-UAC.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-UAC.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Download-Prerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Download-Prerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-VisualCRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-VisualCRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-NetFramework.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-NetFramework.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      - DeviceName: /dev/xvdca
+        VirtualName: ephemeral0
+      IamInstanceProfile: !Ref ExchangeProfile
+      ImageId:
+        !If
+        - Exchange2016Selected
+        - !Ref WS2016FULLBASE
+        - !Ref WS2019FULLBASE
+      InstanceType: !Ref EdgeInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref EXCHEdgeSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref EdgeNode2PrivateIP1
+        SubnetId: !Ref PublicSubnet2ID
+      Tags:
+      - Key: Name
+        Value: !Ref EdgeNode2NetBIOSName
+      Tenancy: default
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r EDGE2 '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+    Type: AWS::EC2::Instance
+  EdgeNode2EIP:
+    Condition: DeployEdge
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref EDGE2
+  EdgeNode1WaitCondition:
+    Condition: DeployEdge
+    DependsOn: EDGE1
+    Properties:
+      Handle: !Ref EdgeNode1WaitHandle
+      Timeout: '9000'
+    Type: AWS::CloudFormation::WaitCondition
+  EdgeNode1WaitHandle:
+    Condition: DeployEdge
+    Type: AWS::CloudFormation::WaitConditionHandle
+  EdgeNode2WaitCondition:
+    Condition: DeployEdge
+    DependsOn: EDGE2
+    Properties:
+      Handle: !Ref EdgeNode2WaitHandle
+      Timeout: '9000'
+    Type: AWS::CloudFormation::WaitCondition
+  EdgeNode2WaitHandle:
+    Condition: DeployEdge
+    Type: AWS::CloudFormation::WaitConditionHandle
+  EXCHClientSecurityGroup:
+    Properties:
+      GroupDescription: Exchange Client access ports
+      SecurityGroupIngress:
+      - Description: Encrypted web connections from clients
+        FromPort: 443
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 443
+      - Description: Unencrypted web connections from clients
+        FromPort: 80
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 80
+      - Description: IMAP4 clients
+        FromPort: 143
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 143
+      - Description: Secure IMAP4 clients
+        FromPort: 993
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 993
+      - Description: POP3 clients
+        FromPort: 110
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 110
+      - Description: Secure POP3 clients
+        FromPort: 995
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 995
+      - Description: Authenticated SMTP clients
+        FromPort: 587
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 587
+      - Description: SMTP clients
+        FromPort: 25
+        IpProtocol: tcp
+        CidrIp: !Ref VPCCidrBlock
+        ToPort: 25
+      VpcId: !Ref VPCID
+    Type: AWS::EC2::SecurityGroup
+  ExchangeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Policies:
+      - PolicyName: aws-quick-start-s3-policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Action:
+            - s3:GetObject
+            Resource:
+              !Sub
+              - arn:${Partition}:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*
+              - Partition:
+                  !If
+                  - GovCloudCondition
+                  - aws-us-gov
+                  - aws
+            Effect: Allow
+      - PolicyName: AD-SSM-Secrets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - secretsmanager:GetSecretValue
+            - secretsmanager:DescribeSecret
+            Resource: !Ref ExchangeAdminSecrets
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Effect: Allow
+        Version: '2012-10-17'
+  ExchangeProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+      - !Ref ExchangeRole
+      Path: /
+  EXCHEdgeSecurityGroup:
+    Condition: DeployEdge
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable communications for Exchange Edge Transport Servers
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+      - Description: Edge Server directory synchronization
+        IpProtocol: udp
+        FromPort: 50636
+        ToPort: 50636
+        CidrIp: !Ref PrivateSubnet1CIDR
+      - Description: Edge Server directory synchronization
+        IpProtocol: udp
+        FromPort: 50636
+        ToPort: 50636
+        CidrIp: !Ref PrivateSubnet2CIDR
+      - Description: Edge Server directory synchronization
+        IpProtocol: udp
+        FromPort: 50636
+        ToPort: 50636
+        CidrIp: !Ref PrivateSubnet3CIDR
+      - Description: Inbound mail over SMTP
+        IpProtocol: tcp
+        FromPort: 25
+        ToPort: 25
+        CidrIp: 0.0.0.0/0
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: DeployLoadBalancer
+    Properties:
+      GroupDescription: Allow https to the load balancer
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+  FileServerWaitCondition:
+    Condition: IsTwoNode
+    DependsOn: FileServer
+    Properties:
+      Handle: !Ref FileServerWaitHandle
+      Timeout: '3600'
+    Type: AWS::CloudFormation::WaitCondition
+  FileServerWaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  ExchangeNode1WaitCondition:
+    DependsOn: ExchangeNode1
+    Properties:
+      Handle: !Ref ExchangeNode1WaitHandle
+      Timeout: '9000'
+    Type: AWS::CloudFormation::WaitCondition
+  ExchangeNode1WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  ExchangeNode2WaitCondition:
+    DependsOn: ExchangeNode2
+    Properties:
+      Handle: !Ref ExchangeNode2WaitHandle
+      Timeout: '9000'
+    Type: AWS::CloudFormation::WaitCondition
+  ExchangeNode2WaitHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+  ExchangeNode3WaitCondition:
+    Condition: ThirdAzIsFullNode
+    DependsOn: ExchangeNode3
+    Properties:
+      Handle: !Ref ExchangeNode3WaitHandle
+      Timeout: '9000'
+    Type: AWS::CloudFormation::WaitCondition
+  ExchangeNode3WaitHandle:
+    Condition: ThirdAzIsFullNode
+    Type: AWS::CloudFormation::WaitConditionHandle
+  FileServer:
+    Condition: IsTwoNode
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup: {}
+        Configure: {}
+        Finalize:
+          commands:
+            a-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install: {}
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref FileServerNetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-join-domain:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Join-Domain.ps1 -DomainName
+                    '
+                  - !Ref DomainDNSName
+                  - ''' -UserName '''
+                  - !Ref DomainNetBIOSName
+                  - \
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - '''"'
+              waitAfterCompletion: forever
+            c-Invoke-ADReplication-DC1:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Invoke-ADReplication.ps1
+                  - ' -UserName '''
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - ''' -DomainController '''
+                  - !Ref ADServer1NetBIOSName
+                  - '''"'
+              waitAfterCompletion: '0'
+            d-Invoke-ADReplication-DC2:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Invoke-ADReplication.ps1
+                  - ' -UserName '''
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - ''' -DomainController '''
+                  - !Ref ADServer2NetBIOSName
+                  - '''"'
+              waitAfterCompletion: '15'
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref FileServerWaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Invoke-ADReplication.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Invoke-ADReplication.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          - Configure
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      ImageId: !Ref WS2019FULLBASE
+      IamInstanceProfile: !Ref ExchangeProfile
+      InstanceType: !Ref FileServerInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref ExchangeSecurityGroup
+        - !Ref EXCHClientSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref FileServerPrivateIP
+        SubnetId:
+          !If
+          - ThirdAzIsWitness
+          - !Ref PrivateSubnet3ID
+          - !Ref PrivateSubnet1ID
+      Tags:
+      - Key: Name
+        Value: !Ref FileServerNetBIOSName
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r FileServer '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+    Type: AWS::EC2::Instance
+  ExchangeNode1:
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup:
+          commands:
+            a-disable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Disable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            b-enable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Enable"
+              waitAfterCompletion: '0'
+        Finalize:
+          commands:
+            a-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            b-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install:
+          commands:
+            a-install-ucma-runtime:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-UcmaRuntime.ps1"
+              waitAfterCompletion: '0'
+            b-install-exchange-organization:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeOrg.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - '''"'
+              waitAfterCompletion: '0'
+            c-install-exchange:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeServer.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ServerIndex ''1'
+                  - '''"'
+              waitAfterCompletion: '0'
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref ExchangeNode1NetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-join-domain:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Join-Domain.ps1 -DomainName
+                    '
+                  - !Ref DomainDNSName
+                  - ''' -UserName '''
+                  - !Ref DomainNetBIOSName
+                  - \
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - '''"'
+              waitAfterCompletion: forever
+            c-install-windows-failover-clustering:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-WindowsFailoverClustering.ps1"
+              waitAfterCompletion: '0'
+            d-install-exchange-prerequisites:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchPrerequisites.ps1
+                    -ExchangeServerVersion '
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: forever
+            e-enable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Enable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            f-disable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Disable"
+              waitAfterCompletion: '0'
+            g-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            h-initializedisks:
+              command:
+                !If
+                - UseReFSDataVolumes
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $true
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $false
+              waitAfterCompletion: '0'
+            i-download-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            j-expand-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Expand-Exchange.ps1 -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExchangeDownloadLink '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            k-download-ucmaruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - UCMA
+                    - ALL
+                  - '''"'
+              waitAfterCompletion: '0'
+            l-download-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            m-download-netframework:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+              waitAfterCompletion: '0'
+            n-install-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+            o-install-netframework:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-NetFramework.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -NetFrameworkDownloadLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+            p-download-visualcruntime2012:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+            q-install-visualcruntime2012:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+            r-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref ExchangeNode1WaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Restart-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Restart-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Enable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Enable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Disable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Disable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchPrerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchPrerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Expand-Exchange.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Expand-Exchange.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-WindowsFailoverClustering.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-WindowsFailoverClustering.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-UcmaRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-UcmaRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeOrg.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeOrg.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeServer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeServer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-UAC.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-UAC.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Download-Prerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Download-Prerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-VisualCRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-VisualCRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-NetFramework.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-NetFramework.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Initialize-Disks.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Initialize-Disks.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      - DeviceName: /dev/xvdca
+        VirtualName: ephemeral0
+      EbsOptimized: true
+      ImageId:
+        !If
+        - Exchange2016Selected
+        - !Ref WS2016FULLBASE
+        - !Ref WS2019FULLBASE
+      IamInstanceProfile: !Ref ExchangeProfile
+      InstanceType: !Ref ExchangeNodeInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref ExchangeSecurityGroup
+        - !Ref EXCHClientSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref ExchangeNode1PrivateIP1
+        - Primary: false
+          PrivateIpAddress: !Ref ExchangeNode1PrivateIP2
+        SubnetId: !Ref PrivateSubnet1ID
+      Tags:
+      - Key: Name
+        Value: !Ref ExchangeNode1NetBIOSName
+      Tenancy: default
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r ExchangeNode1 '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+    Type: AWS::EC2::Instance
+  ExchangeNode2:
+    Type: AWS::EC2::Instance
+    Metadata:
+      PseudoDependsOn:
+        !If
+        - IsTwoNode
+        - - !Ref FileServerWaitCondition
+          - !Ref ExchangeNode1WaitCondition
+        - - !Ref ExchangeNode1WaitCondition
+          - !Ref ExchangeNode3WaitCondition
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup:
+          commands:
+            a-disable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Disable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            b-enable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Enable"
+              waitAfterCompletion: '0'
+        ConfigureDAG:
+          commands:
+            a-configure-fileserver:
+              command:
+                !If
+                - IsTwoNode
+                - !Join
+                  - ''
+                  - - powershell.exe -Command "C:\cfn\scripts\Add-ExchangeGroup.ps1
+                      -DomainNetBIOSName '
+                    - !Ref DomainNetBIOSName
+                    - ''' -DomainAdminUser '''
+                    - !Ref DomainAdminUser
+                    - ''' -ExUserSecParam '''
+                    - !Ref ExchangeAdminSecrets
+                    - ''' -ServerName '''
+                    - !Ref FileServerNetBIOSName
+                    - '''"'
+                - !Join
+                  - ''
+                  - - powershell.exe -Command exit
+              waitAfterCompletion: '10'
+            b-configure-dag:
+              command:
+                !If
+                - IsTwoNode
+                - !Join
+                  - ''
+                  - - powershell.exe -Command "C:\cfn\scripts\Configure-ExchangeDAG.ps1
+                      -DomainNetBIOSName '
+                    - !Ref DomainNetBIOSName
+                    - ''' -DomainAdminUser '''
+                    - !Ref DomainAdminUser
+                    - ''' -ExUserSecParam '''
+                    - !Ref ExchangeAdminSecrets
+                    - ''' -ExchangeNode1NetBIOSName '''
+                    - !Ref ExchangeNode1NetBIOSName
+                    - ''' -ExchangeNode2NetBIOSName '''
+                    - !Ref ExchangeNode2NetBIOSName
+                    - ''' -ExchangeNode1PrivateIP2 '''
+                    - !Ref ExchangeNode1PrivateIP2
+                    - ''' -ExchangeNode2PrivateIP2 '''
+                    - !Ref ExchangeNode2PrivateIP2
+                    - ''' -FileServerNetBIOSName '''
+                    - !Ref FileServerNetBIOSName
+                    - '''"'
+                - !Join
+                  - ''
+                  - - powershell.exe -Command "C:\cfn\scripts\Configure-ExchangeDAG.ps1
+                      -DomainNetBIOSName '
+                    - !Ref DomainNetBIOSName
+                    - ''' -DomainAdminUser '''
+                    - !Ref DomainAdminUser
+                    - ''' -ExUserSecParam '''
+                    - !Ref ExchangeAdminSecrets
+                    - ''' -ExchangeNode1NetBIOSName '''
+                    - !Ref ExchangeNode1NetBIOSName
+                    - ''' -ExchangeNode2NetBIOSName '''
+                    - !Ref ExchangeNode2NetBIOSName
+                    - ''' -ExchangeNode3NetBIOSName '''
+                    - !Ref ExchangeNode3NetBIOSName
+                    - ''' -ExchangeNode1PrivateIP2 '''
+                    - !Ref ExchangeNode1PrivateIP2
+                    - ''' -ExchangeNode2PrivateIP2 '''
+                    - !Ref ExchangeNode2PrivateIP2
+                    - ''' -ExchangeNode3PrivateIP2 '''
+                    - !Ref ExchangeNode3PrivateIP2
+                    - '''"'
+              waitAfterCompletion: '0'
+        Finalize:
+          commands:
+            a-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            b-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install:
+          commands:
+            a-install-ucma-runtime:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-UcmaRuntime.ps1
+              waitAfterCompletion: '0'
+            b-install-exchange:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeServer.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ServerIndex ''2'
+                  - '''"'
+              waitAfterCompletion: '0'
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref ExchangeNode2NetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-join-domain:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Join-Domain.ps1 -DomainName
+                    '
+                  - !Ref DomainDNSName
+                  - ''' -UserName '''
+                  - !Ref DomainNetBIOSName
+                  - \
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - '''"'
+              waitAfterCompletion: forever
+            c-install-windows-failover-clustering:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-WindowsFailoverClustering.ps1"
+              waitAfterCompletion: '0'
+            d-install-exchange-prerequisites:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchPrerequisites.ps1
+                    -ExchangeServerVersion '
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: forever
+            e-enable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Enable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            f-disable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Disable"
+              waitAfterCompletion: '0'
+            g-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            h-initializedisks:
+              command:
+                !If
+                - UseReFSDataVolumes
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $true
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $false
+              waitAfterCompletion: '0'
+            i-download-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            j-expand-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Expand-Exchange.ps1 -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExchangeDownloadLink '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            k-download-ucmaruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - UCMA
+                    - ALL
+                  - '''"'
+              waitAfterCompletion: '0'
+            l-download-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            m-download-netframework:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+              waitAfterCompletion: '0'
+            n-install-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+            o-install-netframework:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-NetFramework.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -NetFrameworkDownloadLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+            p-download-visualcruntime2012:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+            q-install-visualcruntime2012:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2012x64
+                  - '''"'
+            r-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref ExchangeNode2WaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Restart-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Restart-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Enable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Enable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Disable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Disable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchPrerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchPrerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Expand-Exchange.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Expand-Exchange.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-WindowsFailoverClustering.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-WindowsFailoverClustering.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-UcmaRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-UcmaRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeOrg.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeOrg.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeServer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeServer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-UAC.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-UAC.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Download-Prerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Download-Prerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-VisualCRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-VisualCRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-NetFramework.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-NetFramework.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Add-ExchangeGroup.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Add-ExchangeGroup.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Configure-ExchangeDAG.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-ExchangeDAG.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Initialize-Disks.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Initialize-Disks.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          # - ConfigureDAG 
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      - DeviceName: /dev/xvdca
+        VirtualName: ephemeral0
+      EbsOptimized: true
+      ImageId:
+        !If
+        - Exchange2016Selected
+        - !Ref WS2016FULLBASE
+        - !Ref WS2019FULLBASE
+      IamInstanceProfile: !Ref ExchangeProfile
+      InstanceType: !Ref ExchangeNodeInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref ExchangeSecurityGroup
+        - !Ref EXCHClientSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref ExchangeNode2PrivateIP1
+        - Primary: false
+          PrivateIpAddress: !Ref ExchangeNode2PrivateIP2
+        SubnetId: !Ref PrivateSubnet2ID
+      Tags:
+      - Key: Name
+        Value: !Ref ExchangeNode2NetBIOSName
+      Tenancy: default
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r ExchangeNode2 '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+  ExchangeNode3:
+    Condition: ThirdAzIsFullNode
+    DependsOn: ExchangeNode1WaitCondition
+    Metadata:
+      AWS::CloudFormation::Authentication:
+        S3AccessCreds:
+          type: S3
+          roleName: !Ref ExchangeRole
+          buckets:
+          - !Ref QSS3BucketName
+      AWS::CloudFormation::Init:
+        Cleanup:
+          commands:
+            a-disable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Disable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            b-enable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Enable"
+              waitAfterCompletion: '0'
+        Finalize:
+          commands:
+            a-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            b-signal-success:
+              command: powershell -Command "Write-AWSQuickStartStatus"
+        Install:
+          commands:
+            a-install-ucma-runtime:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-UcmaRuntime.ps1
+              waitAfterCompletion: '0'
+            b-install-exchange:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchangeServer.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ServerIndex 3'''
+                  - '''"'
+              waitAfterCompletion: '0'
+        Prep:
+          commands:
+            a-rename-computer:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Rename-Computer.ps1 -Restart
+                    -NewName '
+                  - !Ref ExchangeNode3NetBIOSName
+                  - '''"'
+              waitAfterCompletion: forever
+            b-join-domain:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Join-Domain.ps1 -DomainName
+                    '
+                  - !Ref DomainDNSName
+                  - ''' -UserName '''
+                  - !Ref DomainNetBIOSName
+                  - \
+                  - !Ref DomainAdminUser
+                  - ''' -Password '''
+                  - !Ref DomainAdminPassword
+                  - '''"'
+              waitAfterCompletion: forever
+            c-install-windows-failover-clustering:
+              command: powershell.exe -Command "C:\cfn\scripts\Install-WindowsFailoverClustering.ps1"
+              waitAfterCompletion: '0'
+            d-install-exchange-prerequisites:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-ExchPrerequisites.ps1
+                    -ExchangeServerVersion '
+                  - !Ref ExchangeServerVersion
+                  - '''"'
+              waitAfterCompletion: forever
+            e-enable-credssp:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Enable-CredSSP.ps1"
+              waitAfterCompletion: '0'
+            f-disable-uac:
+              command: powershell.exe -ExecutionPolicy RemoteSigned -Command "C:\cfn\scripts\Configure-UAC.ps1
+                -status Disable"
+              waitAfterCompletion: '0'
+            g-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+            h-initializedisks:
+              command:
+                !If
+                - UseReFSDataVolumes
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $true
+                - powershell.exe -command "C:\cfn\scripts\Initialize-Disks.ps1" -EnableReFSVolumes $false
+              waitAfterCompletion: '0'
+            i-download-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            j-expand-exchange-kit:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Expand-Exchange.ps1 -ExchangeServerVersion '''
+                  - !Ref ExchangeServerVersion
+                  - ''' -ExchangeDownloadLink '''
+                  - !If
+                    - Exchange2016Selected
+                    - !Ref Exchange2016Source
+                    - !Ref Exchange2019Source
+                  - '''"'
+              waitAfterCompletion: '0'
+            k-download-ucmaruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-PreRequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - UCMA
+                    - ALL
+                  - '''"'
+              waitAfterCompletion: '0'
+            l-download-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+              waitAfterCompletion: '0'
+            m-download-netframework:
+              command:
+                !Join
+                - ''
+                - - 'powershell.exe '
+                  - '-ExecutionPolicy RemoteSigned '
+                  - -Command "
+                  - ' C:\cfn\scripts\Download-Prerequisites.ps1 -source '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+              waitAfterCompletion: '0'
+            n-install-visualcruntime:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-VisualCRuntime.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -VisualCRuntimeLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - VisualCRuntime
+                    - 2013x64
+                  - '''"'
+            o-install-netframework:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "C:\cfn\scripts\Install-NetFramework.ps1
+                    -DomainNetBIOSName '
+                  - !Ref DomainNetBIOSName
+                  - ''' -DomainAdminUser '''
+                  - !Ref DomainAdminUser
+                  - ''' -ExUserSecParam '''
+                  - !Ref ExchangeAdminSecrets
+                  - ''' -NetFrameworkDownloadLink '''
+                  - !FindInMap
+                    - MediaLinksMapper
+                    - NetFramework
+                    - v48
+                  - '''"'
+            p-reboot:
+              command: powershell.exe -Command "C:\cfn\scripts\Restart-Computer.ps1"
+              waitAfterCompletion: forever
+        setup:
+          commands:
+            a-set-execution-policy:
+              command: powershell.exe -Command "Set-ExecutionPolicy RemoteSigned -Force"
+              waitAfterCompletion: '0'
+            b-unpack-quickstart-module:
+              command: powershell.exe -Command C:\cfn\scripts\Unzip-Archive.ps1 -Source
+                C:\cfn\modules\AWSQuickStart.zip -Destination C:\Windows\system32\WindowsPowerShell\v1.0\Modules\
+              waitAfterCompletion: '0'
+            c-init-quickstart-module:
+              command:
+                !Join
+                - ''
+                - - powershell.exe -Command "
+                  - New-AWSQuickStartWaitHandle -Handle '
+                  - !Ref ExchangeNode3WaitHandle
+                  - '''"'
+              waitAfterCompletion: '0'
+          files:
+            C:\cfn\scripts\Unzip-Archive.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Unzip-Archive.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\modules\AWSQuickStart.zip:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/modules/AWSQuickStart.zip
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Rename-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Rename-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Restart-Computer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Restart-Computer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Join-Domain.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Join-Domain.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Enable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Enable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Disable-CredSSP.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-utilities/scripts/Disable-CredSSP.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchPrerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchPrerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Expand-Exchange.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Expand-Exchange.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-WindowsFailoverClustering.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-WindowsFailoverClustering.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-UcmaRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-UcmaRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeOrg.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeOrg.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Install-ExchangeServer.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-ExchangeServer.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            c:\cfn\scripts\Configure-UAC.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Configure-UAC.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Download-Prerequisites.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Download-Prerequisites.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-VisualCRuntime.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-VisualCRuntime.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Install-NetFramework.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Install-NetFramework.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+            C:\cfn\scripts\Initialize-Disks.ps1:
+              source:
+                !Sub
+                - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/Initialize-Disks.ps1
+                - QSS3Region:
+                    !If
+                    - GovCloudCondition
+                    - s3.us-gov-west-1
+                    - s3.us-east-1
+              authentication: S3AccessCreds
+        configSets:
+          config:
+          - setup
+          - Prep
+          - Install
+          - Cleanup
+          - Finalize
+    Properties:
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          VolumeSize: 100
+          VolumeType: gp2
+      - DeviceName: /dev/xvdca
+        VirtualName: ephemeral0
+      EbsOptimized: true
+      ImageId:
+        !If
+        - Exchange2016Selected
+        - !Ref WS2016FULLBASE
+        - !Ref WS2019FULLBASE
+      IamInstanceProfile: !Ref ExchangeProfile
+      InstanceType: !Ref ExchangeNodeInstanceType
+      KeyName: !Ref KeyPairName
+      NetworkInterfaces:
+      - DeleteOnTermination: true
+        DeviceIndex: '0'
+        GroupSet:
+        - !Ref DomainMemberSGID
+        - !Ref ExchangeSecurityGroup
+        - !Ref EXCHClientSecurityGroup
+        PrivateIpAddresses:
+        - Primary: true
+          PrivateIpAddress: !Ref ExchangeNode3PrivateIP1
+        - Primary: false
+          PrivateIpAddress: !Ref ExchangeNode3PrivateIP2
+        SubnetId: !Ref PrivateSubnet3ID
+      Tags:
+      - Key: Name
+        Value: !Ref ExchangeNode3NetBIOSName
+      Tenancy: default
+      UserData:
+        !Base64
+          Fn::Join:
+          - ''
+          - - '<script>
+
+              '
+            - 'cfn-init.exe -v -c config -s '
+            - !Ref AWS::StackId
+            - ' -r ExchangeNode3 '
+            - ' --region '
+            - !Ref AWS::Region
+            - '
+
+              '
+            - </script>
+    Type: AWS::EC2::Instance
+  loadBalancer:
+    Condition: DeployLoadBalancer
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn:
+    - ExchangeNode1WaitCondition
+    - ExchangeNode2WaitCondition
+    Properties:
+      Scheme: internal
+      SecurityGroups:
+      - !Ref LoadBalancerSecurityGroup
+      Subnets:
+        !If
+        - ThirdAzIsFullNode
+        - - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+          - !Ref PrivateSubnet3ID
+        - - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+      Type: application
+  TargetGroup:
+    Condition: DeployLoadBalancer
+    DependsOn:
+    - loadBalancer
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 60
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      HealthCheckPath: /owa/auth/logon.aspx
+      HealthCheckProtocol: HTTPS
+      HealthCheckPort: '443'
+      Matcher:
+        HttpCode: '200'
+      Name: ExchangeNodes
+      Port: 443
+      Protocol: HTTPS
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: '20'
+      Targets:
+        !If
+        - ThirdAzIsFullNode
+        - - Id: !Ref ExchangeNode1
+            Port: '443'
+          - Id: !Ref ExchangeNode2
+            Port: '443'
+          - Id: !Ref ExchangeNode3
+            Port: '443'
+        - - Id: !Ref ExchangeNode1
+            Port: '443'
+          - Id: !Ref ExchangeNode2
+            Port: '443'
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCID
+  Listener:
+    Condition: DeployLoadBalancer
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref loadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+      - CertificateArn: !Ref CertificateArn
+      SslPolicy: ELBSecurityPolicy-2016-08
+  ExchangeNode1Volume1:
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode1.AvailabilityZone
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode1Volume2:
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode1.AvailabilityZone
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode2Volume1:
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode2.AvailabilityZone
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode2Volume2:
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode2.AvailabilityZone
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode3Volume1:
+    Condition: ThirdAzIsFullNode
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode3.AvailabilityZone
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode3Volume2:
+    Condition: ThirdAzIsFullNode
+    Properties:
+      AvailabilityZone: !GetAtt ExchangeNode3.AvailabilityZone
+      Encrypted:
+        !If
+        - UseEncryptedDataVolumes
+        - !Ref EncryptDataVolumes
+        - !Ref AWS::NoValue
+      KmsKeyId:
+        !If
+        - UseEncryptedDataVolumes
+        - !If
+          - EncryptionKmsKeySelected
+          - !Ref EncryptionKmsKey
+          - !Ref AWS::NoValue
+        - !Ref AWS::NoValue
+      Iops:
+        !If
+        - VolIsIo1
+        - !Ref VolumeIops
+        - !Ref AWS::NoValue
+      Size: !Ref VolumeSize
+      VolumeType: !Ref VolumeType
+    Type: AWS::EC2::Volume
+  ExchangeNode1Volume1Attachment:
+    Properties:
+      Device: /dev/xvdf
+      InstanceId: !Ref ExchangeNode1
+      VolumeId: !Ref ExchangeNode1Volume1
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeNode1Volume2Attachment:
+    Properties:
+      Device: /dev/xvdg
+      InstanceId: !Ref ExchangeNode1
+      VolumeId: !Ref ExchangeNode1Volume2
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeNode2Volume1Attachment:
+    Properties:
+      Device: /dev/xvdf
+      InstanceId: !Ref ExchangeNode2
+      VolumeId: !Ref ExchangeNode2Volume1
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeNode2Volume2Attachment:
+    Properties:
+      Device: /dev/xvdg
+      InstanceId: !Ref ExchangeNode2
+      VolumeId: !Ref ExchangeNode2Volume2
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeNode3Volume1Attachment:
+    Condition: ThirdAzIsFullNode
+    Properties:
+      Device: /dev/xvdf
+      InstanceId: !Ref ExchangeNode3
+      VolumeId: !Ref ExchangeNode3Volume1
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeNode3Volume2Attachment:
+    Condition: ThirdAzIsFullNode
+    Properties:
+      Device: /dev/xvdg
+      InstanceId: !Ref ExchangeNode3
+      VolumeId: !Ref ExchangeNode3Volume2
+    Type: AWS::EC2::VolumeAttachment
+  ExchangeSecurityGroup:
+    Properties:
+      GroupDescription: Enable all traffic between Exchange nodes
+      VpcId: !Ref VPCID
+    Type: AWS::EC2::SecurityGroup
+  ExchangeSecurityGroupIngressAllTraffic:
+    Properties:
+      Description: All traffic allowed between Exchange nodes
+      GroupId: !Ref ExchangeSecurityGroup
+      IpProtocol: '-1'
+      SourceSecurityGroupId: !Ref ExchangeSecurityGroup
+    Type: AWS::EC2::SecurityGroupIngress
+Outputs:
+  DomainAdmin:
+    Description: Domain administrator account
+    Value:
+      !Join
+      - ''
+      - - !Ref DomainNetBIOSName
+        - \
+        - !Ref DomainAdminUser
+  LocalAdmin:
+    Description: Please retrieve Administrator password of the instance
+    Value: Administrator
+  ExchangeNode1NetBIOSName:
+    Description: NetBIOS name of the 1st Exchange Node
+    Value: !Ref ExchangeNode1NetBIOSName
+  ExchangeNode2NetBIOSName:
+    Description: NetBIOS name of the 2nd Exchange Node
+    Value: !Ref ExchangeNode2NetBIOSName
+  ExchangeNode3NetBIOSName:
+    Condition: ThirdAzIsFullNode
+    Description: NetBIOS name of the 3rd Exchange Node
+    Value: !Ref ExchangeNode3NetBIOSName
+...

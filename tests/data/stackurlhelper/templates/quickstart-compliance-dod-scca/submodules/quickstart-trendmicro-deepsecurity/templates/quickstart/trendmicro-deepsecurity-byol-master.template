@@ -1,0 +1,416 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'QS(0011) - v5.16: Quick Start that deploys Trend Micro Deep Security
+  into an existing VPC with a Multi-AZ RDS instance  **WARNING** This template uses
+  images from the AWS Marketplace and an active subscription is required - Please
+  see the Quick Start documentation for more details. You will be billed for the AWS
+  resources used if you create a stack from this template. (qs-1ngr590k9)'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Deep Security Manager Configuration
+      Parameters:
+      - DeepSecurityAdminName
+      - DeepSecurityAdminPass
+      - AWSKeyPairName
+      - LicenseKey
+    - Label:
+        default: Network Configuration
+      Parameters:
+      - AWSVPC
+      - DeepSecuritySubnet
+      - DatabaseSubnet1
+      - DatabaseSubnet2
+    - Label:
+        default: RDS Configuration
+      Parameters:
+      - DatabaseEngine
+      - DatabaseAdminName
+      - DatabaseAdminPassword
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    ParameterLabels:
+      AWSKeyPairName:
+        default: EC2 Key Pair for SSH access
+      AWSVPC:
+        default: VPC for Deep Security Components
+      DatabaseEngine:
+        default: Choose the backend database
+      DatabaseSubnet1:
+        default: Primary private subnet for RDS
+      DatabaseSubnet2:
+        default: Secondary private subnet for RDS
+      DatabaseAdminName:
+        default: Administrator username for RDS Instance
+      DatabaseAdminPassword:
+        default: Administrator password for RDS Instance
+      DeepSecuritySubnet:
+        default: Public Subnet for Deep Security Managers
+      DeepSecurityAdminName:
+        default: Administrator username for Deep Security
+      DeepSecurityAdminPass:
+        default: Administrator password for Deep Security
+      LicenseKey:
+        default: Deep Security License Key. May be left default to enter key after
+          deployment
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+Parameters:
+  AWSKeyPairName:
+    Description: Select an existing key pair to use for connecting to your Deep Security
+      Manager Instance.
+    Type: AWS::EC2::KeyPair::KeyName
+    MinLength: '1'
+    MaxLength: '255'
+    ConstraintDescription: Select an existing EC2 Key Pair.
+  AWSVPC:
+    Description: Select an existing VPC to deploy Deep Security Manager.
+    Type: AWS::EC2::VPC::Id
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[-_a-zA-Z0-9]*'
+  DatabaseEngine:
+    Description: Choose PostgreSQL, Microsoft SQL or Oracle for Deep Security database
+      engine.
+    Type: String
+    Default: PostgreSQL
+    AllowedValues:
+    - Oracle
+    - MSSQL
+    - PostgreSQL
+  DatabaseSubnet1:
+    Description: Select a private subnet for the RDS database.  Must be a private
+      subnet contained the in VPC chosen above.
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in seperate
+      availability zones within the specified VPC for deploying this template
+  DatabaseSubnet2:
+    Description: Select a second private subnet for the RDS database.  Must be a private
+      subnet contained the in VPC chosen above.
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in seperate
+      availability zones within the specified VPC for deploying this template
+  DatabaseAdminName:
+    Default: dsadmin
+    Description: The RDS Database administrator username to be used for the database
+      instance.
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric
+      characters. Min length 1, max length 16
+  DatabaseAdminPassword:
+    NoEcho: true
+    Description: The RDS Database administrator password. Must be 8-41 characters
+      long and can only contain alphanumeric characters or the following special characters
+      !^*-_+
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: Can only contain alphanumeric characters or the following
+      special characters !^*-_+ Min length 8, max length 41
+  DeepSecuritySubnet:
+    Description: Select an existing Subnet for Deep Security Manager. Must be a public
+      subnet contained the in VPC chosen above.
+    Type: AWS::EC2::Subnet::Id
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[-_a-zA-Z0-9]*'
+    ConstraintDescription: Subnet ID must exist in the chosen VPC
+  DeepSecurityAdminName:
+    Default: MasterAdmin
+    Description: The Deep Security Manager administrator username for Web Console
+      Access.
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric
+      characters. Min length 1, max length 16
+  DeepSecurityAdminPass:
+    NoEcho: true
+    Description: The Deep Security Manager administrator password. Must be 8-41 characters
+      long and can only contain alphanumeric characters or the following special characters
+      !^*-_+
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: Can only contain alphanumeric characters or the following
+      special characters !^*-_+ Min length 8, max length 41
+  LicenseKey:
+    Description: If you have a Deep Security Enterprise license key, enter it here.
+      Including dashes (e.g. AP-E9RM-99WHE-B5UR5-BV8YB-HVYM8-HYYVG). If you did not
+      purchase all modules please leave blank and enter your key in the console after
+      launch.
+    Type: String
+    MinLength: 0
+    MaxLength: 37
+    AllowedPattern: (?:[A-Z0-9]{2}-[A-Z0-9]{4}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})?
+    ConstraintDescription: Key can only contain ASCII characters.
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-trendmicro-deepsecurity/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+Mappings:
+  DSMSIZE:
+    us-east-1:
+      BYOL: m5.xlarge
+    us-east-2:
+      BYOL: m5.xlarge
+    us-west-1:
+      BYOL: m5.xlarge
+    us-west-2:
+      BYOL: m5.xlarge
+    ca-central-1:
+      BYOL: m5.xlarge
+    ap-south-1:
+      BYOL: m5.xlarge
+    ap-northeast-2:
+      BYOL: m5.xlarge
+    ap-southeast-1:
+      BYOL: m5.xlarge
+    ap-southeast-2:
+      BYOL: m5.xlarge
+    ap-northeast-1:
+      BYOL: m5.xlarge
+    eu-central-1:
+      BYOL: m5.xlarge
+    eu-west-1:
+      BYOL: m5.xlarge
+    eu-west-2:
+      BYOL: m5.xlarge
+    sa-east-1:
+      BYOL: m5.xlarge
+    us-gov-west-1:
+      BYOL: m5.xlarge
+    eu-west-3:
+      BYOL: m5.xlarge
+  RDSInstanceSize:
+    us-east-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    us-east-2:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    us-west-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    us-west-2:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ca-central-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ap-south-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ap-northeast-2:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ap-southeast-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ap-southeast-2:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    ap-northeast-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    eu-central-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    eu-west-1:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    eu-west-2:
+      Oracle: db.m4.xlarge
+      MSSQL: db.m4.xlarge
+      PostgreSQL: db.m4.xlarge
+    sa-east-1:
+      Oracle: db.m3.xlarge
+      MSSQL: db.m3.xlarge
+      PostgreSQL: db.m3.xlarge
+    us-gov-west-1:
+      Oracle: db.m3.xlarge
+      MSSQL: db.m3.xlarge
+      PostgreSQL: db.m3.xlarge
+    eu-west-3:
+      Oracle: db.r4.xlarge
+      MSSQL: db.r4.xlarge
+      PostgreSQL: db.r4.xlarge
+  RDSMultiAZ:
+    us-east-1:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    us-east-2:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    us-west-1:
+      Oracle: 'true'
+      MSSQL: 'false'
+      PostgreSQL: 'true'
+    us-west-2:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    ca-central-1:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    ap-south-1:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    ap-northeast-2:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    ap-southeast-1:
+      Oracle: 'true'
+      MSSQL: 'false'
+      PostgreSQL: 'true'
+    ap-southeast-2:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    ap-northeast-1:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    eu-central-1:
+      Oracle: 'true'
+      MSSQL: 'false'
+      PostgreSQL: 'true'
+    eu-west-1:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    eu-west-2:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+    sa-east-1:
+      Oracle: 'true'
+      MSSQL: 'false'
+      PostgreSQL: 'true'
+    us-gov-west-1:
+      Oracle: 'true'
+      MSSQL: 'false'
+      PostgreSQL: 'true'
+    eu-west-3:
+      Oracle: 'true'
+      MSSQL: 'true'
+      PostgreSQL: 'true'
+Resources:
+  MasterMP:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/marketplace/master-mp.template
+        - QSS3Region:
+            !If
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      Parameters:
+        AWSIKeyPairName: !Ref AWSKeyPairName
+        AWSIVPC: !Ref AWSVPC
+        DSISubnetID: !Ref DeepSecuritySubnet
+        DBIRDSInstanceSize:
+          !FindInMap
+          - RDSInstanceSize
+          - !Ref AWS::Region
+          - !Ref DatabaseEngine
+        DBIStorageAllocation: '250'
+        DBPBackupDays: '5'
+        DBPCreateDbInstance: 'Yes'
+        DBICAdminName: !Ref DatabaseAdminName
+        DBICAdminPassword: !Ref DatabaseAdminPassword
+        DBPEngine:
+          !If
+          - IsMSSQL
+          - SQL
+          - !Ref DatabaseEngine
+        DBPEndpoint: ''
+        DBPName: dsm
+        DSCAdminName: !Ref DeepSecurityAdminName
+        DSCAdminPassword: !Ref DeepSecurityAdminPass
+        DSIMultiNode: '2'
+        DSIPLicenseKey:
+          !If
+          - NoLicenseKey
+          - XX-XXXX-XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+          - !Ref LicenseKey
+        DSIPHeartbeatPort: '4120'
+        DSIPGUIPort: '443'
+        DSIPInstanceType:
+          !FindInMap
+          - DSMSIZE
+          - !Ref AWS::Region
+          - BYOL
+        DBISubnet1: !Ref DatabaseSubnet1
+        DBISubnet2: !Ref DatabaseSubnet2
+        DSIPLicense: BYOL
+        DBPMultiAZ:
+          !FindInMap
+          - RDSMultiAZ
+          - !Ref AWS::Region
+          - !Ref DatabaseEngine
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+Conditions:
+  NoLicenseKey:
+    !Equals
+    - !Ref LicenseKey
+    - ''
+  IsMSSQL:
+    !Equals
+    - !Ref DatabaseEngine
+    - MSSQL
+  GovCloudCondition:
+    !Equals
+    - !Ref AWS::Region
+    - us-gov-west-1
+Outputs:
+  DeepSecurityConsole:
+    Value: !GetAtt MasterMP.Outputs.DeepSecurityConsole
+...

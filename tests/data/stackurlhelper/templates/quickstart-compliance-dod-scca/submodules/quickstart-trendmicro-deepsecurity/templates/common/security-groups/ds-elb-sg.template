@@ -1,0 +1,55 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'v5.17: This template creates security groups for the ELB for Deep Security
+  Manager. (qs-1ngr590io)'
+Parameters:
+  AWSIVPC:
+    Description: Existing VPC to deploy Deep Security Manager
+    Type: AWS::EC2::VPC::Id
+    MinLength: '1'
+    MaxLength: '255'
+    AllowedPattern: '[-_a-zA-Z0-9]*'
+  DSIPGUIPort:
+    Description: The Deep Security Manager application and GUI port.
+    Type: Number
+    MinValue: 0
+    MaxValue: 65535
+    Default: '4119'
+    ConstraintDescription: Must be a valid TCP port.
+  DSIPHeartbeatPort:
+    Description: The heartbeat port used by Deep Security Agents and appliances to
+      communicate with the Deep Security Manager.
+    Type: Number
+    MinValue: 0
+    MaxValue: 65535
+    Default: '4120'
+    ConstraintDescription: Must be a valid TCP port.
+Resources:
+  ELBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: AllowGUIandHeartbeat
+      VpcId: !Ref AWSIVPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: !Ref DSIPHeartbeatPort
+        ToPort: !Ref DSIPHeartbeatPort
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: !Ref DSIPGUIPort
+        ToPort: !Ref DSIPGUIPort
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '4122'
+        ToPort: '4122'
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: '-1'
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: DSMELBSG
+Outputs:
+  ELBSG:
+    Value: !Ref ELBSG
+...

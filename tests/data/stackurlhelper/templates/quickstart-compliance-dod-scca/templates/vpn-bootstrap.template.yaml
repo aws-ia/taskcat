@@ -1,0 +1,457 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provides bootstrap configuration for VPN tunnels with the VM Series
+  firewall template.  The logic necessary to perform operations is handled by an ec2-backed
+  custom resource.  This was built in lieu of Lambda, not available in the GovCloud
+  region.
+
+  '
+Parameters:
+  pVpcId:
+    Type: String
+    Description: The VPC where the bootstrap instance will be launched
+  pSubnetId:
+    Type: String
+    Description: The Subnet where the bootstrap instance will be launched
+  pTemplateUrlPrefix:
+    Type: String
+    Description: The S3 URL Prefix for the quickstart templates
+  InstanceType:
+    Description: Instance type
+    Type: String
+    Default: t2.micro
+  pVPN:
+    Type: String
+    Description: The ID of the VPN Connection resource
+  pPaloAltoIP:
+    Type: String
+    Description: The IP (private) of the palo alto mgmt interface
+  pVPNTunnelNameOffset:
+    Type: Number
+    Description: The number to use for the first tunnel interface (result in an interface
+      like tunnel.[1-999]). Used to provide an offset for firewalls supporting multiple
+      connections.
+    Default: 1
+  pEnvironment:
+    Type: String
+    Default: development
+  pEC2KeyPair:
+    Description: Name of existing EC2 key pair for post processor hosts
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: ''
+  pAMI:
+    Description: AMI for the bootstrapping instance
+    Type: String
+Resources:
+  rCustomResourcePipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Join:
+        - ''
+        - - !Ref pTemplateUrlPrefix
+          - templates/custom-resource.template.yaml
+  rSelfDestructPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SelfDestruct
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AllowSelfDestruct
+          Effect: Allow
+          Action:
+          - ec2:TerminateInstances
+          Resource:
+          - !Sub arn:*:ec2:${AWS::Region}:${AWS::AccountId}:instance/${rBootstrapInstance}
+      Roles:
+      - !Ref rBootstrapRole
+  rBootstrapRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2008-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: LambdaCopyConfigServiceRole
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: AllowLogging
+            Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+            - '*'
+      - PolicyName: policy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - sqs:ChangeMessageVisibility
+            - sqs:DeleteMessage
+            - sqs:ReceiveMessage
+            Resource:
+              Fn::GetAtt:
+              - rCustomResourcePipeline
+              - Outputs.CustomResourceQueueARN
+      - PolicyName: vpnDescribe
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - ec2:DescribeVpnConnections
+            Resource:
+            - '*'
+  rBootstrapInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - Ref: rBootstrapRole
+  rBootstrapInstanceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Bootstrap instance outbound traffic
+      SecurityGroupEgress:
+      - IpProtocol: '-1'
+        CidrIp: 0.0.0.0/0
+      VpcId: !Ref pVpcId
+      Tags:
+      - Key: Name
+        Value: !Sub ${pVpcId} VPN PostProcessor SecurityGroup
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rBootstrapInstance:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: "PT720S"
+    Properties:
+      KeyName: !Ref pEC2KeyPair
+      NetworkInterfaces:
+      - AssociatePublicIpAddress: true
+        DeviceIndex: 0
+        SubnetId: !Ref pSubnetId
+        GroupSet:
+        - !Ref rBootstrapInstanceSG
+      IamInstanceProfile:
+        Ref: rBootstrapInstanceProfile
+      ImageId: !Ref pAMI
+      Tags:
+      - Key: Name
+        Value: !Sub ${pVpcId} VPN PostProcessor SecurityGroup
+      - Key: Environment
+        Value: !Ref pEnvironment
+      InstanceType:
+        Ref: InstanceType
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -x
+          /opt/aws/bin/cfn-init --region ${AWS::Region} --stack ${AWS::StackId} --resource rBootstrapInstance -v
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackId} --resource rBootstrapInstance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          sources:
+            /home/ec2-user:
+              Fn::Join:
+              - ''
+              - - !Ref pTemplateUrlPrefix
+                - scripts/cfn-resource-interface.zip
+          packages:
+            yum:
+              gcc: []
+              gcc-c++: []
+          files:
+            /home/ec2-user/utils.js:
+              mode: '000755'
+              owner: ec2-user
+              content: |
+                var log4js = require('log4js');
+                var logger = log4js.getLogger();
+                logger.setLevel('DEBUG');
+                var https=require('https');
+
+                //Generates the configuration for the Palo Alto API retrieved from the EC2 VPN API and the Custom Resource arguments
+                exports.parseConfig=function(PAN,index){
+                  i=index || 0;
+                  conf={};
+
+                  console.log("======DEBUG======")
+                  console.log(JSON.stringify(PAN));
+                  console.log("=======END=======")
+
+                  conf.ipsec_crypto_profile = 'aws-vgw-ipsec-profile'   // Ipsec profile name, set to match bootstrap
+                  conf.ike_crypto_profile = 'aws-vgw-ike-profile'       // IKE profile name, set to match bootstrap
+                  conf.mtu = '1427'                                     // Default MTU
+                  conf.bgp_peer_group_name = 'AWS-BGP'                  // BGP (virtual router) BGP Peer Group name, set to match bootstrap
+                  conf.conn_id = PAN.vpn_connection.$.id;               // VPN Connection ID
+                  conf.virtual_router_id = PAN.vpn_connection.ipsec_tunnel[0].customer_gateway[0].tunnel_outside_address[0].ip_address[0];  //Virtual Router ID (the EIP of the interface)
+                  conf.bgp_local_asn = PAN.vpn_connection.ipsec_tunnel[0].customer_gateway[0].bgp[0].asn;                                   //BGP ASN
+                  conf.local_hold_time=PAN.vpn_connection.ipsec_tunnel[0].customer_gateway[0].bgp[0].hold_time;                             //BGP Hold Time
+                  conf.tunnel_ip_address=PAN.vpn_connection.ipsec_tunnel[0].customer_gateway[0].tunnel_inside_address[0].ip_address+'/'+PAN.vpn_connection.ipsec_tunnel[0].customer_gateway[0].tunnel_inside_address[0].network_cidr;                                                                                                //CIDR of the tunnel address (VGW side)
+                  conf.ipsec_tunnel_name='t1_'+conf.conn_id;                                                                //Ipsec tunnel name
+                  conf.ike_gw_name='ikegw1_'+conf.conn_id;                                                                        //IKE Gateway Name
+                  conf.ike_gw_peer_ip=PAN.vpn_connection.ipsec_tunnel[0].vpn_gateway[0].tunnel_outside_address[0].ip_address;               //IKE Peer IP
+                  conf.bgp_peer_name='bgpp1_'+conf.conn_id;                                                                    //BGP Peer Name
+                  conf.bgp_peer_ip_address=PAN.vpn_connection.ipsec_tunnel[0].vpn_gateway[0].tunnel_inside_address[0].ip_address;           //BGP Peer Address
+                  conf.peer_hold_time=PAN.vpn_connection.ipsec_tunnel[0].vpn_gateway[0].bgp[0].hold_time;                                   //BGP Hold Time (for router)
+                  conf.bgp_peer_as_number=PAN.vpn_connection.ipsec_tunnel[0].vpn_gateway[0].bgp[0].asn;                                     //BGP Peer ASN
+                  conf.ike_gw_psk=PAN.vpn_connection.ipsec_tunnel[0].ike[0].pre_shared_key;                                                 //Tunnel PSK
+                  conf.ike_exchange_mode=PAN.vpn_connection.ipsec_tunnel[0].ike[0].mode;                                                    //Tunnel Ike Mode
+                  conf.ike_dpd_interval=PAN.vpn_connection.ipsec_tunnel[0].ipsec[0].dead_peer_detection[0].interval;                        //Tunnel DPD interval
+                  conf.ike_dpd_retries=PAN.vpn_connection.ipsec_tunnel[0].ipsec[0].dead_peer_detection[0].retries;                          //Tunnel DPD retries
+                return conf;
+                };
+
+                //Buils the HTTPS Posts that will be sent to the Palo Alto device to complete configuration
+                exports.prepPosts=function(conf){
+                  conf.posts=[];
+
+                  function pushPost(pathStr){
+                    conf.posts.push({hostname:conf.localip,path:pathStr+apiKey});
+                  }
+
+                  ikeGatewayEntry="/api/?type=config&action=set&xpath=/config/devices/entry[@name='localhost.localdomain']/network/ike/gateway/entry[@name='"+conf.ike_gw_name+"']";
+                  networkEntry="/api/?type=config&action=set&xpath=/config/devices/entry[@name='localhost.localdomain']/network";
+
+                  apiKey="&key="+conf.apiKey
+                  //Create IKE Gateway Entry
+                  pushPost(ikeGatewayEntry+"/local-address&element=<interface>ethernet1/1</interface>");
+
+                  //Set ike gateway authentication to pre_shared_key'
+                  pushPost(ikeGatewayEntry+"/authentication/pre-shared-key&element=<key>"+conf.ike_gw_psk+"</key>");
+
+                  //Set ike gw peer ip address
+                  pushPost(ikeGatewayEntry+"/peer-address&element=<ip>"+conf.ike_gw_peer_ip+"</ip>");
+
+                  //Set ike gw misc params
+                  pushPost(ikeGatewayEntry+"/protocol/ikev1&element=<exchange-mode>"+conf.ike_exchange_mode+"</exchange-mode><ike-crypto-profile>"+conf.ike_crypto_profile+"</ike-crypto-profile><dpd><enable>yes</enable><interval>"+conf.ike_dpd_interval+"</interval><retry>"+conf.ike_dpd_retries+"</retry></dpd>");
+
+                  //set tunnel interface params
+                  pushPost(networkEntry+"/interface/tunnel/units/entry[@name='"+conf.tunnel_if_name+"']/ip&element=<entry+name='"+conf.tunnel_ip_address+"'/>");
+
+                  //set tunnel interface mtu
+                  pushPost(networkEntry+"/interface/tunnel/units/entry[@name='"+conf.tunnel_if_name+"']&element=<mtu>"+conf.mtu+"</mtu>");
+
+                  //Create ipsec tunnel
+                  pushPost(networkEntry+"/tunnel/ipsec/entry[@name='"+conf.ipsec_tunnel_name+"']&element=<anti-replay>yes</anti-replay><tunnel-interface>"+conf.tunnel_if_name+"</tunnel-interface><auto-key><ike-gateway><entry+name='"+conf.ike_gw_name+"'/></ike-gateway></auto-key>");
+
+                  //Associate ipsec tunnel with ike gateway
+                  pushPost(networkEntry+"/tunnel/ipsec/entry[@name='"+conf.ipsec_tunnel_name+"']/auto-key/ike-gateway&element=<entry%20name='"+conf.ike_gw_name+"'/>");
+
+                  //Set ipsec params
+                  pushPost(networkEntry+"/tunnel/ipsec/entry[@name='"+conf.ipsec_tunnel_name+"']/auto-key&element=<ipsec-crypto-profile>"+conf.ipsec_crypto_profile+"</ipsec-crypto-profile>");
+
+                  //BGP
+                  pushPost(networkEntry+"/virtual-router/entry[@name='default']/protocol/bgp&element=<enable>yes</enable><router-id>"+conf.virtual_router_id+"</router-id><local-as>"+conf.bgp_local_asn+"</local-as><peer-group><entry+name='"+conf.bgp_peer_group_name+"'><peer><entry+name='"+conf.bgp_peer_name+"'><enable>yes</enable><peer-as>"+conf.bgp_peer_as_number+"</peer-as><peer-address><ip>"+conf.bgp_peer_ip_address+"</ip></peer-address></entry></peer></entry></peer-group>");
+
+                  //Set bgp peer ip
+                  pushPost(networkEntry+"/virtual-router/entry[@name='default']/protocol/bgp/peer-group/entry[@name='"+conf.bgp_peer_group_name+"']/peer/entry[@name='"+conf.bgp_peer_name+"']/local-address&element=<interface>"+conf.tunnel_if_name+"</interface><ip>"+conf.tunnel_ip_address+"</ip>");
+
+                  //Set BGP hold time and keep alive interval options
+                  pushPost(networkEntry+"/virtual-router/entry[@name='default']/protocol/bgp/peer-group/entry[@name='"+conf.bgp_peer_group_name+"']/peer/entry[@name='"+conf.bgp_peer_name+"']/connection-options&element=<hold-time>"+conf.ike_dpd_interval+"</hold-time><keep-alive-interval>"+conf.ike_dpd_retries+"</keep-alive-interval>");
+
+                  //Commit
+                  pushPost("/api/?type=commit&cmd=<commit></commit>");
+
+                  return conf;
+                }
+
+                exports.post=function(data,cb){
+                  try{
+
+                    options = {
+                      hostname: data.hostname,
+                      rejectUnauthorized:false,
+                      port: 443,
+                      path: data.path,
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      }
+                    };
+
+                    logger.debug("POST → " + JSON.stringify(options));
+
+                    var postreq = https.request(options, function (res) {
+                              logger.debug(" "+res.statusCode);
+                              if(res.statusCode==200)
+                                cb(null,res.statusCode);
+                              else {
+                                cb("response code: "+res.statusCode);
+                              }
+                    });
+                    postreq.end();
+                  }
+                  catch(err){
+                    cb(err);
+                  }
+                };
+            /home/ec2-user/vpnFunction.js:
+              content: !Sub |
+                var AWS=require('aws-sdk');
+                var async=require('async');
+                var xml2js=require('xml2js');
+                var utils=require('./utils.js');
+                //Setup logger
+                var log4js = require('log4js');
+                var logger = log4js.getLogger();
+                logger.setLevel('DEBUG');
+                var cfn = require("cfn-response");
+                var ec2= new AWS.EC2({region:'${AWS::Region}'});
+                exports.terminate=function(){
+                  var params = {InstanceIds: [process.env.InstanceId]};
+                  ec2.terminateInstances(params, function(err, data) {
+                    if (err)
+                      console.log(err, err.stack);
+                    else
+                      process.exit(0);
+                  });
+                };
+                exports.bootstrap=function(event,context){
+                  //Do not process deletions.
+                   if (event.RequestType == "Delete") {
+                         cfn.send(event, context, cfn.SUCCESS, {},event.pid);
+                         return;
+                   };
+                var vpn=event.ResourceProperties.vpnId;
+                var ip=event.ResourceProperties.paloAltoIP;
+                var tunnelNameOffeset=event.ResourceProperties.tunnelNameOffset || 1;
+                var tunnel1Name='tunnel.'+tunnelNameOffeset;
+                var tunnel2Name='tunnel.'+(tunnelNameOffeset+1);
+
+
+                var apiKey=event.ResourceProperties.apiKey || "LUFRPT1OY2tPNENweUZJcHNxZmpMS2xJNEhlN0lmS009b0ZhSFpGSDFMcmVORFNXZFJPNWhlRFFZMXZjMW1SZ0hUanA4Z0dpd1ZoQT0=";
+                  async.waterfall(
+                    [
+                        function getVPNDetails(cb){
+                          logger.info("Getting Details for VPN "+vpn);
+                          var params = {VpnConnectionIds: [vpn]};
+                          ec2.describeVpnConnections(params, function(err, data) {
+                          if (err)
+                            cb(err);
+                          else
+                            cb(null,data);
+                          });
+                        },
+                        function evaluateVPNDetails(data,cb){
+                          logger.debug("Evaluating Result of describeVpnConnections call for VPN "+vpn);
+                          if(data.VpnConnections){
+                            cb(null,data.VpnConnections[0]);
+                          }
+                          else {
+                            cb("No VPN information could be determined for "+vpn);
+                          }
+                        },
+                        function parseConfig(data,cb){
+                          logger.info("Processing Details for VPN "+vpn);
+                          logger.trace("VPN  configuration : ");
+                          logger.trace(JSON.stringify(data));
+                          xml2js.parseString(data.CustomerGatewayConfiguration, function(err, PAN){
+                            if(err)
+                            {
+                              cb("Error parsing CustomerGatewayConfiguration document for VPN: "+err);
+                            }
+                            else{
+                              //Setup Palo Alto Networks device config
+                              conf=utils.parseConfig(PAN);
+
+                              //populate configuration that DescribeVPNs cannot provide but will be needed downstream
+                              conf.apiKey=apiKey;
+                              conf.localip=ip;
+                              conf.tunnel_if_name=tunnel1Name;
+
+                              cb(null,conf);
+                            }
+                          });
+                        },
+                        function prepPosts(conf, cb){
+                          conf=utils.prepPosts(conf);
+                          cb(null,conf);
+                        },
+                        function doPosts(conf,cb){
+                          async.eachSeries(conf.posts,function(post,icb){
+                                utils.post(post,function(err,rescode){
+                                  if(err) {
+                                    logger.error("Error posting: "+post.path);
+                                    icb("Error durring post "+err);
+                                  }
+                                  else{
+                                      icb(null);
+                                  }
+                                });
+                          },
+                          function(err){
+                            if(err)
+                              cb(err)
+                            else
+                              cb(null)
+                          });
+
+                          }
+                      ]
+                      ,function (error) {
+                              if (error) {
+                                  logger.error("An error occured: "+ error);
+                                   cfn.send(event, context, cfn.FAILED, err,event.pid);
+                                   context.fail(error);
+                             }
+                              else{
+                                 logger.info("Setup Complete!");
+                                 cfn.send(event, context, cfn.SUCCESS, error,event.pid);
+                                 context.succeed();
+                        }});}
+              mode: '000755'
+              owner: ec2-user
+          commands:
+            01getNodeJS:
+              command: curl --silent --location https://rpm.nodesource.com/setup_6.x
+                | bash -
+            02installNodeJS:
+              command: yum -y install nodejs
+            03installResourceInterface:
+              cwd: /home/ec2-user
+              command: npm install -g .
+            04installPM2:
+              command: npm install -g pm2
+            05installLocal:
+              cwd: /home/ec2-user
+              command: npm install
+            06startPolling:
+              cwd: /home/ec2-user
+              command:
+                !Sub
+                - InstanceId=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+                  pm2 start bin/cfn-resource-interface -- -q ${queue} -m  /home/ec2-user/vpnFunction.js
+                  -H bootstrap -p terminate
+                - queue:
+                    Fn::GetAtt:
+                    - rCustomResourcePipeline
+                    - Outputs.CustomResourceQueueURL
+  rCopyConfiguration:
+    Type: Custom::bootstrap
+    DeletionPolicy: Retain
+    Version: '1.0'
+    DependsOn:
+    - rCustomResourcePipeline
+    - rBootstrapInstance
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+        - rCustomResourcePipeline
+        - Outputs.CustomResourceTopicARN
+      vpnId: !Ref pVPN
+      paloAltoIP: !Ref pPaloAltoIP
+      tunnelNameOffset: !Ref pVPNTunnelNameOffset
+...

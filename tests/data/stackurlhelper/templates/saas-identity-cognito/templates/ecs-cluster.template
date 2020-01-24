@@ -1,0 +1,237 @@
+---
+Description: This template deploys an ECS cluster to the provided VPC and subnets  using
+  an Auto Scaling Group (qs-1nlegmi2j)
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  InstanceType:
+    Description: Which instance type should we use to build the ECS cluster?
+    Type: String
+  ClusterSize:
+    Description: How many ECS hosts do you want to initially deploy?
+    Type: Number
+    Default: 4
+  VPC:
+    Description: Choose which VPC this ECS cluster should be deployed to
+    Type: AWS::EC2::VPC::Id
+  Subnets:
+    Description: Choose which subnets this ECS cluster should be deployed to
+    Type: List<AWS::EC2::Subnet::Id>
+  SecurityGroup:
+    Description: Select the Security Group to use for the ECS cluster hosts
+    Type: AWS::EC2::SecurityGroup::Id
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      AMZNECSHVM: amzn-ami-2018.03.v-amazon-ecs-optimized
+    ap-northeast-1:
+      AMZNECSHVM: ami-08ef246396ac16543
+    ap-southeast-1:
+      AMZNECSHVM: ami-06bef02fb90a20c9f
+    ap-southeast-2:
+      AMZNECSHVM: ami-0e1c8af5917e71a37
+    ca-central-1:
+      AMZNECSHVM: ami-040aad311b2306a1e
+    eu-central-1:
+      AMZNECSHVM: ami-03ba8abdaf45b0443
+    eu-west-1:
+      AMZNECSHVM: ami-0ddb58069b428158d
+    eu-west-2:
+      AMZNECSHVM: ami-0ef2255141b2fb80d
+    us-east-1:
+      AMZNECSHVM: ami-0f161e6034a6262d8
+    us-east-2:
+      AMZNECSHVM: ami-0fa79d36139b49870
+    us-west-1:
+      AMZNECSHVM: ami-03407cc9d117e6a4c
+    us-west-2:
+      AMZNECSHVM: ami-0f7bc74af1927e7c8
+Resources:
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref EnvironmentName
+  ECSAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: !Ref Subnets
+      LaunchConfigurationName: !Ref ECSLaunchConfiguration
+      MinSize: !Ref ClusterSize
+      MaxSize: !Ref ClusterSize
+      DesiredCapacity: !Ref ClusterSize
+      Tags:
+      - Key: Name
+        Value: !Sub ${EnvironmentName} ECS host
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 1
+        PauseTime: PT15M
+        WaitOnResourceSignals: true
+  ECSLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId:
+        !FindInMap
+        - AWSAMIRegionMap
+        - !Ref AWS::Region
+        - AMZNECSHVM
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+      - !Ref SecurityGroup
+      IamInstanceProfile: !Ref ECSInstanceProfile
+      KeyName: !Ref KeyName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSLaunchConfiguration
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSAutoScalingGroup
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          commands:
+            01_add_instance_to_cluster:
+              command: !Sub echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
+          files:
+            /etc/cfn/cfn-hup.conf:
+              mode: 400
+              owner: root
+              group: root
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.ContainerInstances.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSLaunchConfiguration
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: true
+                ensureRunning: true
+                files:
+                - /etc/cfn/cfn-hup.conf
+                - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+  ECSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ec2.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: ConfigPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: ECS
+            Effect: Allow
+            Action:
+            - ecs:CreateCluster
+            - ecs:DeregisterContainerInstance
+            - ecs:DiscoverPollEndpoint
+            - ecs:Poll
+            - ecs:RegisterContainerInstance
+            - ecs:StartTelemetrySession
+            - ecs:Submit*
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - ecr:BatchCheckLayerAvailability
+            - ecr:BatchGetImage
+            - ecr:GetDownloadUrlForLayer
+            - ecr:GetAuthorizationToken
+            Resource: '*'
+          - Sid: DYNAMODB
+            Effect: Allow
+            Action:
+            - dynamodb:Query
+            - dynamodb:PutItem
+            - dynamodb:DescribeTable
+            - dynamodb:DeleteTable
+            - dynamodb:GetItem
+            - dynamodb:CreateTable
+            - dynamodb:Scan
+            Resource: '*'
+          - Sid: IAM
+            Effect: Allow
+            Action:
+            - iam:AttachRolePolicy
+            - iam:CreatePolicy
+            - iam:CreatePolicyVersion
+            - iam:CreateRole
+            - iam:DeletePolicy
+            - iam:DeletePolicyVersion
+            - iam:DeleteRole
+            - iam:DeleteRolePolicy
+            - iam:DetachRolePolicy
+            - iam:GetPolicy
+            - iam:GetPolicyVersion
+            - iam:GetRole
+            - iam:GetRolePolicy
+            - iam:PassRole
+            Resource: '*'
+          - Sid: CognitoIdentity
+            Effect: Allow
+            Action:
+            - cognito-identity:CreateIdentityPool
+            - cognito-identity:DeleteIdentityPool
+            - cognito-identity:DeleteIdentities
+            - cognito-identity:DescribeIdentity
+            - cognito-identity:DescribeIdentityPool
+            - cognito-identity:GetIdentityPoolRoles
+            - cognito-identity:GetOpenIdTokenForDeveloperIdentity
+            - cognito-identity:ListIdentities
+            - cognito-identity:ListIdentityPools
+            - cognito-identity:LookupDeveloperIdentity
+            - cognito-identity:MergeDeveloperIdentities
+            - cognito-identity:SetIdentityPoolRoles
+            - cognito-identity:UnlinkDeveloperIdentity
+            - cognito-identity:UpdateIdentityPool
+            Resource: '*'
+          - Sid: CognitoUP
+            Effect: Allow
+            Action:
+            - cognito-idp:CreateUserPool
+            - cognito-idp:CreateUserPoolClient
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminDeleteUser
+            - cognito-idp:DeleteUserPool
+            - cognito-idp:AdminGetUser
+            Resource: '*'
+          - Sid: APIGatewayKeysCertificates
+            Effect: Allow
+            Action:
+            - apigateway:GET
+            - apigateway:HEAD
+            - apigateway:OPTIONS
+            Resource:
+            - arn:aws:apigateway:us-east-1::/clientcertificates/*
+            - arn:aws:apigateway:us-east-1::/domainnames/*
+            - arn:aws:apigateway:us-east-1::/apikeys/*
+  ECSInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+      - !Ref ECSRole
+Outputs:
+  Cluster:
+    Description: A reference to the ECS cluster
+    Value: !Ref ECSCluster
+...

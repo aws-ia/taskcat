@@ -1,0 +1,596 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Provides networking configuration for a standard management VPC (qs-1nb14cqcg)
+Metadata:
+  Stack:
+    Value: 2
+  VersionDate:
+    Value: 20160510
+  Identifier:
+    Value: template-vpc-management
+  Input:
+    Description: CIDR blocks, VPC names, KeyName, EC2 instance size
+  Output:
+    Description: Outputs ID of all deployed resources
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Region Config
+      Parameters:
+      - pRegionAZ1Name
+      - pRegionAZ2Name
+    - Label:
+        default: Management VPC Configuration
+      Parameters:
+      - pManagementVPCName
+      - pManagementCIDR
+      - pManagementDMZSubnetACIDR
+      - pManagementDMZSubnetBCIDR
+      - pManagementDMZSubnetPublicIP
+      - pVPCTenancy
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    - Label:
+        default: Optional Components - Bastion
+      Parameters:
+      - pCreateBastionHost
+      - pEC2KeyPairBastion
+      - pBastionInstanceType
+      - pBastionAmi
+      - pBastionSSHCIDR
+    ParameterLabels:
+      pManagementVPCName:
+        default: Name of Management VPC to create
+      pManagementCIDR:
+        default: CIDR block of Management VPC
+      pManagementDMZSubnetACIDR:
+        default: CIDR block of Management DMZ SubnetA
+      pManagementDMZSubnetBCIDR:
+        default: CIDR block of Management DMZ SubnetB
+      pManagementDMZSubnetPublicIP:
+        default: Configure DMZ Subnets for public ip.
+      pVPCTenancy:
+        default: Instance tenancy
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+      pCreateBastionHost:
+        default: Create Bastion Host
+      pEC2KeyPairBastion:
+        default: Bastion KeyPair
+      pBastionInstanceType:
+        default: Bastion Instance Type
+      pBastionAmi:
+        default: Bastion AMI
+      pBastionSSHCIDR:
+        default: Bastion SSH CIDR
+Parameters:
+  pCreateBastionHost:
+    Description: Should a Bastion host be created inside the DMZ Subnet(s)?
+    Type: String
+    Default: true
+    AllowedValues:
+    - true
+    - false
+  pManagementDMZSubnetPublicIP:
+    Description: Should Public IPs be auto-assigned to instances launched in the DMZ subnet(s)?
+    Type: String
+    Default: false
+    AllowedValues:
+    - true
+    - false
+  pProductionVPC:
+    Description: Production VPC to peer with (optional)
+    Type: String
+    Default: ''
+  pProductionCIDR:
+    Description: CIDR of Production VPC
+    Type: String
+    Default: ''
+  pRouteTableProdPrivate:
+    Description: Route Table ID for Prod VPC Private
+    Type: String
+    Default: ''
+  pRouteTableProdPublic:
+    Description: Route Table ID for Prod VPC Public
+    Type: String
+    Default: ''
+  pRegionAZ1Name:
+    Description: Availability Zone 1 Name in Region
+    Type: String
+    Default: us-east-1b
+  pRegionAZ2Name:
+    Description: Availability Zone 2 Name in Region
+    Type: String
+    Default: us-west-1c
+  pEC2KeyPairBastion:
+    Description: Name of existing EC2 key pair for BASTION hosts
+    Type: String
+    Default: ''
+  pBastionInstanceType:
+    Description: Bastion EC2 instance type
+    Type: String
+    Default: m3.large
+  pManagementVPCName:
+    Description: Management VPC Name
+    Type: String
+    Default: Management VPC
+  pManagementCIDR:
+    Description: CIDR block for Management VPC
+    Type: String
+    Default: 10.10.0.0/16
+  pManagementDMZSubnetACIDR:
+    Description: CIDR block for Management AZ-1a subnet
+    Type: String
+    Default: 10.10.10.0/24
+  pManagementDMZSubnetBCIDR:
+    Description: CIDR block for Management AZ-1b subnet
+    Type: String
+    Default: 10.10.20.0/24
+  pManagementPrivateSubnetACIDR:
+    Description: CIDR block for Management AZ-1a subnet
+    Type: String
+    Default: 10.10.10.0/24
+  pManagementPrivateSubnetBCIDR:
+    Description: CIDR block for Management AZ-1b subnet
+    Type: String
+    Default: 10.10.20.0/24
+  pVPCTenancy:
+    Description: Instance tenancy behavior for this VPC
+    Type: String
+    Default: default
+    AllowedValues:
+    - default
+    - dedicated
+  pBastionSSHCIDR:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: The CIDR Allowed SSH access to the bastion host
+  pBastionAmi:
+    Description: AMI to use for bastion host
+    Type: String
+    Default: ''
+  pEC2KeyPair:
+    Description: Name of existing EC2 key pair for production hosts
+    Type: String
+    Default: ''
+  pEnvironment:
+    Description: Environment (development, test, or production)
+    Type: String
+    Default: development
+  pSupportsNatGateway:
+    Description: Specifies whether this region supports NAT Gateway (this value is
+      determined by the main stack if it is invoked from there)
+    Type: String
+    Default: true
+  pNatInstanceType:
+    Description: Instance type to use for the NAT intstance if the region does not
+      support NAT Gateway (this value is determined by the main stack if it is invoked
+      from there)
+    Type: String
+    Default: ''
+  pNatAmi:
+    Description: AMI to use for the NAT intstance if the region does not support NAT
+      Gateway (this value is determined by the main stack if it is invoked from there)
+    Type: String
+    Default: ''
+  pFlowLogGroup:
+    Description: Log Group for capturing VPC Flow Logs
+    Type: String
+    Default: ''
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z\-\.]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, periods (.), and hyphens (-). It cannot start or
+      end with a hyphen (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, periods (.), and
+      hyphens (-). It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-compliance-nist/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      orward slash (/).
+    Type: String
+Conditions:
+  cGovCloudCondition:
+    !Equals
+    - !Ref AWS::Region
+    - us-gov-west-1
+  cCreateBastionHost:
+    !Equals
+    - true
+    - !Ref pCreateBastionHost
+  cCreatePeeringProduction:
+    !Not
+    - !Equals
+      - ''
+      - !Ref pProductionVPC
+  cNeedNatInstance:
+    !Equals
+    - false
+    - !Ref pSupportsNatGateway
+  cSupportsNatGateway:
+    !Equals
+    - true
+    - !Ref pSupportsNatGateway
+  cEnableFlowLogs:
+    !Not
+    - !Equals
+      - !Ref pFlowLogGroup
+      - ''
+Resources:
+  rVPCManagement:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref pManagementCIDR
+      InstanceTenancy: !Ref pVPCTenancy
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Name
+        Value: !Ref pManagementVPCName
+  rNatInstanceTemplate:
+    Type: AWS::CloudFormation::Stack
+    Condition: cNeedNatInstance
+    Properties:
+      TemplateURL:
+        !Sub
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-compliance-common/templates/nat-instance.template
+        - QSS3Region:
+            !If
+            - cGovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      TimeoutInMinutes: 20
+      Parameters:
+        pDMZSubnetA: !Ref rManagementDMZSubnetA
+        pSecurityGroupSSHFromVpc: !Ref rSecurityGroupSSHFromMgmt
+        pSecurityGroupVpcNat: !Ref rSecurityGroupVpcNat
+        pNatInstanceType: !Ref pNatInstanceType
+        pNatAmi: !Ref pNatAmi
+        pEC2KeyPair: !Ref pEC2KeyPair
+        pVpcId: !Ref rVPCManagement
+        pVpcName: !Ref pManagementVPCName
+        pRouteTablePrivateA: !Ref rRouteTableMgmtPrivate
+        pRouteTablePrivateB: ''
+        pEipNatAllocationId: !GetAtt rEIPProdNAT.AllocationId
+  rSecurityGroupVpcNat:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow NAT from Management VPC
+      VpcId: !Ref rVPCManagement
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: !Ref pManagementCIDR
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: !Ref pManagementCIDR
+      Tags:
+      - Key: Name
+        Value: sg-web-access-ports-from-production
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rManagementDMZSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref pManagementDMZSubnetACIDR
+      AvailabilityZone: !Ref pRegionAZ1Name
+      MapPublicIpOnLaunch: !Ref pManagementDMZSubnetPublicIP
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management DMZ Subnet A
+  rManagementDMZSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref pManagementDMZSubnetBCIDR
+      AvailabilityZone: !Ref pRegionAZ2Name
+      MapPublicIpOnLaunch: !Ref pManagementDMZSubnetPublicIP
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management DMZ Subnet B
+  rManagementPrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref pManagementPrivateSubnetACIDR
+      AvailabilityZone: !Ref pRegionAZ1Name
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management Private Subnet A
+  rManagementPrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref pManagementPrivateSubnetBCIDR
+      AvailabilityZone: !Ref pRegionAZ2Name
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management Private Subnet B
+  rIGWManagement:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: igw-management
+  rRouteTableMgmtPrivate:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management Private Route
+  rRouteTableMgmtDMZ:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: Management DMZ Route
+  rRouteMgmtIGW:
+    DependsOn:
+    - rGWAttachmentMgmtIGW
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtDMZ
+      GatewayId: !Ref rIGWManagement
+      DestinationCidrBlock: 0.0.0.0/0
+  rRouteAssocMgmtDMZA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtDMZ
+      SubnetId: !Ref rManagementDMZSubnetA
+  rRouteAssocMgmtDMZB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtDMZ
+      SubnetId: !Ref rManagementDMZSubnetB
+  rRouteAssocMgmtPrivA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtPrivate
+      SubnetId: !Ref rManagementPrivateSubnetA
+  rRouteAssocMgmtPrivB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtPrivate
+      SubnetId: !Ref rManagementPrivateSubnetB
+  rENIProductionBastion:
+    Condition: cCreateBastionHost
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref rManagementDMZSubnetA
+      GroupSet:
+      - !Ref rSecurityGroupBastion
+      Description: Interface for Bastion device
+      Tags:
+      - Key: Network
+        Value: MgmtBastionDevice
+  rMgmtBastionInstance:
+    Type: AWS::EC2::Instance
+    Condition: cCreateBastionHost
+    Properties:
+      InstanceType: !Ref pBastionInstanceType
+      KeyName: !Ref pEC2KeyPairBastion
+      Tags:
+      - Key: Name
+        Value: Bastion Server
+      ImageId: !Ref pBastionAmi
+      NetworkInterfaces:
+      - NetworkInterfaceId: !Ref rENIProductionBastion
+        DeviceIndex: 0
+      UserData: !Base64 |
+        #!/bin/bash
+        yum update -y
+  rEIPProdBastion:
+    Type: AWS::EC2::EIP
+    Condition: cCreateBastionHost
+    Properties:
+      Domain: vpc
+  AssociaterEIPProdBastion:
+    Type: AWS::EC2::EIPAssociation
+    Condition: cCreateBastionHost
+    Properties:
+      AllocationId: !GetAtt rEIPProdBastion.AllocationId
+      NetworkInterfaceId: !Ref rENIProductionBastion
+  rEIPManagementNAT:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  rSecurityGroupSSHFromMgmt:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      VpcId: !Ref rVPCManagement
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref pManagementCIDR
+      Tags:
+      - Key: Name
+        Value: sg-ssh-access-from-management
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rManagementNATInstanceInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref rManagementDMZSubnetA
+      GroupSet:
+      - !Ref rSecurityGroupSSHFromMgmt
+      - !Ref rSecurityGroupVpcNat
+      Description: Interface for Nat device
+      Tags:
+      - Key: Network
+        Value: rManagementNATInstanceInterface
+  AssociaterEIPManagementNAT:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt rEIPManagementNAT.AllocationId
+      NetworkInterfaceId: !Ref rManagementNATInstanceInterface
+  rEIPProdNAT:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  rNATGateway:
+    Type: AWS::EC2::NatGateway
+    Condition: cSupportsNatGateway
+    DependsOn: rIGWManagement
+    Properties:
+      AllocationId: !GetAtt rEIPProdNAT.AllocationId
+      SubnetId: !Ref rManagementDMZSubnetA
+  rGWAttachmentMgmtIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref rVPCManagement
+      InternetGatewayId: !Ref rIGWManagement
+  rSecurityGroupBastion:
+    Type: AWS::EC2::SecurityGroup
+    Condition: cCreateBastionHost
+    Properties:
+      GroupDescription: SG for Bastion Instances
+      VpcId: !Ref rVPCManagement
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref pBastionSSHCIDR
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 1
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+      Tags:
+      - Key: Name
+        Value: sg-ssh-access-from-bastion
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rPeeringConnectionProduction:
+    Type: AWS::EC2::VPCPeeringConnection
+    Condition: cCreatePeeringProduction
+    Properties:
+      PeerVpcId: !Ref pProductionVPC
+      VpcId: !Ref rVPCManagement
+      Tags:
+      - Key: Name
+        Value: vpc-peer-production-management
+      - Key: Environment
+        Value: !Ref pEnvironment
+  rRouteMgmtProdPrivate:
+    Condition: cCreatePeeringProduction
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtPrivate
+      VpcPeeringConnectionId: !Ref rPeeringConnectionProduction
+      DestinationCidrBlock: !Ref pProductionCIDR
+  rRouteMgmtNGW:
+    Condition: cSupportsNatGateway
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtPrivate
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref rNATGateway
+  rRouteProdMgmt:
+    Condition: cCreatePeeringProduction
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref pRouteTableProdPrivate
+      VpcPeeringConnectionId: !Ref rPeeringConnectionProduction
+      DestinationCidrBlock: !Ref pManagementCIDR
+  rRouteProdMgmtPublic:
+    Condition: cCreatePeeringProduction
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref pRouteTableProdPublic
+      VpcPeeringConnectionId: !Ref rPeeringConnectionProduction
+      DestinationCidrBlock: !Ref pManagementCIDR
+  rRouteMgmtProdDMZ:
+    Condition: cCreatePeeringProduction
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref rRouteTableMgmtDMZ
+      VpcPeeringConnectionId: !Ref rPeeringConnectionProduction
+      DestinationCidrBlock: !Ref pProductionCIDR
+  rManagementVpcFlowLogsServiceRole:
+    Condition: cEnableFlowLogs
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Sid: AllowFlowLogs
+          Effect: Allow
+          Principal:
+            Service: vpc-flow-logs.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+      Policies:
+      - PolicyName: cloudwatchlogsrole
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:DescribeLogGroups
+            - logs:DescribeLogStreams
+            Effect: Allow
+            Resource: '*'
+  rManagementVpcFlowLog:
+    Condition: cEnableFlowLogs
+    Type: AWS::EC2::FlowLog
+    Properties:
+      DeliverLogsPermissionArn: !GetAtt rManagementVpcFlowLogsServiceRole.Arn
+      LogGroupName: !Ref pFlowLogGroup
+      ResourceId: !Ref rVPCManagement
+      ResourceType: VPC
+      TrafficType: ALL
+  rManagementVpcFlowLogStream:
+    Condition: cEnableFlowLogs
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref pFlowLogGroup
+Outputs:
+  rVPCManagement:
+    Value: !Ref rVPCManagement
+  rBastionInstanceIP:
+    Condition: cCreateBastionHost
+    Value:
+      !If
+      - cCreateBastionHost
+      - !Ref rEIPProdBastion
+      - ''
+  rManagementDMZSubnetA:
+    Value: !Ref rManagementDMZSubnetA
+  rManagementDMZSubnetB:
+    Value: !Ref rManagementDMZSubnetB
+  rManagementPrivateSubnetA:
+    Value: !Ref rManagementPrivateSubnetA
+  rManagementPrivateSubnetB:
+    Value: !Ref rManagementPrivateSubnetB
+  rRouteTableMgmtPrivate:
+    Value: !Ref rRouteTableMgmtPrivate
+  rRouteTableMgmtDMZ:
+    Value: !Ref rRouteTableMgmtDMZ
+  rSecurityGroupVpcNat:
+    Value: !Ref rSecurityGroupVpcNat
+  rEIPManagementNAT:
+    Value: !Ref rEIPProdNAT
+  rSecurityGroupSSHFromMgmt:
+    Value: !Ref rSecurityGroupSSHFromMgmt
+...

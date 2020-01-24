@@ -1,0 +1,159 @@
+---
+Description: This template deploys IAM Roles required for other cloudformation templates.
+  (qs-1nlegmi38)
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+Resources:
+  CleanupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: ConfigPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: Logging
+            Effect: Allow
+            Action: logs:*
+            Resource: '*'
+          - Sid: ECR
+            Effect: Allow
+            Action: ecr:*
+            Resource: '*'
+          - Sid: ECS
+            Effect: Allow
+            Action: ecs:*
+            Resource: '*'
+          - Sid: EC2
+            Effect: Allow
+            Action: ec2:*
+            Resource: '*'
+          - Sid: ELB
+            Effect: Allow
+            Action: elasticloadbalancing:*
+            Resource: '*'
+          - Sid: CFN
+            Effect: Allow
+            Action: cloudformation:*
+            Resource: '*'
+          - Sid: S3
+            Effect: Allow
+            Action: s3:*
+            Resource: '*'
+          - Sid: IAM
+            Effect: Allow
+            Action: iam:*
+            Resource: '*'
+  SNSRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: cognito-idp.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: !Sub ${EnvironmentName}-SNSRolePolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: SNS
+            Effect: Allow
+            Action: sns:publish
+            Resource: '*'
+  ApiAuthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: apigateway.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: !Sub ${EnvironmentName}-ApiAuthPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: SNS
+            Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: '*'
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: !Sub ${EnvironmentName}-LambdaAuthPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Sid: SNS
+            Effect: Allow
+            Action: logs:*
+            Resource: arn:aws:logs:*:*:*
+  CloudFormationExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: cloudformation.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: !Sub ${EnvironmentName}-CfnExecRole
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Resource: '*'
+            Effect: Allow
+            Action:
+            - ecs:*
+            - ecr:*
+            - iam:*
+            - s3:*
+            - ec2:*
+            - elasticloadbalancing:*
+            - logs:*
+Outputs:
+  SNSRoleArn:
+    Description: A reference to the Role Arn of the SNSRole
+    Value: !GetAtt SNSRole.Arn
+  LambdaInvocationRole:
+    Description: A reference to the Role Arn of the ApiAuthRole
+    Value: !GetAtt ApiAuthRole.Arn
+  LambdaExecutionRole:
+    Description: A reference to the Role Arn of the LambdaAuthRole
+    Value: !GetAtt LambdaExecutionRole.Arn
+  CleanupRole:
+    Description: A reference to the Role Arn of the LambdaAuthRole
+    Value: !GetAtt CleanupRole.Arn
+  CloudFormationExecutionRole:
+    Description: A reference to the Role Arn of the CloudFormationExecutionRole
+    Value: !GetAtt CloudFormationExecutionRole.Arn
+...

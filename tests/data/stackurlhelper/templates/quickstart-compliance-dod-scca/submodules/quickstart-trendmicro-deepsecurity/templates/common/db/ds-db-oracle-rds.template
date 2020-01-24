@@ -1,0 +1,125 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'v5.17: This template deploys an Oracle RDS instance for Deep Security
+  Manager. (qs-1ngr590i9)'
+Parameters:
+  DBIRDSInstanceSize:
+    Default: db.m3.large
+    Description: Trend Micro Deep Security Database instance class
+    Type: String
+    AllowedValues:
+    - db.m4.large
+    - db.m4.xlarge
+    - db.m4.2xlarge
+    - db.m3.medium
+    - db.m3.large
+    - db.m3.xlarge
+    - db.m3.2xlarge
+    - db.r3.large
+    - db.r3.xlarge
+    - db.r3.2xlarge
+    - db.r3.4xlarge
+    - db.r3.8xlarge
+    - db.r4.large
+    - db.r4.xlarge
+    ConstraintDescription: must select a valid database instance type.
+  DBIStorageAllocation:
+    Default: 10
+    Description: The size of the Deep Security database (Gb)
+    Type: Number
+    MinValue: 10
+    MaxValue: 3072
+    ConstraintDescription: must be between 10 and 3072Gb.
+  DBPBackupDays:
+    Default: 1
+    Description: Days to keep automatic RDS backups (0-35)
+    Type: Number
+    MinValue: 0
+    MaxValue: 35
+    ConstraintDescription: must be between 0 and 35 days.
+  DBICAdminName:
+    Default: dsadmin
+    Description: Admin account username to be used for the database instance
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBICAdminPassword:
+    NoEcho: true
+    Description: Password to be used for the Oracle database admin account
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: Can only contain alphanumeric characters or the following
+      special characters !^*-_+ Min length 8, max length 41
+  DBPName:
+    Default: dsm
+    Description: Name to be assigned to the database
+    Type: String
+    MinLength: 1
+    MaxLength: 64
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  StorageType:
+    Default: gp2
+    Type: String
+    AllowedValues:
+    - gp2
+  RDSSG:
+    Type: AWS::EC2::SecurityGroup::Id
+  DBISubnetGroupName:
+    Type: String
+  MultiAZ:
+    Description: Use Multi-AZ or SQL Mirroring Option Group for RDS Instance
+    Type: String
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Default: 'false'
+Resources:
+  DSDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      LicenseModel: license-included
+      PubliclyAccessible: false
+      DBName: !Ref DBPName
+      AllocatedStorage: !Ref DBIStorageAllocation
+      DBInstanceClass: !Ref DBIRDSInstanceSize
+      Engine:
+        !If
+        - RegionIsUsGovCloud
+        - oracle-se1
+        - oracle-se2
+      MasterUsername: !Ref DBICAdminName
+      MasterUserPassword: !Ref DBICAdminPassword
+      VPCSecurityGroups:
+      - !Ref RDSSG
+      MultiAZ: !Ref MultiAZ
+      BackupRetentionPeriod: !Ref DBPBackupDays
+      DBSubnetGroupName: !Ref DBISubnetGroupName
+      StorageType: !Ref StorageType
+      StorageEncrypted: true
+      Tags:
+      - Key: Application
+        Value: Deep Security Manager
+Conditions:
+  RegionIsUsGovCloud:
+    !Equals
+    - !Ref AWS::Region
+    - us-gov-west-1
+  MultiAZ:
+    !Equals
+    - !Ref MultiAZ
+    - 'true'
+Outputs:
+  DSDBEndpoint:
+    Description: Endpoint to be passed to DSM installation properties file
+    Value: !GetAtt DSDatabase.Endpoint.Address
+  DSDBPort:
+    Description: Port to be passed to DSM installation properties file
+    Value: !GetAtt DSDatabase.Endpoint.Port
+...

@@ -1,0 +1,234 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'v5.17: This template is an abstraction layer for choosing PostgreSQL,
+  Oracle or MSSQL when deploying Deep Security Manager. (qs-1ngr590i4)'
+Parameters:
+  DBIRDSInstanceSize:
+    Default: db.m3.large
+    Description: Trend Micro Deep Security Database instance class
+    Type: String
+    AllowedValues:
+    - db.m4.large
+    - db.m4.xlarge
+    - db.m4.2xlarge
+    - db.m3.medium
+    - db.m3.large
+    - db.m3.xlarge
+    - db.m3.2xlarge
+    - db.r3.large
+    - db.r3.xlarge
+    - db.r3.2xlarge
+    - db.r3.4xlarge
+    - db.r3.8xlarge
+    - db.r4.large
+    - db.r4.xlarge
+    ConstraintDescription: must select a valid database instance type.
+  DBIStorageAllocation:
+    Default: 10
+    Description: The Storage Allocated to Database Instance (in GB). Minimum 200 for
+      SQL Server, 10 for Oracle.
+    Type: Number
+    MinValue: 10
+    MaxValue: 3072
+    ConstraintDescription: must be between 10 and 3072Gb.
+  DBPBackupDays:
+    Default: 1
+    Description: Days to keep automatic RDS backups (0-35)
+    Type: Number
+    MinValue: 0
+    MaxValue: 35
+    ConstraintDescription: must be between 0 and 35 days.
+  DBICAdminName:
+    Default: dsadmin
+    Description: Admin account username to be used for the database instance
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  DBICAdminPassword:
+    NoEcho: true
+    Description: Password to be used for the database admin account. 8-41 alphanumeric
+      characters
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    AllowedPattern: '[a-zA-Z0-9!^*\-_+]*'
+    ConstraintDescription: Can only contain alphanumeric characters or the following
+      special characters !^*-_+ Min length 8, max length 41
+  DBPName:
+    Default: dsm
+    Description: Name to be assigned to the database
+    Type: String
+    MinLength: 1
+    MaxLength: 64
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric
+      characters.
+  StorageType:
+    Default: gp2
+    Type: String
+  RDSSG:
+    Type: AWS::EC2::SecurityGroup::Id
+  DBPEngine:
+    Description: Choose PostgreSQL, MSSSQL or Oracle for DSM database Engine
+    Type: String
+    Default: PostgreSQL
+    AllowedValues:
+    - SQL
+    - Oracle
+    - PostgreSQL
+  MultiAZ:
+    Description: Use Multi-AZ or SQL Mirroring Option Group for RDS Instance
+    Type: String
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Default: 'false'
+  DBISubnetGroupName:
+    Type: String
+    Default: ''
+  DBISubnet1:
+    Description: Choose a private subnets in the same VPC for the RDS instance
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in separate
+      availability zones with the specified VPC for deploying this template
+  DBISubnet2:
+    Description: Choose private subnets in the same VPC for this RDS instance
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: RDS Subnet Groups must be comprised of 2 subnets in separate
+      availability zones with the specified VPC for deploying this template
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-trendmicro-deepsecurity/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+Resources:
+  DSOracleRDS:
+    Type: AWS::CloudFormation::Stack
+    Condition: DBTypeIsOracle
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/common/db/ds-db-oracle-rds.template
+        - QSS3Region:
+            !If
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      TimeoutInMinutes: '45'
+      Parameters:
+        DBIRDSInstanceSize: !Ref DBIRDSInstanceSize
+        DBIStorageAllocation: !Ref DBIStorageAllocation
+        DBPBackupDays: !Ref DBPBackupDays
+        DBICAdminName: !Ref DBICAdminName
+        DBICAdminPassword: !Ref DBICAdminPassword
+        DBPName: !Ref DBPName
+        RDSSG: !Ref RDSSG
+        DBISubnetGroupName: !Ref DBISubnetGroup
+        MultiAZ: !Ref MultiAZ
+  DSSQLRDS:
+    Type: AWS::CloudFormation::Stack
+    Condition: DBTypeIsSQL
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/common/db/ds-db-mssql-rds.template
+        - QSS3Region:
+            !If
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      TimeoutInMinutes: '45'
+      Parameters:
+        DBIRDSInstanceSize: !Ref DBIRDSInstanceSize
+        DBIStorageAllocation: !Ref DBIStorageAllocation
+        DBPBackupDays: !Ref DBPBackupDays
+        DBICAdminName: !Ref DBICAdminName
+        DBICAdminPassword: !Ref DBICAdminPassword
+        DBPName: !Ref DBPName
+        RDSSG: !Ref RDSSG
+        DBISubnetGroupName: !Ref DBISubnetGroup
+        MultiAZ: !Ref MultiAZ
+  DSPostgreSQLRDS:
+    Type: AWS::CloudFormation::Stack
+    Condition: DBTypeIsPostgreSQL
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/common/db/ds-db-postgresql-rds.template
+        - QSS3Region:
+            !If
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      TimeoutInMinutes: '45'
+      Parameters:
+        DBIRDSInstanceSize: !Ref DBIRDSInstanceSize
+        DBIStorageAllocation: !Ref DBIStorageAllocation
+        DBPBackupDays: !Ref DBPBackupDays
+        DBICAdminName: !Ref DBICAdminName
+        DBICAdminPassword: !Ref DBICAdminPassword
+        DBPName: !Ref DBPName
+        RDSSG: !Ref RDSSG
+        DBISubnetGroupName: !Ref DBISubnetGroup
+        MultiAZ: !Ref MultiAZ
+  DBISubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: DeepSecurityRDSSubnetGroup
+      SubnetIds:
+      - !Ref DBISubnet1
+      - !Ref DBISubnet2
+Conditions:
+  DBTypeIsOracle:
+    !Equals
+    - !Ref DBPEngine
+    - Oracle
+  DBTypeIsSQL:
+    !Equals
+    - !Ref DBPEngine
+    - SQL
+  DBTypeIsPostgreSQL:
+    !Equals
+    - !Ref DBPEngine
+    - PostgreSQL
+  GovCloudCondition:
+    !Equals
+    - !Ref AWS::Region
+    - us-gov-west-1
+Outputs:
+  DSDBEndpoint:
+    Value:
+      !If
+      - DBTypeIsOracle
+      - !GetAtt DSOracleRDS.Outputs.DSDBEndpoint
+      - !If
+        - DBTypeIsPostgreSQL
+        - !GetAtt DSPostgreSQLRDS.Outputs.DSDBEndpoint
+        - !GetAtt DSSQLRDS.Outputs.DSDBEndpoint
+  DSDBPort:
+    Value:
+      !If
+      - DBTypeIsOracle
+      - !GetAtt DSOracleRDS.Outputs.DSDBPort
+      - !If
+        - DBTypeIsPostgreSQL
+        - !GetAtt DSPostgreSQLRDS.Outputs.DSDBPort
+        - !GetAtt DSSQLRDS.Outputs.DSDBPort
+...

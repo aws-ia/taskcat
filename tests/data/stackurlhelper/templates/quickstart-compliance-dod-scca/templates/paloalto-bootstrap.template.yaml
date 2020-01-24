@@ -1,0 +1,125 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provides an S3 bucket and populates it with the default Palo Alto bootstrap
+  configuration for use with the VM Series firewall template.  The logic necessary
+  to perform operations on the bucket is handled by an ec2-backed custom resource.  This
+  was built in lieu of Lambda, not available in the GovCloud region.
+
+  '
+Parameters:
+  pBootStrapConfigurationXML:
+    Type: String
+    Description: The s3 url to a file containing the s3 stored config script for the
+      firewall
+  pInitCfgTXT:
+    Type: String
+    Description: The s3 url to a file containing the init-cfg script for the firewall
+Resources:
+  rBootstrapBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+  rCreateLicenseBucket:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt 'rCreateLicenseBucketFunction.Arn'
+      DestBucket: !Ref rBootstrapBucket
+      InitConfigText: !Ref pInitCfgTXT
+      BootstrapConfigXML: !Ref pBootStrapConfigurationXML
+      LicenseBucketPrefixes:
+        - config
+        - content
+        - license
+        - software
+  rCreateLicenseBucketFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Creates the Palto Alto bootstrap bucket structure.
+      Handler: index.handler
+      Runtime: python2.7
+      Role: !GetAtt 'rCreateLicenseBucketRole.Arn'
+      Timeout: 60
+      Code:
+        ZipFile: |
+          import json
+          import logging
+          import cfnresponse
+          from botocore.vendored import requests
+          import boto3
+          s3 = boto3.client('s3')
+          def create_prefixes(prefixes, license_bucket):
+            for pfx in prefixes:
+              s3.put_object(
+                Bucket=license_bucket,
+                Body='',
+                Key=pfx + '/'
+              )
+          def copy_init_files(bootstrap_file_url, init_file_url, license_bucket):
+            bootstrap_content = requests.get(bootstrap_file_url)
+            initfile_content = requests.get(init_file_url)
+            bootstrap_content.raise_for_status()
+            initfile_content.raise_for_status()
+            s3.put_object(
+              Bucket=license_bucket,
+              Body=bootstrap_content.content,
+              Key='config/bootstrap.xml')
+            s3.put_object(
+              Bucket=license_bucket,
+              Body=initfile_content.content,
+              Key='config/init-cfg.txt')
+          def handler(event, context):
+            print("Received Event: %s" % json.dumps(event))
+            status = cfnresponse.SUCCESS
+            try:
+              bootstrap_file_url = event['ResourceProperties']['BootstrapConfigXML']
+              init_file_url = event['ResourceProperties']['InitConfigText']
+              dest_bucket = event['ResourceProperties']['DestBucket']
+              required_prefixes = event['ResourceProperties']['LicenseBucketPrefixes']
+              event_type = event['RequestType']
+              if event_type == 'Create':
+                create_prefixes(prefixes=required_prefixes, license_bucket=dest_bucket)
+                copy_init_files(bootstrap_file_url=bootstrap_file_url, init_file_url=init_file_url, license_bucket=dest_bucket)
+            except Exception as e:
+              logging.error("Exception: %s" %e, exc_info=True)
+              status = cfnresponse.FAILED
+            finally:
+              cfnresponse.send(event, context, status, {}, None)
+
+  rCreateLicenseBucketRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Path: /
+      Policies:
+      - PolicyName: LambdaCopyConfigServiceRole
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Sid: AllowLogging
+            Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+            - '*'
+          - Sid: AllowPutToBucket
+            Effect: Allow
+            Action:
+            - s3:PutObject
+            Resource:
+            - !Sub
+              - arn:*:s3:::${bucket}/*
+              - bucket: !Ref rBootstrapBucket
+Outputs:
+  S3BucketName:
+    Description: The S3 Bucket containing the bootstrap configuration
+    Value: !Ref rBootstrapBucket
+...

@@ -1,0 +1,119 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: This CloudFormation Template deletes a CloudFormation Stack. (qs-1nlegmi0t)
+Parameters:
+  Stack:
+    Description: The Cloudformation Stack to remove.
+    Type: String
+  ServiceToken:
+    Description: The Role ARN required to execute the Custom Resource.
+    Type: String
+Resources:
+  DeleteStack:
+    Type: Custom::ConfigFile
+    Properties:
+      ServiceToken: !GetAtt DeleteStackFunction.Arn
+      Region: !Ref AWS::Region
+      Stack: !Ref Stack
+      Role: !Ref ServiceToken
+  DeleteStackFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Removes CloudFormation Stack
+      Handler: index.handler
+      Runtime: python2.7
+      Role: !Ref ServiceToken
+      Timeout: 240
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import botocore
+          import os
+          import cfnresponse
+          from json import dumps
+          import time
+
+          def create(properties, physical_id):
+            message = 'Create Complete'
+            print(message)
+            return cfnresponse.SUCCESS, None
+
+          def update(properties, physical_id):
+            return create(properties, physical_id)
+
+          def delete(properties, physical_id):
+            region = properties['Region']
+            stack = properties['Stack']
+            role = properties['Role']
+            deleteStack(stack, role)
+            print('successfuly removed stack')
+            return cfnresponse.SUCCESS, physical_id
+
+          def deleteStack(stack, role):
+              client = boto3.client('cloudformation')
+              try:
+                print('Deleting Stack.......')
+                response = client.delete_stack(
+                    StackName=stack
+                )
+              except Exception as error:
+                print error
+                print('error deleting stack')
+                response_status = 'FAILED'
+              deleting = True
+              while deleting:
+                try:
+                  response = client.describe_stacks(
+                    StackName=stack
+                  )
+                  print('Describing Stack')
+                  print response
+                except botocore.exceptions.ClientError as error:
+                  if error.response['Error']['Message'] == 'Stack with id ' + stack + ' does not exist':
+                    # stack is gone so we can bail
+                    print "Stack not in the list. Proceeding..."
+                    break
+                except Exception as error:
+                  # some other error occurred and we should fail completely
+                  print error
+                  print('error deleting stack 2')
+                  response_status = 'FAILED'
+                  break
+
+                # at this point the stack still exists in some state
+                numStacks = len(response['Stacks'])
+
+                # if the stack is still in the list, and the delete isn't in progress or complete
+                # then we know something went wrong
+                if numStacks == 1 and response['Stacks'][0]['StackStatus']!='DELETE_IN_PROGRESS' and response['Stacks'][0]['StackStatus']!='DELETE_COMPLETE':
+                  # it's broken
+                  print "Stack still exists and isn't in delete in-progress/complete.  Something went wrong..."
+                  response_status = 'FAILED'
+                  break
+                else:
+                  # sleep for 5 seconds so we don't hammer API and give CFN time to delete stack
+                  time.sleep(5)
+
+
+          def handler(event, context):
+            print "Received event: %s" % json.dumps(event)
+
+            status = cfnresponse.FAILED
+            new_physical_id = None
+
+            try:
+              properties = event.get('ResourceProperties')
+              physical_id = event.get('PhysicalResourceId')
+
+              status, new_physical_id = {
+                'Create': create,
+                'Update': update,
+                'Delete': delete
+              }.get(event['RequestType'], lambda x, y: (cfnresponse.FAILED, None))(properties, physical_id)
+            except Exception as e:
+              print "Exception: %s" % e
+              status = cfnresponse.FAILED
+            finally:
+              cfnresponse.send(event, context, status, {}, new_physical_id)
+...
