@@ -3,7 +3,7 @@
 EXIT_CODE=0
 PROJECT_ROOT='../../tests/data/nested-create'
 
-${BIN} test run -p ${PROJECT_ROOT}  >& /tmp/output || EXIT_CODE=$?
+${BIN} -d test run -p ${PROJECT_ROOT}  >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ taskcat test -p ./tests/data/nested-create'
