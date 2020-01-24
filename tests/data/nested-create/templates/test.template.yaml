@@ -14,6 +14,6 @@ Resources:
   ChildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 
+      TemplateURL: !Sub
        - 'https://${QSS3BucketName}.${S3Region}.amazonaws.com/${QSS3KeyPrefix}templates/test.template_nested.yaml'
        - S3Region: !If [ GovCloudCondition, s3-us-gov-west-1, !Sub 's3.${AWS::Region}' ]

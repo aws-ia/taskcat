@@ -13,4 +13,3 @@ if [[ ${EXIT_CODE} -ne 0 ]] ; then
 fi
 
 rm -rf ${PROJECT_ROOT}/taskcat_outputs
-
