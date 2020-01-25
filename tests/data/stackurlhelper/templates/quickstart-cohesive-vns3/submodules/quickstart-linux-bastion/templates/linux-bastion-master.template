@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: LinuxBastion+VPC July,18,2019 (Please do not remove)
 Metadata:
-  LICENSE: Apache License, Version 2.0 
+  LICENSE: Apache License, Version 2.0
   'AWS::CloudFormation::Interface':
     ParameterGroups:
       - Label:
@@ -216,21 +216,21 @@ Parameters:
     Description: CIDR Block for the VPC
     Type: String
 Conditions:
-  GovCloudCondition: !Equals 
+  GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
 Resources:
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub 
+      TemplateURL: !Sub
         - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
-        - QSS3Region: !If 
+        - QSS3Region: !If
             - GovCloudCondition
             - s3-us-gov-west-1
             - s3
       Parameters:
-        AvailabilityZones: !Join 
+        AvailabilityZones: !Join
           - ','
           - !Ref AvailabilityZones
         KeyPairName: !Ref KeyPairName
@@ -244,9 +244,9 @@ Resources:
   BastionStack:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub 
+      TemplateURL: !Sub
         - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/linux-bastion.template
-        - QSS3Region: !If 
+        - QSS3Region: !If
             - GovCloudCondition
             - s3-us-gov-west-1
             - s3
@@ -260,16 +260,15 @@ Resources:
         EnableX11Forwarding: !Ref EnableX11Forwarding
         KeyPairName: !Ref KeyPairName
         NumBastionHosts: !Ref NumBastionHosts
-        PublicSubnet1ID: !GetAtt 
+        PublicSubnet1ID: !GetAtt
           - VPCStack
           - Outputs.PublicSubnet1ID
-        PublicSubnet2ID: !GetAtt 
+        PublicSubnet2ID: !GetAtt
           - VPCStack
           - Outputs.PublicSubnet2ID
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !GetAtt 
+        VPCID: !GetAtt
           - VPCStack
           - Outputs.VPCID
-

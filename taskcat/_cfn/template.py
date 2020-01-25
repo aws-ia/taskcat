@@ -2,8 +2,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Union
 
+import cfnlint
+from taskcat._cfn.stack_url_helper import StackURLHelper
 from taskcat.exceptions import TaskCatException
-from taskcat._cfn.StackURLHelper import StackURLHelper
 
 LOG = logging.getLogger(__name__)
 
@@ -57,15 +58,20 @@ class Template:
         self._find_children()
 
     @staticmethod
-    def _template_url_to_path(current_template_path, template_url, template_mappings={}):
+    def _template_url_to_path(
+        current_template_path, template_url, template_mappings=()
+    ):
         helper = StackURLHelper()
-        return helper.template_url_to_path(
+        urls = helper.template_url_to_path(
             current_template_path=current_template_path,
             template_mappings=template_mappings,
-            template_url=template_url
+            template_url=template_url,
         )
 
-        # return StackURLHelper.StackURLHelper.
+        if len(urls) > 0:
+            return urls[0]
+
+        return ""
 
     def _get_relative_url(self, path: str) -> str:
         suffix = str(path).replace(str(self.project_root), "")
@@ -96,7 +102,7 @@ class Template:
                 child_name = self._template_url_to_path(
                     current_template_path=self.template_path,
                     template_url=resource["Properties"]["TemplateURL"],
-                    current_template_mappings=mappings
+                    template_mappings=mappings,
                 )
                 if child_name:
                     for child_url in child_name:

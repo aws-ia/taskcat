@@ -121,7 +121,7 @@ Parameters:
     Type: String
   MigrateAdminConfirmPassword:
     Description: >-
-      The password confirmation for the PlateSpin Migrate server admin account. 
+      The password confirmation for the PlateSpin Migrate server admin account.
     Type: String
     MinLength: '8'
     MaxLength: '32'
@@ -260,7 +260,7 @@ Mappings:
       PSMServerImage: ami-00ba99ccb207cb8e6
     ap-south-1:
       PSMServerImage: ami-0509c8b2ab1bf3314
-    ap-southeast-1: 
+    ap-southeast-1:
       PSMServerImage: ami-03512ec59880593e4
     ap-southeast-2:
       PSMServerImage: ami-06317b4838d10bcbd
@@ -515,7 +515,7 @@ Resources:
     Properties:
       SubnetId: !Ref SubnetID
       Description: Network Interface for Migrate Server
-      GroupSet: 
+      GroupSet:
         - !Ref ManagementSecurityGroup
       SourceDestCheck: true
   AssociateMigrateServerNetworkInterface:
@@ -848,7 +848,7 @@ Resources:
                   - '-UsePublicIP'
                   - ''
               waitAfterCompletion: 0
-            4-create-server-certificate: 
+            4-create-server-certificate:
               command: !Sub
                 - powershell.exe
                   -Command C:\cfn\scripts\CreateAndAddSignedCertificate.ps1 ${UsePublicIPFlag}
@@ -902,7 +902,7 @@ Resources:
           - UserData: !If
             - ChinaCloudCondition
             - rem Skip updating SSM Agent and AWS CLI
-            - 
+            -
               rem Uninstall Amazon SSM Agent and AWS CLI to allow updating
               wmic product where "description='Amazon SSM Agent' " uninstall
               wmic product where "description='aws-cfn-bootstrap' " uninstall

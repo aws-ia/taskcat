@@ -99,7 +99,7 @@ Metadata:
         default: VPC CIDR
       VPCID:
         default: VPC ID
-# Parameter Section is where intake of information Occurs. 
+# Parameter Section is where intake of information Occurs.
 Parameters:
   ADServer1InstanceType:
     AllowedValues:
@@ -307,14 +307,14 @@ Conditions:
   IsThreeAz: !Equals
     - !Ref 'NumberOfAZs'
     - '3'
-# This Confition determines if the the region if gov cloud of not. 
+# This Confition determines if the the region if gov cloud of not.
   GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
 Resources:
   QuickStartLogs:
     Type: AWS::Logs::LogGroup
-    Properties: 
+    Properties:
       LogGroupName: !Sub '/aws/Quick_Start/${AWS::StackName}'
       RetentionInDays: 30
   DHCPOptions:
@@ -342,10 +342,10 @@ Resources:
       Content:
         schemaVersion: "0.3"
         description: "Deploy AD with SSM Automation"
-        # Role that is utilized to perform the steps within the Automation Document. In this case to be able to Signal CFN and Describe Instances. 
+        # Role that is utilized to perform the steps within the Automation Document. In this case to be able to Signal CFN and Describe Instances.
         assumeRole: "{{AutomationAssumeRole}}"
         # Gathering parameters needed to configure DCs in the Quick Start
-        parameters: 
+        parameters:
           ADServer1NetBIOSName:
             default: "DC1"
             description: "NetBIOS name of the first Active Directory server (up to 15 characters)"
@@ -395,11 +395,11 @@ Resources:
           RestoreModeSecParamName:
             description: "AWS Secrets Parameter Name for the Restore Mode Password"
             type: "String"
-          DomainDNSName: 
+          DomainDNSName:
             default: "example.com"
             description: "Fully qualified domain name (FQDN) of the forest root domain e.g. example.com"
             type: "String"
-          DomainNetBIOSName: 
+          DomainNetBIOSName:
             default: "example"
             description: "NetBIOS name of the domain (up to 15 characters) for users of earlier versions of Windows e.g. EXAMPLE"
             type: "String"
@@ -428,7 +428,7 @@ Resources:
           inputs:
             Service: ec2
             Api: DescribeInstances
-            Filters:  
+            Filters:
             - Name: "tag:Name"
               Values: [ "{{ADServer1NetBIOSName}}","{{ADServer2NetBIOSName}}" ]
             - Name: "instance-state-name"
@@ -477,7 +477,7 @@ Resources:
           inputs:
             Service: ec2
             Api: DescribeInstances
-            Filters:  
+            Filters:
             - Name: "tag:Name"
               Values: [ "{{ADServer1NetBIOSName}}" ]
             - Name: "instance-state-name"
@@ -542,14 +542,14 @@ Resources:
           nextStep: "dc2InstanceId"
           inputs:
             DocumentName: AWS-RunPowerShellScript
-            InstanceIds: 
+            InstanceIds:
               - "{{dc1InstanceId.InstanceId}}"
             CloudWatchOutputConfig:
               CloudWatchOutputEnabled: "true"
               CloudWatchLogGroupName: !Ref 'QuickStartLogs'
             Parameters:
-              commands: 
-                - |     
+              commands:
+                - |
                    function DscStatusCheck () {
                        $LCMState = (Get-DscLocalConfigurationManager).LCMState
                        if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
@@ -559,9 +559,9 @@ Resources:
                            'Completed'
                        }
                    }
-                   
+
                    Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC1' -Wait -Verbose -Force
-                   
+
                    DscStatusCheck
         # This step grabs the Instance ID for the node that will be configured as the second DC in the new domain.
         - name: "dc2InstanceId"
@@ -571,7 +571,7 @@ Resources:
           inputs:
             Service: ec2
             Api: DescribeInstances
-            Filters:  
+            Filters:
             - Name: "tag:Name"
               Values: [ "{{ADServer2NetBIOSName}}" ]
             - Name: "instance-state-name"
@@ -603,14 +603,14 @@ Resources:
           nextStep: "DnsConfig"
           inputs:
             DocumentName: AWS-RunPowerShellScript
-            InstanceIds: 
+            InstanceIds:
               - "{{dc2InstanceId.InstanceId}}"
             CloudWatchOutputConfig:
               CloudWatchOutputEnabled: "true"
               CloudWatchLogGroupName: !Ref 'QuickStartLogs'
             Parameters:
-              commands: 
-                - |     
+              commands:
+                - |
                    function DscStatusCheck () {
                        $LCMState = (Get-DscLocalConfigurationManager).LCMState
                        if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
@@ -620,9 +620,9 @@ Resources:
                            'Completed'
                        }
                    }
-                   
+
                    Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC2' -Wait -Verbose -Force
-                   
+
                    DscStatusCheck
         # Ensure that AD servers point to themselves for DNS
         - name: "DnsConfig"
@@ -645,7 +645,7 @@ Resources:
           inputs:
             Choices:
             - NextStep: signalsuccess
-              Not: 
+              Not:
                 Variable: "{{StackName}}"
                 StringEquals: ""
             - NextStep: sleepend
@@ -757,7 +757,7 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                   - secretsmanager:DescribeSecret
-                Resource: 
+                Resource:
                   - !Ref 'ADAdminSecrets'
                   - !Ref 'RestoreModeSecrets'
                   - !Ref 'ADAltUserSecrets'
@@ -937,11 +937,11 @@ Resources:
           ToPort: 80
           CidrIp: !Ref VPCCIDR
         - IpProtocol: tcp
-          FromPort: 53 
+          FromPort: 53
           ToPort: 53
           CidrIp: !Ref VPCCIDR
         - IpProtocol: udp
-          FromPort: 53 
+          FromPort: 53
           ToPort: 53
           CidrIp: !Ref VPCCIDR
         - IpProtocol: tcp
@@ -1029,20 +1029,20 @@ Resources:
           ToPort: 137
           SourceSecurityGroupId: !Ref DomainMembersSG
         - IpProtocol: tcp
-          FromPort: 139 
+          FromPort: 139
           ToPort: 139
-          SourceSecurityGroupId: !Ref DomainMembersSG 
+          SourceSecurityGroupId: !Ref DomainMembersSG
         - IpProtocol: tcp
           FromPort: 5722
           ToPort: 5722
           SourceSecurityGroupId: !Ref DomainMembersSG
         - IpProtocol: icmp
-          FromPort: -1 
-          ToPort: -1 
+          FromPort: -1
+          ToPort: -1
           SourceSecurityGroupId: !Ref DomainMembersSG
-  DomainMembersSG: 
+  DomainMembersSG:
     Type: AWS::EC2::SecurityGroup
-    Properties: 
+    Properties:
       GroupDescription: Domain Members
       VpcId: !Ref VPCID
       SecurityGroupIngress:
@@ -1057,11 +1057,11 @@ Resources:
   DCSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      Description: Security Group Rule between Domain Controllers 
+      Description: Security Group Rule between Domain Controllers
       GroupId: !Ref DomainControllersSG
-      IpProtocol: '-1' 
-      FromPort: -1 
-      ToPort: -1 
+      IpProtocol: '-1'
+      FromPort: -1
+      ToPort: -1
       SourceSecurityGroupId: !Ref DomainControllersSG
 Outputs:
   DomainAdmin:

@@ -313,7 +313,7 @@ Parameters:
       - 'false'
       - 'true'
     Default: 'true'
-    Description: Choose false to format the data and log volumes on Exchange nodes using NTFS instead of ReFS. 
+    Description: Choose false to format the data and log volumes on Exchange nodes using NTFS instead of ReFS.
     Type: String
   EncryptDataVolumes:
     AllowedValues:
@@ -2961,7 +2961,7 @@ Resources:
           - setup
           - Prep
           - Install
-          # - ConfigureDAG 
+          # - ConfigureDAG
           - Cleanup
           - Finalize
     Properties:

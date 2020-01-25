@@ -120,13 +120,13 @@ Metadata:
       PrivateSubnet2CIDR:
         default: Private Subnet 2 CIDR
       PrivateSubnet3CIDR:
-        default: Private Subnet 3 CIDR 
+        default: Private Subnet 3 CIDR
       PublicSubnet1CIDR:
         default: Public Subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public Subnet 2 CIDR
       PublicSubnet3CIDR:
-        default: Public Subnet 3 CIDR 
+        default: Public Subnet 3 CIDR
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3KeyPrefix:
@@ -158,7 +158,7 @@ Metadata:
       EncryptDataVolumes:
         default: Encrypt data volumes
       EncryptionKmsKey:
-        default: KMS key to encrypt volumes 
+        default: KMS key to encrypt volumes
       ThirdAZ:
         default: Third Availability Zone
       NumberOfAZs:
@@ -212,7 +212,7 @@ Parameters:
   ADServer1NetBIOSName:
     AllowedPattern: '[a-zA-Z0-9]+'
     Default: DC1
-    Description: The NetBIOS name of the first Active Directory server (up to 15 characters). 
+    Description: The NetBIOS name of the first Active Directory server (up to 15 characters).
     MaxLength: '15'
     MinLength: '1'
     Type: String
@@ -230,7 +230,7 @@ Parameters:
       - m5.2xlarge
       - m5.4xlarge
     Default: m5.xlarge
-    Description: The Amazon EC2 instance type for the second Active Directory instance. 
+    Description: The Amazon EC2 instance type for the second Active Directory instance.
     Type: String
   ADServer2NetBIOSName:
     AllowedPattern: '[a-zA-Z0-9]+'
@@ -256,7 +256,7 @@ Parameters:
     Type: String
   DomainAdminPassword:
     AllowedPattern: (?=^.{6,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
-    Description: The password for the domain admin user. Must be at least 8 characters containing letters, numbers and symbols. 
+    Description: The password for the domain admin user. Must be at least 8 characters containing letters, numbers and symbols.
     MaxLength: '32'
     MinLength: '8'
     NoEcho: 'true'
@@ -272,14 +272,14 @@ Parameters:
   DomainDNSName:
     AllowedPattern: '[a-zA-Z0-9]+\..+'
     Default: example.com
-    Description: The fully qualified domain name (FQDN) of the forest root domain e.g. example.com. 
+    Description: The fully qualified domain name (FQDN) of the forest root domain e.g. example.com.
     MaxLength: '25'
     MinLength: '3'
     Type: String
   DomainNetBIOSName:
     AllowedPattern: '[a-zA-Z0-9]+'
     Default: example
-    Description: The NetBIOS name of the domain (up to 15 characters) for users of earlier versions of Windows e.g. EXAMPLE. 
+    Description: The NetBIOS name of the domain (up to 15 characters) for users of earlier versions of Windows e.g. EXAMPLE.
     MaxLength: '15'
     MinLength: '1'
     Type: String
@@ -304,7 +304,7 @@ Parameters:
   EdgeNode1NetBIOSName:
     AllowedPattern: '[a-zA-Z0-9]+'
     Default: EdgeNode1
-    Description: The NetBIOS name of the first Edge server (up to 15 characters). 
+    Description: The NetBIOS name of the first Edge server (up to 15 characters).
     MaxLength: '15'
     MinLength: '1'
     Type: String
@@ -330,14 +330,14 @@ Parameters:
       - 'false'
       - 'true'
     Default: 'false'
-    Description: Choose true to encrypt the data and log volumes on Exchange nodes. 
+    Description: Choose true to encrypt the data and log volumes on Exchange nodes.
     Type: String
   EnableReFSVolumes:
     AllowedValues:
       - 'false'
       - 'true'
     Default: 'true'
-    Description: Choose false to format the data and log volumes on Exchange nodes using NTFS instead of ReFS. 
+    Description: Choose false to format the data and log volumes on Exchange nodes using NTFS instead of ReFS.
     Type: String
   CertificateArn:
     Default: ''
@@ -413,7 +413,7 @@ Parameters:
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
     Default: aws-quickstart
-    Description: The S3 bucket you’ve created for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use. 
+    Description: The S3 bucket you’ve created for your copy of Quick Start assets, if you decide to customize or extend the Quick Start for your own use.
       The bucket name can include numbers, lowercase letters, uppercase letters, and hyphens,
       but should not start or end with a hyphen.
     Type: String
@@ -561,7 +561,7 @@ Parameters:
       - r5.8xlarge
     ConstraintDescription: Only EBS Optimized instance types r4.*, r5.* allowed
     Default: r5.xlarge
-    Description: The Amazon EC2 instance type for the Exchange nodes. 
+    Description: The Amazon EC2 instance type for the Exchange nodes.
     Type: String
   Exchange2019Source:
     Default: 'https://'
@@ -726,4 +726,3 @@ Resources:
           - IsTwoAz
           - !Ref 'AWS::NoValue'
           - !Ref 'ExchangeNode3PrivateIP2'
-

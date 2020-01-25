@@ -1,10 +1,10 @@
 ---
 schemaVersion: "0.3"
 description: "Deploy AD with SSM Automation"
-# Role that is utilized to perform the steps within the Automation Document. In this case to be able to Signal CFN and Describe Instances. 
+# Role that is utilized to perform the steps within the Automation Document. In this case to be able to Signal CFN and Describe Instances.
 assumeRole: "{{AutomationAssumeRole}}"
 # Gathering parameters needed to configure DCs in the Quick Start
-parameters: 
+parameters:
   ADServer1NetBIOSName:
     default: "DC1"
     description: "NetBIOS name of the first Active Directory server (up to 15 characters)"
@@ -34,11 +34,11 @@ parameters:
   RestoreModeSecParamName:
     description: "AWS Secrets Parameter Name for the Restore Mode Password"
     type: "String"
-  DomainDNSName: 
+  DomainDNSName:
     default: "example.com"
     description: "Fully qualified domain name (FQDN) of the forest root domain e.g. example.com"
     type: "String"
-  DomainNetBIOSName: 
+  DomainNetBIOSName:
     default: "example"
     description: "NetBIOS name of the domain (up to 15 characters) for users of earlier versions of Windows e.g. EXAMPLE"
     type: "String"
@@ -68,7 +68,7 @@ mainSteps:
   inputs:
     Service: ec2
     Api: DescribeInstances
-    Filters:  
+    Filters:
     - Name: "tag:Name"
       Values: [ "{{ADServer1NetBIOSName}}","{{ADServer2NetBIOSName}}" ]
     - Name: "instance-state-name"
@@ -117,7 +117,7 @@ mainSteps:
   inputs:
     Service: ec2
     Api: DescribeInstances
-    Filters:  
+    Filters:
     - Name: "tag:Name"
       Values: [ "{{ADServer1NetBIOSName}}" ]
     - Name: "instance-state-name"
@@ -149,27 +149,27 @@ mainSteps:
   nextStep: "dc2InstanceId"
   inputs:
     DocumentName: AWS-RunPowerShellScript
-    InstanceIds: 
+    InstanceIds:
       - "{{dc1InstanceId.InstanceId}}"
     CloudWatchOutputConfig:
       CloudWatchOutputEnabled: "true"
       CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
     Parameters:
-      commands: 
-        - |     
+      commands:
+        - |
            function DscStatusCheck () {
                $LCMState = (Get-DscLocalConfigurationManager).LCMState
                if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
                    'returning 3010, should continue after reboot'
                    exit 3010
                } else {
-                 Get-ChildItem C:\Windows\system32\CertSrv\CertEnroll *.crt | Copy-Item -Destination c:\inetpub\wwwroot\cert.crt  
+                 Get-ChildItem C:\Windows\system32\CertSrv\CertEnroll *.crt | Copy-Item -Destination c:\inetpub\wwwroot\cert.crt
                  'Completed'
                }
            }
-           
+
            Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC1' -Wait -Verbose -Force
-           
+
            DscStatusCheck
 # This step grabs the Instance ID for the node that will be configured as the second DC in the new domain.
 - name: "dc2InstanceId"
@@ -179,7 +179,7 @@ mainSteps:
   inputs:
     Service: ec2
     Api: DescribeInstances
-    Filters:  
+    Filters:
     - Name: "tag:Name"
       Values: [ "{{ADServer2NetBIOSName}}" ]
     - Name: "instance-state-name"
@@ -211,14 +211,14 @@ mainSteps:
   nextStep: "DnsConfig"
   inputs:
     DocumentName: AWS-RunPowerShellScript
-    InstanceIds: 
+    InstanceIds:
       - "{{dc2InstanceId.InstanceId}}"
     CloudWatchOutputConfig:
       CloudWatchOutputEnabled: "true"
       CloudWatchLogGroupName: "/aws/Quick_Start/ActiveDirectoryDS"
     Parameters:
-      commands: 
-        - |     
+      commands:
+        - |
            function DscStatusCheck () {
                $LCMState = (Get-DscLocalConfigurationManager).LCMState
                if ($LCMState -eq 'PendingConfiguration' -Or $LCMState -eq 'PendingReboot') {
@@ -229,9 +229,9 @@ mainSteps:
                    'Completed'
                }
            }
-           
+
            Start-DscConfiguration 'C:\AWSQuickstart\ConfigDC2' -Wait -Verbose -Force
-           
+
            DscStatusCheck
 # Ensure that AD servers point to themselves for DNS
 - name: "DnsConfig"
@@ -254,7 +254,7 @@ mainSteps:
   inputs:
     Choices:
     - NextStep: signalsuccess
-      Not: 
+      Not:
         Variable: "{{StackName}}"
         StringEquals: ""
     - NextStep: sleepend

@@ -118,8 +118,8 @@ Metadata:
         default: Red Hat Pool ID
       OpenshiftContainerPlatformVersion:
         default: Openshift Container Platform Version
-      NumberOfAZs: 
-        default: Number of Availability zones  
+      NumberOfAZs:
+        default: Number of Availability zones
       MasterInstanceType:
         default: Master Instance Type
       EtcdInstanceType:
@@ -133,7 +133,7 @@ Metadata:
       NumberOfNodes:
         default: Number of Nodes
       AnsibleStorageSize:
-        default: Disk storage size of ansible controller server  
+        default: Disk storage size of ansible controller server
       OutputBucketName:
         default: Output S3 Bucket Name
       AWSServiceBroker:
@@ -173,7 +173,7 @@ Metadata:
       AnsiblePostInstallScript:
         default: Ansible post-install script
       AnsibleAdditionalEnvironmentVariables:
-        default: Additional ansible environment variables  
+        default: Additional ansible environment variables
 Parameters:
   AmiId:
     Description: >-
@@ -359,7 +359,7 @@ Parameters:
     ConstraintDescription: Must contain valid instance type
     Description: Type of EC2 instance for the Node instances
     Type: String
-  NumberOfAZs:  
+  NumberOfAZs:
     Default: 3
     Description: The number of Availability Zones to be used for the deployment. 3 Availability Zones are needed to avoid a single point of failure when using 3 or more master nodes or etcd nodes.  With less than 3 Availability Zones.
     Type: Number
@@ -369,7 +369,7 @@ Parameters:
   AnsibleStorageSize:
     Default: 100
     Description: Ansible Controller Server disk size
-    Type: Number  
+    Type: Number
   NumberOfMaster:
     Default: '3'
     Description: This Deployment requires 3 OpenShift Master instances
@@ -502,7 +502,7 @@ Parameters:
     Description: 'OPTIONAL: Specify a comma-separated list of environment variables exported in the Ansible user data.
       Variables must be in the format KEY=VALUE. These are intended to be used by the Ansible post-install script.'
     Default: ''
-    Type: String  
+    Type: String
 Rules:
   SubnetsInVPC:
     Assertions:
@@ -626,7 +626,7 @@ Conditions:
       - !Ref ClusterName
       - ""
 
-  3AZCondition: !Equals [!Ref NumberOfAZs, 3]   
+  3AZCondition: !Equals [!Ref NumberOfAZs, 3]
 
 Resources:
   OpenShiftPasswordSecret:
@@ -901,8 +901,8 @@ Resources:
           import threading
           import boto3
           import cfnresponse
-          
-          
+
+
           def copy_objects(source_bucket, dest_bucket, prefix, objects):
               s3 = boto3.client('s3')
               for o in objects:
@@ -916,19 +916,19 @@ Resources:
                   print('key = %s' %key)
                   s3.copy_object(CopySource=copy_source, Bucket=dest_bucket,
                         Key=key)
-          
-          
+
+
           def delete_objects(bucket, prefix, objects):
               s3 = boto3.client('s3')
               objects = {'Objects': [{'Key': prefix + o} for o in objects]}
               s3.delete_objects(Bucket=bucket, Delete=objects)
-          
-          
+
+
           def timeout(event, context):
               logging.error('Execution is about to time out, sending failure response to CloudFormation')
               cfnresponse.send(event, context, cfnresponse.FAILED, {}, None)
-          
-          
+
+
           def handler(event, context):
               # make sure we send a failure to CloudFormation if the function
               # is going to timeout
@@ -1394,7 +1394,7 @@ Resources:
         - -  !Ref 'PrivateSubnet1ID'
           -  !Ref 'PrivateSubnet2ID'
           -  !Ref 'PrivateSubnet3ID'
-        - -  !Ref 'PrivateSubnet1ID'         
+        - -  !Ref 'PrivateSubnet1ID'
     CreationPolicy:
       ResourceSignal:
         Count: !Ref 'NumberOfMaster'
@@ -1418,7 +1418,7 @@ Resources:
         - -  !Ref 'PrivateSubnet1ID'
           -  !Ref 'PrivateSubnet2ID'
           -  !Ref 'PrivateSubnet3ID'
-        - -  !Ref 'PrivateSubnet1ID' 
+        - -  !Ref 'PrivateSubnet1ID'
     CreationPolicy:
       ResourceSignal:
         Count: !Ref 'NumberOfEtcd'
@@ -1454,7 +1454,7 @@ Resources:
         - -  !Ref 'PrivateSubnet1ID'
           -  !Ref 'PrivateSubnet2ID'
           -  !Ref 'PrivateSubnet3ID'
-        - -  !Ref 'PrivateSubnet1ID' 
+        - -  !Ref 'PrivateSubnet1ID'
     CreationPolicy:
       ResourceSignal:
         Count: !Ref 'NumberOfNodes'
@@ -1487,7 +1487,7 @@ Resources:
         - -  !Ref 'PrivateSubnet1ID'
           -  !Ref 'PrivateSubnet2ID'
           -  !Ref 'PrivateSubnet3ID'
-        - -  !Ref 'PrivateSubnet1ID' 
+        - -  !Ref 'PrivateSubnet1ID'
     CreationPolicy:
       ResourceSignal:
         Count: !Ref 'NumberOfGluster'
@@ -1828,7 +1828,7 @@ Resources:
             cfn-signal -e $(qs_status) --stack ${AWS::StackName} --resource OpenShiftMasterASG --region ${AWS::Region}
           -
             S3Region: !If [ GovCloudCondition, s3-us-gov-west-1, s3 ]
-  
+
   UnSubscribeRole:
     Type: AWS::IAM::Role
     Properties:
@@ -1901,7 +1901,7 @@ Resources:
       Code:
         S3Bucket: !Ref 'LambdaZipsBucket'
         S3Key: !Sub '${QSS3KeyPrefix}functions/packages/CleanupPV/lambda.zip'
-  
+
   UnSubscribe:
     Type: Custom::UnSubscribe
     Properties:
@@ -2037,7 +2037,7 @@ Resources:
         - -  !Ref 'PublicSubnet1ID'
           -  !Ref 'PublicSubnet2ID'
           -  !Ref 'PublicSubnet3ID'
-        - -  !Ref 'PublicSubnet1ID' 
+        - -  !Ref 'PublicSubnet1ID'
       SecurityGroups:
         - !Ref 'OpenShiftSecurityGroup'
       Listeners:
@@ -2129,7 +2129,7 @@ Resources:
         - -  !Ref 'PrivateSubnet1ID'
           -  !Ref 'PrivateSubnet2ID'
           -  !Ref 'PrivateSubnet3ID'
-        - -  !Ref 'PrivateSubnet1ID' 
+        - -  !Ref 'PrivateSubnet1ID'
       Type: network
       Tags:
         - Key: !Sub
@@ -2224,7 +2224,7 @@ Resources:
         - DeviceName: /dev/sda1
           Ebs:
             VolumeSize: !Ref 'AnsibleStorageSize'
-            VolumeType: gp2    
+            VolumeType: gp2
       IamInstanceProfile: !Ref 'SetupRoleProfile'
       Tags:
         - Key: Name
@@ -2346,12 +2346,12 @@ Outputs:
 
   ContainerAccessELBHostedZoneNameID:
     Description: Container ELB Hosted Zone ID
-    Value: !GetAtt ContainerAccessELB.CanonicalHostedZoneNameID  
+    Value: !GetAtt ContainerAccessELB.CanonicalHostedZoneNameID
 
   OpenShiftNodeSecurityGroup:
     Description: OpenShiftNodeSecurityGroup ID
     Value: !Ref OpenShiftNodeSecurityGroup
-  
+
   OpenShiftMasterASG:
     Description: OpenShiftMasterASG
     Value: !Ref 'OpenShiftMasterASG'
@@ -2362,9 +2362,8 @@ Outputs:
 
   OpenShiftMasterInternalELBTargetGroup:
     Description: OpenShiftMasterInternalELBTargetGroup
-    Value: !Ref OpenShiftMasterInternalELBTargetGroup  
-    
+    Value: !Ref OpenShiftMasterInternalELBTargetGroup
+
   OpenShiftMasterInternalELB:
     Description: OpenShiftMasterInternalELB
-    Value: !Ref 'OpenShiftMasterInternalELB'          
-
+    Value: !Ref 'OpenShiftMasterInternalELB'

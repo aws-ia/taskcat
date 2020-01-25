@@ -234,7 +234,7 @@
             "RuleCondition": {
                 "Fn::Not": [
                     {
-                        "Fn::Not": 
+                        "Fn::Not":
                         [
                             {
                                 "Fn::Contains": [

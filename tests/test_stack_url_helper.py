@@ -1,12 +1,11 @@
-import unittest
-import cfnlint
-
 import json
-from taskcat._cfn.StackURLHelper import StackURLHelper
+import unittest
+
+import cfnlint
+from taskcat._cfn.stack_url_helper import StackURLHelper
 
 
 class TestStackURLHelper(unittest.TestCase):
-
     def setUp(self):
         pass
 
@@ -17,9 +16,8 @@ class TestStackURLHelper(unittest.TestCase):
     def _load_template(template_path):
         try:
             cfn = cfnlint.decode.cfn_yaml.load(template_path)
-        except Exception as e:
-            print("Exception parsing: '{}'".format(template_path))
-            # print(str(e))
+        except Exception:
+            # print("Exception parsing: '{}'".format(template_path))
             exit(1)
         return cfn
 
@@ -27,7 +25,7 @@ class TestStackURLHelper(unittest.TestCase):
     def test_flatten_template_url(self):
         with open("tests/data/stackurlhelper/test.json") as test_file:
             self.tests = json.load(test_file)
-            self.tests = self.tests['tests']
+            self.tests = self.tests["tests"]
 
         total = len(self.tests)
         matched = 0
@@ -36,7 +34,9 @@ class TestStackURLHelper(unittest.TestCase):
         for test in self.tests:
             cfn = self._load_template(test["input"]["master_template"])
             helper.mappings = cfn.get("Mappings")
-            if test["output"]["url_paths"] == helper.flatten_template_url(test["input"]["child_template"]):
+            if test["output"]["url_paths"] == helper.flatten_template_url(
+                test["input"]["child_template"]
+            ):
                 matched = matched + 1
         # print("matched {} total {}".format(matched, total))
         self.assertEqual(matched, total)
@@ -46,30 +46,29 @@ class TestStackURLHelper(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             helper.flatten_template_url("{'Fn::Split'}")
 
-        self.assertTrue('Fn::Split: not supported' in str(context.exception))
+        self.assertTrue("Fn::Split: not supported" in str(context.exception))
 
     def test_flatten_template_url_exceptions_getatt(self):
         helper = StackURLHelper()
         with self.assertRaises(Exception) as context:
             helper.flatten_template_url("{'Fn::GetAtt'}")
 
-        self.assertTrue('Fn::GetAtt: not supported' in str(context.exception))
+        self.assertTrue("Fn::GetAtt: not supported" in str(context.exception))
 
     def test_flatten_template_url_maxdepth(self):
         helper = StackURLHelper()
         with self.assertRaises(Exception) as context:
-            helper.flatten_template_url("{ one { two } { two { three { four { five { six { seven }}}}} }}")
+            helper.flatten_template_url(
+                "{ one { two } { two { three { four { five { six { seven }}}}} }}"
+            )
 
-        self.assertTrue('Template URL contains more than' in str(context.exception))
-
-    def test_find_local_child_template(self):
-        self.assertEqual(True, False)
+        self.assertTrue("Template URL contains more than" in str(context.exception))
 
     # Test TemplateURL to path extraction
     def test_find_local_child_template(self):
         with open("tests/data/stackurlhelper/test.json") as test_file:
             self.tests = json.load(test_file)
-            self.tests = self.tests['tests']
+            self.tests = self.tests["tests"]
 
         total = 0
         matched = 0
@@ -91,18 +90,9 @@ class TestStackURLHelper(unittest.TestCase):
     def test_fn_findinmap_lookup(self):
         l_mappings = {
             "ami_lookup": {
-                "us-east-1": {
-                    "ami": "this_one",
-                    "ami2": "that_one"
-                },
-                "us-east-2": {
-                    "ami": "is_this_one",
-                    "ami2": "is_that_one"
-                },
-                "us-west-1": {
-                    "ami": "not_this_one",
-                    "ami2": "not_that_one"
-                }
+                "us-east-1": {"ami": "this_one", "ami2": "that_one"},
+                "us-east-2": {"ami": "is_this_one", "ami2": "is_that_one"},
+                "us-west-1": {"ami": "not_this_one", "ami2": "not_that_one"},
             }
         }
 
@@ -115,7 +105,7 @@ class TestStackURLHelper(unittest.TestCase):
 
         result = helper.find_in_map_lookup(mappings_map, first_key, final_key)
 
-        self.assertEqual(result, 'not_that_one')
+        self.assertEqual(result, "not_that_one")
 
     # TODO: Test fn_sub logic
     # def test_fn_sub(self):

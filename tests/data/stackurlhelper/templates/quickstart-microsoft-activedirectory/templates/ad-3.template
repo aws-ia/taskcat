@@ -419,7 +419,7 @@
                 "Ref": "MicrosoftAD"
             },
             "Description": "Directory Services ID"
-        },        
+        },
         "DomainAdmin": {
             "Value": {
                 "Fn::Join": [
