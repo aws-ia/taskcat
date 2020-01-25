@@ -1,9 +1,9 @@
 import logging
 import time
 
-from taskcat._tui_reprint import output
 from taskcat._cfn.threaded import Stacker as TaskcatStacker
 from taskcat._logger import PrintMsg
+from taskcat._tui_reprint import Output
 
 LOG = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class TerminalPrinter:
         self.buffer = self._add_buffer()
 
     def _add_buffer(self):
-        with output(output_type=self._buffer_type) as output_buffer:
+        with Output(output_type=self._buffer_type) as output_buffer:
             return output_buffer
 
     def report_test_progress(self, stacker: TaskcatStacker, poll_interval=10):
