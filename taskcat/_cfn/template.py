@@ -36,9 +36,9 @@ class Template:
     def __repr__(self):
         return f"<Template {self.template_path} at {hex(id(self))}>"
 
-    @property
+    @propertygit
     def s3_key(self):
-        suffix = str(self.template_path.relative_to(self.project_root))
+        suffix = str(self.template_path.relative_to(self.project_root).as_posix())
         return self._s3_key_prefix + suffix
 
     @property

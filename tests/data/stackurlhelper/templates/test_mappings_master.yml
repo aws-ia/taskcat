@@ -1,0 +1,67 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: test Mappings
+Mappings:
+  CustomVariables:
+    vResourceEnvironmentTagKey:
+      Value: Environment
+    vResourceEnvironmentTagValue:
+      Value: development
+  AWSInfoRegionMap:
+    ap-northeast-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-northeast-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-south-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-southeast-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ap-southeast-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    ca-central-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-central-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-west-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    eu-west-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    sa-east-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-east-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-east-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-gov-west-1:
+      Partition: aws-us-gov
+      QuickStartS3URL: https://s3-us-gov-west-1.amazonaws.com
+    us-west-1:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+    us-west-2:
+      Partition: aws
+      QuickStartS3URL: https://s3.amazonaws.com
+Resources:
+  ChildTemplate:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+        - ${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/test_mappings_child.yml
+        - QuickStartS3URL:
+            !FindInMap
+            - AWSInfoRegionMap
+            - !Ref AWS::Region
+            - QuickStartS3URL

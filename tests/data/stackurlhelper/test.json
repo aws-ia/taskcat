@@ -3,34 +3,6 @@
         {
             "input": {
                 "master_template": "tests/data/stackurlhelper/templates/quickstart-cohesive-vns3/templates/cohesive-vns3-master.template",
-                "child_template": "{'Fn::Sub': ['https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template', {'QSS3Region': {'Fn::If': ['GovCloudCondition', {'Fn::Sub': 's3-${AWS::Region}'}, 's3']}}]}"
-            },
-            "output": {
-                "url_paths": [
-                    "/QSS3KeyPrefix/submodules/quickstart-aws-vpc/templates/aws-vpc.template"
-                ],
-                "local_paths": [
-                    "tests/data/stackurlhelper/templates/quickstart-cohesive-vns3/submodules/quickstart-aws-vpc/templates/aws-vpc.template"
-                ]
-            }
-        },
-        {
-            "input": {
-                "master_template": "tests/data/stackurlhelper/templates/quickstart-cohesive-vns3/templates/cohesive-vns3-master.template",
-                "child_template": "{'Fn::Sub': ['https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template', {'QSS3Region': {'Fn::If': ['GovCloudCondition', {'Fn::Sub': 's3-${AWS::Region}'}, 's3']}}]}"
-            },
-            "output": {
-                "url_paths": [
-                    "/QSS3KeyPrefix/submodules/quickstart-linux-bastion/templates/linux-bastion.template"
-                ],
-                "local_paths": [
-                    "tests/data/stackurlhelper/templates/quickstart-cohesive-vns3/submodules/quickstart-linux-bastion/templates/linux-bastion.template"
-                ]
-            }
-        },
-        {
-            "input": {
-                "master_template": "tests/data/stackurlhelper/templates/quickstart-cohesive-vns3/templates/cohesive-vns3-master.template",
                 "child_template": "{'Fn::Sub': ['https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/cohesive-vns3.template', {'QSS3Region': {'Fn::If': ['GovCloudCondition', {'Fn::Sub': 's3-${AWS::Region}'}, 's3']}}]}"
             },
             "output": {
@@ -249,20 +221,6 @@
                 ],
                 "local_paths": [
                     "tests/data/stackurlhelper/templates/quickstart-compliance-dod-scca/templates/custom-resource.template.yaml"
-                ]
-            }
-        },
-        {
-            "input": {
-                "master_template": "tests/data/stackurlhelper/templates/quickstart-redhat-openshift/templates/openshift-master.template",
-                "child_template": "{'Fn::Sub': 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'}"
-            },
-            "output": {
-                "url_paths": [
-                    "/QSS3KeyPrefix/submodules/quickstart-aws-vpc/templates/aws-vpc.template"
-                ],
-                "local_paths": [
-                    "tests/data/stackurlhelper/templates/quickstart-redhat-openshift/submodules/quickstart-aws-vpc/templates/aws-vpc.template"
                 ]
             }
         },
