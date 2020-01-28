@@ -83,7 +83,11 @@ class Test:
         tests = config.get_tests(
             project_root_path, templates, regions, buckets, parameters
         )
-        test_definition = Stacker(config.config.project.name, tests)
+        test_definition = Stacker(
+            config.config.project.name,
+            tests,
+            shorten_stack_name=config.config.project.shorten_stack_name,
+        )
         test_definition.create_stacks()
         terminal_printer = TerminalPrinter()
         # 5. wait for completion

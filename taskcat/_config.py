@@ -35,6 +35,7 @@ DEFAULTS = {
         "package_lambda": True,
         "lambda_zip_path": "lambda_functions/packages",
         "lambda_source_path": "lambda_functions/source",
+        "shorten_stack_name": False,
     }
 }
 
