@@ -65,6 +65,9 @@ METADATA = {
     "s3_object_acl": {
         "description": "ACL for uploaded s3 objects, defaults to 'private'"
     },
+    "shorten_stack_name": {
+        "description": "Shorten stack names generated for tests, set to true to enable"
+    },
 }
 
 # types
@@ -396,6 +399,9 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     )
     s3_object_acl: Optional[str] = field(
         default=None, metadata=METADATA["s3_object_acl"]
+    )
+    shorten_stack_name: Optional[bool] = field(
+        default=None, metadata=METADATA["shorten_stack_name"]
     )
 
 

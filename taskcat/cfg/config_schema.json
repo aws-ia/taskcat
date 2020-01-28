@@ -154,6 +154,10 @@
                     "description": "ACL for uploaded s3 objects, defaults to 'private'",
                     "type": "string"
                 },
+                "shorten_stack_name": {
+                    "description": "Shorten stack names generated for tests, set to true to enable",
+                    "type": "boolean"
+                },
                 "tags": {
                     "additionalProperties": {
                         "type": "string"
@@ -275,6 +279,7 @@
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,
+                "shorten_stack_name": null,
                 "tags": null,
                 "template": null
             }
