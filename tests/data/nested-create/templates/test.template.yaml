@@ -1,10 +1,19 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  QSS3BucketName:
+    Default: aws-quickstart
+    Type: String
+  QSS3KeyPrefix:
+    Default: nested-create/
+    Type: String
+Conditions:
+    GovCloudCondition: !Equals
+      - !Ref AWS::Region
+      - us-gov-west-1
 Resources:
-  NestedStack1:
+  ChildStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/test.template_nested.yaml'
-  NestedStack2:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/test.template_nested.yaml'
+      TemplateURL: !Sub
+       - 'https://${QSS3BucketName}.${S3Region}.amazonaws.com/${QSS3KeyPrefix}templates/test.template_nested.yaml'
+       - S3Region: !If [ GovCloudCondition, s3-us-gov-west-1, !Sub 's3.${AWS::Region}' ]
