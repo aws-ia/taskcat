@@ -1,0 +1,17 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Provides bootstrap configuration for VPN tunnels with the VM Series
+  firewall template.  The logic necessary to perform operations is handled by an ec2-backed
+  custom resource.  This was built in lieu of Lambda, not available in the GovCloud
+  region.
+
+  '
+Resources:
+  rCustomResourcePipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Join:
+        - ''
+        - - !Ref pTemplateUrlPrefix
+          - templates/custom-resource.template.yaml

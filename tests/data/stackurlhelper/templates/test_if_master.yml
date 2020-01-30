@@ -1,0 +1,15 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation script to create one VNS3 free edition network controller with five Amazon Linux AMI overlay clients. (qs-1pn7ttn0q)
+Conditions:
+  GovCloudCondition:
+    !Or
+      - !Equals [!Ref 'AWS::Region', us-gov-east-1]
+      - !Equals [!Ref 'AWS::Region', us-gov-west-1]
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
+        - QSS3Region: !If [GovCloudCondition, !Sub 's3-${AWS::Region}', s3]

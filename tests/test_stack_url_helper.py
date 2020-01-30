@@ -34,9 +34,18 @@ class TestStackURLHelper(unittest.TestCase):
         for test in self.tests:
             cfn = self._load_template(test["input"]["master_template"])
             helper.mappings = cfn.get("Mappings")
+
+            # Inject Parameter Values
+            if "parameter_values" in test["input"]:
+                parameter_values = test["input"]["parameter_values"]
+                helper.SUBSTITUTION.update(parameter_values)
+
+            # print(test["output"]["url_paths"])
+            # print(helper.flatten_template_url(test["input"]["child_template"]))
             if test["output"]["url_paths"] == helper.flatten_template_url(
-                test["input"]["child_template"]
+                test["input"]["child_template"],
             ):
+
                 matched = matched + 1
         # print("matched {} total {}".format(matched, total))
         self.assertEqual(matched, total)

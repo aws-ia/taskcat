@@ -312,6 +312,8 @@ class StackURLHelper:
             path_list.append(output.path)
 
         path_list = list(dict.fromkeys(path_list))
+        # print(url_list)
+        # print(path_list)
         return path_list
 
     @staticmethod
@@ -360,10 +362,18 @@ class StackURLHelper:
         raise Exception(message % child_template_path)
 
     def template_url_to_path(
-        self, current_template_path, template_url, template_mappings=None
+        self,
+        current_template_path,
+        template_url,
+        template_mappings=None,
+        template_parameters=None,
     ):
         if template_mappings:
             self.mappings = template_mappings
+
+        if template_parameters:
+            self.SUBSTITUTION.update(template_parameters)
+
         child_local_paths = []
         child_template_paths = self.flatten_template_url(template_url)
 

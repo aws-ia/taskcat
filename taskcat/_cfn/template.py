@@ -36,7 +36,7 @@ class Template:
     def __repr__(self):
         return f"<Template {self.template_path} at {hex(id(self))}>"
 
-    @propertygit
+    @property
     def s3_key(self):
         suffix = str(self.template_path.relative_to(self.project_root).as_posix())
         return self._s3_key_prefix + suffix
@@ -59,13 +59,17 @@ class Template:
 
     @staticmethod
     def _template_url_to_path(
-        current_template_path, template_url, template_mappings=()
+        current_template_path,
+        template_url,
+        template_mappings=None,
+        template_parameters=None,
     ):
         helper = StackURLHelper()
         urls = helper.template_url_to_path(
             current_template_path=current_template_path,
             template_mappings=template_mappings,
             template_url=template_url,
+            template_parameters=template_parameters,
         )
 
         if len(urls) > 0:
