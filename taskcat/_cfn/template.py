@@ -75,6 +75,12 @@ class Template:
         if len(urls) > 0:
             return urls[0]
 
+        LOG.warning(
+            "Failed to discover path for %s, path %s does not exist",
+            template_url,
+            None,
+        )
+
         return ""
 
     def _get_relative_url(self, path: str) -> str:
@@ -108,9 +114,10 @@ class Template:
                     template_url=resource["Properties"]["TemplateURL"],
                     template_mappings=mappings,
                 )
+                # print(child_name)
                 if child_name:
-                    for child_url in child_name:
-                        children.add(child_url)
+                    # for child_url in child_name:
+                    children.add(child_name)
         for child in children:
             child_template_instance = None
             for descendent in self.descendents:

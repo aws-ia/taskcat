@@ -358,8 +358,7 @@ class StackURLHelper:
             if final_template_path.exists() and final_template_path.is_file():
                 return str(final_template_path)
 
-        message = "Failed to discover local path for %s."
-        raise Exception(message % child_template_path)
+        return ""
 
     def template_url_to_path(
         self,
