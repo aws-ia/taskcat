@@ -152,6 +152,7 @@
                 },
                 "s3_object_acl": {
                     "description": "ACL for uploaded s3 objects, defaults to 'private'",
+                    "pattern": "^(bucket-owner-full-control|bucket-owner-read|authenticated-read|aws-exec-read|public-read-write|public-read|private)$",
                     "type": "string"
                 },
                 "shorten_stack_name": {
