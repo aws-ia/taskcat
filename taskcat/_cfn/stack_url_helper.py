@@ -26,15 +26,49 @@ LOG = logging.getLogger(__name__)
 class StackURLHelper:
     MAX_DEPTH = 6  # Handle at most 6 levels of nesting in TemplateURL expressions
     # TODO: Allow user to inject this
+    # SUBSTITUTION = {
+    #     "QSS3BucketName": "aws-quickstart",
+    #     "QSS3KeyPrefix": "QSS3KeyPrefix/",
+    #     "qss3KeyPrefix": "qss3KeyPrefix/",
+    #     "AWS::Region": "us-east-1",
+    #     "AWS::AccountId": "8888XXXX9999",
+    # }
+
     SUBSTITUTION = {
-        "QSS3BucketName": "aws-quickstart",
-        "QSS3KeyPrefix": "QSS3KeyPrefix/",
-        "qss3KeyPrefix": "qss3KeyPrefix/",
         "AWS::Region": "us-east-1",
         "AWS::AccountId": "8888XXXX9999",
     }
 
     mappings = {}  # type: ignore
+
+    def __init__(
+        self, template_mappings=None, template_parameters=None,
+    ):
+
+        # print(template_mappings)
+        # print(template_parameters)
+
+        if template_mappings:
+            self.mappings = template_mappings
+
+        if template_parameters is None:
+            template_parameters = {}
+        else:
+            # print(template_parameters)
+            default_parameters = None
+            for parameter in template_parameters:
+                properties = template_parameters.get(parameter)
+                if "Default" in properties.keys():
+                    default_parameters.append(parameter)
+
+            if default_parameters:
+                self.SUBSTITUTION.update(default_parameters)
+
+            self.SUBSTITUTION.update(template_parameters)
+
+        # print("Drama Llama")
+        # print(self.SUBSTITUTION)
+        # print("Drama Llama")
 
     def rewrite_vars(self, original_string, depth=1):
         """Replace the ${var} placeholders with ##var##"""
@@ -361,18 +395,8 @@ class StackURLHelper:
         return ""
 
     def template_url_to_path(
-        self,
-        current_template_path,
-        template_url,
-        template_mappings=None,
-        template_parameters=None,
+        self, current_template_path, template_url,
     ):
-        if template_mappings:
-            self.mappings = template_mappings
-
-        if template_parameters:
-            self.SUBSTITUTION.update(template_parameters)
-
         child_local_paths = []
         child_template_paths = self.flatten_template_url(template_url)
 

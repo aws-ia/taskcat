@@ -64,12 +64,13 @@ class Template:
         template_mappings=None,
         template_parameters=None,
     ):
-        helper = StackURLHelper()
-        urls = helper.template_url_to_path(
-            current_template_path=current_template_path,
+        helper = StackURLHelper(
             template_mappings=template_mappings,
-            template_url=template_url,
             template_parameters=template_parameters,
+        )
+
+        urls = helper.template_url_to_path(
+            current_template_path=current_template_path, template_url=template_url,
         )
 
         if len(urls) > 0:
@@ -106,13 +107,9 @@ class Template:
         for resource in self.template["Resources"].keys():
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
-                mappings = {}
-                if "Mappings" in self.template.keys():
-                    mappings = self.template["Mappings"]
                 child_name = self._template_url_to_path(
                     current_template_path=self.template_path,
                     template_url=resource["Properties"]["TemplateURL"],
-                    template_mappings=mappings,
                 )
                 # print(child_name)
                 if child_name:

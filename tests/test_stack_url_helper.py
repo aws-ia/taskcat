@@ -39,7 +39,7 @@ class TestStackURLHelper(unittest.TestCase):
             if "parameter_values" in test["input"]:
                 parameter_values = test["input"]["parameter_values"]
                 helper.SUBSTITUTION.update(parameter_values)
-
+            # print(test)
             # print(test["output"]["url_paths"])
             # print(helper.flatten_template_url(test["input"]["child_template"]))
             if test["output"]["url_paths"] == helper.flatten_template_url(
