@@ -40,35 +40,33 @@ class StackURLHelper:
     }
 
     mappings = {}  # type: ignore
+    template_parameters = {}  # type: ignore
+    parameter_values = {}  # type: ignore
 
     def __init__(
-        self, template_mappings=None, template_parameters=None,
+        self, template_mappings=None, template_parameters=None, parameter_values=None
     ):
-
-        # print(template_mappings)
-        # print(template_parameters)
-
         if template_mappings:
             self.mappings = template_mappings
 
-        if template_parameters is None:
-            template_parameters = {}
-        else:
-            # print(template_parameters)
-            default_parameters = None
-            for parameter in template_parameters:
-                properties = template_parameters.get(parameter)
-                if "Default" in properties.keys():
-                    default_parameters.append(parameter)
+        if template_parameters:
+            self.template_parameters = template_parameters
 
-            if default_parameters:
-                self.SUBSTITUTION.update(default_parameters)
+        if parameter_values:
+            self.parameter_values = parameter_values
 
-            self.SUBSTITUTION.update(template_parameters)
+        default_parameters = None
+        for parameter in self.template_parameters:
+            properties = self.template_parameters.get(parameter)
+            if "Default" in properties.keys():
+                if not default_parameters:
+                    default_parameters = {}
+                default_parameters[parameter] = properties["Default"]
 
-        # print("Drama Llama")
-        # print(self.SUBSTITUTION)
-        # print("Drama Llama")
+        if default_parameters:
+            self.SUBSTITUTION.update(default_parameters)
+
+        self.SUBSTITUTION.update(self.parameter_values)
 
     def rewrite_vars(self, original_string, depth=1):
         """Replace the ${var} placeholders with ##var##"""

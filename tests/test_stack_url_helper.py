@@ -24,21 +24,37 @@ class TestStackURLHelper(unittest.TestCase):
     # Test TemplateURL to path extraction
     def test_flatten_template_url(self):
         with open("tests/data/stackurlhelper/test.json") as test_file:
-            self.tests = json.load(test_file)
-            self.tests = self.tests["tests"]
+            self.testers = json.load(test_file)
+            self.testers = self.testers["tests"]
 
-        total = len(self.tests)
+        total = len(self.testers)
         matched = 0
 
-        helper = StackURLHelper()
-        for test in self.tests:
+        for test in self.testers:
+            helper = StackURLHelper()
             cfn = self._load_template(test["input"]["master_template"])
             helper.mappings = cfn.get("Mappings")
+            helper.template_parameters = cfn.get("Parameters")
+
+            # Setup default parameters
+            default_parameters = None
+            for parameter in helper.template_parameters:
+                properties = helper.template_parameters.get(parameter)
+                if "Default" in properties.keys():
+                    if not default_parameters:
+                        default_parameters = {}
+                    default_parameters[parameter] = properties["Default"]
+
+            if default_parameters:
+                helper.SUBSTITUTION.update(default_parameters)
+
+            test["input"]["parameter_values"] = {}
 
             # Inject Parameter Values
             if "parameter_values" in test["input"]:
                 parameter_values = test["input"]["parameter_values"]
                 helper.SUBSTITUTION.update(parameter_values)
+
             # print(test)
             # print(test["output"]["url_paths"])
             # print(helper.flatten_template_url(test["input"]["child_template"]))

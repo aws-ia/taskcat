@@ -3,11 +3,15 @@
         {
             "input": {
                 "master_template": "tests/data/stackurlhelper/templates/test_mappings_master.yml",
-                "child_template": "{'Fn::Sub': ['${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/test_mappings_child.yml', {'QuickStartS3URL': {'Fn::FindInMap': [ 'AWSInfoRegionMap', {'Ref': 'AWS::Region'}, 'QuickStartS3URL']}}]}"
+                "child_template": "{'Fn::Sub': ['${QuickStartS3URL}/${QSS3BucketName}/${QSS3KeyPrefix}/templates/test_mappings_child.yml', {'QuickStartS3URL': {'Fn::FindInMap': [ 'AWSInfoRegionMap', {'Ref': 'AWS::Region'}, 'QuickStartS3URL']}}]}",
+                "parameter_values": {
+                    "QSS3BucketName": "aws-quickstart",
+                    "QSS3KeyPrefix": "QSS3Prefix/"
+                }
             },
             "output": {
                 "url_paths": [
-                    "/aws-quickstart/QSS3KeyPrefix//templates/test_mappings_child.yml"
+                    "/aws-quickstart/quickstart-aws-eks//templates/test_mappings_child.yml"
                 ],
                 "local_paths": [
                     "tests/data/stackurlhelper/templates/test_mappings_child.yml"
@@ -17,11 +21,15 @@
         {
             "input": {
                 "master_template": "tests/data/stackurlhelper/templates/test_if_master.yml",
-                "child_template": "{'Fn::Sub': ['https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/test_if_child.yml', {'QSS3Region': {'Fn::If': ['GovCloudCondition', {'Fn::Sub': 's3-${AWS::Region}'}, 's3']}}]}"
+                "child_template": "{'Fn::Sub': ['https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/test_if_child.yml', {'QSS3Region': {'Fn::If': ['GovCloudCondition', {'Fn::Sub': 's3-${AWS::Region}'}, 's3']}}]}",
+                "parameter_values": {
+                    "QSS3BucketName": "aws-quickstart",
+                    "QSS3KeyPrefix": "QSS3Prefix/"
+                }
             },
             "output": {
                 "url_paths": [
-                    "/QSS3KeyPrefix/templates/test_if_child.yml"
+                    "/quickstart-aws-eks/templates/test_if_child.yml"
                 ],
                 "local_paths": [
                     "tests/data/stackurlhelper/templates/test_if_child.yml"
@@ -31,7 +39,11 @@
         {
             "input": {
                 "master_template": "tests/data/stackurlhelper/templates/test_join_master.yml",
-                "child_template": "{'Fn::Join': ['', [{'Ref': 'pTemplateUrlPrefix'}, 'templates/test_join_child.yml']]}"
+                "child_template": "{'Fn::Join': ['', [{'Ref': 'pTemplateUrlPrefix'}, 'templates/test_join_child.yml']]}",
+                "parameter_values": {
+                    "QSS3BucketName": "aws-quickstart",
+                    "QSS3KeyPrefix": "QSS3Prefix/"
+                }
             },
             "output": {
                 "url_paths": [
