@@ -39,30 +39,31 @@ class StackURLHelper:
         "AWS::AccountId": "8888XXXX9999",
     }
 
-    mappings = {}  # type: ignore
-    template_parameters = {}  # type: ignore
-    parameter_values = {}  # type: ignore
-
     def __init__(
-        self, template_mappings=None, template_parameters=None, parameter_values=None
+        self, template_mappings=None, template_parameters=None, parameter_values=None,
     ):
         if template_mappings:
             self.mappings = template_mappings
+        else:
+            self.mappings = {}
 
         if template_parameters:
             self.template_parameters = template_parameters
+        else:
+            self.template_parameters = {}
 
         if parameter_values:
             self.parameter_values = parameter_values
+        else:
+            self.parameter_values = {}
 
-        default_parameters = {}
+        default_parameters: dict = {}
         for parameter in self.template_parameters:
             properties = self.template_parameters.get(parameter)
             if "Default" in properties.keys():
                 default_parameters[parameter] = properties["Default"]
 
         self.SUBSTITUTION.update(default_parameters)
-
         self.SUBSTITUTION.update(self.parameter_values)
 
     def rewrite_vars(self, original_string, depth=1):
