@@ -55,16 +55,13 @@ class StackURLHelper:
         if parameter_values:
             self.parameter_values = parameter_values
 
-        default_parameters = None
+        default_parameters = {}
         for parameter in self.template_parameters:
             properties = self.template_parameters.get(parameter)
             if "Default" in properties.keys():
-                if not default_parameters:
-                    default_parameters = {}
                 default_parameters[parameter] = properties["Default"]
 
-        if default_parameters:
-            self.SUBSTITUTION.update(default_parameters)
+        self.SUBSTITUTION.update(default_parameters)
 
         self.SUBSTITUTION.update(self.parameter_values)
 

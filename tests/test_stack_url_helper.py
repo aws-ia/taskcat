@@ -37,16 +37,13 @@ class TestStackURLHelper(unittest.TestCase):
             helper.template_parameters = cfn.get("Parameters")
 
             # Setup default parameters
-            default_parameters = None
+            default_parameters = {}
             for parameter in helper.template_parameters:
                 properties = helper.template_parameters.get(parameter)
                 if "Default" in properties.keys():
-                    if not default_parameters:
-                        default_parameters = {}
                     default_parameters[parameter] = properties["Default"]
 
-            if default_parameters:
-                helper.SUBSTITUTION.update(default_parameters)
+            helper.SUBSTITUTION.update(default_parameters)
 
             test["input"]["parameter_values"] = {}
 
