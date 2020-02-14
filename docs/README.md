@@ -6,9 +6,9 @@
 
 [![taskcat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)](https://github.com/aws-quickstart/taskcat)
 
-**[Installation](#Installation)**
+**[Installation](#installation)**
 
-**[Usage](#Usage)**
+**[Usage](#usage)**
 
 **[Migrating from v0.8.x](#migrating-from-08x)**
 
