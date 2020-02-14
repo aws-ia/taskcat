@@ -1,6 +1,8 @@
 import hashlib
 import json
 import logging
+import random
+import string
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -35,6 +37,7 @@ METADATA = {
         "description": "Package Lambda functions into zips before uploading to s3, "
         "set to false to disable"
     },
+    "s3_regional_buckets": {"description": "Enable regional auto-buckets."},
     "lambda_zip_path": {
         "description": "Path relative to the project root to place Lambda zip "
         "files, default is 'lambda_functions/zips'"
@@ -333,7 +336,9 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     )
     auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
     s3_bucket: Optional[str] = field(default=None, metadata=METADATA["s3_bucket"])
-    s3_enable_regional_buckets: Optional[bool] = field(default=False, metadata=METADATA["s3_enable_regional_buckets"])
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
+    )
 
 
 @dataclass
@@ -399,7 +404,6 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     s3_object_acl: Optional[str] = field(
         default=None, metadata=METADATA["s3_object_acl"]
     )
-    s3_enable_regional_buckets: Optional[bool] = field(default=False, metadata=METADATA["s3_enable_regional_buckets"])
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
 PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
@@ -423,6 +427,7 @@ def generate_bucket_name(project: str, prefix: str = "tcat"):
     avail_len = 63 - len(mid)
     mid = mid[:avail_len]
     return f"{prefix}{mid}{suffix}"
+
 
 # pylint raises false positive due to json-dataclass
 # pylint: disable=no-member

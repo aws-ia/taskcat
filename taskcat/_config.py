@@ -16,6 +16,7 @@ from taskcat._dataclasses import (
     TestObj,
     TestRegion,
     generate_bucket_name,
+    generate_regional_bucket_name,
 )
 from taskcat._legacy_config import legacy_overrides, parse_legacy_config
 from taskcat._template_params import ParamGen
@@ -238,11 +239,15 @@ class Config:
         for test_name, test in self.config.tests.items():
             bucket_mappings[test_name] = {}
             for region_name, region in regions[test_name].items():
-                if self.s3_enable_regional_buckets:
-                    bucket_obj = self._create_regional_bucket_obj(bucket_objects, region, test)
+                if self.config.general.s3_regional_buckets:
+                    bucket_obj = self._create_regional_bucket_obj(
+                        bucket_objects, region, test
+                    )
                     bucket_objects[f"{region.account_id}{region.name}"] = bucket_obj
                 else:
-                    bucket_obj = self._create_legacy_bucket_obj(bucket_objects, region, test)
+                    bucket_obj = self._create_legacy_bucket_obj(
+                        bucket_objects, region, test
+                    )
                     bucket_objects[region.account_id] = bucket_obj
                 bucket_mappings[test_name][region_name] = bucket_obj
 
