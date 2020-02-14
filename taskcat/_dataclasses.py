@@ -434,6 +434,7 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
         default=None, metadata=METADATA["shorten_stack_name"]
     )
 
+
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
 PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
 

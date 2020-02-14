@@ -28,7 +28,7 @@ class TestNewConfig(unittest.TestCase):
                     "OverridenVar": "set_in_global",
                 },
                 "s3_bucket": "set-in-global",
-                "s3_regional_buckets": False
+                "s3_regional_buckets": False,
             },
             "project": {
                 "regions": ["us-east-1"],
@@ -78,7 +78,7 @@ class TestNewConfig(unittest.TestCase):
                     "GlobalVar": str(base_path / ".taskcat_global.yml"),
                     "OverridenVar": str(base_path / ".taskcat_global.yml"),
                 },
-                "s3_regional_buckets": str(base_path / ".taskcat_global.yml")
+                "s3_regional_buckets": str(base_path / ".taskcat_global.yml"),
             },
             "project": {
                 "s3_bucket": str(base_path / ".taskcat_global.yml"),
@@ -253,27 +253,10 @@ class TestNewConfig(unittest.TestCase):
                     self.assertEqual(bucket_obj.region, region_name)
                     self.assertTrue(bucket_obj.auto_generated)
                     self.assertTrue(bucket_obj.sigv4, True)
-                    self.assertEqual(bucket_obj.partition, 'aws')
-                    self.assertEqual(bucket_obj.name, f"tcat-66c782e8f95b-{region_name}")
-
-
-    @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
-    @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
-    @mock.patch("taskcat._config.S3BucketObj.create", return_value=None)
-    @mock.patch("taskcat._client_factory.boto3", autospec=True)
-    def test__create_regional_bucket_obj(self, _, __, ___, m_boto):
-        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
-        base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
-
-        config = Config.create(
-            args={},
-            global_config_path=base_path / ".taskcat_global_regional_bucket.yml",
-            project_config_path=base_path / "./.taskcat.yml",
-            overrides_path=base_path / "./.taskcat_overrides.yml",
-            env_vars={},
-        )
-        mock_boto_cache = Boto3Cache(_boto3=m_boto)
-        buckets = config.get_buckets(boto3_cache=mock_boto_cache)
+                    self.assertEqual(bucket_obj.partition, "aws")
+                    self.assertEqual(
+                        bucket_obj.name, f"tcat-66c782e8f95b-{region_name}"
+                    )
 
     @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
     @mock.patch("taskcat._config.Boto3Cache.partition", return_value="aws")
