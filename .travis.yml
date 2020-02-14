@@ -29,9 +29,6 @@ before_install:
 install:
   - pip install .
 script: pre-commit run --all-files
-after_success:
-  - coverage run ./setup.py test > /dev/null
-  - codecov --token=$CODECOV_TOKEN
 
 jobs:
   include:
@@ -72,23 +69,26 @@ jobs:
     if: branch = master AND type = push
     before_script:
       - pip install bump2version
-      - export TEST_PYPI_VERSION=$(python -c "from distutils.version import LooseVersion; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [LooseVersion(x) for x in versions if 'dev' in x]; print(sorted(versions, reverse=True)[0])")
+      - pip install packaging
+      - export UPSTREAM_PYPI_VERSION=$(python -c "from packaging import version; import requests; versions = requests.get('https://pypi.org/pypi/taskcat/json').json()['releases'].keys(); versions = [version.Version(x) for x in versions]; print(sorted(versions, reverse=True)[0])")
     script:
       - |
-        echo "${TEST_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
+        echo "${UPSTREAM_PYPI_VERSION}" | egrep -i '\.dev[0-9]{1,4}'
         if [[ $? -eq 0 ]]; then
-          # v0.9.1.dev0 -> v0.9.1.dev1
           echo "Bumping the development version"
-          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" .bumpversion.cfg
-          sed -i -e "s,$(cat VERSION),${TEST_PYPI_VERSION},g" VERSION
+          # Replacing VERSION (ex: 0.9.12) with upstream value (ex: 0.9.13.dev0)
+          sed -i -e "s,$(cat VERSION),${UPSTREAM_PYPI_VERSION},g" .bumpversion.cfg
+          sed -i -e "s,$(cat VERSION),${UPSTREAM_PYPI_VERSION},g" VERSION
+          # Now bumping 0.9.13.dev0 -> 0.9.13.dev1
           bumpversion --allow-dirty --no-tag --no-commit build
+          export NEW_DEV_BUILD=true
         else
           # v0.9.0 -> v0.9.1.dev0
           bumpversion --allow-dirty --no-tag --no-commit patch
         fi
       - cat VERSION
       - |
-        if [[ "$(cat VERSION)" == "${TEST_PYPI_VERSION}" ]]; then
+        if [[ "$(cat VERSION)" == "${UPSTREAM_PYPI_VERSION}" ]]; then
           echo "Something went wrong when bumping the version. Exiting."
           travis_terminate 1
         fi
@@ -105,7 +105,6 @@ jobs:
         password: $PYPI_PASSWORD
         on:
           branch: master
-          tags: false
 
   - stage: "Tag build changelog/Push pypi and github release/Update docs"
     name: "Tag build changelog/Push pypi and github release/Update docs"
@@ -118,6 +117,7 @@ jobs:
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
           git tag -a "$(cat VERSION)" -m "${TAG_BODY}"
           git push --tags "https://$GHT:@github.com/$TRAVIS_REPO_SLUG"
+          export RELEASE_THE_KRAKEN=true
         fi
     deploy:
       - provider: releases
@@ -127,5 +127,15 @@ jobs:
         on:
           branch: master
           fork: false
+          condition: $RELEASE_THE_KRAKEN = true
+          
+      - provider: pypi
+        skip_cleanup: true
+        user: $PYPI_USER
+        password: $PYPI_PASSWORD
+        on:
+          branch: master
+          fork: false
+          condition: $RELEASE_THE_KRAKEN = true
      
   # Add Docker provider

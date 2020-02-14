@@ -156,7 +156,12 @@
                 },
                 "s3_object_acl": {
                     "description": "ACL for uploaded s3 objects, defaults to 'private'",
+                    "pattern": "^(bucket-owner-full-control|bucket-owner-read|authenticated-read|aws-exec-read|public-read-write|public-read|private)$",
                     "type": "string"
+                },
+                "shorten_stack_name": {
+                    "description": "Shorten stack names generated for tests, set to true to enable",
+                    "type": "boolean"
                 },
                 "tags": {
                     "additionalProperties": {
@@ -280,6 +285,7 @@
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,
+                "shorten_stack_name": null,
                 "tags": null,
                 "template": null
             }

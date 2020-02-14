@@ -69,6 +69,9 @@ METADATA = {
     "s3_object_acl": {
         "description": "ACL for uploaded s3 objects, defaults to 'private'"
     },
+    "shorten_stack_name": {
+        "description": "Shorten stack names generated for tests, set to true to enable"
+    },
 }
 
 # types
@@ -77,6 +80,7 @@ ParameterKey = NewType("ParameterKey", str)
 ParameterValue = Union[str, int, bool, List[Union[int, str]]]
 TagKey = NewType("TagKey", str)
 TagValue = NewType("TagValue", str)
+S3Acl = NewType("S3Acl", str)
 Region = NewType("Region", str)
 AlNumDash = NewType("AlNumDash", str)
 ProjectName = NewType("ProjectName", AlNumDash)
@@ -114,6 +118,28 @@ class RegionField(FieldEncoder):
 
 
 JsonSchemaMixin.register_field_encoders({Region: RegionField()})
+
+
+class S3AclField(FieldEncoder):
+    @property
+    def json_schema(self):
+        return {
+            "type": "string",
+            "pattern": r"^("
+            r"bucket-owner-full-control|"
+            r"bucket-owner-read|"
+            r"authenticated-read|"
+            r"aws-exec-read|"
+            r"public-read-write|"
+            r"public-read|"
+            r"private)$",
+            "description": "Must be a valid S3 ACL (private, public-read, "
+            "aws-exec-read, public-read-write, authenticated-read, "
+            "bucket-owner-read, bucket-owner-full-control)",
+        }
+
+
+JsonSchemaMixin.register_field_encoders({S3Acl: S3AclField()})
 
 
 class AlNumDashField(FieldEncoder):
@@ -401,8 +427,11 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     s3_enable_sig_v2: Optional[bool] = field(
         default=None, metadata=METADATA["enable_sig_v2"]
     )
-    s3_object_acl: Optional[str] = field(
+    s3_object_acl: Optional[S3Acl] = field(
         default=None, metadata=METADATA["s3_object_acl"]
+    )
+    shorten_stack_name: Optional[bool] = field(
+        default=None, metadata=METADATA["shorten_stack_name"]
     )
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]

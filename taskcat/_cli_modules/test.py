@@ -52,10 +52,17 @@ class Test:
         input_file_path: Path = project_root_path / input_file
         config = Config.create(
             project_root=project_root_path,
+            project_config_path=input_file_path
             # TODO: detect if input file is taskcat config or CloudFormation template
-            project_config_path=input_file_path,
-            args={"project": {"s3_enable_sig_v2": enable_sig_v2}},
         )
+
+        if enable_sig_v2:
+            config = Config.create(
+                project_root=project_root_path,
+                project_config_path=input_file_path,
+                args={"project": {"s3_enable_sig_v2": enable_sig_v2}},
+            )
+
         boto3_cache = Boto3Cache()
         templates = config.get_templates(project_root_path)
         # 1. lint
@@ -76,7 +83,11 @@ class Test:
         tests = config.get_tests(
             project_root_path, templates, regions, buckets, parameters
         )
-        test_definition = Stacker(config.config.project.name, tests)
+        test_definition = Stacker(
+            config.config.project.name,
+            tests,
+            shorten_stack_name=config.config.project.shorten_stack_name,
+        )
         test_definition.create_stacks()
         terminal_printer = TerminalPrinter()
         # 5. wait for completion

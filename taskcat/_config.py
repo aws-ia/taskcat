@@ -31,10 +31,12 @@ OVERRIDES = Path("./.taskcat_overrides.yml").resolve()
 
 DEFAULTS = {
     "project": {
+        "s3_enable_sig_v2": False,
         "build_submodules": True,
         "package_lambda": True,
         "lambda_zip_path": "lambda_functions/packages",
         "lambda_source_path": "lambda_functions/source",
+        "shorten_stack_name": False,
     }
 }
 
@@ -221,7 +223,11 @@ class Config:
         for test_name, test in self.config.tests.items():
             region_objects[test_name] = {}
             for region in test.regions:
-                profile = test.auth.get(region, "default") if test.auth else "default"
+                profile = (
+                    test.auth.get(region, test.auth.get("default", "default"))
+                    if test.auth
+                    else "default"
+                )
                 region_objects[test_name][region] = RegionObj(
                     name=region,
                     account_id=boto3_cache.account_id(profile),

@@ -35,11 +35,13 @@ class Stacker:
         tests: Dict[str, TestObj],
         uid: uuid.UUID = NULL_UUID,
         stack_name_prefix: str = "tCaT",
+        shorten_stack_name: bool = False,
         tags: list = None,
     ):
         self.tests = tests
         self.project_name = project_name
         self.stack_name_prefix = stack_name_prefix
+        self.shorten_stack_name = shorten_stack_name
         self.tags = tags if tags else []
         self.uid = uuid.uuid4() if uid == Stacker.NULL_UUID else uid
         self.stacks: Stacks = Stacks()
@@ -60,11 +62,14 @@ class Stacker:
         ]
         fan_out(self._create_stacks_for_test, {"tags": tags}, tests, threads)
 
-    def _create_stacks_for_test(self, test, tags, threads: int = 32):
+    def _get_stack_name_for_test(self, test):
         prefix = f"{self.stack_name_prefix}-" if self.stack_name_prefix else ""
-        stack_name = "{}{}-{}-{}".format(
-            prefix, self.project_name, test.name, self.uid.hex
-        )
+        if self.shorten_stack_name:
+            return "{}{}-{}".format(prefix, test.name, self.uid.hex[:6])
+        return "{}{}-{}-{}".format(prefix, self.project_name, test.name, self.uid.hex)
+
+    def _create_stacks_for_test(self, test, tags, threads: int = 32):
+        stack_name = self._get_stack_name_for_test(test)
         tags.append(Tag({"Key": "taskcat-project-name", "Value": self.project_name}))
         tags.append(Tag({"Key": "taskcat-test-name", "Value": test.name}))
         tags += test.tags

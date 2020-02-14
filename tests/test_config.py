@@ -43,6 +43,8 @@ class TestNewConfig(unittest.TestCase):
                 "build_submodules": False,
                 "template": "template1.yaml",
                 "s3_bucket": "set-in-global",
+                "s3_enable_sig_v2": False,
+                "shorten_stack_name": False,
             },
             "tests": {
                 "default": {
@@ -80,6 +82,8 @@ class TestNewConfig(unittest.TestCase):
             },
             "project": {
                 "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                "s3_enable_sig_v2": "TASKCAT_DEFAULT",
+                "shorten_stack_name": "TASKCAT_DEFAULT",
                 "package_lambda": "EnvoronmentVariable",
                 "lambda_zip_path": "TASKCAT_DEFAULT",
                 "lambda_source_path": "TASKCAT_DEFAULT",
@@ -185,10 +189,14 @@ class TestNewConfig(unittest.TestCase):
                         self.assertEqual(region_name, region_obj.name)
                         if test_name == "json-test" and region_name == "eu-central-1":
                             self.assertEqual("special-use-case", region_obj.profile)
+                        elif test_name == "yaml-test" and region_name == "sa-east-1":
+                            self.assertEqual("default", region_obj.profile)
                         elif region_name == "me-south-1":
                             self.assertEqual("mes1", region_obj.profile)
                         elif region_name == "ap-east-1":
                             self.assertEqual("hongkong", region_obj.profile)
+                        elif test_name == "yaml-test":
+                            self.assertEqual("foobar", region_obj.profile)
                         else:
                             self.assertEqual("default", region_obj.profile)
 

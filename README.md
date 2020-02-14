@@ -75,14 +75,14 @@ pip3 install taskcat --user
 > **Warning:** Be sure to add the python bin dir to your **$PATH**
 
 ### Windows
-Taskcat on Windows is **not supported**.
+taskcat on Windows is **not supported**.
 
 If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps above.
 
 ## Usage
 
 ### CLI
-The cli is self documenting by using `--help`. The most common use of tascat is for
+The cli is self documenting by using `--help`. The most common use of taskcat is for
 executing function tests of CloudFormation templates. The command for this is:
 
 ```bash
@@ -112,7 +112,7 @@ taskcat has several configuration files which can be used to set behaviors in a 
 * `project` _Project specific configuration section_
     * `auth` _AWS authentication section_
         * `<AUTH_NAME>`
-    * `az_blacklist` _List of Availablilty Zones ID's to exclude when generating availability zones_
+    * `az_blacklist` _List of Availability Zones ID's to exclude when generating availability zones_
     * `build_submodules` _Build Lambda zips recursively for submodules, set to false to disable_
     * `lambda_source_path` _Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'_
     * `lambda_zip_path` _Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'_
@@ -132,7 +132,7 @@ taskcat has several configuration files which can be used to set behaviors in a 
 * `tests`
     * `auth` _AWS authentication section_
         * `<AUTH_NAME>`
-    * `az_blacklist` _List of Availablilty Zones ID's to exclude when generating availability zones_
+    * `az_blacklist` _List of Availability Zones ID's to exclude when generating availability zones_
     * `parameters` _Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence_
         * `<PARAMETER_NAME>`
     * `regions` _List of AWS regions_
@@ -252,7 +252,7 @@ previous releases.
 ### CLI interface
 taskcat adopts a similar cli command structure to `git` with a
 `taskcat command subcommand --flag` style. The cli is also designed to be simplest if
-run from the root of a project. Let's hava a look at equivalent command to run a test:
+run from the root of a project. Let's have a look at equivalent command to run a test:
 
 v0.8.x
 ```bash
@@ -271,7 +271,7 @@ taskcat test run -p ./quickstart-aws-vpc
 ```
 
 ### Configuration files
-The configuration files required for tascat have changed, to ease migration, if taskcat
+The configuration files required for taskcat have changed, to ease migration, if taskcat
 is run and legacy config files are found, they are converted and written to new file
 locations. For more information on the new format, see the [config file docs](#config-files).
 
