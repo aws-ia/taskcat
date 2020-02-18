@@ -64,17 +64,33 @@ class Template:
         template_mappings=None,
         template_parameters=None,
     ):
-        helper = StackURLHelper(
-            template_mappings=template_mappings,
-            template_parameters=template_parameters,
-        )
+        try:
+            LOG.debug(
+                "Evaluating TemplateURL expression: '%s'",
+                template_url,
+            )
 
-        urls = helper.template_url_to_path(
-            current_template_path=current_template_path, template_url=template_url,
-        )
+            helper = StackURLHelper(
+                template_mappings=template_mappings,
+                template_parameters=template_parameters,
+            )
 
-        if len(urls) > 0:
-            return urls[0]
+            urls = helper.template_url_to_path(
+                current_template_path=current_template_path,
+                template_url=template_url,
+            )
+
+            if len(urls) > 0:
+                LOG.debug(
+                    "TemplateURL '%s' evaluated to '%s'",
+                    template_url,
+                    urls[0]
+                )
+                return urls[0]
+
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.debug("Traceback:", exc_info=True)
+            LOG.error("TemplateURL parsing error: %s " % str(e))
 
         LOG.warning(
             "Failed to discover path for %s, path %s does not exist",

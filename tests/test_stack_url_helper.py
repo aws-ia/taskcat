@@ -63,6 +63,32 @@ class TestStackURLHelper(unittest.TestCase):
         # print("matched {} total {}".format(matched, total))
         self.assertEqual(matched, total)
 
+    # def test_sigv2(self):
+    #     helper = StackURLHelper()
+    #     cfn = self._load_template("tests/data/stackurlhelper/templates/sigv2.yml")
+    #     helper.mappings = cfn.get("Mappings")
+    #     helper.template_parameters = cfn.get("Parameters")
+    #
+    #     # Setup default parameters
+    #     default_parameters = {}
+    #     for parameter in helper.template_parameters:
+    #         properties = helper.template_parameters.get(parameter)
+    #         if "Default" in properties.keys():
+    #             default_parameters[parameter] = properties["Default"]
+    #     helper.SUBSTITUTION.update(default_parameters)
+    #
+    #     parameter_values = {"AWS::URLSuffix": "amazonaws.com"}
+    #
+    #     helper.SUBSTITUTION.update(parameter_values)
+    #
+    #     stack_resources = cfn.get_resources(resource_type=["AWS::CloudFormation::Stack"])
+    #
+    #     for stack, properties in stack_resources.items():
+    #         print(properties.get("TemplateURL"))
+    #         helper.flatten_template_url(properties.get("TemplateURL"))
+    #
+    #     self.assertEqual(1, 2)
+
     def test_flatten_template_url_exceptions_split(self):
         helper = StackURLHelper()
         with self.assertRaises(Exception) as context:
@@ -129,6 +155,7 @@ class TestStackURLHelper(unittest.TestCase):
 
         self.assertEqual(result, "not_that_one")
 
+    # TODO: Test all the individual functions
     # TODO: Test fn_sub logic
     # def test_fn_sub(self):
     #     self.assertEqual(True, False)
@@ -137,6 +164,4 @@ class TestStackURLHelper(unittest.TestCase):
     # def test_fn_if(self):
     #     self.assertEqual(True, False)
 
-    # TODO: Test all the individual functions
-    # def test_fn_if(self):
-    #     self.assertEqual('true', 'false')
+

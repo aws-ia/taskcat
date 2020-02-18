@@ -36,6 +36,7 @@ class StackURLHelper:
 
     SUBSTITUTION = {
         "AWS::Region": "us-east-1",
+        "AWS::URLSuffix": "amazonaws.com",
         "AWS::AccountId": "8888XXXX9999",
     }
 
@@ -116,12 +117,33 @@ class StackURLHelper:
     @staticmethod
     def values_to_dict(values):
         """Rewrite sub vars with actual variable values"""
-        LOG.debug("rewrite Values: {}".format(values))
+        LOG.debug("Rewrite Values: {}".format(values))
         # Create dictionary of values
         values_dict_string = values.replace("(", "{")
         values_dict_string = values_dict_string.replace(")", "}")
         values_dict_string = values_dict_string.replace("'", '"')
-        LOG.debug("rewrite Values: {}".format(values_dict_string))
+
+        # for values or keys not quoted
+        # Split by :
+        values_split_string = values_dict_string
+        # Trim stuff so we can get the key values
+        values_split_string = values_split_string.replace(" ", "")
+        values_split_string = values_split_string.replace("{", "")
+        values_split_string = values_split_string.replace("}", "")
+
+        values_split = values_split_string.split(",")
+        values_split_final = []
+        for value in values_split:
+            values = value.split(":")
+            values_split_final.extend(values)
+
+        for value in values_split_final:
+            if value[0] != "'" and value[-1] != "'":
+                if value[0] != '"' and value[-1] != '"':
+                    values_dict_string = values_dict_string.replace(value, '"' + value + '"')
+
+        LOG.debug("Rewrite Values cleaned: {}".format(values_dict_string))
+
         values_dict = json.loads(values_dict_string)
 
         return values_dict
