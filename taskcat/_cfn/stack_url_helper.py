@@ -140,7 +140,9 @@ class StackURLHelper:
         for value in values_split_final:
             if value[0] != "'" and value[-1] != "'":
                 if value[0] != '"' and value[-1] != '"':
-                    values_dict_string = values_dict_string.replace(value, '"' + value + '"')
+                    values_dict_string = values_dict_string.replace(
+                        value, '"' + value + '"'
+                    )
 
         LOG.debug("Rewrite Values cleaned: {}".format(values_dict_string))
 

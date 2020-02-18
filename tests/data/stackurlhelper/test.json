@@ -56,8 +56,8 @@
         },
         {
             "input": {
-                    "master_template": "tests/data/stackurlhelper/templates/sigv2-fixed.yml",
-                    "child_template": "{'Fn::Sub': ['https://${S3Bucket}.${S3Region}.${AWS::URLSuffix}/${KeyPrefix}templates/aws-vpc.template', {'S3Region': {'Fn::Sub': 's3.${AWS::Region}'}, 'S3Bucket': {'Fn::If': ['UsingDefaultBucket', {'Fn::Sub': '${BucketName}-${AWS::Region}'}, {'Ref': 'BucketName'}]}}]}"
+                "master_template": "tests/data/stackurlhelper/templates/sigv2-fixed.yml",
+                "child_template": "{'Fn::Sub': ['https://${S3Bucket}.${S3Region}.${AWS::URLSuffix}/${KeyPrefix}templates/aws-vpc.template', {'S3Region': {'Fn::Sub': 's3.${AWS::Region}'}, 'S3Bucket': {'Fn::If': ['UsingDefaultBucket', {'Fn::Sub': '${BucketName}-${AWS::Region}'}, {'Ref': 'BucketName'}]}}]}"
             },
             "output": {
                 "url_paths": [

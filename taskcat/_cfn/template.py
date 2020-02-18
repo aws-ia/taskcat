@@ -66,8 +66,7 @@ class Template:
     ):
         try:
             LOG.debug(
-                "Evaluating TemplateURL expression: '%s'",
-                template_url,
+                "Evaluating TemplateURL expression: '%s'", template_url,
             )
 
             helper = StackURLHelper(
@@ -76,16 +75,11 @@ class Template:
             )
 
             urls = helper.template_url_to_path(
-                current_template_path=current_template_path,
-                template_url=template_url,
+                current_template_path=current_template_path, template_url=template_url,
             )
 
             if len(urls) > 0:
-                LOG.debug(
-                    "TemplateURL '%s' evaluated to '%s'",
-                    template_url,
-                    urls[0]
-                )
+                LOG.debug("TemplateURL '%s' evaluated to '%s'", template_url, urls[0])
                 return urls[0]
 
         except Exception as e:  # pylint: disable=broad-except
