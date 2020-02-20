@@ -33,6 +33,16 @@ class TestBoto3Cache(unittest.TestCase):
     @mock.patch("taskcat._client_factory.Boto3Cache._cache_set", autospec=True)
     @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
     @mock.patch("taskcat._client_factory.boto3.Session", autospec=True)
+    def test_imported_session(self, mock_boto3, mock_cache_lookup, mock_cache_set):
+        x = Boto3Cache()
+        x.import_session("foobar", mock_boto3, "us-east-1")
+        mock_cache_set.assert_called_with(
+            x, x._session_cache, ["imported_session_foobar", "us-east-1"], mock_boto3
+        )
+
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_set", autospec=True)
+    @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
+    @mock.patch("taskcat._client_factory.boto3.Session", autospec=True)
     def test_session_no_profile(self, mock_boto3, mock_cache_lookup, mock_cache_set):
         mock_cache_lookup.side_effect = ProfileNotFound(profile="non-existent-profile")
         Boto3Cache().session()  # default value should be "default" profile
