@@ -36,7 +36,9 @@ class TestBoto3Cache(unittest.TestCase):
     def test_imported_session(self, mock_boto3, mock_cache_lookup, mock_cache_set):
         x = Boto3Cache()
         x.import_session("foobar", mock_boto3, "us-east-1")
-        self.assertEqual(mock_cache_set.called, True)
+        mock_cache_set.assert_called_with(
+            x, x._session_cache, ["imported_session_foobar", "us-east-1"], mock_boto3
+        )
 
     @mock.patch("taskcat._client_factory.Boto3Cache._cache_set", autospec=True)
     @mock.patch("taskcat._client_factory.Boto3Cache._cache_lookup", autospec=True)
