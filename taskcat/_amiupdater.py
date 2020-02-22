@@ -121,10 +121,7 @@ class Template:
                         cnvalue = '""'
                     elif "''" in self._ls[line_no]:
                         cnvalue = "''"
-                self.region_codename_lineno[key] = {
-                    "line": line_no,
-                    "old": cnvalue,
-                }
+                self.region_codename_lineno[key] = {"line": line_no, "old": cnvalue}
         new_region_list = set()
         self.regions_without_creds: Set[str] = set()
         for region in self.region_names:
