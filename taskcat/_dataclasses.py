@@ -199,6 +199,7 @@ class S3BucketObj:
     s3_client: boto3.client
     sigv4: bool
     auto_generated: bool
+    regional_buckets: bool
     object_acl: str
     taskcat_id: uuid.UUID
 
@@ -231,12 +232,13 @@ class S3BucketObj:
         try:
             self.s3_client.get_waiter("bucket_exists").wait(Bucket=self.name)
 
-            self.s3_client.put_bucket_tagging(
-                Bucket=self.name,
-                Tagging={
-                    "TagSet": [{"Key": "taskcat-id", "Value": self.taskcat_id.hex}]
-                },
-            )
+            if not self.regional_buckets:
+                self.s3_client.put_bucket_tagging(
+                    Bucket=self.name,
+                    Tagging={
+                        "TagSet": [{"Key": "taskcat-id", "Value": self.taskcat_id.hex}]
+                    },
+                )
             if self.sigv4:
                 self.s3_client.put_bucket_policy(
                     Bucket=self.name, Policy=self.sigv4_policy
@@ -413,6 +415,9 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     )
     s3_bucket: Optional[S3BucketName] = field(
         default=None, metadata=METADATA["s3_bucket"]
+    )
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
     )
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
         default=None, metadata=METADATA["parameters"]

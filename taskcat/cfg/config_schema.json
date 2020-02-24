@@ -159,6 +159,10 @@
                     "pattern": "^(bucket-owner-full-control|bucket-owner-read|authenticated-read|aws-exec-read|public-read-write|public-read|private)$",
                     "type": "string"
                 },
+                "s3_regional_buckets": {
+                    "description": "Enable regional auto-buckets.",
+                    "type": "boolean"
+                },
                 "shorten_stack_name": {
                     "description": "Shorten stack names generated for tests, set to true to enable",
                     "type": "boolean"
@@ -285,6 +289,7 @@
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,
+                "s3_regional_buckets": null,
                 "shorten_stack_name": null,
                 "tags": null,
                 "template": null
