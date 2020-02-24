@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 import cfnlint
-from taskcat._cfn.stack_url_helper import StackURLHelper
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -57,31 +56,29 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
 
-    @staticmethod
-    def _template_url_to_path(
-        current_template_path,
-        template_url,
-        template_mappings=None,
-        template_parameters=None,
-    ):
-        helper = StackURLHelper(
-            template_mappings=template_mappings,
-            template_parameters=template_parameters,
-        )
-
-        urls = helper.template_url_to_path(
-            current_template_path=current_template_path, template_url=template_url,
-        )
-
-        if len(urls) > 0:
-            return urls[0]
-
+    def _template_url_to_path(self, template_url):
+        # TODO: this code assumes a specific url schema, should rather attempt to
+        #  resolve values from params/defaults
+        template_path = None
+        if isinstance(template_url, dict):
+            if "Fn::Sub" in template_url.keys():
+                if isinstance(template_url["Fn::Sub"], str):
+                    template_path = template_url["Fn::Sub"].split("}")[-1]
+                else:
+                    template_path = template_url["Fn::Sub"][0].split("}")[-1]
+            elif "Fn::Join" in list(template_url.keys())[0]:
+                template_path = template_url["Fn::Join"][1][-1]
+        elif isinstance(template_url, str):
+            template_path = "/".join(template_url.split("/")[-2:])
+        if isinstance(template_path, str):
+            template_path = self.project_root / template_path
+            if template_path.is_file():
+                return template_path
         LOG.warning(
             "Failed to discover path for %s, path %s does not exist",
             template_url,
-            None,
+            template_path,
         )
-
         return ""
 
     def _get_relative_url(self, path: str) -> str:
@@ -108,12 +105,9 @@ class Template:
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
                 child_name = self._template_url_to_path(
-                    current_template_path=self.template_path,
-                    template_url=resource["Properties"]["TemplateURL"],
+                    resource["Properties"]["TemplateURL"]
                 )
-                # print(child_name)
                 if child_name:
-                    # for child_url in child_name:
                     children.add(child_name)
         for child in children:
             child_template_instance = None
