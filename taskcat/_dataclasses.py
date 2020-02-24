@@ -307,6 +307,8 @@ class S3BucketObj:
                 f"the expected region {self.region}, expected {location}"
             )
         if location:
+            if self.regional_buckets:
+                return True
             tags = self.s3_client.get_bucket_tagging(Bucket=self.name)["TagSet"]
             tags = {t["Key"]: t["Value"] for t in tags}
             uid = tags.get("taskcat-id")
