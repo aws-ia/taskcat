@@ -385,6 +385,9 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     s3_bucket: Optional[S3BucketName] = field(
         default=None, metadata=METADATA["s3_bucket"]
     )
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
+    )
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
     )
@@ -441,7 +444,13 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
-PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
+PROPOGATE_ITEMS = [
+    "regions",
+    "s3_bucket",
+    "template",
+    "az_blacklist",
+    "s3_regional_buckets",
+]
 
 
 def generate_regional_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):

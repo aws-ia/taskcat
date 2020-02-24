@@ -45,6 +45,7 @@ class TestNewConfig(unittest.TestCase):
                 "s3_bucket": "set-in-global",
                 "s3_enable_sig_v2": False,
                 "shorten_stack_name": False,
+                "s3_regional_buckets": False,
             },
             "tests": {
                 "default": {
@@ -57,6 +58,7 @@ class TestNewConfig(unittest.TestCase):
                     "regions": ["us-west-2"],
                     "s3_bucket": "set-in-global",
                     "template": "template1.yaml",
+                    "s3_regional_buckets": False,
                 },
                 "other": {
                     "template": "other_template.yaml",
@@ -67,6 +69,7 @@ class TestNewConfig(unittest.TestCase):
                     },
                     "regions": ["us-east-1"],
                     "s3_bucket": "set-in-global",
+                    "s3_regional_buckets": False,
                 },
             },
         }
@@ -83,6 +86,7 @@ class TestNewConfig(unittest.TestCase):
             "project": {
                 "s3_bucket": str(base_path / ".taskcat_global.yml"),
                 "s3_enable_sig_v2": "TASKCAT_DEFAULT",
+                "s3_regional_buckets": str(base_path / ".taskcat_global.yml"),
                 "shorten_stack_name": "TASKCAT_DEFAULT",
                 "package_lambda": "EnvoronmentVariable",
                 "lambda_zip_path": "TASKCAT_DEFAULT",
@@ -99,6 +103,7 @@ class TestNewConfig(unittest.TestCase):
             "tests": {
                 "default": {
                     "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                    "s3_regional_buckets": str(base_path / ".taskcat_global.yml"),
                     "template": str(base_path / ".taskcat.yml"),
                     "parameters": {
                         "GlobalVar": str(base_path / ".taskcat_global.yml"),
@@ -110,6 +115,7 @@ class TestNewConfig(unittest.TestCase):
                 },
                 "other": {
                     "s3_bucket": str(base_path / ".taskcat_global.yml"),
+                    "s3_regional_buckets": str(base_path / ".taskcat_global.yml"),
                     "template": str(base_path / ".taskcat.yml"),
                     "parameters": {
                         "GlobalVar": str(base_path / ".taskcat_global.yml"),
@@ -121,8 +127,8 @@ class TestNewConfig(unittest.TestCase):
             },
         }
 
-        self.assertEqual(config.config.to_dict(), expected)
-        self.assertEqual(config.config._source, expected_source)
+        self.assertEqual(expected, config.config.to_dict())
+        self.assertEqual(expected_source, config.config._source)
 
     def test_legacy_config(self):
 

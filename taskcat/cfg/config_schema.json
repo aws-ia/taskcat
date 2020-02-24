@@ -246,6 +246,10 @@
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
+                "s3_regional_buckets": {
+                    "description": "Enable regional auto-buckets.",
+                    "type": "boolean"
+                },
                 "tags": {
                     "additionalProperties": {
                         "type": "string"

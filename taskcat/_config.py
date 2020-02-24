@@ -245,7 +245,7 @@ class Config:
         for test_name, test in self.config.tests.items():
             bucket_mappings[test_name] = {}
             for region_name, region in regions[test_name].items():
-                if self.config.project.s3_regional_buckets:
+                if test.s3_regional_buckets:
                     bucket_obj = self._create_regional_bucket_obj(
                         bucket_objects, region, test
                     )
@@ -288,7 +288,7 @@ class Config:
             sigv4=sigv4,
             taskcat_id=self.uid,
             partition=region.partition,
-            regional_buckets=self.config.project.s3_regional_buckets,
+            regional_buckets=test.s3_regional_buckets,
         )
         if new:
             bucket_obj.create()
@@ -323,7 +323,7 @@ class Config:
             sigv4=sigv4,
             taskcat_id=self.uid,
             partition=region.partition,
-            regional_buckets=self.config.project.s3_regional_buckets,
+            regional_buckets=test.s3_regional_buckets,
         )
         if new:
             bucket_obj.create()
