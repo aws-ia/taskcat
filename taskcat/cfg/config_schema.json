@@ -47,6 +47,10 @@
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
                     "type": "string"
                 },
+                "s3_regional_buckets": {
+                    "description": "Enable regional auto-buckets.",
+                    "type": "boolean"
+                },
                 "tags": {
                     "additionalProperties": {
                         "type": "string"
@@ -155,6 +159,10 @@
                     "pattern": "^(bucket-owner-full-control|bucket-owner-read|authenticated-read|aws-exec-read|public-read-write|public-read|private)$",
                     "type": "string"
                 },
+                "s3_regional_buckets": {
+                    "description": "Enable regional auto-buckets.",
+                    "type": "boolean"
+                },
                 "shorten_stack_name": {
                     "description": "Shorten stack names generated for tests, set to true to enable",
                     "type": "boolean"
@@ -238,6 +246,10 @@
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
+                "s3_regional_buckets": {
+                    "description": "Enable regional auto-buckets.",
+                    "type": "boolean"
+                },
                 "tags": {
                     "additionalProperties": {
                         "type": "string"
@@ -261,6 +273,7 @@
                 "auth": null,
                 "parameters": null,
                 "s3_bucket": null,
+                "s3_regional_buckets": null,
                 "tags": null
             }
         },
@@ -280,6 +293,7 @@
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,
+                "s3_regional_buckets": null,
                 "shorten_stack_name": null,
                 "tags": null,
                 "template": null
