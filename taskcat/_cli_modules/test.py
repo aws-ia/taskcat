@@ -23,13 +23,6 @@ from .list import List
 LOG = logging.getLogger(__name__)
 
 
-def _bucket_delete_evaluation(value, true_func, false_func):
-    if value:
-        true_func()
-    else:
-        false_func()
-
-
 class Test:
     """
     Performs functional tests on CloudFormation templates.
@@ -120,16 +113,13 @@ class Test:
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 8. delete buckets
+
         if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
             deleted: ListType[str] = []
             for test in buckets.values():
                 for bucket in test.values():
-                    if bucket.name not in deleted:
-                        _bucket_delete_evaluation(
-                            config.config.project.s3_regional_buckets,
-                            bucket.empty,
-                            bucket.delete,
-                        )
+                    if (bucket.name not in deleted) and not bucket.regional_buckets:
+                        bucket.delete(delete_objects=True)
                         deleted.append(bucket.name)
         # 9. raise if something failed
         if len(status["FAILED"]) > 0:

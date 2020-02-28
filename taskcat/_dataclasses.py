@@ -1,12 +1,11 @@
-import hashlib
 import json
 import logging
 import random
 import string
-import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, NewType, Optional, Union
+from uuid import UUID, uuid5
 
 import boto3
 
@@ -179,7 +178,7 @@ class RegionObj:
     account_id: str
     partition: str
     profile: str
-    taskcat_id: uuid.UUID
+    taskcat_id: UUID
     _boto3_cache: Boto3Cache
 
     def client(self, service: str):
@@ -201,7 +200,7 @@ class S3BucketObj:
     auto_generated: bool
     regional_buckets: bool
     object_acl: str
-    taskcat_id: uuid.UUID
+    taskcat_id: UUID
 
     @property
     def sigv4_policy(self):
@@ -312,7 +311,7 @@ class S3BucketObj:
             tags = self.s3_client.get_bucket_tagging(Bucket=self.name)["TagSet"]
             tags = {t["Key"]: t["Value"] for t in tags}
             uid = tags.get("taskcat-id")
-            uid = uuid.UUID(uid) if uid else uid
+            uid = UUID(uid) if uid else uid
             if uid != self.taskcat_id:
                 raise TaskCatException(
                     f"bucket {self.name} already exists, but does not have a matching"
@@ -458,9 +457,9 @@ PROPOGATE_ITEMS = [
 def generate_regional_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
     if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
         raise TaskCatException("prefix must be between 1 and 8 characters long")
-    hashed_account_id = hashlib.sha256(
-        bytes(region_obj.account_id.encode("utf-8"))
-    ).hexdigest()[0:12]
+    hashed_account_id = uuid5(
+        name=str(region_obj.account_id), namespace=UUID(int=0)
+    ).hex
     return f"{prefix}-{hashed_account_id}-{region_obj.name}"
 
 

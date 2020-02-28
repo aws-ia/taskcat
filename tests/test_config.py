@@ -261,7 +261,8 @@ class TestNewConfig(unittest.TestCase):
                     self.assertTrue(bucket_obj.sigv4, True)
                     self.assertEqual(bucket_obj.partition, "aws")
                     self.assertEqual(
-                        bucket_obj.name, f"tcat-66c782e8f95b-{region_name}"
+                        bucket_obj.name,
+                        f"tcat-13725204b43e5bf5a37800c23614ee21-{region_name}",
                     )
 
     @mock.patch("taskcat._config.Boto3Cache.account_id", return_value="123412341234")
