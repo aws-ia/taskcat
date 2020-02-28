@@ -1,5 +1,6 @@
 general:
   s3_bucket: "set-in-global"
+  s3_regional_buckets: False
   parameters:
     GlobalVar: set_in_global
     OverridenVar: set_in_global

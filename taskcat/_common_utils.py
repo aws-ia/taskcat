@@ -1,9 +1,7 @@
 import collections
 import logging
 import os
-import random
 import re
-import string
 import sys
 from collections import OrderedDict
 from functools import reduce
@@ -140,17 +138,6 @@ def merge_dicts(list_of_dicts):
 def pascal_to_snake(pascal):
     sub = ALL_CAP_RE.sub(r"\1_\2", pascal)
     return ALL_CAP_RE.sub(r"\1_\2", sub).lower()
-
-
-def generate_bucket_name(project: str, prefix: str = "tcat"):
-    if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
-        raise TaskCatException("prefix must be between 1 and 8 characters long")
-    alnum = string.ascii_lowercase + string.digits
-    suffix = "".join(random.choice(alnum) for i in range(8))  # nosec: B311
-    mid = f"-{project}-"
-    avail_len = 63 - len(mid)
-    mid = mid[:avail_len]
-    return f"{prefix}{mid}{suffix}"
 
 
 def merge_nested_dict(old, new):

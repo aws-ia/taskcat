@@ -113,11 +113,12 @@ class Test:
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 8. delete buckets
+
         if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
             deleted: ListType[str] = []
             for test in buckets.values():
                 for bucket in test.values():
-                    if bucket.name not in deleted:
+                    if (bucket.name not in deleted) and not bucket.regional_buckets:
                         bucket.delete(delete_objects=True)
                         deleted.append(bucket.name)
         # 9. raise if something failed

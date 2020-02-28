@@ -1,9 +1,11 @@
 import json
 import logging
-import uuid
+import random
+import string
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, NewType, Optional, Union
+from uuid import UUID, uuid5
 
 import boto3
 
@@ -34,6 +36,7 @@ METADATA = {
         "description": "Package Lambda functions into zips before uploading to s3, "
         "set to false to disable"
     },
+    "s3_regional_buckets": {"description": "Enable regional auto-buckets."},
     "lambda_zip_path": {
         "description": "Path relative to the project root to place Lambda zip "
         "files, default is 'lambda_functions/zips'"
@@ -175,7 +178,7 @@ class RegionObj:
     account_id: str
     partition: str
     profile: str
-    taskcat_id: uuid.UUID
+    taskcat_id: UUID
     _boto3_cache: Boto3Cache
 
     def client(self, service: str):
@@ -195,8 +198,9 @@ class S3BucketObj:
     s3_client: boto3.client
     sigv4: bool
     auto_generated: bool
+    regional_buckets: bool
     object_acl: str
-    taskcat_id: uuid.UUID
+    taskcat_id: UUID
 
     @property
     def sigv4_policy(self):
@@ -227,12 +231,13 @@ class S3BucketObj:
         try:
             self.s3_client.get_waiter("bucket_exists").wait(Bucket=self.name)
 
-            self.s3_client.put_bucket_tagging(
-                Bucket=self.name,
-                Tagging={
-                    "TagSet": [{"Key": "taskcat-id", "Value": self.taskcat_id.hex}]
-                },
-            )
+            if not self.regional_buckets:
+                self.s3_client.put_bucket_tagging(
+                    Bucket=self.name,
+                    Tagging={
+                        "TagSet": [{"Key": "taskcat-id", "Value": self.taskcat_id.hex}]
+                    },
+                )
             if self.sigv4:
                 self.s3_client.put_bucket_policy(
                     Bucket=self.name, Policy=self.sigv4_policy
@@ -301,10 +306,12 @@ class S3BucketObj:
                 f"the expected region {self.region}, expected {location}"
             )
         if location:
+            if self.regional_buckets:
+                return True
             tags = self.s3_client.get_bucket_tagging(Bucket=self.name)["TagSet"]
             tags = {t["Key"]: t["Value"] for t in tags}
             uid = tags.get("taskcat-id")
-            uid = uuid.UUID(uid) if uid else uid
+            uid = UUID(uid) if uid else uid
             if uid != self.taskcat_id:
                 raise TaskCatException(
                     f"bucket {self.name} already exists, but does not have a matching"
@@ -358,6 +365,9 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     )
     auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
     s3_bucket: Optional[str] = field(default=None, metadata=METADATA["s3_bucket"])
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
+    )
 
 
 @dataclass
@@ -375,6 +385,9 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
     s3_bucket: Optional[S3BucketName] = field(
         default=None, metadata=METADATA["s3_bucket"]
+    )
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
     )
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
@@ -407,6 +420,9 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     s3_bucket: Optional[S3BucketName] = field(
         default=None, metadata=METADATA["s3_bucket"]
     )
+    s3_regional_buckets: Optional[bool] = field(
+        default=None, metadata=METADATA["s3_regional_buckets"]
+    )
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
         default=None, metadata=METADATA["parameters"]
     )
@@ -429,7 +445,33 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
-PROPOGATE_ITEMS = ["regions", "s3_bucket", "template", "az_blacklist"]
+PROPOGATE_ITEMS = [
+    "regions",
+    "s3_bucket",
+    "template",
+    "az_blacklist",
+    "s3_regional_buckets",
+]
+
+
+def generate_regional_bucket_name(region_obj: RegionObj, prefix: str = "tcat"):
+    if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
+        raise TaskCatException("prefix must be between 1 and 8 characters long")
+    hashed_account_id = uuid5(
+        name=str(region_obj.account_id), namespace=UUID(int=0)
+    ).hex
+    return f"{prefix}-{hashed_account_id}-{region_obj.name}"
+
+
+def generate_bucket_name(project: str, prefix: str = "tcat"):
+    if len(prefix) > 8 or len(prefix) < 1:  # pylint: disable=len-as-condition
+        raise TaskCatException("prefix must be between 1 and 8 characters long")
+    alnum = string.ascii_lowercase + string.digits
+    suffix = "".join(random.choice(alnum) for i in range(8))  # nosec: B311
+    mid = f"-{project}-"
+    avail_len = 63 - len(mid)
+    mid = mid[:avail_len]
+    return f"{prefix}{mid}{suffix}"
 
 
 # pylint raises false positive due to json-dataclass
