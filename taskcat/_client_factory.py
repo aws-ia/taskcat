@@ -100,17 +100,8 @@ class Boto3Cache:
         )["account_id"]
 
     def _get_account_info(self, profile):
-        region = self._get_region(None, profile)
+        partition, region = self._get_partition(profile)
         session = self.session(profile, region)
-        avail_regions = session.get_available_regions("s3")
-        partition = "aws"
-        region = "us-east-1"
-        if "us-gov-east-1" in avail_regions:
-            partition = "aws-us-gov"
-            region = "us-gov-east-1"
-        elif "cn-north-1" in avail_regions:
-            partition = "aws-cn"
-            region = "cn-north-1"
         sts_client = session.client("sts", region_name=region)
         try:
             account_id = sts_client.get_caller_identity()["Account"]
@@ -186,6 +177,24 @@ class Boto3Cache:
             region = self.get_default_region(profile)
         return region
 
+    def _get_partition(self, profile):
+        partition_regions = [
+            ("aws", "us-east-1"),
+            ("aws-cn", "cn-north-1"),
+            ("aws-us-gov", "us-gov-west-1"),
+        ]
+        for partition, region in partition_regions:
+            try:
+                self.session(profile, region).client(
+                    "sts", region_name=region
+                ).get_caller_identity()
+                return (partition, region)
+            except ClientError as e:
+                if "InvalidClientTokenId" in str(e):
+                    continue
+                raise
+        raise ValueError("cannot find suitable AWS partition")
+
     def get_default_region(self, profile_name="default") -> str:
         try:
             region = self._boto3.session.Session(profile_name=profile_name).region_name
@@ -194,6 +203,8 @@ class Boto3Cache:
                 raise
             region = self._boto3.session.Session().region_name
         if not region:
-            LOG.warning("Region not set in credential chain, defaulting to us-east-1")
-            region = "us-east-1"
+            _, region = self._get_partition(profile_name)
+            LOG.warning(
+                "Region not set in credential chain, defaulting to {}".format(region)
+            )
         return region
