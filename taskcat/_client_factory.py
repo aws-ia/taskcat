@@ -101,7 +101,7 @@ class Boto3Cache:
 
     def _get_account_info(self, profile):
         partition, region = self._get_partition(profile)
-        session = self._boto3.session.Session(profile_name=profile)
+        session = self.session(profile, region)
         sts_client = session.client("sts", region_name=region)
         try:
             account_id = sts_client.get_caller_identity()["Account"]
@@ -185,7 +185,7 @@ class Boto3Cache:
         ]
         for partition, region in partition_regions:
             try:
-                self._boto3.session.Session(profile_name=profile).client(
+                self.session(profile, region).client(
                     "sts", region_name=region
                 ).get_caller_identity()
                 return (partition, region)
