@@ -73,7 +73,7 @@ try:
         child_template_url = properties.get("TemplateURL")
         master_template_path_print = os.path.abspath(master_template_path)
 
-        original = os.path.basename(master_template_path)
+        original = os.path.dirname(master_template_path) + "/"
         replacement = "tests/data/stackhelper/templates/"
         master_template_path_print = master_template_path_print.replace(
             original, replacement
