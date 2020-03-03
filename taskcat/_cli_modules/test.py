@@ -30,7 +30,7 @@ class Test:
 
     # pylint: disable=too-many-locals
     @staticmethod  # noqa: C901
-    def run(
+    def run(  # noqa: C901
         input_file: str = "./.taskcat.yml",
         project_root: str = "./",
         no_delete: bool = False,
