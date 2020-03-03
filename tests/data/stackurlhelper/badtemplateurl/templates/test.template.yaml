@@ -1,10 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  TemplateNameParameter:
+    # Default: "test.template_nested.yaml"
+    Type: String
 Resources:
   NestedStack1:
     Type: AWS::CloudFormation::Stack
     Properties:
-            TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/{AWS::DDDD}test.template_nested.yaml'
+            TemplateURL: !Sub "https://tonynv.s3.amazonaws.com/${AWS::Region}/${TemplateNameParameter}"
   NestedStack2:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/test.template_nested.yaml'
+      TemplateURL: 'https://tonynv.s3.amazonaws.com/badtemplateurl/templates/test.template_nested.yaml'

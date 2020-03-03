@@ -11,4 +11,5 @@ tests:
   taskcat-json:
     parameters:
       QSS3BucketName: "$[taskcat_autobucket]"
+      TemplateNameParameter: "test.template_nested.yaml"
     template: templates/test.template.yaml
