@@ -196,6 +196,9 @@ class Boto3Cache:
         raise ValueError("cannot find suitable AWS partition")
 
     def get_default_region(self, profile_name="default") -> str:
+        if profile_name.startswith("imported_session_"):
+            _, region = self._get_partition(profile_name)
+            return region
         try:
             region = self._boto3.session.Session(profile_name=profile_name).region_name
         except ProfileNotFound:
