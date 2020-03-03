@@ -3,7 +3,7 @@ Resources:
   NestedStack1:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/test.template_nested.yaml'
+            TemplateURL: 'https://tonynv.s3.amazonaws.com/nested-create/templates/{AWS::DDDD}test.template_nested.yaml'
   NestedStack2:
     Type: AWS::CloudFormation::Stack
     Properties:
