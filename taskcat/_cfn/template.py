@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -89,9 +90,12 @@ class Template:
     def url_prefix(self) -> str:
         if not self.url:
             return ""
+        regionless_url = re.sub(
+            r"\.s3\.(.*)\.amazonaws\.com", ".s3.amazonaws.com", self.url,
+        )
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))
-        url_prefix = "/".join(self.url.split("/")[0:-suffix_length])
+        url_prefix = "/".join(regionless_url.split("/")[0:-suffix_length])
         return url_prefix
 
     def _find_children(self) -> None:  # noqa: C901
