@@ -31,19 +31,6 @@ class Boto3Cache:
         self._account_info: Dict[str, Dict[str, str]] = {}
         self._lock_cache_update = False
 
-    def import_session(self, session_suffix, session: boto3.Session, region: str):
-        """
-        Under edge cases, it may be necessary to import a pre-defined session
-        into the cache. Imported sessions will be cached with the prefix
-        'imported_session_', and can be used with that prefix.
-        ex:
-            <boto3Cache_instance>.import_session('us-east-1', session)
-           ec2 =  <boto3Cache_Instance>.get('ec2', profile='imported_session_us-east-1')
-        """
-        self._cache_set(
-            self._session_cache, [f"imported_session_{session_suffix}", region], session
-        )
-
     def session(self, profile: str = "default", region: str = None) -> boto3.Session:
         region = self._get_region(region, profile)
         try:
@@ -196,9 +183,6 @@ class Boto3Cache:
         raise ValueError("cannot find suitable AWS partition")
 
     def get_default_region(self, profile_name="default") -> str:
-        if profile_name.startswith("imported_session_"):
-            _, region = self._get_partition(profile_name)
-            return region
         try:
             region = self._boto3.session.Session(profile_name=profile_name).region_name
         except ProfileNotFound:
