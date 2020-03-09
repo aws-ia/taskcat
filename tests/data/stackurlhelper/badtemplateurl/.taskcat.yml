@@ -4,7 +4,7 @@ project:
   name: badtemplateurl
   regions:
     - us-east-1
-    - us-west-2
+  #  - us-west-2
   lambda_source_path: "functions/source"
   lambda_zip_path: "functions/packages"
 tests:

@@ -394,6 +394,7 @@ class StackURLHelper:
             final_template_path = Path(
                 "/".join([str(project_root), str(child_template_path_tmp)])
             )
+            LOG.debug("find_local_child_template: {}".format(final_template_path))
             if final_template_path.exists() and final_template_path.is_file():
                 return str(final_template_path)
 
@@ -409,6 +410,7 @@ class StackURLHelper:
             final_template_path = Path(
                 "/".join([str(project_root), str(child_template_path_tmp)])
             )
+            LOG.debug("find_local_child_template: {}".format(final_template_path))
             if final_template_path.exists() and final_template_path.is_file():
                 return str(final_template_path)
 
