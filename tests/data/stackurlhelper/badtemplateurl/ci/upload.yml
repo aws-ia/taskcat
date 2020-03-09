@@ -1,0 +1,12 @@
+---
+global:
+  owner: owner@company.com
+  s3bucket: tonynv
+  qsname: nested-create
+  regions:
+    - us-east-1
+    - us-west-2
+tests:
+  test1:
+    parameter_input: input.json
+    template_file: test.template.yaml
