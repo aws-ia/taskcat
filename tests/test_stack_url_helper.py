@@ -129,6 +129,7 @@ class TestStackURLHelper(unittest.TestCase):
 
         self.assertEqual(result, "not_that_one")
 
+    # TODO: Test all the individual functions
     # TODO: Test fn_sub logic
     # def test_fn_sub(self):
     #     self.assertEqual(True, False)
@@ -136,7 +137,3 @@ class TestStackURLHelper(unittest.TestCase):
     # TODO: Test local path Discovery
     # def test_fn_if(self):
     #     self.assertEqual(True, False)
-
-    # TODO: Test all the individual functions
-    # def test_fn_if(self):
-    #     self.assertEqual('true', 'false')

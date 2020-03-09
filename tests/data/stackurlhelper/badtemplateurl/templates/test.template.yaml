@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  TemplateNameParameter:
+    # Default: "test.template_nested.yaml"
+    Type: String
+  QSS3BucketName:
+    Type: String
+    Default: "Foo"
+Resources:
+  NestedStack1:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+            TemplateURL: !Sub "https://${QSS3BucketName}.s3.amazonaws.com/badtemplateurl/${AWS::Region}/${TemplateNameParameter}"
+  NestedStack2:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/badtemplateurl/templates/test.template_nested.yaml'
