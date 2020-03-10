@@ -81,7 +81,7 @@ class TestStackURLHelper(unittest.TestCase):
         helper = StackURLHelper()
         with self.assertRaises(Exception) as context:
             helper.flatten_template_url(
-                "{ one { two } { two { three { four { five { six { seven }}}}} }}"
+                "{1{2{3{4{5{6{7{8{9{{{{{{{{{{{{21}}}}}}}}}}}}}}}}}}}}}"
             )
 
         self.assertTrue("Template URL contains more than" in str(context.exception))
