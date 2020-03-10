@@ -181,6 +181,10 @@ class TestParamGen(unittest.TestCase):
             test_pattern_attribute="RE_GENAUTOBUCKET",
         ),
         rp_namedtup(
+            test_string="$[taskcat_current_region]",
+            test_pattern_attribute="RE_CURRENT_REGION",
+        ),
+        rp_namedtup(
             test_string="https://s3.amazonaws.com/$[taskcat_autobucket]/myproject/",
             test_pattern_attribute="RE_GENAUTOBUCKET",
         ),
@@ -397,7 +401,7 @@ class TestParamGen(unittest.TestCase):
         pg.convert_to_str()
         self.assertEqual(pg.param_value, "1234")
 
-    def test_param_transform(self):
+    def test_param_transform(self):  # noqa: C901
         input_params = {
             "AvailabilityZones": "$[taskcat_genaz_3]",
             "ByteValue": "1",
@@ -411,6 +415,7 @@ class TestParamGen(unittest.TestCase):
             "SingleAZ": "$[taskcat_getsingleaz_2]",
             "StackName": "TestStack",
             "UUID": "$[taskcat_genuuid]",
+            "BucketRegion": "$[taskcat_current_region]",
         }
         bclient = MockClient
         bclient.logger = logger
@@ -445,10 +450,19 @@ class TestParamGen(unittest.TestCase):
             if not _found:
                 missed_regex_patterns.append(rp.test_pattern_attribute)
         self.assertEqual(missed_regex_patterns, [])
-        with self.subTest("SingleAZ transformed value must be us-east-1b"):
-            for _param_key, param_value in pg.results.items():
-                if _param_key == "SingleAZ":
-                    self.assertEqual(param_value, "us-east-1b")
+        subtests = [
+            ("SingleAZ transformed value must be us-east-1b", "SingleAZ", "us-east-1b"),
+            (
+                "CurrentRegion transformed must be us-east-1",
+                "CurrentRegion",
+                "us-east-1",
+            ),
+        ]
+        for testdata in subtests:
+            with self.subTest(testdata[0]):
+                for _param_key, param_value in pg.results.items():
+                    if _param_key == testdata[1]:
+                        self.assertEqual(param_value, testdata[2])
 
     def test_list_as_param_value(self):
         input_params = {
