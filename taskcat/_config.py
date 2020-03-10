@@ -6,7 +6,7 @@ from typing import Dict, Optional, Union
 
 import yaml
 
-from taskcat._cfn.template import Template
+from taskcat._cfn.template import Template, tcat_template_cache
 from taskcat._client_factory import Boto3Cache
 from taskcat._dataclasses import (
     BaseConfig,
@@ -171,7 +171,9 @@ class Config:
         if not file_path.is_file():
             raise TaskCatException(f"invalid template path {file_path}")
         try:
-            template = Template(str(file_path)).template
+            template = Template(
+                str(file_path), template_cache=tcat_template_cache
+            ).template
         except Exception as e:
             LOG.warning(f"failed to load template from {file_path}")
             LOG.debug(str(e), exc_info=True)
@@ -369,6 +371,7 @@ class Config:
                 template_path=project_root / test.template,
                 project_root=project_root,
                 s3_key_prefix=f"{self.config.project.name}/",
+                template_cache=tcat_template_cache,
             )
         return templates
 
