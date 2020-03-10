@@ -117,7 +117,6 @@ class StackURLHelper:
     @staticmethod
     def values_to_dict(values):
         """Rewrite sub vars with actual variable values"""
-        LOG.debug("Rewrite Values: {}".format(values))
         # Create dictionary of values
         values_dict_string = values.replace("(", "{")
         values_dict_string = values_dict_string.replace(")", "}")
@@ -144,7 +143,6 @@ class StackURLHelper:
                         value, '"' + value + '"'
                     )
 
-        LOG.debug("Rewrite Values cleaned: {}".format(values_dict_string))
 
         values_dict = json.loads(values_dict_string)
 
@@ -154,8 +152,6 @@ class StackURLHelper:
         """ Return expression with values replaced """
         results = []
 
-        LOG.debug("Fn::Sub: '{}'".format(expression))
-
         # Builtins - Fudge some defaults here since we don't have runtime info
         # ${AWS::Region} ${AWS::AccountId}
         expression = self.rewrite_sub_vars_with_values(expression, self.SUBSTITUTION)
@@ -163,9 +159,7 @@ class StackURLHelper:
         # Handle Sub of form [ StringToSub, { "key" : "value", "key": "value" }]
         if "[" in expression:
             temp_expression = expression.split("[")[1].split(",")[0]
-            LOG.debug("Fn::Sub: (expression) {}".format(temp_expression))
             values = expression.split("[")[1].split("(")[1].split(")")[0]
-            LOG.debug("Fn::Sub: (values) {}".format(values))
             values = self.values_to_dict("(" + values + ")")
             temp_expression = self.rewrite_sub_vars_with_values(temp_expression, values)
         else:
@@ -175,7 +169,6 @@ class StackURLHelper:
         result = self.rewrite_sub_vars(temp_expression)
 
         results.append(result)
-        LOG.debug("Fn::Sub: '{}'".format(temp_expression))
 
         return results
 
@@ -204,13 +197,11 @@ class StackURLHelper:
     def evaluate_fn_if(expression):
         """ Return both possible parts of the expression """
         results = []
-        LOG.debug("Fn::If: {}".format(expression))
         value_true = expression.split(",")[1].strip()
         value_false = expression.split(",")[2].strip().strip("]")
         # if we don't have '' this can break things
         results.append("'" + value_true.strip("'") + "'")
         results.append("'" + value_false.strip("'") + "'")
-        LOG.debug("Fn::If: {}".format(results))
         return results
 
     def evaluate_fn_ref(self, expression):
@@ -219,12 +210,9 @@ class StackURLHelper:
         results = []
 
         temp = expression.split(": ")[1]
-        LOG.debug("Ref: {}".format(temp))
         if temp.strip("'") in self.SUBSTITUTION.keys():
-            LOG.debug("Ref: (found) {}".format(temp))
             temp = self.SUBSTITUTION[temp.strip("'")]
             temp = "'" + temp + "'"
-            LOG.debug("Ref: (found) {}".format(temp))
 
         results.append(temp)
 
@@ -311,13 +299,9 @@ class StackURLHelper:
 
             for replacement in replacements:
                 template_url_temp = template_url
-                LOG.debug("evaluate_string: (before) {}".format(template_url))
-                LOG.debug("expression: {}".format(parts[0]))
-                LOG.debug("replacement: {}".format(replacement))
                 template_url_temp = template_url_temp.replace(
                     "{" + parts[0] + "}", replacement
                 )
-                LOG.debug("evaluate_string: (after) {}".format(template_url_temp))
 
                 evaluated_strings = self.evaluate_string(
                     template_url_temp, depth=(depth + 1)
@@ -394,7 +378,6 @@ class StackURLHelper:
             final_template_path = Path(
                 "/".join([str(project_root), str(child_template_path_tmp)])
             )
-            LOG.debug("find_local_child_template: {}".format(final_template_path))
             if final_template_path.exists() and final_template_path.is_file():
                 return str(final_template_path)
 
@@ -410,7 +393,6 @@ class StackURLHelper:
             final_template_path = Path(
                 "/".join([str(project_root), str(child_template_path_tmp)])
             )
-            LOG.debug("find_local_child_template: {}".format(final_template_path))
             if final_template_path.exists() and final_template_path.is_file():
                 return str(final_template_path)
 
