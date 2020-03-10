@@ -10,6 +10,20 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 
+class TemplateCache:
+    def __init__(self, store: dict = None):
+        self._templates = store if store else {}
+
+    def get(self, template_path: str) -> cfnlint.Template:
+        if template_path not in self._templates:
+            self._templates[template_path] = cfnlint.decode.cfn_yaml.load(template_path)
+        return self._templates[template_path]
+
+
+template_cache_store: Dict[str, cfnlint.Template] = {}
+tcat_template_cache = TemplateCache(template_cache_store)  # pylint: disable=C0103
+
+
 class Template:
     def __init__(
         self,
@@ -17,9 +31,11 @@ class Template:
         project_root: Union[str, Path] = "",
         url: str = "",
         s3_key_prefix: str = "",
+        template_cache: TemplateCache = tcat_template_cache,
     ):
+        self.template_cache = template_cache
         self.template_path: Path = Path(template_path).expanduser().resolve()
-        self.template = cfnlint.decode.cfn_yaml.load(str(self.template_path))
+        self.template = self.template_cache.get(str(self.template_path))
         with open(template_path, "r") as file_handle:
             self.raw_template = file_handle.read()
         project_root = (
@@ -66,9 +82,6 @@ class Template:
         template_parameters=None,
     ):
         try:
-            LOG.debug(
-                "Evaluating TemplateURL expression: '%s'", template_url,
-            )
 
             helper = StackURLHelper(
                 template_mappings=template_mappings,
@@ -80,7 +93,6 @@ class Template:
             )
 
             if len(urls) > 0:
-                LOG.debug("TemplateURL '%s' evaluated to '%s'", template_url, urls[0])
                 return urls[0]
 
         except Exception as e:  # pylint: disable=broad-except
@@ -141,6 +153,7 @@ class Template:
                         self.project_root,
                         self._get_relative_url(child),
                         self._s3_key_prefix,
+                        tcat_template_cache,
                     )
                 except Exception:  # pylint: disable=broad-except
                     LOG.debug("Traceback:", exc_info=True)

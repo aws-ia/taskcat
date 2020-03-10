@@ -143,7 +143,6 @@ class StackURLHelper:
                         value, '"' + value + '"'
                     )
 
-
         values_dict = json.loads(values_dict_string)
 
         return values_dict
