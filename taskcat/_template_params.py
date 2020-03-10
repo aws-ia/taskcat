@@ -31,6 +31,7 @@ class ParamGen:
         r"\$\[\w+_presignedurl],(.*?,){1,2}.*?$", re.IGNORECASE
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
+    RE_CURRENT_REGION = re.compile(r"\$\[taskcat_current_region]", re.IGNORECASE)
 
     def __init__(self, param_dict, bucket_name, region, boto_client, az_excludes=None):
         self.regxfind = CommonTools.regxfind
@@ -131,6 +132,11 @@ class ParamGen:
 
             # $[taskcat_genuuid]
             self._regex_replace_param_value(self.RE_GENUUID, self._gen_uuid())
+
+            # $[taskcat_current_region]
+            self._regex_replace_param_value(
+                self.RE_CURRENT_REGION, self._gen_current_region()
+            )
             self.results.update({self.param_name: self.param_value})
 
     def get_available_azs(self, count):
@@ -280,6 +286,9 @@ class ParamGen:
 
     def _gen_autobucket(self):
         return self.bucket_name
+
+    def _gen_current_region(self):
+        return self.region
 
     def _gen_password_wrapper(self, gen_regex, type_regex, count_regex):
         if gen_regex.search(self.param_value):
