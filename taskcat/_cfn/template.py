@@ -1,6 +1,7 @@
 import logging
 import re
 from pathlib import Path
+from time import sleep
 from typing import Dict, List, Union
 
 import cfnlint
@@ -13,10 +14,21 @@ LOG = logging.getLogger(__name__)
 class TemplateCache:
     def __init__(self, store: dict = None):
         self._templates = store if store else {}
+        self._lock: Dict[str, bool] = {}
 
     def get(self, template_path: str) -> cfnlint.Template:
+        while self._lock.get(template_path):
+            sleep(0.1)
         if template_path not in self._templates:
-            self._templates[template_path] = cfnlint.decode.cfn_yaml.load(template_path)
+            try:
+                self._lock[template_path] = True
+                self._templates[template_path] = cfnlint.decode.cfn_yaml.load(
+                    template_path
+                )
+                self._lock[template_path] = False
+            except Exception:  # pylint: disable=broad-except
+                self._lock[template_path] = False
+                raise
         return self._templates[template_path]
 
 
