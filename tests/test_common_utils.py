@@ -52,10 +52,10 @@ class TestCommonUtils(unittest.TestCase):
         m_get_s3_domain.assert_called_once()
 
     def test_get_s3_domain(self):
-        m_ssm = mock.Mock()
-        m_ssm.get_parameter.return_value = {"Parameter": {"Value": "aws-cn"}}
-        actual = get_s3_domain("test-region", m_ssm)
+        actual = get_s3_domain("cn-north-1")
         self.assertEqual("amazonaws.com.cn", actual)
+        with self.assertRaises(TaskCatException):
+            get_s3_domain("totally-invalid-region")
 
     def test_merge_dicts(self):
         input = [{}, {}]

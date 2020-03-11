@@ -10,6 +10,7 @@ repos:
   rev: 19.10b0
   hooks:
   - id: black
+    exclude: regions_to_partitions.py
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.4.0
   hooks:
@@ -73,6 +74,13 @@ repos:
     description: Run git-secrets
     entry: git-secrets --scan
     language: system
+    always_run: true
+  - id: update-region-mappings
+    name: update-region-mappings
+    description: update region-partition mappings
+    entry: ./update_partition_region_map.py
+    language: system
+    pass_filenames: false
     always_run: true
   - id: pylint-local
     name: pylint-local
