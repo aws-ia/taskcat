@@ -8,11 +8,11 @@ from functools import reduce
 from pathlib import Path
 from time import sleep
 
-import boto3
 import yaml
 
 from dulwich.config import ConfigFile, parse_submodules
 from taskcat.exceptions import TaskCatException
+from taskcat.regions_to_partitions import REGIONS
 
 LOG = logging.getLogger(__name__)
 
@@ -55,12 +55,11 @@ def s3_url_maker(bucket, key, s3_client, autobucket=False):
     return url
 
 
-def get_s3_domain(region, ssm_client=None):
-    ssm_client = ssm_client if ssm_client else boto3.client("ssm")
-    partition = ssm_client.get_parameter(
-        Name=f"/aws/service/global-infrastructure/regions/{region}/partition"
-    )["Parameter"]["Value"]
-    return S3_PARTITION_MAP[partition]
+def get_s3_domain(region):
+    try:
+        return S3_PARTITION_MAP[REGIONS[region]]
+    except KeyError:
+        raise TaskCatException(f"cannot find the S3 hostname for region {region}")
 
 
 def s3_bucket_name_from_url(url):

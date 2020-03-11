@@ -13,7 +13,7 @@ from uuid import UUID, uuid4
 import boto3
 import yaml
 
-from taskcat._cfn.template import Template
+from taskcat._cfn.template import Template, tcat_template_cache
 from taskcat._common_utils import ordered_dump, pascal_to_snake, s3_url_maker
 from taskcat._dataclasses import Tag, TestRegion
 
@@ -274,6 +274,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 region.client("s3"),
                 region.s3_bucket.auto_generated,
             ),
+            template_cache=tcat_template_cache,
         )
         stack_id = cfn_client.create_stack(
             StackName=stack_name,
@@ -339,6 +340,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             template_path=str(absolute_path),
             project_root=parent_stack.template.project_root,
             url=url,
+            template_cache=tcat_template_cache,
         )
         stack = cls(
             parent_stack.region,
