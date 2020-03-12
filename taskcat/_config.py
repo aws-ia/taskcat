@@ -129,7 +129,7 @@ class Config:
                 "source": str(project_config_path),
                 "config": base_cls._dict_from_file(project_config_path, fail_ok=False),
             }
-        except Exception as e:  # pylint: disable=broad-except
+        except FileNotFoundError as e:
             error = e
             try:
                 legacy_conf = parse_legacy_config(project_root)
