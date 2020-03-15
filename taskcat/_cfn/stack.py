@@ -297,18 +297,36 @@ class Stack:  # pylint: disable=too-many-instance-attributes
     def _import_child(  # pylint: disable=too-many-locals
         cls, stack_properties: dict, parent_stack: "Stack"
     ) -> Optional["Stack"]:
-        url = ""
-        for event in parent_stack.events():
-            if event.physical_id == stack_properties["StackId"] and event.properties:
-                url = event.properties["TemplateURL"]
-        if url.startswith(parent_stack.template.url_prefix()):
-            # Template is part of the project, discovering path
-            relative_path = url.replace(parent_stack.template.url_prefix(), "").lstrip(
-                "/"
-            )
-            absolute_path = parent_stack.template.project_root / relative_path
-        else:
-            try:
+        try:
+            url = ""
+            for event in parent_stack.events():
+                if (
+                    event.physical_id == stack_properties["StackId"]
+                    and event.properties
+                ):
+                    url = event.properties["TemplateURL"]
+            if url.startswith(parent_stack.template.url_prefix()):
+                # Template is part of the project, discovering path
+                relative_path = url.replace(
+                    parent_stack.template.url_prefix(), ""
+                ).lstrip("/")
+                absolute_path = parent_stack.template.project_root / relative_path
+                if not absolute_path.is_file():
+                    # try with the base folder stripped off
+                    relative_path2 = Path(relative_path)
+                    relative_path2 = relative_path2.relative_to(
+                        *relative_path2.parts[:1]
+                    )
+                    absolute_path = parent_stack.template.project_root / relative_path2
+                if not absolute_path.is_file():
+                    LOG.warning(
+                        f"Failed to find template for child stack "
+                        f"{stack_properties['StackId']}. tried "
+                        f"{parent_stack.template.project_root / relative_path}"
+                        f" and {absolute_path}"
+                    )
+                    return None
+            else:
                 # Assuming template is remote to project and downloading it
                 cfn_client = parent_stack.client
                 tempate_body = cfn_client.get_template(
@@ -329,27 +347,24 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 if not absolute_path.exists():
                     with open(absolute_path, "w") as fh:
                         fh.write(tempate_body)
-            except Exception as e:  # pylint: disable=broad-except
-                LOG.warning(
-                    f"Failed to attach child stack "
-                    f'{stack_properties["StackId"]} {str(e)}'
-                )
-                LOG.debug("traceback", exc_info=True)
-                return None
-        template = Template(
-            template_path=str(absolute_path),
-            project_root=parent_stack.template.project_root,
-            url=url,
-            template_cache=tcat_template_cache,
-        )
-        stack = cls(
-            parent_stack.region,
-            stack_properties["StackId"],
-            template,
-            parent_stack.name,
-            parent_stack.uuid,
-        )
-        stack.set_stack_properties(stack_properties)
+            template = Template(
+                template_path=str(absolute_path),
+                project_root=parent_stack.template.project_root,
+                url=url,
+                template_cache=tcat_template_cache,
+            )
+            stack = cls(
+                parent_stack.region,
+                stack_properties["StackId"],
+                template,
+                parent_stack.name,
+                parent_stack.uuid,
+            )
+            stack.set_stack_properties(stack_properties)
+        except Exception as e:  # pylint: disable=broad-except
+            LOG.warning(f"Failed to import child stack: {str(e)}")
+            LOG.debug("traceback:", exc_info=True)
+            return None
         return stack
 
     @classmethod
