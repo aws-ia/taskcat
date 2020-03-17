@@ -2,7 +2,7 @@
 # noqa: B950,F841
 import logging
 from pathlib import Path
-from typing import List as ListType
+from typing import Any, Dict, List as ListType
 
 import boto3
 
@@ -31,6 +31,8 @@ class Test:
     # pylint: disable=too-many-locals
     @staticmethod  # noqa: C901
     def run(  # noqa: C901
+        test_names: str = "ALL",
+        regions: str = "ALL",
         input_file: str = "./.taskcat.yml",
         project_root: str = "./",
         no_delete: bool = False,
@@ -40,6 +42,8 @@ class Test:
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
+        :param test_names: comma separated list of tests to run
+        :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a
         CloudFormation template
         :param project_root_path: root path of the project relative to input_file
@@ -50,19 +54,15 @@ class Test:
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
+        args = _build_args(enable_sig_v2, regions)
         config = Config.create(
             project_root=project_root_path,
-            project_config_path=input_file_path
+            project_config_path=input_file_path,
+            args=args
             # TODO: detect if input file is taskcat config or CloudFormation template
         )
-
-        if enable_sig_v2:
-            config = Config.create(
-                project_root=project_root_path,
-                project_config_path=input_file_path,
-                args={"project": {"s3_enable_sig_v2": enable_sig_v2}},
-            )
-
+        _trim_regions(regions, config)
+        _trim_tests(test_names, config)
         boto3_cache = Boto3Cache()
         templates = config.get_templates(project_root_path)
         # 1. lint
@@ -165,3 +165,36 @@ class Test:
         Delete(
             package=project, aws_profile=aws_profile, region=regions, _stack_type="test"
         )
+
+
+def _trim_regions(regions, config):
+    if regions != "ALL":
+        for test in config.config.tests.values():
+            to_pop = []
+            idx = 0
+            if test.regions:
+                for _ in test.regions:
+                    if test.regions[idx] not in regions.split(","):
+                        to_pop.append(idx)
+                    idx += 1
+                to_pop.reverse()
+                for idx in to_pop:
+                    test.regions.pop(idx)
+
+
+def _trim_tests(test_names, config):
+    if test_names != "ALL":
+        for test in list(config.config.tests):
+            if test not in test_names.split(","):
+                del config.config.tests[test]
+
+
+def _build_args(enable_sig_v2, regions):
+    args: Dict[str, Any] = {}
+    if enable_sig_v2:
+        args["project"] = {"s3_enable_sig_v2": enable_sig_v2}
+    if regions != "ALL":
+        if "project" not in args:
+            args["project"] = {}
+        args["project"]["regions"] = regions.split(",")
+    return args
