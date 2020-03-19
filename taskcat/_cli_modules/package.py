@@ -37,4 +37,7 @@ class Package:
                 }
             },
         )
+        if not config.config.project.package_lambda:
+            LOG.info("Lambda packaging disabled by config")
+            return
         LambdaBuild(config, project_root_path)
