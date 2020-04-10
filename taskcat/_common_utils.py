@@ -182,7 +182,7 @@ def neglect_submodule_templates(project_root, template_list):
     try:
         gitmodule_config = ConfigFile.from_path(Path(project_root / ".gitmodules"))
     except FileNotFoundError:
-        return template_list
+        return list(template_dict.values())
 
     for submodule_path, _, _ in parse_submodules(gitmodule_config):
         submodule_path_prefixes.append(
