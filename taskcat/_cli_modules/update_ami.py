@@ -65,5 +65,3 @@ class UpdateAMI:
             amiupdater.update_amis()
         except AMIUpdaterCommitNeededException:
             exit_with_code(100)
-        except AMIUpdaterFatalException:
-            exit_with_code(1)
