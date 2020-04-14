@@ -212,7 +212,7 @@ class S3BucketObj:
                     "Effect": "Deny",
                     "Principal": "*",
                     "Action": "s3:*",
-                    "Resource": f"arn:aws:s3:::{self.name}/*",
+                    "Resource": f"arn:{self.partition}:s3:::{self.name}/*",
                     "Condition": {"StringEquals": {"s3:signatureversion": "AWS"}},
                 }
             ],
