@@ -3,6 +3,7 @@ import re
 import textwrap
 
 import cfnlint.core
+import cfnlint.helpers
 from cfnlint.config import ConfigMixIn as CfnLintConfig
 from jsonschema.exceptions import ValidationError
 from taskcat._config import Config
@@ -20,7 +21,7 @@ class Lint:
         Lints templates using cfn_python_lint. Uses config to define regions and
         templates to test. Recurses into child templates, excluding submodules.
 
-        :param config: path to tascat ci config file
+        :param config: path to taskcat ci config file
         """
         self._config: Config = config
         self._templates: Templates = templates
@@ -29,7 +30,17 @@ class Lint:
             self._cfnlint_config = CfnLintConfig([])
         except ValidationError as e:
             LOG.error("Error parsing cfn-lint config file: %s", str(e))
-        self._rules = cfnlint.core.get_rules([], [], [])
+            raise
+        self._rules = cfnlint.core.get_rules(
+            self._cfnlint_config.append_rules,
+            self._cfnlint_config.ignore_checks,
+            self._cfnlint_config.include_checks,
+            self._cfnlint_config.configure_rules,
+            self._cfnlint_config.include_experimental,
+            self._cfnlint_config.mandatory_checks,
+        )
+        if self._cfnlint_config.override_spec:
+            cfnlint.helpers.override_specs(self._cfnlint_config.override_spec)
         self.lints = self._lint()
         self.strict: bool = strict
 
