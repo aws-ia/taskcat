@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -52,6 +53,7 @@ class LambdaBuild:
         if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
+            (output_path / path.stem).mkdir(parents=True, exist_ok=True)
             if (path / "Dockerfile").is_file():
                 tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
                 LOG.info(
@@ -110,7 +112,6 @@ class LambdaBuild:
 
     @staticmethod
     def _zip_dir(build_path, output_path):
-        output_path.mkdir(parents=True, exist_ok=True)
         zip_path = output_path / "lambda.zip"
         if zip_path.is_file():
             zip_path.unlink()
@@ -135,5 +136,7 @@ class LambdaBuild:
 
     def _docker_extract(self, tag, package_path):
         volumes = {str(package_path): {"bind": "/output", "mode": "rw"}}
-        logs = self._docker.containers.run(image=tag, auto_remove=True, volumes=volumes)
+        logs = self._docker.containers.run(
+            image=tag, auto_remove=True, volumes=volumes, user=os.getuid()
+        )
         LOG.debug("docker run logs: \n{}".format(logs.decode("utf-8").strip()))
