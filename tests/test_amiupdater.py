@@ -724,7 +724,7 @@ class TestAMIUpdater(unittest.TestCase):
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
-        templates = c.get_templates(project_root=test_proj)
+        templates = c.get_templates()
         return templates
 
     def test_invalid_region_exception(self):

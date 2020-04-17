@@ -42,9 +42,10 @@ DEFAULTS = {
 
 
 class Config:
-    def __init__(self, sources: list, uid: uuid.UUID):
+    def __init__(self, sources: list, uid: uuid.UUID, project_root: Path):
         self.config = BaseConfig.from_dict(DEFAULTS)
         self.config.set_source("TASKCAT_DEFAULT")
+        self.project_root = project_root
         self.uid = uid
         for source in sources:
             config_dict: dict = source["config"]
@@ -119,7 +120,7 @@ class Config:
         # cli arguments
         if args:
             sources.append({"source": "CliArgument", "config": args})
-        return cls(sources=sources, uid=uid)
+        return cls(sources=sources, uid=uid, project_root=project_root)
 
     # pylint: disable=protected-access
     @staticmethod
@@ -225,6 +226,7 @@ class Config:
         for test_name, test in self.config.tests.items():
             region_objects[test_name] = {}
             for region in test.regions:
+                # TODO: comon_utils/determine_profile_for_region
                 profile = (
                     test.auth.get(region, test.auth.get("default", "default"))
                     if test.auth
@@ -364,18 +366,18 @@ class Config:
             parameters[test_name] = template.parameters()
         return parameters
 
-    def get_templates(self, project_root: Path):
+    def get_templates(self):
         templates = {}
         for test_name, test in self.config.tests.items():
             templates[test_name] = Template(
-                template_path=project_root / test.template,
-                project_root=project_root,
+                template_path=self.project_root / test.template,
+                project_root=self.project_root,
                 s3_key_prefix=f"{self.config.project.name}/",
                 template_cache=tcat_template_cache,
             )
         return templates
 
-    def get_tests(self, project_root, templates, regions, buckets, parameters):
+    def get_tests(self, templates, regions, buckets, parameters):
         tests = {}
         for test_name, test in self.config.tests.items():
             region_list = []
@@ -393,9 +395,9 @@ class Config:
                 )
             tests[test_name] = TestObj(
                 name=test_name,
-                template_path=project_root / test.template,
+                template_path=self.project_root / test.template,
                 template=templates[test_name],
-                project_root=project_root,
+                project_root=self.project_root,
                 regions=region_list,
                 tags=tag_list,
             )

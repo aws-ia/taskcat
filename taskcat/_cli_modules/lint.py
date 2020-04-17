@@ -29,7 +29,7 @@ class Lint:
             project_root=project_root_path, project_config_path=input_file_path
         )
 
-        templates = config.get_templates(project_root_path)
+        templates = config.get_templates()
         lint = TaskCatLint(config, templates, strict)
         errors = lint.lints[1]
         lint.output_results()

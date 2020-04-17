@@ -45,8 +45,7 @@ class Test:
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / config_file
         config = Config.create(
-            project_root=project_root_path,
-            project_config_path=input_file_path
+            project_root=project_root_path, project_config_path=input_file_path
         )
         profile = config.config.general.auth.get(region, config.config.general.auth.get("default", "default"))
         cfn = boto3.Session(profile_name=profile).client("cloudformation", region_name=region)
@@ -107,7 +106,7 @@ class Test:
         _trim_regions(regions, config)
         _trim_tests(test_names, config)
         boto3_cache = Boto3Cache()
-        templates = config.get_templates(project_root_path)
+        templates = config.get_templates()
         # 1. lint
         if not lint_disable:
             lint = TaskCatLint(config, templates)
@@ -116,16 +115,14 @@ class Test:
             if errors or not lint.passed:
                 raise TaskCatException("Lint failed with errors")
         # 2. build lambdas
-        LambdaBuild(config, project_root_path)
+        LambdaBuild(config, config.project_root)
         # 3. s3 sync
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, project_root_path)
+        stage_in_s3(buckets, config.config.project.name, config.project_root)
         # 4. launch stacks
         regions = config.get_regions(boto3_cache)
         parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(
-            project_root_path, templates, regions, buckets, parameters
-        )
+        tests = config.get_tests(templates, regions, buckets, parameters)
         test_definition = Stacker(
             config.config.project.name,
             tests,

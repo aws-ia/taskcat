@@ -10,7 +10,7 @@ class TestCfnTemplate(unittest.TestCase):
         c = Config.create(
             project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
         )
-        templates = c.get_templates(project_root=test_proj)
+        templates = c.get_templates()
         template = templates["taskcat-json"]
         self.assertEqual(1, len(template.children))
         self.assertEqual(4, len(template.descendents))
