@@ -198,3 +198,8 @@ def neglect_submodule_templates(project_root, template_list):
         if not gitmodule_template:
             finalized_templates.append(template_obj)
     return finalized_templates
+
+
+def determine_profile_for_region(auth_dict, region):
+    profile = auth_dict.get(region, auth_dict.get("default", "default"))
+    return profile
