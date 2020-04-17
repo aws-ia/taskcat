@@ -30,46 +30,63 @@ class Test:
     """
 
     @staticmethod
-    def retry(region: str, stack_name: str, resource_name: str, config_file: str = "./.taskcat.yml",
-        project_root: str = "./"):
-        """[ALPHA] re-launches a child stack using the same parameters as previous launch
+    def retry(
+        region: str,
+        stack_name: str,
+        resource_name: str,
+        config_file: str = "./.taskcat.yml",
+        project_root: str = "./",
+    ):
+        """[ALPHA] re-launches a child stack using the same parameters as previous
+        launch
 
         :param region: region stack is in
         :param stack_name: name of parent stack
         :param resource_name: logical id of child stack that will be re-launched
         :param config_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root_path: root path of the project relative to input_file
+        :param project_root: root path of the project relative to input_file
         """
         LOG.warning("test retry is in alpha feature, use with caution")
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / config_file
         config = Config.create(
-            project_root=project_root_path,
-            project_config_path=input_file_path
+            project_root=project_root_path, project_config_path=input_file_path
         )
-        profile = config.config.general.auth.get(region, config.config.general.auth.get("default", "default"))
-        cfn = boto3.Session(profile_name=profile).client("cloudformation", region_name=region)
+        profile = config.config.general.auth.get(
+            region, config.config.general.auth.get("default", "default")
+        )
+        cfn = boto3.Session(profile_name=profile).client(
+            "cloudformation", region_name=region
+        )
         events = cfn.describe_stack_events(StackName=stack_name)["StackEvents"]
-        resource = [i for i in events if i['LogicalResourceId'] == resource_name][0]
-        properties = yaml.safe_load(resource['ResourceProperties'])
+        resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
+        properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(".taskcat.yml", "r") as fp:
-            config = yaml.safe_load(fp)
+        with open(".taskcat.yml", "r") as filepointer:
+            raw_config = yaml.safe_load(filepointer)
 
-        config["project"]["regions"] = [region]
-        config["project"]["parameters"] = properties["Parameters"]
-        config["project"]["template"] = "/".join(properties['TemplateURL'].split("/")[4:])
-        config["tests"] = {"default": {}}
+        raw_config["project"]["regions"] = [region]
+        raw_config["project"]["parameters"] = properties["Parameters"]
+        raw_config["project"]["template"] = "/".join(
+            properties["TemplateURL"].split("/")[4:]
+        )
+        raw_config["tests"] = {"default": {}}
 
-        with open("/tmp/.taskcat.yml.temp", "w") as fp:
-            yaml.safe_dump(config, fp)
+        with open("/tmp/.taskcat.yml.temp", "w") as filepointer:
+            yaml.safe_dump(raw_config, filepointer)
 
-        cfn.delete_stack(StackName=resource['PhysicalResourceId'])
+        cfn.delete_stack(StackName=resource["PhysicalResourceId"])
         LOG.info("waiting for old stack to delete...")
-        cfn.get_waiter("stack_delete_complete").wait(StackName=resource['PhysicalResourceId'])
+        cfn.get_waiter("stack_delete_complete").wait(
+            StackName=resource["PhysicalResourceId"]
+        )
 
-        Test.run(input_file="/tmp/.taskcat.yml.temp", project_root=project_root, lint_disable=True)
+        Test.run(
+            input_file="/tmp/.taskcat.yml.temp",
+            project_root=project_root,
+            lint_disable=True,
+        )
 
     # pylint: disable=too-many-locals
     @staticmethod  # noqa: C901
