@@ -279,6 +279,7 @@ class TestNewConfig(unittest.TestCase):
         m_boto.client.return_value = mock_client()
         config = Config.create(
             args={},
+            project_root=base_path,
             global_config_path=base_path / ".taskcat_global.yml",
             project_config_path=base_path / "./.taskcat.yml",
             overrides_path=base_path / "./.taskcat_overrides.yml",
@@ -286,7 +287,7 @@ class TestNewConfig(unittest.TestCase):
         )
         regions = config.get_regions(boto3_cache=m_boto)
         buckets = config.get_buckets(boto3_cache=m_boto)
-        templates = config.get_templates(base_path)
+        templates = config.get_templates()
         rendered_params = config.get_rendered_parameters(buckets, regions, templates)
         for test_name, regions in rendered_params.items():
             with self.subTest(test=test_name):
@@ -299,12 +300,13 @@ class TestNewConfig(unittest.TestCase):
         base_path = Path(base_path + "data/regional_client_and_bucket").resolve()
         config = Config.create(
             args={},
+            project_root=base_path,
             global_config_path=base_path / ".taskcat_global.yml",
             project_config_path=base_path / "./.taskcat.yml",
             overrides_path=base_path / "./.taskcat_overrides.yml",
             env_vars={},
         )
-        templates = config.get_templates(base_path)
+        templates = config.get_templates()
         for test_name, _template in templates.items():
             with self.subTest(test=test_name):
                 pass
