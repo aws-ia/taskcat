@@ -82,6 +82,7 @@ class Test:
         lint_disable: bool = False,
         enable_sig_v2: bool = False,
         keep_failed: bool = False,
+        output_directory: str = './taskcat_outputs',
         profile: str = ""
     ):
         """tests whether CloudFormation templates are able to successfully launch
@@ -95,6 +96,7 @@ class Test:
         :param lint_disable: disable cfn-lint checks
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
         :param keep_failed: do not delete failed stacks
+        :param output_directory: Where to store generated logfiles
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
@@ -138,7 +140,7 @@ class Test:
         terminal_printer.report_test_progress(stacker=test_definition)
         status = test_definition.status()
         # 6. create report
-        report_path = Path("./taskcat_outputs/").resolve()
+        report_path = Path(output_directory).resolve()
         report_path.mkdir(exist_ok=True)
         cfn_logs = _CfnLogTools()
         cfn_logs.createcfnlogs(test_definition, report_path)
