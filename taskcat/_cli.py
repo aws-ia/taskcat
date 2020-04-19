@@ -53,6 +53,13 @@ GLOBAL_ARGS = [
             "dest": "_debug",
         },
     ],
+    [
+        ["--profile"],
+        {
+            "help": "set the default profile used. Use the config files for more complex situations.",
+            "dest": "default_profile",
+        },
+    ],
 ]
 
 

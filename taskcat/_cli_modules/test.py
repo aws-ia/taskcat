@@ -82,6 +82,7 @@ class Test:
         lint_disable: bool = False,
         enable_sig_v2: bool = False,
         keep_failed: bool = False,
+        profile: str = ""
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -97,7 +98,7 @@ class Test:
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
-        args = _build_args(enable_sig_v2, regions)
+        args = _build_args(enable_sig_v2, regions, profile)
         config = Config.create(
             project_root=project_root_path,
             project_config_path=input_file_path,
@@ -232,7 +233,7 @@ def _trim_tests(test_names, config):
                 del config.config.tests[test]
 
 
-def _build_args(enable_sig_v2, regions):
+def _build_args(enable_sig_v2, regions, default_profile):
     args: Dict[str, Any] = {}
     if enable_sig_v2:
         args["project"] = {"s3_enable_sig_v2": enable_sig_v2}
@@ -240,4 +241,10 @@ def _build_args(enable_sig_v2, regions):
         if "project" not in args:
             args["project"] = {}
         args["project"]["regions"] = regions.split(",")
+    if default_profile:
+        _auth_dict = {'default': default_profile}}
+        if not args.get("project"):
+            args["project"] = {"auth": _auth_dict}
+        else:
+            args["project"]["auth"] = _auth_dict
     return args

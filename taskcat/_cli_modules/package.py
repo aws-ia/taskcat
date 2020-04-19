@@ -17,6 +17,8 @@ class Package:
         source_folder: str = "lambda_functions/source",
         zip_folder: str = "lambda_functions/packages",
         config_file: str = ".taskcat.yml",
+        *args,
+        **kwargs
     ):
         """
         :param project_root: base path for project

@@ -31,6 +31,8 @@ class Deploy:
         parameters="",
         name="",
         wait=False,
+        *args,
+        **kwargs
     ):
         """
         :param package: name of package to install can be a path to a local package,

@@ -21,7 +21,7 @@ class UpdateAMI:
 
     CLINAME = "update-ami"
 
-    def __init__(self, project_root: str = "./"):
+    def __init__(self, project_root: str = "./", *args, **kwargs):
         """
         :param project_root: base path for project
         """

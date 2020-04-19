@@ -16,6 +16,8 @@ class Lint:
         input_file: str = ".taskcat.yml",
         project_root: str = "./",
         strict: bool = False,
+        *args,
+        **kwargs
     ):
         """
         :param input_file: path to project config or CloudFormation template

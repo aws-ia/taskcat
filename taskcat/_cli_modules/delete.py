@@ -17,6 +17,8 @@ class Delete:
         aws_profile: str = "default",
         region="default",
         _stack_type="package",
+        *args,
+        **kwargs
     ):
         """
         :param package: installed package to delete, can be an install name or uuid

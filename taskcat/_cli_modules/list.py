@@ -18,6 +18,8 @@ class List:
         profiles: Union[str, ListType[str]] = "default",
         regions="ALL",
         _stack_type="package",
+        *args,
+        **kwargs
     ):
         """
         :param profiles: comma separated list of aws profiles to search
