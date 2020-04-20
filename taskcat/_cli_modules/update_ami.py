@@ -31,8 +31,11 @@ class UpdateAMI:
         else:
             _project_root = Path(project_root)
 
-        _c = Config.create(project_config_path=Path(_project_root / ".taskcat.yml"))
         _boto3cache = Boto3Cache()
+        _c = Config.create(
+            project_root=_project_root,
+            project_config_path=Path(_project_root / ".taskcat.yml"),
+        )
 
         # Stripping out any test-specific regions/auth.
         config_dict = _c.config.to_dict()

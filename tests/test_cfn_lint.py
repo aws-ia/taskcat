@@ -155,7 +155,7 @@ class TestCfnLint(unittest.TestCase):
                 config = Config.create(
                     project_config_path=config_path, project_root=project_root
                 )
-                templates = config.get_templates(project_root=project_root)
+                templates = config.get_templates()
                 lint = Lint(config=config, templates=templates)
                 self.assertEqual(
                     test_case["expected_lints"], flatten_rule(lint.lints[0])
@@ -188,7 +188,7 @@ class TestCfnLint(unittest.TestCase):
             config = Config.create(
                 project_config_path=config_path, project_root=project_root
             )
-            templates = config.get_templates(project_root)
+            templates = config.get_templates()
             lint = Lint(config=config, templates=templates)
             lint.output_results()
             self.assertTrue(
@@ -255,7 +255,7 @@ class TestCfnLint(unittest.TestCase):
             config = Config.create(
                 project_config_path=config_path, project_root=project_root
             )
-            templates = config.get_templates(project_root)
+            templates = config.get_templates()
             lint = Lint(config=config, templates=templates)
             self.assertEqual(lint.passed, True)
 
