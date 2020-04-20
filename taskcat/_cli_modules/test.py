@@ -11,6 +11,7 @@ from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
 from taskcat._client_factory import Boto3Cache
+from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
 from taskcat._generate_reports import ReportBuilder
 from taskcat._lambda_build import LambdaBuild
@@ -30,8 +31,13 @@ class Test:
     """
 
     @staticmethod
-    def retry(region: str, stack_name: str, resource_name: str, config_file: str = "./.taskcat.yml",
-        project_root: str = "./"):
+    def retry(
+        region: str,
+        stack_name: str,
+        resource_name: str,
+        config_file: str = "./.taskcat.yml",
+        project_root: str = "./",
+    ):
         """[ALPHA] re-launches a child stack using the same parameters as previous launch
 
         :param region: region stack is in
@@ -47,28 +53,38 @@ class Test:
         config = Config.create(
             project_root=project_root_path, project_config_path=input_file_path
         )
-        profile = config.config.general.auth.get(region, config.config.general.auth.get("default", "default"))
-        cfn = boto3.Session(profile_name=profile).client("cloudformation", region_name=region)
+        profile = determine_profile_for_region(config.config.general.auth, region)
+        cfn = boto3.Session(profile_name=profile).client(
+            "cloudformation", region_name=region
+        )
         events = cfn.describe_stack_events(StackName=stack_name)["StackEvents"]
-        resource = [i for i in events if i['LogicalResourceId'] == resource_name][0]
-        properties = yaml.safe_load(resource['ResourceProperties'])
+        resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
+        properties = yaml.safe_load(resource["ResourceProperties"])
 
         with open(".taskcat.yml", "r") as fp:
             config = yaml.safe_load(fp)
 
         config["project"]["regions"] = [region]
         config["project"]["parameters"] = properties["Parameters"]
-        config["project"]["template"] = "/".join(properties['TemplateURL'].split("/")[4:])
+        config["project"]["template"] = "/".join(
+            properties["TemplateURL"].split("/")[4:]
+        )
         config["tests"] = {"default": {}}
 
         with open("/tmp/.taskcat.yml.temp", "w") as fp:
             yaml.safe_dump(config, fp)
 
-        cfn.delete_stack(StackName=resource['PhysicalResourceId'])
+        cfn.delete_stack(StackName=resource["PhysicalResourceId"])
         LOG.info("waiting for old stack to delete...")
-        cfn.get_waiter("stack_delete_complete").wait(StackName=resource['PhysicalResourceId'])
+        cfn.get_waiter("stack_delete_complete").wait(
+            StackName=resource["PhysicalResourceId"]
+        )
 
-        Test.run(input_file="/tmp/.taskcat.yml.temp", project_root=project_root, lint_disable=True)
+        Test.run(
+            input_file="/tmp/.taskcat.yml.temp",
+            project_root=project_root,
+            lint_disable=True,
+        )
 
     # pylint: disable=too-many-locals
     @staticmethod  # noqa: C901
