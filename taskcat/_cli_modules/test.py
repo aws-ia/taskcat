@@ -53,8 +53,10 @@ class Test:
         config = Config.create(
             project_root=project_root_path, project_config_path=input_file_path
         )
-        profile = config.config.general.auth.get(
-            region, config.config.general.auth.get("default", "default")
+        profile = (
+            config.config.general.auth.get(region, "default")
+            if config.config.general.auth
+            else "default"
         )
         cfn = boto3.Session(profile_name=profile).client(
             "cloudformation", region_name=region
