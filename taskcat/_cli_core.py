@@ -233,3 +233,13 @@ class CliCore:
         if not subcommand:
             return command(**args)
         return getattr(command(), subcommand)(**args)
+
+
+def ignore_param_generation(param_name):
+    def wrapper(func):
+        if hasattr(func, 'no_param_generate'):
+            func.longform_required.append(param_name.replace('_', '-'))
+        else:
+            setattr(func, 'no_param_generate', [param_name.replace('_', '-')])
+        return func
+    return wrapper

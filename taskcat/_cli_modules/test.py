@@ -10,6 +10,7 @@ import yaml
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
+from taskcat._cli_core import ignore_param_generation
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 from taskcat._generate_reports import ReportBuilder
@@ -72,6 +73,7 @@ class Test:
         Test.run(input_file="/tmp/.taskcat.yml.temp", project_root=project_root, lint_disable=True)
 
     # pylint: disable=too-many-locals
+    @ignore_param_generation('profile')
     @staticmethod  # noqa: C901
     def run(  # noqa: C901
         test_names: str = "ALL",
@@ -245,7 +247,7 @@ def _build_args(enable_sig_v2, regions, default_profile):
             args["project"] = {}
         args["project"]["regions"] = regions.split(",")
     if default_profile:
-        _auth_dict = {'default': default_profile}}
+        _auth_dict = {'default': default_profile}
         if not args.get("project"):
             args["project"] = {"auth": _auth_dict}
         else:
