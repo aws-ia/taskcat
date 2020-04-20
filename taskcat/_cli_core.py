@@ -59,9 +59,13 @@ class CliCore:
                 )
             if action == "store":
                 kwargs.update({"type": val_type})
-            params.append(
-                [[name] if required else [f"-{name[0]}", f"--{name}"], kwargs]
-            )
+            if required:
+                params.append([[name], kwargs])
+            else:
+                if name in getattr(item, 'longform_required', []):
+                    params.append([[f"--{name}"], kwargs])
+                else:
+                    params.append([[f"-{name[0]}", f"--{name}"], kwargs])
         return params
 
     @staticmethod
@@ -234,12 +238,18 @@ class CliCore:
             return command(**args)
         return getattr(command(), subcommand)(**args)
 
-
 def ignore_param_generation(param_name):
     def wrapper(func):
         if hasattr(func, 'no_param_generate'):
             func.longform_required.append(param_name.replace('_', '-'))
         else:
             setattr(func, 'no_param_generate', [param_name.replace('_', '-')])
+
+def longform_param_required(param_name):
+    def wrapper(func):
+        if hasattr(func, 'longform_required'):
+            func.longform_required.append(param_name.replace('_', '-'))
+        else:
+            setattr(func, 'longform_required', [param_name.replace('_', '-')])
         return func
     return wrapper

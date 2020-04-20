@@ -10,7 +10,6 @@ import yaml
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
-from taskcat._cli_core import ignore_param_generation
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 from taskcat._generate_reports import ReportBuilder
@@ -18,6 +17,7 @@ from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
+from taskcat._cli_core import longform_param_required, ignore_param_generation
 
 from .delete import Delete
 from .list import List
@@ -74,6 +74,7 @@ class Test:
 
     # pylint: disable=too-many-locals
     @ignore_param_generation('profile')
+    @longform_param_required('custom_uid')
     @staticmethod  # noqa: C901
     def run(  # noqa: C901
         test_names: str = "ALL",
