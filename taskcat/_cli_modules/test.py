@@ -38,14 +38,15 @@ class Test:
         config_file: str = "./.taskcat.yml",
         project_root: str = "./",
     ):
-        """[ALPHA] re-launches a child stack using the same parameters as previous launch
+        """[ALPHA] re-launches a child stack using the same parameters as previous
+        launch
 
         :param region: region stack is in
         :param stack_name: name of parent stack
         :param resource_name: logical id of child stack that will be re-launched
         :param config_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root_path: root path of the project relative to input_file
+        :param project_root: root path of the project relative to input_file
         """
         LOG.warning("test retry is in alpha feature, use with caution")
         project_root_path: Path = Path(project_root).expanduser().resolve()
@@ -61,18 +62,18 @@ class Test:
         resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
         properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(".taskcat.yml", "r") as fp:
-            config = yaml.safe_load(fp)
+        with open(".taskcat.yml", "r") as filepointer:
+            config_yaml = yaml.safe_load(filepointer)
 
-        config["project"]["regions"] = [region]
-        config["project"]["parameters"] = properties["Parameters"]
-        config["project"]["template"] = "/".join(
+        config_yaml["project"]["regions"] = [region]
+        config_yaml["project"]["parameters"] = properties["Parameters"]
+        config_yaml["project"]["template"] = "/".join(
             properties["TemplateURL"].split("/")[4:]
         )
-        config["tests"] = {"default": {}}
+        config_yaml["tests"] = {"default": {}}
 
-        with open("/tmp/.taskcat.yml.temp", "w") as fp:
-            yaml.safe_dump(config, fp)
+        with open("/tmp/.taskcat.yml.temp", "w") as filepointer:  # nosec
+            yaml.safe_dump(config_yaml, filepointer)
 
         cfn.delete_stack(StackName=resource["PhysicalResourceId"])
         LOG.info("waiting for old stack to delete...")
@@ -81,7 +82,7 @@ class Test:
         )
 
         Test.run(
-            input_file="/tmp/.taskcat.yml.temp",
+            input_file="/tmp/.taskcat.yml.temp",  # nosec
             project_root=project_root,
             lint_disable=True,
         )
@@ -97,7 +98,7 @@ class Test:
         lint_disable: bool = False,
         enable_sig_v2: bool = False,
         keep_failed: bool = False,
-        output_directory: str = './taskcat_outputs',
+        output_directory: str = "./taskcat_outputs",
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
