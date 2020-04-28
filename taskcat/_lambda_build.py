@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import tarfile
 import tempfile
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, run as subprocess_run  # nosec
@@ -53,7 +54,6 @@ class LambdaBuild:
         if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
-            (output_path / path.stem).mkdir(parents=True, exist_ok=True)
             if (path / "Dockerfile").is_file():
                 tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
                 LOG.info(
@@ -112,6 +112,7 @@ class LambdaBuild:
 
     @staticmethod
     def _zip_dir(build_path, output_path):
+        output_path.mkdir(parents=True, exist_ok=True)
         zip_path = output_path / "lambda.zip"
         if zip_path.is_file():
             zip_path.unlink()
@@ -135,8 +136,21 @@ class LambdaBuild:
         LOG.debug("docker build logs: \n{}".format("\n".join(build_logs)))
 
     def _docker_extract(self, tag, package_path):
-        volumes = {str(package_path): {"bind": "/output", "mode": "rw"}}
-        logs = self._docker.containers.run(
-            image=tag, auto_remove=True, volumes=volumes, user=os.getuid()
-        )
+        container = self._docker.containers.run(image=tag, detach=True)
+        exit_code = container.wait()["StatusCode"]
+        logs = container.logs()
         LOG.debug("docker run logs: \n{}".format(logs.decode("utf-8").strip()))
+        if exit_code != 0:
+            raise TaskCatException("docker build failed")
+        arc, _ = container.get_archive("/output/")
+        container.remove()
+        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+            for chunk in arc:
+                tmpfile.write(chunk)
+        with tarfile.open(tmpfile.name) as tar:
+            for member in tar.getmembers():
+                if member.name.startswith("output/"):
+                    member.name = member.name[len("output/") :]
+                    tar.extract(member)
+            tar.extractall(path=str(package_path))
+        os.unlink(tmpfile.name)
