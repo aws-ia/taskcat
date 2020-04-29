@@ -52,9 +52,7 @@ class UpdateAMI:
         regions = new_config.get_regions(boto3_cache=_boto3cache)
         region_key = list(regions.keys())[0]
 
-        unprocessed_templates = new_config.get_templates(
-            project_root=Path(_project_root)
-        ).values()
+        unprocessed_templates = new_config.get_templates().values()
         finalized_templates = neglect_submodule_templates(
             project_root=Path(_project_root), template_list=unprocessed_templates
         )

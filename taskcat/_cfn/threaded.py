@@ -286,5 +286,5 @@ class Stacker:
                 f"Failed to fetch stacks for region {region} using profile "
                 f"{profile} {type(e)} {e}"
             )
-            LOG.debug(f"Traceback:", exc_info=True)
+            LOG.debug("Traceback:", exc_info=True)
         return stacks

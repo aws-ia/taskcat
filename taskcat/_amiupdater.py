@@ -202,7 +202,7 @@ def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
                     _missing_filters.add(cnname)
                     LOG.warning(
                         f"No query parameters were found for: {cnname.upper()}.",
-                        f"(Results for this codename are not possible.",
+                        "(Results for this codename are not possible.",
                     )
                 continue
             region_cn = RegionalCodename(region=region, cn=cnname, filters=_filters)

@@ -1,4 +1,5 @@
 REGIONS = {
+    "af-south-1": "aws",
     "ap-east-1": "aws",
     "ap-northeast-1": "aws",
     "ap-northeast-2": "aws",
@@ -8,6 +9,7 @@ REGIONS = {
     "ca-central-1": "aws",
     "eu-central-1": "aws",
     "eu-north-1": "aws",
+    "eu-south-1": "aws",
     "eu-west-1": "aws",
     "eu-west-2": "aws",
     "eu-west-3": "aws",
@@ -27,6 +29,7 @@ REGIONS = {
 
 PARTITIONS = {
     "aws": [
+        "af-south-1",
         "ap-east-1",
         "ap-northeast-1",
         "ap-northeast-2",
@@ -36,6 +39,7 @@ PARTITIONS = {
         "ca-central-1",
         "eu-central-1",
         "eu-north-1",
+        "eu-south-1",
         "eu-west-1",
         "eu-west-2",
         "eu-west-3",

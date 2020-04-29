@@ -94,7 +94,7 @@ class Deploy:
         regions = config.get_regions(boto3_cache)
         templates = config.get_templates()
         parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(path, templates, regions, buckets, parameters)
+        tests = config.get_tests(templates, regions, buckets, parameters)
         tags = [Tag({"Key": "taskcat-installer", "Value": name})]
         stacks = Stacker(config.config.project.name, tests, tags=tags)
         stacks.create_stacks()
