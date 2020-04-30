@@ -7,6 +7,8 @@ from pathlib import Path
 from subprocess import PIPE, CalledProcessError, run as subprocess_run  # nosec
 from uuid import UUID, uuid5
 
+from requests.exceptions import ReadTimeout
+
 import docker
 
 from ._config import Config
@@ -143,7 +145,6 @@ class LambdaBuild:
         if exit_code != 0:
             raise TaskCatException("docker build failed")
         arc, _ = container.get_archive("/output/")
-        container.remove()
         with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
             for chunk in arc:
                 tmpfile.write(chunk)
@@ -153,4 +154,8 @@ class LambdaBuild:
                     member.name = member.name[len("output/") :]
                     tar.extract(member)
             tar.extractall(path=str(package_path))
+        try:
+            container.remove()
+        except ReadTimeout:
+            LOG.warning(f"Could not remove container {container.id}")
         os.unlink(tmpfile.name)
