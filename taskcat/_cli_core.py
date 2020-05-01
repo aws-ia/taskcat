@@ -70,6 +70,16 @@ GLOBAL_ARGS = GlobalArgs()
 class CliCore:
     USAGE = "{prog}{global_opts}{command}{command_opts}{subcommand}{subcommand_opts}"
 
+    longform_required = []
+
+    @classmethod
+    def longform_param_required(cls, param_name):
+        def wrapper(command_func):
+            formatted_param = param_name.lower().replace('_', '-')
+            cls.longform_required.append(f"{command_func.__qualname__}.{formatted_param}")
+            return command_func
+        return wrapper
+
     def __init__(self, prog_name, module_package, description, version=None, args=None):
         self.name = prog_name
         self.module_package = module_package
@@ -95,8 +105,7 @@ class CliCore:
         methods = inspect.getmembers(module, predicate=inspect.isfunction)
         return [method for method in methods if not method[0].startswith("_")]
 
-    @staticmethod
-    def _get_params(item):
+    def _get_params(self, item):
         params = []
         for param in inspect.signature(item).parameters.values():
             if param.name == "self" or param.name.startswith("_"):
@@ -115,9 +124,13 @@ class CliCore:
                 )
             if action == "store":
                 kwargs.update({"type": val_type})
-            params.append(
-                [[name] if required else [f"-{name[0]}", f"--{name}"], kwargs]
-            )
+            if required:
+                params.append([[name], kwargs])
+            else:
+                if f"{item.__qualname__}.{name}" in self.longform_required:
+                    params.append([[f"--{name}"], kwargs])
+                else:
+                    params.append([[f"-{name[0]}", f"--{name}"], kwargs])
         return params
 
     @staticmethod
