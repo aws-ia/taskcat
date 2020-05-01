@@ -7,6 +7,7 @@ import inspect
 import logging
 import sys
 import types
+from typing import List
 
 from taskcat._common_utils import exit_with_code
 
@@ -70,14 +71,17 @@ GLOBAL_ARGS = GlobalArgs()
 class CliCore:
     USAGE = "{prog}{global_opts}{command}{command_opts}{subcommand}{subcommand_opts}"
 
-    longform_required = []
+    longform_required: List = []
 
     @classmethod
     def longform_param_required(cls, param_name):
         def wrapper(command_func):
-            formatted_param = param_name.lower().replace('_', '-')
-            cls.longform_required.append(f"{command_func.__qualname__}.{formatted_param}")
+            formatted_param = param_name.lower().replace("_", "-")
+            cls.longform_required.append(
+                f"{command_func.__qualname__}.{formatted_param}"
+            )
             return command_func
+
         return wrapper
 
     def __init__(self, prog_name, module_package, description, version=None, args=None):

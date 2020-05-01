@@ -10,7 +10,7 @@ import yaml
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
-from taskcat._cli_core import GLOBAL_ARGS, CliCore
+from taskcat._cli_core import GLOBAL_ARGS
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
@@ -116,6 +116,7 @@ class Test:
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
+        # pylint: disable=too-many-arguments
         args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
         config = Config.create(
             project_root=project_root_path,
@@ -250,7 +251,7 @@ def _trim_tests(test_names, config):
                 del config.config.tests[test]
 
 
-def _build_args(enable_sig_v2, regions):
+def _build_args(enable_sig_v2, regions, default_profile):
     args: Dict[str, Any] = {}
     if enable_sig_v2:
         args["project"] = {"s3_enable_sig_v2": enable_sig_v2}
@@ -258,4 +259,10 @@ def _build_args(enable_sig_v2, regions):
         if "project" not in args:
             args["project"] = {}
         args["project"]["regions"] = regions.split(",")
+    if default_profile:
+        _auth_dict = {"default": default_profile}
+        if not args.get("project"):
+            args["project"] = {"auth": _auth_dict}
+        else:
+            args["project"]["auth"] = _auth_dict
     return args
