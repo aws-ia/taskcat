@@ -10,6 +10,7 @@ import yaml
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
+from taskcat._cli_core import GLOBAL_ARGS, CliCore
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
@@ -115,7 +116,7 @@ class Test:
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
-        args = _build_args(enable_sig_v2, regions)
+        args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
         config = Config.create(
             project_root=project_root_path,
             project_config_path=input_file_path,

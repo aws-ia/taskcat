@@ -1,11 +1,10 @@
-import argparse
 import signal
 import sys
 
 import requests
 from pkg_resources import get_distribution
 
-from taskcat._cli_core import CliCore
+from taskcat._cli_core import GLOBAL_ARGS, CliCore, _get_log_level
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger
 from taskcat.exceptions import TaskCatException
@@ -19,12 +18,6 @@ BANNER = (
     "___/_|\\_\\___\\__,_|\\__|\n                                \n"
 )
 
-
-class SetVerbosity(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        LOG.setLevel(_get_log_level([option_string]))
-
-
 NAME = "taskcat"
 DESCRIPTION = (
     "taskcat is a tool that tests AWS CloudFormation templates. It deploys "
@@ -34,26 +27,6 @@ DESCRIPTION = (
     "include in the test, and pass in parameter values from your AWS "
     "CloudFormation template."
 )
-GLOBAL_ARGS = [
-    [
-        ["-q", "--quiet"],
-        {
-            "action": SetVerbosity,
-            "nargs": 0,
-            "help": "reduce output to the minimum",
-            "dest": "_quiet",
-        },
-    ],
-    [
-        ["-d", "--debug"],
-        {
-            "action": SetVerbosity,
-            "nargs": 0,
-            "help": "adds debug output and tracebacks",
-            "dest": "_debug",
-        },
-    ],
-]
 
 
 def main(cli_core_class=CliCore, exit_func=exit_with_code):
@@ -65,8 +38,11 @@ def main(cli_core_class=CliCore, exit_func=exit_with_code):
     try:
         _welcome()
         version = get_installed_version()
-        cli = cli_core_class(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS)
+        cli = cli_core_class(NAME, _cli_modules, DESCRIPTION, version, GLOBAL_ARGS.ARGS)
         cli.parse(args)
+        _default_profile = cli.parsed_args.__dict__.get("_profile")
+        if _default_profile:
+            GLOBAL_ARGS.profile = _default_profile
         cli.run()
     except TaskCatException as e:
         LOG.error(str(e), exc_info=_print_tracebacks(log_level))
@@ -86,17 +62,6 @@ def _setup_logging(args, exit_func=exit_with_code):
 
 def _print_tracebacks(log_level):
     return log_level == "DEBUG"
-
-
-def _get_log_level(args, exit_func=exit_with_code):
-    log_level = "INFO"
-    if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
-        exit_func(1, "--debug and --quiet cannot be specified simultaneously")
-    if "-d" in args or "--debug" in args:
-        log_level = "DEBUG"
-    if "-q" in args or "--quiet" in args:
-        log_level = "ERROR"
-    return log_level
 
 
 def _print_upgrade_msg(new_version, version):

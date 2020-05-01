@@ -8,7 +8,63 @@ import logging
 import sys
 import types
 
+from taskcat._common_utils import exit_with_code
+
 LOG = logging.getLogger(__name__)
+
+
+def _get_log_level(args, exit_func=exit_with_code):
+    log_level = "INFO"
+    if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
+        exit_func(1, "--debug and --quiet cannot be specified simultaneously")
+    if "-d" in args or "--debug" in args:
+        log_level = "DEBUG"
+    if "-q" in args or "--quiet" in args:
+        log_level = "ERROR"
+    return log_level
+
+
+class SetVerbosity(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        LOG.setLevel(_get_log_level([option_string]))
+
+
+class GlobalArgs:
+    ARGS = [
+        [
+            ["-q", "--quiet"],
+            {
+                "action": SetVerbosity,
+                "nargs": 0,
+                "help": "reduce output to the minimum",
+                "dest": "_quiet",
+            },
+        ],
+        [
+            ["-d", "--debug"],
+            {
+                "action": SetVerbosity,
+                "nargs": 0,
+                "help": "adds debug output and tracebacks",
+                "dest": "_debug",
+            },
+        ],
+        [["--profile"], {"help": "set the default profile used.", "dest": "_profile"}],
+    ]
+
+    def __init__(self):
+        self._profile = "default"
+
+    @property
+    def profile(self):
+        return self._profile
+
+    @profile.setter
+    def profile(self, profile):
+        self._profile = profile
+
+
+GLOBAL_ARGS = GlobalArgs()
 
 
 class CliCore:
