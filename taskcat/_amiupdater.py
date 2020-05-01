@@ -12,7 +12,12 @@ import yaml  # pylint: disable=wrong-import-order
 
 import dateutil.parser  # pylint: disable=wrong-import-order
 from taskcat._cfn.template import Template as TCTemplate
-from taskcat._common_utils import deep_get
+from taskcat._client_factory import Boto3Cache
+from taskcat._common_utils import (
+    deep_get,
+    determine_profile_for_region,
+    neglect_submodule_templates,
+)
 from taskcat._dataclasses import RegionObj
 from taskcat.exceptions import TaskCatException
 
@@ -275,7 +280,7 @@ def reduce_api_results(raw_results):
         )
 
     for missing_result in missing_results:
-        LOG.warning(f"- f{missing_result['cn']} in {missing_result['region']}")
+        LOG.warning(f"- {missing_result['cn']} in {missing_result['region']}")
 
     sorted_results = sorted(unsorted_results, reverse=True)
     for _r in sorted_results:
@@ -296,6 +301,25 @@ class AMIUpdater:
         "https://raw.githubusercontent.com/aws-quickstart/"
         "taskcat/master/cfg/amiupdater.cfg.yml"
     )
+    LEGACY_REGIONS = [
+        "ap-northeast-1",
+        "ap-northeast-2",
+        "ap-northeast-3",
+        "ap-south-1",
+        "ap-southeast-1",
+        "ap-southeast-2",
+        "ca-central-1",
+        "eu-central-1",
+        "eu-north-1",
+        "eu-west-1",
+        "eu-west-2",
+        "eu-west-3",
+        "sa-east-1",
+        "us-east-1",
+        "us-east-2",
+        "us-west-1",
+        "us-west-2",
+    ]
     EXCLUDED_REGIONS = [
         "us-gov-east-1",
         "us-gov-west-1",
@@ -303,52 +327,96 @@ class AMIUpdater:
         "cn-north-1",
     ]
 
-    def __init__(
-        self,
-        template_list,
-        regions,
-        boto3cache,
-        user_config_file=None,
-        use_upstream_mappings=True,
-    ):
+    def __init__(self, config, user_config_file=None, use_upstream_mappings=True):
         if use_upstream_mappings:
             Config.load(self.upstream_config_file, configtype="Upstream")
         if user_config_file:
             Config.load(user_config_file, configtype="User")
-        self.template_list = template_list
-        self.boto3_cache = boto3cache
-        self.regions = self._determine_testable_regions(regions)
+        # TODO: Needed?
+        self.config = config
+        self.boto3_cache = Boto3Cache()
+        self.template_list = self._determine_templates()
+        self.regions = self._determine_testable_regions()
 
-    def _determine_testable_regions(self, test_regions, profile="default"):
-        test_region_list = list(test_regions.values())
-        ec2_client = self.boto3_cache.client("ec2", region="us-east-1", profile=profile)
+    def _determine_templates(self):
+        _up = self.config.get_templates()
+        unprocessed_templates = list(_up.values())
+        finalized_templates = neglect_submodule_templates(
+            project_root=self.config.project_root, template_list=unprocessed_templates
+        )
+        return finalized_templates
+
+    # pylint: disable=too-many-locals
+    def _determine_testable_regions(self):
+        # Step 1: Pull in already defined regions from the test(s) config.
+        # saves the effort of creating the RegionObj.
+        defined_regions = {}
+        for regions in self.config.get_regions().values():
+            defined_regions.update(**regions)
+
+        # Step 1.5: Snag the taskcat ID from an existing region object.
+        taskcat_id = list(defined_regions.values())[0].taskcat_id
+        # pylint: disable=protected-access
+        boto3_cache = list(defined_regions.values())[0]._boto3_cache
+
+        # Step 2: Any 'legacy' (by-default) regions (plus opt-in)
+        # that aren't defined already.. need to be.
+        # - This is done via ec2.describe-regions, and reconciling the output.
+        available_regions = []
+        ec2_client = boto3_cache.client(
+            "ec2",
+            region="us-east-1",
+            profile=self.config.config.general.auth.get("default", "default"),
+        )
         region_result = ec2_client.describe_regions()
-        taskcat_id = test_region_list[0].taskcat_id
+        for region in region_result["Regions"]:
+            available_regions.append(region["RegionName"])
 
-        all_region_names = [x["RegionName"] for x in region_result["Regions"]]
-        existing_region_names = [x.name for x in test_region_list]
-        regions_missing_but_needed = [
-            x for x in all_region_names if x not in existing_region_names
-        ]
-        # Accounting for regions that may not be in a taskcat config file
-        for region_name_to_add in regions_missing_but_needed:
-            region_object = RegionObj(
-                name=region_name_to_add,
-                account_id=self.boto3_cache.account_id(profile),
-                partition=self.boto3_cache.partition(profile),
-                profile=profile,
-                _boto3_cache=self.boto3_cache,
-                taskcat_id=taskcat_id,
-            )
-            test_regions[region_name_to_add] = region_object
+        for legacy_optin_region in available_regions:
+            if legacy_optin_region not in defined_regions.keys():
+                region_profile = determine_profile_for_region(
+                    self.config.config.general.auth, legacy_optin_region
+                )
+                region_object = RegionObj(
+                    name=legacy_optin_region,
+                    account_id=boto3_cache.account_id(region_profile),
+                    partition=boto3_cache.partition(region_profile),
+                    profile=region_profile,
+                    _boto3_cache=boto3_cache,
+                    taskcat_id=taskcat_id,
+                )
+                defined_regions[legacy_optin_region] = region_object
 
-        final_regions = {
-            region_name: region_object
-            for region_name, region_object in test_regions.items()
-            if region_name in all_region_names
-        }
+        # Step 3: Anything explicit in auth needs to be added.
 
-        return final_regions
+        for auth_region, auth_profile in self.config.config.general.auth.items():
+            if auth_region not in defined_regions.keys():
+                region_object = RegionObj(
+                    name=auth_region,
+                    account_id=boto3_cache.account_id(auth_profile),
+                    partition=boto3_cache.partition(auth_profile),
+                    profile=auth_profile,
+                    _boto3_cache=boto3_cache,
+                    taskcat_id=taskcat_id,
+                )
+                defined_regions[auth_region] = region_object
+
+        # FInally, prune anything that's not available via describe-regions or auth.
+
+        prune_these_regions = []
+
+        available_and_auth_regions = list(
+            set(available_regions + list(self.config.config.general.auth.keys()))
+        )
+
+        for _x in defined_regions:
+            if _x not in available_and_auth_regions:
+                prune_these_regions.append(_x)
+
+        for prune_region in prune_these_regions:
+            del defined_regions[prune_region]
+
+        return defined_regions
 
     def _determine_templates_regions(self):
         templates = []

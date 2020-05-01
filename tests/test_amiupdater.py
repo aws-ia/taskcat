@@ -972,12 +972,16 @@ class TestAMIUpdater(unittest.TestCase):
             AUConfig.raw_dict,
         )
 
+    @patch("taskcat._amiupdater.AMIUpdater._determine_templates", autospec=True)
     @patch("taskcat._amiupdater.AMIUpdater._determine_testable_regions", autospec=True)
     @patch("taskcat._amiupdater.Config", autospec=True)
-    def test_amiupdater__init__(self, mock_config, mock_det_test_reg):
-        resp = AMIUpdater(sentinel.template_list, sentinel.regions, sentinel.boto3cache)
+    def test_amiupdater__init__(
+        self, mock_config, mock_det_test_reg, mock_det_templates
+    ):
+        resp = AMIUpdater(sentinel.config)
         mock_config.load.assert_called_once()
         mock_det_test_reg.assert_called_once()
+        mock_det_templates.assert_called_once()
         self.assertEqual(resp.regions, mock_det_test_reg.return_value)
 
     def test_amiupdater_commit_needed_exception(self):
