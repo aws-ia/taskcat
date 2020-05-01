@@ -285,6 +285,44 @@ class TestStack(unittest.TestCase):
         return_value="https://test.s3.amazonaws.com/prefix/object",
     )
     @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
+    def test_create_with_role_arn(self, mock_template, m_s3_url_maker):
+        region = make_test_region_obj("us-west-2")
+        mock_cfn_client = mock_client_method("cloudformation")
+        region.client = mock_cfn_client
+        region.client.return_value = mock_cfn_client
+        template = make_test_template()
+        stack = Stack.create(
+            region=region,
+            stack_name="stack_name",
+            template=template,
+            role_arn="arn:aws:iam::123456789012:role/ExampleRole",
+        )
+        self.assertIsInstance(stack._timer, Timer)
+        # disabled due to a concurrency issue with the tests
+        # self.assertEqual(stack._timer.is_alive(), True)
+        stack._timer.cancel()
+        m_s3_url_maker.assert_called_once()
+        self.assertNotEquals(template, stack.template)
+        mock_template.assert_called_once()
+        region.client.create_stack.assert_called_with(
+            Capabilities=[
+                "CAPABILITY_IAM",
+                "CAPABILITY_NAMED_IAM",
+                "CAPABILITY_AUTO_EXPAND",
+            ],
+            DisableRollback=True,
+            Parameters=[],
+            RoleARN="arn:aws:iam::123456789012:role/ExampleRole",
+            StackName="stack_name",
+            Tags=[],
+            TemplateURL="blah",
+        )
+
+    @mock.patch(
+        "taskcat._cfn.stack.s3_url_maker",
+        return_value="https://test.s3.amazonaws.com/prefix/object",
+    )
+    @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     def test_idempotent_properties(self, mock_template, _):
         region = make_test_region_obj("us-west-2")
         region.client = mock_client_method
@@ -317,6 +355,7 @@ class TestStack(unittest.TestCase):
             m_template,
             region,
             "test_test",
+            None,
             mock.Mock(),
         )
         stack._timer.cancel()

@@ -15,7 +15,7 @@ import yaml
 
 from taskcat._cfn.template import Template, tcat_template_cache
 from taskcat._common_utils import ordered_dump, pascal_to_snake, s3_url_maker
-from taskcat._dataclasses import Tag, TestRegion
+from taskcat._dataclasses import RoleARN, Tag, TestRegion
 
 LOG = logging.getLogger(__name__)
 
@@ -194,6 +194,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         stack_id: str,
         template: Template,
         test_name,
+        role_arn: Optional[RoleARN],
         uuid: UUID = None,
     ):
         uuid = uuid if uuid else uuid4()
@@ -206,6 +207,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.region_name = region.name
         self.client: boto3.client = region.client("cloudformation")
         self.completion_time: timedelta = timedelta(0)
+        self.role_arn: Optional[RoleARN] = role_arn
 
         # properties from additional cfn api calls
         self._events: Events = Events()
@@ -258,6 +260,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         tags: List[Tag] = None,
         disable_rollback: bool = True,
         test_name: str = "",
+        role_arn: RoleARN = None,
         uuid: UUID = None,
     ) -> "Stack":
         parameters = cls._cfn_format_parameters(region.parameters)
@@ -276,15 +279,18 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             ),
             template_cache=tcat_template_cache,
         )
-        stack_id = cfn_client.create_stack(
-            StackName=stack_name,
-            TemplateURL=template.url,
-            Parameters=parameters,
-            DisableRollback=disable_rollback,
-            Tags=tags,
-            Capabilities=Capabilities.ALL,
-        )["StackId"]
-        stack = cls(region, stack_id, template, test_name, uuid)
+        create_options = {
+            "StackName": stack_name,
+            "TemplateURL": template.url,
+            "Parameters": parameters,
+            "DisableRollback": disable_rollback,
+            "Tags": tags,
+            "Capabilities": Capabilities.ALL,
+        }
+        if role_arn:
+            create_options["RoleARN"] = role_arn
+        stack_id = cfn_client.create_stack(**create_options)["StackId"]
+        stack = cls(region, stack_id, template, test_name, role_arn, uuid)
         # fetch property values from cfn
         stack.refresh()
         return stack
@@ -358,6 +364,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 stack_properties["StackId"],
                 template,
                 parent_stack.name,
+                parent_stack.role_arn,
                 parent_stack.uuid,
             )
             stack.set_stack_properties(stack_properties)
@@ -374,9 +381,12 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         template: Template,
         region: TestRegion,
         test_name: str,
+        role_arn: Optional[RoleARN],
         uid: UUID,
     ) -> "Stack":
-        stack = cls(region, stack_properties["StackId"], template, test_name, uid)
+        stack = cls(
+            region, stack_properties["StackId"], template, test_name, role_arn, uid
+        )
         stack.set_stack_properties(stack_properties)
         return stack
 

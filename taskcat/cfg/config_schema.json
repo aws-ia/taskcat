@@ -145,6 +145,11 @@
                     },
                     "type": "array"
                 },
+                "role_arn": {
+                    "description": "Role ARN to use when launching CFN Stacks.",
+                    "pattern": "^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
+                    "type": "string"
+                },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
                     "pattern": "^[a-z0-9-]*$",
@@ -241,6 +246,11 @@
                     },
                     "type": "array"
                 },
+                "role_arn": {
+                    "description": "Role ARN to use when launching CFN Stacks.",
+                    "pattern": "^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
+                    "type": "string"
+                },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
                     "pattern": "^[a-z0-9-]*$",
@@ -290,6 +300,7 @@
                 "package_lambda": null,
                 "parameters": null,
                 "regions": null,
+                "role_arn": null,
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,

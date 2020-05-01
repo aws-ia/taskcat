@@ -71,6 +71,7 @@ METADATA = {
     "shorten_stack_name": {
         "description": "Shorten stack names generated for tests, set to true to enable"
     },
+    "role_arn": {"description": "Role ARN to use when launching CFN Stacks."},
 }
 
 # types
@@ -87,7 +88,7 @@ S3BucketName = NewType("S3BucketName", AlNumDash)
 TestName = NewType("TestName", AlNumDash)
 AzId = NewType("AzId", str)
 Templates = NewType("Templates", Dict[TestName, Template])
-
+RoleARN = NewType("RoleARN", str)
 # regex validation
 
 
@@ -139,6 +140,20 @@ class S3AclField(FieldEncoder):
 
 
 JsonSchemaMixin.register_field_encoders({S3Acl: S3AclField()})
+
+
+class RoleARNField(FieldEncoder):
+    @property
+    def json_schema(self):
+        return {
+            "type": "string",
+            "pattern": r"^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
+            "description": "Role ARN to launch the CFN Stacks with, eg: \
+            'arn:aws:iam::123456789012:role/MyRoleName'",
+        }
+
+
+JsonSchemaMixin.register_field_encoders({RoleARN: RoleARNField()})
 
 
 class AlNumDashField(FieldEncoder):
@@ -351,6 +366,7 @@ class TestObj:
     name: TestName
     regions: List[TestRegion]
     tags: List[Tag]
+    role_arn: RoleARN
 
 
 @dataclass
@@ -392,6 +408,7 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
     )
+    role_arn: Optional[RoleARN] = field(default=None, metadata=METADATA["role_arn"])
 
 
 # pylint: disable=too-many-instance-attributes
@@ -442,6 +459,7 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     shorten_stack_name: Optional[bool] = field(
         default=None, metadata=METADATA["shorten_stack_name"]
     )
+    role_arn: Optional[RoleARN] = field(default=None, metadata=METADATA["role_arn"])
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]

@@ -78,6 +78,7 @@ class Stacker:
             "template": test.template,
             "tags": tags,
             "test_name": test.name,
+            "role_arn": test.role_arn,
         }
         stacks = fan_out(Stack.create, partial_kwargs, test.regions, threads)
         self.stacks += stacks
@@ -222,7 +223,12 @@ class Stacker:
                         project = v
                 if match and test and project:
                     stack = Stack.import_existing(
-                        stack_props, tests[test].template, region[0], test, uid
+                        stack_props,
+                        tests[test].template,
+                        region[0],
+                        test,
+                        tests[test].role_arn,
+                        uid,
                     )
                     stacks.append(stack)
         return stacks

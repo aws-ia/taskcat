@@ -400,5 +400,6 @@ class Config:
                 project_root=self.project_root,
                 regions=region_list,
                 tags=tag_list,
+                role_arn=test.role_arn,
             )
         return tests
