@@ -134,7 +134,8 @@ class Test:
             if errors or not lint.passed:
                 raise TaskCatException("Lint failed with errors")
         # 2. build lambdas
-        LambdaBuild(config, config.project_root)
+        if config.config.project.package_lambda:
+            LambdaBuild(config, project_root_path)
         # 3. s3 sync
         buckets = config.get_buckets(boto3_cache)
         stage_in_s3(buckets, config.config.project.name, config.project_root)
