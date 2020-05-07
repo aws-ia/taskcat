@@ -9,15 +9,20 @@ LOG = logging.getLogger(__name__)
 
 
 class TerminalPrinter:
-    def __init__(self):
-        self._buffer_type = "list"
-        self.buffer = self._add_buffer()
+    def __init__(self, minimalist):
+        self.minimalist = minimalist
+        if not minimalist:
+            self._buffer_type = "list"
+            self.buffer = self._add_buffer()
 
     def _add_buffer(self):
         with output(output_type=self._buffer_type) as output_buffer:
             return output_buffer
 
     def report_test_progress(self, stacker: TaskcatStacker, poll_interval=10):
+        if self.minimalist:
+            self.minimalist_progress(stacker, poll_interval)
+            return
         _status_dict = stacker.status()
         while self._is_test_in_progress(_status_dict):
             for stack in stacker.stacks:
@@ -27,6 +32,28 @@ class TerminalPrinter:
             _status_dict = stacker.status()
 
         self._display_final_status(stacker)
+
+    def minimalist_progress(self, stacker: TaskcatStacker, poll_interval):
+        _status_dict = stacker.status()
+        history: dict = {}
+        while self._is_test_in_progress(_status_dict):
+            for stack in stacker.stacks:
+                self._print_tree_minimal(stack, history)
+            time.sleep(poll_interval)
+
+    @staticmethod
+    def _print_tree_minimal(stack, history):
+        if stack.id not in history:
+            history[stack.id] = ""
+        if history[stack.id] != stack.status:
+            history[stack.id] = stack.status
+            msg = f"{stack.test_name} {stack.region_name} {stack.status}"
+            if "FAILED" in stack.status:
+                LOG.error(msg)
+                for event in stack.error_events(refresh=True):
+                    LOG.error(f"    {event.logical_id} {event.status_reason}")
+            else:
+                LOG.info(msg)
 
     @staticmethod
     def _print_stack_tree(stack, buffer):

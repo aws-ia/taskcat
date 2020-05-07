@@ -31,6 +31,7 @@ class Test:
     Performs functional tests on CloudFormation templates.
     """
 
+    # pylint: disable=too-many-locals
     @staticmethod
     def retry(
         region: str,
@@ -38,6 +39,10 @@ class Test:
         resource_name: str,
         config_file: str = "./.taskcat.yml",
         project_root: str = "./",
+        no_delete: bool = False,
+        keep_failed: bool = False,
+        minimal_output: bool = False,
+        dont_wait_for_delete: bool = True,
     ):
         """[ALPHA] re-launches a child stack using the same parameters as previous
         launch
@@ -48,6 +53,10 @@ class Test:
         :param config_file: path to either a taskat project config file or a
         CloudFormation template
         :param project_root: root path of the project relative to input_file
+        :param no_delete: don't delete stacks after test is complete
+        :param keep_failed: do not delete failed stacks
+        :param minimal_output: Reduces output during test runs
+        :param dont_wait_for_delete: Exits immediately after calling stack_delete
         """
         LOG.warning("test retry is in alpha feature, use with caution")
         project_root_path: Path = Path(project_root).expanduser().resolve()
@@ -76,20 +85,26 @@ class Test:
         with open("/tmp/.taskcat.yml.temp", "w") as filepointer:  # nosec
             yaml.safe_dump(config_yaml, filepointer)
 
-        cfn.delete_stack(StackName=resource["PhysicalResourceId"])
-        LOG.info("waiting for old stack to delete...")
-        cfn.get_waiter("stack_delete_complete").wait(
-            StackName=resource["PhysicalResourceId"]
-        )
+        if resource["PhysicalResourceId"]:
+            cfn.delete_stack(StackName=resource["PhysicalResourceId"])
+            LOG.info("waiting for old stack to delete...")
+            cfn.get_waiter("stack_delete_complete").wait(
+                StackName=resource["PhysicalResourceId"]
+            )
 
         Test.run(
             input_file="/tmp/.taskcat.yml.temp",  # nosec
             project_root=project_root,
             lint_disable=True,
+            no_delete=no_delete,
+            keep_failed=keep_failed,
+            minimal_output=minimal_output,
+            dont_wait_for_delete=dont_wait_for_delete,
         )
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     @staticmethod  # noqa: C901
+    # pylint: disable=too-many-arguments
     def run(  # noqa: C901
         test_names: str = "ALL",
         regions: str = "ALL",
@@ -100,6 +115,8 @@ class Test:
         enable_sig_v2: bool = False,
         keep_failed: bool = False,
         output_directory: str = "./taskcat_outputs",
+        minimal_output: bool = False,
+        dont_wait_for_delete: bool = True,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -113,6 +130,8 @@ class Test:
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
         :param keep_failed: do not delete failed stacks
         :param output_directory: Where to store generated logfiles
+        :param minimal_output: Reduces output during test runs
+        :param dont_wait_for_delete: Exits immediately after calling stack_delete
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
@@ -151,7 +170,7 @@ class Test:
             shorten_stack_name=config.config.project.shorten_stack_name,
         )
         test_definition.create_stacks()
-        terminal_printer = TerminalPrinter()
+        terminal_printer = TerminalPrinter(minimalist=minimal_output)
         # 5. wait for completion
         terminal_printer.report_test_progress(stacker=test_definition)
         status = test_definition.status()
@@ -168,10 +187,12 @@ class Test:
             if len(status["COMPLETE"]) > 0:
                 LOG.info("deleting successful stacks")
                 test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
-                terminal_printer.report_test_progress(stacker=test_definition)
+                if not dont_wait_for_delete:
+                    terminal_printer.report_test_progress(stacker=test_definition)
         else:
             test_definition.delete_stacks()
-            terminal_printer.report_test_progress(stacker=test_definition)
+            if not dont_wait_for_delete:
+                terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 8. delete buckets
