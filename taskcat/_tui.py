@@ -37,6 +37,7 @@ class TerminalPrinter:
         _status_dict = stacker.status()
         history: dict = {}
         while self._is_test_in_progress(_status_dict):
+            _status_dict = stacker.status()
             for stack in stacker.stacks:
                 self._print_tree_minimal(stack, history)
             time.sleep(poll_interval)
