@@ -42,7 +42,7 @@ class Test:
         no_delete: bool = False,
         keep_failed: bool = False,
         minimal_output: bool = False,
-        dont_wait_for_delete: bool = True,
+        dont_wait_for_delete: bool = False,
     ):
         """[ALPHA] re-launches a child stack using the same parameters as previous
         launch
@@ -116,7 +116,7 @@ class Test:
         keep_failed: bool = False,
         output_directory: str = "./taskcat_outputs",
         minimal_output: bool = False,
-        dont_wait_for_delete: bool = True,
+        dont_wait_for_delete: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
