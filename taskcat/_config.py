@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 import yaml
+from botocore.exceptions import ClientError
 
 from taskcat._cfn.template import Template, tcat_template_cache
 from taskcat._client_factory import Boto3Cache
@@ -315,8 +316,15 @@ class Config:
             name = bucket_objects[_bucket_obj_key].name
             auto_generated = bucket_objects[_bucket_obj_key].auto_generated
         else:
-            name = test.s3_bucket
+            name = f"{test.s3_bucket}-{region.name}"
             auto_generated = False
+            try:
+                region.client("s3").head_bucket(Bucket=name)
+            except ClientError as e:
+                if "(404)" in str(e):
+                    new = True
+                else:
+                    raise
         bucket_obj = S3BucketObj(
             name=name,
             region=region.name,
