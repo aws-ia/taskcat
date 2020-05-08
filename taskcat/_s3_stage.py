@@ -1,4 +1,6 @@
 import logging
+from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
 
 from taskcat._s3_sync import S3Sync
 from taskcat.exceptions import TaskCatException
@@ -27,7 +29,13 @@ def stage_in_s3(buckets, project_name, project_root):
     for test in buckets.values():
         for bucket in test.values():
             distinct_buckets[f"{bucket.name}-{bucket.partition}"] = bucket
-    for bucket in distinct_buckets.values():
-        S3Sync(
-            bucket.s3_client, bucket.name, project_name, project_root, bucket.object_acl
-        )
+    pool = ThreadPool(32)
+    func = partial(_sync_wrap, project_name=project_name, project_root=project_root)
+    pool.map(func, distinct_buckets.values())
+    pool.close()
+    pool.join()
+
+
+def _sync_wrap(bucket, project_name, project_root):
+    S3Sync(bucket.s3_client, bucket.name, project_name, project_root, bucket.object_acl)
+>>>>>>> thread uploads
