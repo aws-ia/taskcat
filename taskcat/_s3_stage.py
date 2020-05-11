@@ -38,4 +38,3 @@ def stage_in_s3(buckets, project_name, project_root):
 
 def _sync_wrap(bucket, project_name, project_root):
     S3Sync(bucket.s3_client, bucket.name, project_name, project_root, bucket.object_acl)
->>>>>>> thread uploads

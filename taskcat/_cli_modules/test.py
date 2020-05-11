@@ -72,7 +72,7 @@ class Test:
         resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
         properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(".taskcat.yml", "r") as filepointer:
+        with open(str(input_file_path), "r") as filepointer:
             config_yaml = yaml.safe_load(filepointer)
 
         config_yaml["project"]["regions"] = [region]
@@ -125,7 +125,7 @@ class Test:
         :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root_path: root path of the project relative to input_file
+        :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
