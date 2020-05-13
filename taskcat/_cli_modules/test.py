@@ -72,7 +72,7 @@ class Test:
         resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
         properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(".taskcat.yml", "r") as filepointer:
+        with open(str(input_file_path), "r") as filepointer:
             config_yaml = yaml.safe_load(filepointer)
 
         config_yaml["project"]["regions"] = [region]
@@ -117,6 +117,7 @@ class Test:
         output_directory: str = "./taskcat_outputs",
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
+        skip_upload: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -124,7 +125,7 @@ class Test:
         :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root_path: root path of the project relative to input_file
+        :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
@@ -147,19 +148,24 @@ class Test:
         _trim_tests(test_names, config)
         boto3_cache = Boto3Cache()
         templates = config.get_templates()
-        # 1. lint
-        if not lint_disable:
-            lint = TaskCatLint(config, templates)
-            errors = lint.lints[1]
-            lint.output_results()
-            if errors or not lint.passed:
-                raise TaskCatException("Lint failed with errors")
-        # 2. build lambdas
-        if config.config.project.package_lambda:
-            LambdaBuild(config, project_root_path)
-        # 3. s3 sync
+        if skip_upload and not config.config.project.s3_bucket:
+            raise TaskCatException(
+                "cannot skip_buckets without specifying s3_bucket in config"
+            )
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, config.project_root)
+        if not skip_upload:
+            # 1. lint
+            if not lint_disable:
+                lint = TaskCatLint(config, templates)
+                errors = lint.lints[1]
+                lint.output_results()
+                if errors or not lint.passed:
+                    raise TaskCatException("Lint failed with errors")
+            # 2. build lambdas
+            if config.config.project.package_lambda:
+                LambdaBuild(config, project_root_path)
+            # 3. s3 sync
+            stage_in_s3(buckets, config.config.project.name, config.project_root)
         # 4. launch stacks
         regions = config.get_regions(boto3_cache)
         parameters = config.get_rendered_parameters(buckets, regions, templates)

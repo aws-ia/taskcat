@@ -159,3 +159,4 @@ class LambdaBuild:
         except ReadTimeout:
             LOG.warning(f"Could not remove container {container.id}")
         os.unlink(tmpfile.name)
+        os.removedirs(str(package_path / "output"))
