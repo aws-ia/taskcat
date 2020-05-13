@@ -26,7 +26,7 @@ def stage_in_s3(buckets, project_name, project_root):
 
     for test in buckets.values():
         for bucket in test.values():
-            distinct_buckets[bucket.name] = bucket
+            distinct_buckets[f"{bucket.name}-{bucket.partition}"] = bucket
     for bucket in distinct_buckets.values():
         S3Sync(
             bucket.s3_client, bucket.name, project_name, project_root, bucket.object_acl
