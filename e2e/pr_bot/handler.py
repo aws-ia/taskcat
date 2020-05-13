@@ -47,9 +47,9 @@ def set_history(history):
 
 
 def comment_is_command(comment):
-    for l in comment.split("\n"):
-        for t in TEST_TAGS:
-            if l.startswith(t):
+    for _l in comment.split("\n"):
+        for _t in TEST_TAGS:
+            if _l.startswith(_t):
                 return True
     return False
 
