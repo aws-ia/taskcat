@@ -86,22 +86,18 @@ class Template:
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
 
-    @staticmethod
     def _template_url_to_path(
-        current_template_path,
-        template_url,
-        template_mappings=None,
-        template_parameters=None,
+        self, template_url, template_mappings=None,
     ):
         try:
 
             helper = StackURLHelper(
                 template_mappings=template_mappings,
-                template_parameters=template_parameters,
+                template_parameters=self.template.get("Parameters"),
             )
 
             urls = helper.template_url_to_path(
-                current_template_path=current_template_path, template_url=template_url,
+                current_template_path=self.template_path, template_url=template_url
             )
 
             if len(urls) > 0:
@@ -146,7 +142,6 @@ class Template:
             resource = self.template["Resources"][resource]
             if resource["Type"] == "AWS::CloudFormation::Stack":
                 child_name = self._template_url_to_path(
-                    current_template_path=self.template_path,
                     template_url=resource["Properties"]["TemplateURL"],
                 )
                 # print(child_name)
