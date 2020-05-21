@@ -8,7 +8,9 @@ from functools import reduce
 from pathlib import Path
 from time import sleep
 
+import requests
 import yaml
+from botocore.exceptions import ClientError
 
 from dulwich.config import ConfigFile, parse_submodules
 from taskcat.exceptions import TaskCatException
@@ -38,8 +40,18 @@ def s3_url_maker(bucket, key, s3_client, autobucket=False):
     retries = 10
     while True:
         try:
-            response = s3_client.get_bucket_location(Bucket=bucket)
-            location = response["LocationConstraint"]
+            try:
+                response = s3_client.get_bucket_location(Bucket=bucket)
+                location = response["LocationConstraint"]
+            except ClientError as e:
+                if e.response["Error"]["Code"] != "AccessDenied":
+                    raise
+                resp = requests.get(f"https://{bucket}.s3.amazonaws.com/{key}")
+                location = resp.headers.get("x-amz-bucket-region")
+                if not location:
+                    raise TaskCatException(
+                        f"failed to discover region for bucket {bucket}"
+                    )
             break
         except s3_client.exceptions.NoSuchBucket:
             if not autobucket or retries < 1:
