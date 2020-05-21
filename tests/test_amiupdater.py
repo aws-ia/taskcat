@@ -727,12 +727,6 @@ class TestAMIUpdater(unittest.TestCase):
         templates = c.get_templates()
         return templates
 
-    def test_invalid_region_exception(self):
-        example_tc_template = self.create_ephemeral_template_object()
-        au_template = Template(example_tc_template["taskcat-json"], ["us-east-1"])
-        self.assertEqual(au_template.regions_without_creds, {"us-east-2"})
-        self.assertEqual(au_template.region_names, {"us-east-1"})
-
     def test_query_codenames_raises(self):
         with self.assertRaises(AMIUpdaterFatalException):
             query_codenames([], {})
@@ -799,7 +793,7 @@ class TestAMIUpdater(unittest.TestCase):
 
     def test_build_codenames(self):
         example_tc_template = self.create_ephemeral_template_object()
-        au_template = Template(example_tc_template["taskcat-json"], ["us-east-1"])
+        au_template = Template(example_tc_template["taskcat-json"])
         example_config_obj = AUConfig
         example_config_obj.raw_dict = {
             "global": {
@@ -820,7 +814,16 @@ class TestAMIUpdater(unittest.TestCase):
                     EC2FilterValue("owner-alias", ["amazon"]),
                     EC2FilterValue("state", ["available"]),
                 ],
-            )
+            ),
+            RegionalCodename(
+                region="us-east-2",
+                cn="AMZNLINUXHVM",
+                filters=[
+                    EC2FilterValue("name", ["amzn-ami-hvm-????.??.?.*-x86_64-gp2"]),
+                    EC2FilterValue("owner-alias", ["amazon"]),
+                    EC2FilterValue("state", ["available"]),
+                ],
+            ),
         ]
         actual = build_codenames(au_template, example_config_obj)
         _mocked_dt = datetime.now()
@@ -905,7 +908,7 @@ class TestAMIUpdater(unittest.TestCase):
 
     def test_template_set_codename_ami(self):
         tc_template = self.create_ephemeral_template_object()["taskcat-json"]
-        au_template = Template(underlying=tc_template, regions_with_creds=["us-east-1"])
+        au_template = Template(underlying=tc_template)
         actual = au_template.set_codename_ami(
             "AMZNLINUXHVM", "us-east-1", "slkdfjskldfj"
         )
@@ -916,14 +919,14 @@ class TestAMIUpdater(unittest.TestCase):
             "taskcat._cfn.template.Template", autospec=True
         )()
         mock_temp.raw_template = "some-template-data"
-        au_template = Template(underlying=mock_temp, regions_with_creds=["us-east-1"])
+        au_template = Template(underlying=mock_temp)
         au_template._ls = "some-other-data"
         au_template.write()
         mock_temp.write.assert_called_once()
 
     def test_template_set_codename_ami_no_region(self):
         tc_template = self.create_ephemeral_template_object()["taskcat-json"]
-        au_template = Template(underlying=tc_template, regions_with_creds=[])
+        au_template = Template(underlying=tc_template)
         actual = au_template.set_codename_ami(
             "AMZNLINUXHVM", "us-west-1", "slkdfjskldfj"
         )
@@ -973,16 +976,15 @@ class TestAMIUpdater(unittest.TestCase):
         )
 
     @patch("taskcat._amiupdater.AMIUpdater._determine_templates", autospec=True)
-    @patch("taskcat._amiupdater.AMIUpdater._determine_testable_regions", autospec=True)
+    @patch("taskcat._amiupdater.AMIUpdater._get_regions", autospec=True)
     @patch("taskcat._amiupdater.Config", autospec=True)
     def test_amiupdater__init__(
-        self, mock_config, mock_det_test_reg, mock_det_templates
+        self, mock_config, mock_get_regions, mock_det_templates
     ):
-        resp = AMIUpdater(sentinel.config)
+        AMIUpdater(sentinel.config)
         mock_config.load.assert_called_once()
-        mock_det_test_reg.assert_called_once()
         mock_det_templates.assert_called_once()
-        self.assertEqual(resp.regions, mock_det_test_reg.return_value)
+        mock_get_regions.assert_called_once()
 
     def test_amiupdater_commit_needed_exception(self):
         e = AMIUpdaterCommitNeededException("foobar")
