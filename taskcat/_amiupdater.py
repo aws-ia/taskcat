@@ -13,11 +13,7 @@ import yaml  # pylint: disable=wrong-import-order
 import dateutil.parser  # pylint: disable=wrong-import-order
 from taskcat._cfn.template import Template as TCTemplate
 from taskcat._client_factory import Boto3Cache
-from taskcat._common_utils import (
-    deep_get,
-    determine_profile_for_region,
-    neglect_submodule_templates,
-)
+from taskcat._common_utils import deep_get, neglect_submodule_templates
 from taskcat._dataclasses import RegionObj
 from taskcat.exceptions import TaskCatException
 
@@ -60,7 +56,9 @@ class Config:
     @classmethod
     def get_filter(cls, code_name):
         _x = deep_get(cls.raw_dict, f"global/AMIs/{code_name}", {})
-        return _x
+        return {
+            str(k): [str(v)] if isinstance(v, str) else list(v) for k, v in _x.items()
+        }
 
 
 @dataclass
@@ -105,7 +103,7 @@ class RegionalCodename:
 
 
 class Template:
-    def __init__(self, underlying: TCTemplate, regions_with_creds: List[str]):
+    def __init__(self, underlying: TCTemplate):
         self.codenames: Set[Dict[str, str]] = set()
         self.mapping_path: str = "Mappings/AWSAMIRegionMap"
         self.metadata_path: str = "Metadata/AWSAMIRegionMap/Filters"
@@ -127,14 +125,6 @@ class Template:
                     elif "''" in self._ls[line_no]:
                         cnvalue = "''"
                 self.region_codename_lineno[key] = {"line": line_no, "old": cnvalue}
-        new_region_list = set()
-        self.regions_without_creds: Set[str] = set()
-        for region in self.region_names:
-            if region not in regions_with_creds:
-                self.regions_without_creds.add(region)
-                continue
-            new_region_list.add(region)
-        self.region_names = new_region_list
 
     def set_codename_ami(self, cname, region, new_ami):
         if region not in self.region_names:
@@ -175,7 +165,7 @@ class AMIUpdaterCommitNeededException(TaskCatException):
 def _construct_filters(cname: str, config: Config) -> List[EC2FilterValue]:
     formatted_filters: List[EC2FilterValue] = []
     fetched_filters = config.get_filter(cname)
-    formatted_filters = [EC2FilterValue(k, [v]) for k, v in fetched_filters.items()]
+    formatted_filters = [EC2FilterValue(k, v) for k, v in fetched_filters.items()]
     if formatted_filters:
         formatted_filters.append(EC2FilterValue("state", ["available"]))
     return formatted_filters
@@ -198,8 +188,6 @@ def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
         if not REGION_REGEX.search(region):
             LOG.error(f"[{region}] is not a valid region. Please check your template!")
             raise AMIUpdaterFatalException
-        if region in tobj.regions_without_creds:
-            continue
         for cnname in cndata.keys():
             _filters = _construct_filters(cnname, config)
             if not _filters:
@@ -215,6 +203,21 @@ def build_codenames(tobj: Template, config: Config) -> List[RegionalCodename]:
     return built_cn
 
 
+def _per_codename_amifetch(region_dict, regional_cn):
+    new_filters = []
+    for _filter in regional_cn.filters:
+        new_filters.append(dataclasses.asdict(_filter))
+    _r = region_dict.get(regional_cn.region)
+    image_results = []
+    if _r:
+        image_results = _r.client("ec2").describe_images(Filters=new_filters)["Images"]
+    return {
+        "region": regional_cn.region,
+        "cn": regional_cn.cn,
+        "api_results": image_results,
+    }
+
+
 def query_codenames(
     codename_list: Set[RegionalCodename], region_dict: Dict[str, RegionObj]
 ):
@@ -224,21 +227,6 @@ def query_codenames(
         raise AMIUpdaterFatalException(
             "No AMI filters were found. Nothing to fetch from the EC2 API."
         )
-
-    def _per_codename_amifetch(region_dict, regional_cn):
-        new_filters = []
-        for _filter in regional_cn.filters:
-            new_filters.append(dataclasses.asdict(_filter))
-        image_results = (
-            region_dict.get(regional_cn.region)
-            .client("ec2")
-            .describe_images(Filters=new_filters)["Images"]
-        )
-        return {
-            "region": regional_cn.region,
-            "cn": regional_cn.cn,
-            "api_results": image_results,
-        }
 
     for region in list(region_dict.keys()):
         _ = region_dict[region].client("ec2")
@@ -301,31 +289,6 @@ class AMIUpdater:
         "https://raw.githubusercontent.com/aws-quickstart/"
         "taskcat/master/cfg/amiupdater.cfg.yml"
     )
-    LEGACY_REGIONS = [
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-northeast-3",
-        "ap-south-1",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ca-central-1",
-        "eu-central-1",
-        "eu-north-1",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-west-3",
-        "sa-east-1",
-        "us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-    ]
-    EXCLUDED_REGIONS = [
-        "us-gov-east-1",
-        "us-gov-west-1",
-        "cn-northwest-1",
-        "cn-north-1",
-    ]
 
     def __init__(self, config, user_config_file=None, use_upstream_mappings=True):
         if use_upstream_mappings:
@@ -336,7 +299,39 @@ class AMIUpdater:
         self.config = config
         self.boto3_cache = Boto3Cache()
         self.template_list = self._determine_templates()
-        self.regions = self._determine_testable_regions()
+        self.regions = self._get_regions()
+
+    def _get_regions(self):
+        profile = (
+            self.config.config.general.auth.get("default", "default")
+            if self.config.config.general.auth
+            else "default"
+        )
+        default_region = self.boto3_cache.get_default_region(profile)
+        regions = [
+            _r["RegionName"]
+            for _r in self.boto3_cache.client(
+                "ec2", profile, default_region
+            ).describe_regions()["Regions"]
+        ]
+        regions = self.get_regions_for_profile(profile, regions)
+        if self.config.config.general.auth:
+            for region, profile in self.config.config.general.auth.items():
+                regions.update(self.get_regions_for_profile(profile, [region]))
+        return regions
+
+    def get_regions_for_profile(self, profile, _regions):
+        regions = {}
+        for _r in _regions:
+            regions[_r] = RegionObj(
+                name=_r,
+                account_id=self.boto3_cache.account_id(profile),
+                partition=self.boto3_cache.partition(profile),
+                profile=profile,
+                _boto3_cache=self.boto3_cache,
+                taskcat_id=self.config.uid,
+            )
+        return regions
 
     def _determine_templates(self):
         _up = self.config.get_templates()
@@ -346,119 +341,12 @@ class AMIUpdater:
         )
         return finalized_templates
 
-    # pylint: disable=too-many-locals
-    def _determine_testable_regions(self):
-        # Step 1: Pull in already defined regions from the test(s) config.
-        # saves the effort of creating the RegionObj.
-        defined_regions = {}
-        for regions in self.config.get_regions().values():
-            defined_regions.update(**regions)
-
-        # Step 1.5: Snag the taskcat ID from an existing region object.
-        taskcat_id = list(defined_regions.values())[0].taskcat_id
-        # pylint: disable=protected-access
-        boto3_cache = list(defined_regions.values())[0]._boto3_cache
-
-        # Step 2: Any 'legacy' (by-default) regions (plus opt-in)
-        # that aren't defined already.. need to be.
-        # - This is done via ec2.describe-regions, and reconciling the output.
-        available_regions = []
-        ec2_client = boto3_cache.client(
-            "ec2",
-            region="us-east-1",
-            profile=self.config.config.general.auth.get("default", "default"),
-        )
-        region_result = ec2_client.describe_regions()
-        for region in region_result["Regions"]:
-            available_regions.append(region["RegionName"])
-
-        for legacy_optin_region in available_regions:
-            if legacy_optin_region not in defined_regions.keys():
-                region_profile = determine_profile_for_region(
-                    self.config.config.general.auth, legacy_optin_region
-                )
-                region_object = RegionObj(
-                    name=legacy_optin_region,
-                    account_id=boto3_cache.account_id(region_profile),
-                    partition=boto3_cache.partition(region_profile),
-                    profile=region_profile,
-                    _boto3_cache=boto3_cache,
-                    taskcat_id=taskcat_id,
-                )
-                defined_regions[legacy_optin_region] = region_object
-
-        # Step 3: Anything explicit in auth needs to be added.
-
-        for auth_region, auth_profile in self.config.config.general.auth.items():
-            if auth_region not in defined_regions.keys():
-                region_object = RegionObj(
-                    name=auth_region,
-                    account_id=boto3_cache.account_id(auth_profile),
-                    partition=boto3_cache.partition(auth_profile),
-                    profile=auth_profile,
-                    _boto3_cache=boto3_cache,
-                    taskcat_id=taskcat_id,
-                )
-                defined_regions[auth_region] = region_object
-
-        # FInally, prune anything that's not available via describe-regions or auth.
-
-        prune_these_regions = []
-
-        available_and_auth_regions = list(
-            set(available_regions + list(self.config.config.general.auth.keys()))
-        )
-
-        for _x in defined_regions:
-            if _x not in available_and_auth_regions:
-                prune_these_regions.append(_x)
-
-        for prune_region in prune_these_regions:
-            del defined_regions[prune_region]
-
-        return defined_regions
-
     def _determine_templates_regions(self):
         templates = []
 
         for tc_template in self.template_list:
-            _t = Template(
-                underlying=tc_template, regions_with_creds=list(self.regions.keys())
-            )
+            _t = Template(underlying=tc_template)
             templates.append(_t)
-
-        regions_without_creds = set()
-        regions_excluded = set()
-        for template in templates:
-            for region in template.regions_without_creds:
-                if region in self.EXCLUDED_REGIONS:
-                    regions_excluded.add(region)
-                else:
-                    regions_without_creds.add(region)
-
-        if regions_excluded:
-            LOG.info(
-                "FYI - Your templates use the following regions,"
-                "however no credentials were detected"
-            )
-            LOG.info(", ".join([r.upper() for r in regions_excluded]))
-            LOG.info(
-                "These regions are not within the default AWS Partition. Continuing..."
-            )
-
-        if regions_without_creds:
-            LOG.error(
-                "Your templates use the following regions"
-                "and no credentials were detected for them"
-            )
-            LOG.error(", ".join([r.upper() for r in regions_without_creds]))
-            LOG.error("This can lead to inconsistent results. Not querying the API.")
-            LOG.error("Verify your taskcat auth config or opt-in region status")
-            LOG.error("- https://aws-quickstart.github.io/taskcat/#global-config")
-            LOG.error(
-                "- https://docs.aws.amazon.com/general/latest/gr/rande-manage.html"
-            )
-            raise AMIUpdaterFatalException
 
         return templates
 
@@ -477,7 +365,7 @@ class AMIUpdater:
                 codenames.add(tcn)
 
         # Retrieve API Results.
-        LOG.info("Retreiving results from the EC2 API")
+        LOG.info("Retrieving results from the EC2 API")
         results = query_codenames(codenames, self.regions)
 
         LOG.info("Determining the latest AMI for each Codename/Region")
@@ -494,8 +382,8 @@ class AMIUpdater:
                     _write_template = True
             if _write_template:
                 template.write()
-        LOG.info("Templates updated as necessary")
         if _write_template:
+            LOG.info("Templates updated")
             raise AMIUpdaterCommitNeededException
 
-        LOG.info("Complete!")
+        LOG.info("No AMI's needed updates.")

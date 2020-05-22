@@ -30,25 +30,12 @@ class UpdateAMI:
         else:
             _project_root = Path(project_root)
 
-        _c = Config.create(
+        config = Config.create(
             project_root=_project_root,
             project_config_path=Path(_project_root / ".taskcat.yml"),
         )
 
-        # Stripping out any test-specific regions/auth.
-        config_dict = _c.config.to_dict()
-        for _, test_config in config_dict["tests"].items():
-            if test_config.get("auth", None):
-                del test_config["auth"]
-            if test_config.get("regions", None):
-                del test_config["regions"]
-        new_config = Config.create(
-            project_root=_project_root,
-            project_config_path=Path(_project_root / ".taskcat.yml"),
-            args=config_dict,
-        )
-
-        amiupdater = AMIUpdater(config=new_config)
+        amiupdater = AMIUpdater(config=config)
         try:
             amiupdater.update_amis()
         except AMIUpdaterCommitNeededException:
