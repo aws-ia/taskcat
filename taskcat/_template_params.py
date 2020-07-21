@@ -4,7 +4,7 @@ import re
 import uuid
 from typing import Set
 
-from taskcat._common_utils import CommonTools
+from taskcat._common_utils import CommonTools, fetch_ssm_parameter_value
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ class ParamGen:
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
     RE_CURRENT_REGION = re.compile(r"\$\[taskcat_current_region]", re.IGNORECASE)
+    RE_SSM_PARAMETER = re.compile(r"\$\[taskcat_ssm_.*]$", re.IGNORECASE)
 
     def __init__(self, param_dict, bucket_name, region, boto_client, az_excludes=None):
         self.regxfind = CommonTools.regxfind
@@ -133,6 +134,8 @@ class ParamGen:
             # $[taskcat_genuuid]
             self._regex_replace_param_value(self.RE_GENUUID, self._gen_uuid())
 
+            # $[taskcat_ssm_X]
+            self._get_ssm_param_value_wrapper(self.RE_SSM_PARAMETER)
             # $[taskcat_current_region]
             self._regex_replace_param_value(
                 self.RE_CURRENT_REGION, self._gen_current_region()
@@ -364,6 +367,13 @@ class ParamGen:
             )
             self._regex_replace_param_value(re.compile("^.*$"), param_value)
             self._regex_replace_param_value(re.compile("^.*$"), param_value)
+
+    def _get_ssm_param_value_wrapper(self, ssm_param_value_regex):
+        if ssm_param_value_regex.search(self.param_value):
+            ssm_value_str = self.regxfind(ssm_param_value_regex, self.param_value)
+            param_path = "_".join(ssm_value_str[:-1].split("_")[2:])
+            param_value = fetch_ssm_parameter_value(self._boto_client, param_path)
+            self._regex_replace_param_value(re.compile("^.*"), param_value)
 
     def _getval_wrapper(self, getval_regex):
         if getval_regex.search(self.param_value):
