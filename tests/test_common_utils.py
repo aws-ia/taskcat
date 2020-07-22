@@ -5,6 +5,7 @@ import unittest
 import mock
 from taskcat._common_utils import (
     exit_with_code,
+    fetch_ssm_parameter_value,
     get_s3_domain,
     make_dir,
     merge_dicts,
@@ -105,3 +106,29 @@ class TestCommonUtils(unittest.TestCase):
     def test_s3_bucket_name_from_url(self):
         bucket = s3_bucket_name_from_url("https://buk.s3.amazonaws.com/obj.yaml")
         self.assertEqual("buk", bucket)
+
+    def test_fetch_ssm_parameter_value(self):
+        # String, no explicit version.
+        m_boto_client = mock.Mock()
+        m_ssm = mock.Mock()
+        m_boto_client.return_value = m_ssm
+        m_ssm.get_parameter.return_value = {
+            "Parameter": {"Name": "foo", "Type": "String", "Value": "bar", "Version": 1}
+        }
+
+        expected = "bar"
+        actual = fetch_ssm_parameter_value(m_boto_client, "foo")
+        self.assertEqual(expected, actual)
+
+        m_ssm.get_parameter.return_value = {
+            "Parameter": {
+                "Name": "foo",
+                "Type": "StringList",
+                "Value": "bar,baz,11",
+                "Version": 1,
+            }
+        }
+
+        expected = "bar,baz,11"
+        actual = fetch_ssm_parameter_value(m_boto_client, "foo")
+        self.assertEqual(expected, actual)

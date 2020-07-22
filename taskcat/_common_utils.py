@@ -215,3 +215,9 @@ def neglect_submodule_templates(project_root, template_list):
 def determine_profile_for_region(auth_dict, region):
     profile = auth_dict.get(region, auth_dict.get("default", "default"))
     return profile
+
+
+def fetch_ssm_parameter_value(boto_client, parameter_path):
+    ssm = boto_client("ssm")
+    response = ssm.get_parameter(Name=parameter_path)
+    return response["Parameter"]["Value"]

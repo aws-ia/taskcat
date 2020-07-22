@@ -237,6 +237,10 @@ class TestParamGen(unittest.TestCase):
             test_string="$[taskcat_url_http://example.com]",
             test_pattern_attribute="RE_GETURL",
         ),
+        rp_namedtup(
+            test_string="$[taskcat_ssm_/aws/foo/bar/blah]",
+            test_pattern_attribute="RE_SSM_PARAMETER",
+        ),
     ]
 
     def test_regxfind(self):
@@ -485,3 +489,21 @@ class TestParamGen(unittest.TestCase):
             "ExampleString": "us-east-1a",
         }
         self.assertEqual(pg.results, expected_result)
+
+    @mock.patch("taskcat._template_params.fetch_ssm_parameter_value")
+    def test_ssm_parameter_wrapper(self, m_fetch_ssm):
+        m_fetch_ssm.return_value = "blah"
+        input_params = {
+            "Example": "$[taskcat_ssm_/path/to/my/example/ssm_param/nested_with_underscores]"
+        }
+        bclient = MockClient
+        bclient.logger = logger
+        class_kwargs = self.class_kwargs
+        class_kwargs["param_dict"] = input_params
+        class_kwargs["boto_client"] = bclient
+        pg = ParamGen(**class_kwargs)
+        pg._get_ssm_param_value_wrapper(pg.RE_SSM_PARAMETER)
+        m_fetch_ssm.assert_called_once_with(
+            bclient, "/path/to/my/example/ssm_param/nested_with_underscores"
+        )
+        self.assertEqual(pg.param_value, "blah")
