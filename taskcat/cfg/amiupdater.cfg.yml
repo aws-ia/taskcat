@@ -104,8 +104,12 @@ global:
     US1804HVM:
       name: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????*
       owner-id: '099720109477'
-    US1804HVMARM:
-      name: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-arm64-server-????????*
+      architecture: arm64
+    US2004HVM:
+      name: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-????????*
+      owner-id: '099720109477'
+    US2004HVMARM:
+      name: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-arm64-server-????????*
       owner-id: '099720109477'
       architecture: arm64
     WS2012R2:
