@@ -32,9 +32,12 @@ class ParamGen:
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
     RE_CURRENT_REGION = re.compile(r"\$\[taskcat_current_region]", re.IGNORECASE)
+    RE_PROJECT_NAME = re.compile(r"\$\[taskcat_project_name]", re.IGNORECASE)
+    RE_TEST_NAME = re.compile(r"\$\[taskcat_test_name]", re.IGNORECASE)
     RE_SSM_PARAMETER = re.compile(r"\$\[taskcat_ssm_.*]$", re.IGNORECASE)
 
     def __init__(self, param_dict, bucket_name, region, boto_client, az_excludes=None):
+    def __init__(self, param_dict, bucket_name, region, boto_client, project_name, test_name, az_excludes=None):
         self.regxfind = CommonTools.regxfind
         self._param_dict = param_dict
         _missing_params = []
@@ -56,6 +59,8 @@ class ParamGen:
         self.bucket_name = bucket_name
         self._boto_client = boto_client
         self.region = region
+        self.project_name = project_name
+        self.test_name = test_name
         if not az_excludes:
             self.az_excludes: Set[str] = set()
         else:
@@ -77,6 +82,8 @@ class ParamGen:
                     self.bucket_name,
                     self.region,
                     self._boto_client,
+                    self.project_name,
+                    self.test_name,
                     self.az_excludes,
                 )
                 nested_pg.transform_parameter()
@@ -139,6 +146,12 @@ class ParamGen:
             # $[taskcat_current_region]
             self._regex_replace_param_value(
                 self.RE_CURRENT_REGION, self._gen_current_region()
+            )
+            self._regex_replace_param_value(
+                self.RE_PROJECT_NAME, self._get_project_name()
+            )
+            self._regex_replace_param_value(
+                self.RE_TEST_NAME, self._get_test_name()
             )
             self.results.update({self.param_name: self.param_value})
 
@@ -292,6 +305,12 @@ class ParamGen:
 
     def _gen_current_region(self):
         return self.region
+
+    def _get_project_name(self):
+        return self.project_name
+
+    def _get_test_name(self):
+        return self.test_name
 
     def _gen_password_wrapper(self, gen_regex, type_regex, count_regex):
         if gen_regex.search(self.param_value):
