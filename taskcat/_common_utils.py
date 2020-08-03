@@ -221,3 +221,12 @@ def fetch_ssm_parameter_value(boto_client, parameter_path):
     ssm = boto_client("ssm")
     response = ssm.get_parameter(Name=parameter_path)
     return response["Parameter"]["Value"]
+
+def fetch_secretsmanager_parameter_value(boto_client, secret_arn):
+    secrets_manager = boto_client('secretsmanager')
+    try:
+        response = secrets_manager.get_secret_value(
+            SecretId=secret_arn
+        )
+    except TaskCatException as e:
+        raise TaskCatException("ARN: {} encountered a")
