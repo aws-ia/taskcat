@@ -225,12 +225,12 @@ def mock_client_method(*args, **kwargs):
 
 @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
 @mock.patch("taskcat._dataclasses.S3BucketObj")
-def make_test_region_obj(name, m_s3, m_boto):
+def make_test_region_obj(name, m_s3, m_boto, role_name=''):
     boto_cache = m_boto()
     s3 = m_s3(
         name="test_bucket",
         region="us-east-1",
-        account_id="123412341234",
+        account_id="123456789012",
         partition="aws",
         s3_client=boto_cache.client("s3"),
         sigv4=True,
@@ -240,13 +240,14 @@ def make_test_region_obj(name, m_s3, m_boto):
     )
     region = TestRegion(
         name=name,
-        account_id="123412341234",
+        account_id="123456789012",
         partition="aws",
         profile="default",
         taskcat_id=uuid.UUID(int=1),
         _boto3_cache=boto_cache,
         s3_bucket=s3,
         parameters={},
+        _role_name=role_name
     )
     region.s3_bucket = s3
     return region
@@ -286,7 +287,7 @@ class TestStack(unittest.TestCase):
     )
     @mock.patch("taskcat._cfn.stack.Template", return_value=make_test_template())
     def test_create_with_role_arn(self, mock_template, m_s3_url_maker):
-        region = make_test_region_obj("us-west-2")
+        region = make_test_region_obj("us-west-2", role_name="ExampleRole")
         mock_cfn_client = mock_client_method("cloudformation")
         region.client = mock_cfn_client
         region.client.return_value = mock_cfn_client
@@ -295,7 +296,6 @@ class TestStack(unittest.TestCase):
             region=region,
             stack_name="stack_name",
             template=template,
-            role_arn="arn:aws:iam::123456789012:role/ExampleRole",
         )
         self.assertIsInstance(stack._timer, Timer)
         # disabled due to a concurrency issue with the tests

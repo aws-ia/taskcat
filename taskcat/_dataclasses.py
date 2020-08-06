@@ -14,6 +14,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_nested_dict
 from taskcat.exceptions import TaskCatException
+from taskcat.regions_to_partitions import PARTITIONS
 
 LOG = logging.getLogger(__name__)
 
@@ -71,7 +72,7 @@ METADATA = {
     "shorten_stack_name": {
         "description": "Shorten stack names generated for tests, set to true to enable"
     },
-    "role_arn": {"description": "Role ARN to use when launching CFN Stacks."},
+    "role_name": {"description": "Role name to use when launching CFN Stacks."},
 }
 
 # types
@@ -88,9 +89,7 @@ S3BucketName = NewType("S3BucketName", AlNumDash)
 TestName = NewType("TestName", AlNumDash)
 AzId = NewType("AzId", str)
 Templates = NewType("Templates", Dict[TestName, Template])
-RoleARN = NewType("RoleARN", str)
 # regex validation
-
 
 class ParameterKeyField(FieldEncoder):
     @property
@@ -142,19 +141,6 @@ class S3AclField(FieldEncoder):
 JsonSchemaMixin.register_field_encoders({S3Acl: S3AclField()})
 
 
-class RoleARNField(FieldEncoder):
-    @property
-    def json_schema(self):
-        return {
-            "type": "string",
-            "pattern": r"^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
-            "description": "Role ARN to launch the CFN Stacks with, eg: \
-            'arn:aws:iam::123456789012:role/MyRoleName'",
-        }
-
-
-JsonSchemaMixin.register_field_encoders({RoleARN: RoleARNField()})
-
 
 class AlNumDashField(FieldEncoder):
     @property
@@ -183,9 +169,6 @@ class AzIdField(FieldEncoder):
 JsonSchemaMixin.register_field_encoders({AzId: AzIdField()})
 
 
-#
-
-
 # dataclasses
 @dataclass
 class RegionObj:
@@ -195,14 +178,18 @@ class RegionObj:
     profile: str
     taskcat_id: UUID
     _boto3_cache: Boto3Cache
-
+    _role_name: Optional[str]
     def client(self, service: str):
         return self._boto3_cache.client(service, region=self.name, profile=self.profile)
-
     @property
     def session(self):
         return self._boto3_cache.session(region=self.name, profile=self.profile)
-
+    @property
+    def role_arn(self):
+        if self._role_name:
+            return  f"arn:{self.partition}:iam::{self.account_id}:role/{self._role_name}"
+        else:
+            return None
 
 @dataclass
 class S3BucketObj:
@@ -366,7 +353,6 @@ class TestObj:
     name: TestName
     regions: List[TestRegion]
     tags: List[Tag]
-    role_arn: RoleARN
 
 
 @dataclass
@@ -408,7 +394,7 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
     )
-    role_arn: Optional[RoleARN] = field(default=None, metadata=METADATA["role_arn"])
+    role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
 
 
 # pylint: disable=too-many-instance-attributes
@@ -459,7 +445,7 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     shorten_stack_name: Optional[bool] = field(
         default=None, metadata=METADATA["shorten_stack_name"]
     )
-    role_arn: Optional[RoleARN] = field(default=None, metadata=METADATA["role_arn"])
+    role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]

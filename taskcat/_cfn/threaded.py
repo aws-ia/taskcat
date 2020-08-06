@@ -78,7 +78,6 @@ class Stacker:
             "template": test.template,
             "tags": tags,
             "test_name": test.name,
-            "role_arn": test.role_arn,
         }
         stacks = fan_out(Stack.create, partial_kwargs, test.regions, threads)
         self.stacks += stacks
