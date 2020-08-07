@@ -145,9 +145,8 @@
                     },
                     "type": "array"
                 },
-                "role_arn": {
-                    "description": "Role ARN to use when launching CFN Stacks.",
-                    "pattern": "^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
+                "role_name": {
+                    "description": "Role name to use when launching CFN Stacks.",
                     "type": "string"
                 },
                 "s3_bucket": {
@@ -246,9 +245,8 @@
                     },
                     "type": "array"
                 },
-                "role_arn": {
-                    "description": "Role ARN to use when launching CFN Stacks.",
-                    "pattern": "^arn:(aws|aws-cn|aws-us-gov):iam::([0-9]{12}):role/*",
+                "role_name": {
+                    "description": "Role name to use when launching CFN Stacks.",
                     "type": "string"
                 },
                 "s3_bucket": {
@@ -300,7 +298,7 @@
                 "package_lambda": null,
                 "parameters": null,
                 "regions": null,
-                "role_arn": null,
+                "role_name": null,
                 "s3_bucket": null,
                 "s3_enable_sig_v2": null,
                 "s3_object_acl": null,

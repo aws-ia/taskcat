@@ -222,12 +222,7 @@ class Stacker:
                         project = v
                 if match and test and project:
                     stack = Stack.import_existing(
-                        stack_props,
-                        tests[test].template,
-                        region[0],
-                        test,
-                        tests[test].role_arn,
-                        uid,
+                        stack_props, tests[test].template, region[0], test, uid,
                     )
                     stacks.append(stack)
         return stacks

@@ -351,7 +351,6 @@ class TestStack(unittest.TestCase):
             m_template,
             region,
             "test_test",
-            None,
             mock.Mock(),
         )
         stack._timer.cancel()

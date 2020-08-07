@@ -259,7 +259,6 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         tags: List[Tag] = None,
         disable_rollback: bool = True,
         test_name: str = "",
-        role_arn: str = "",
         uuid: UUID = None,
     ) -> "Stack":
         parameters = cls._cfn_format_parameters(region.parameters)
@@ -380,7 +379,6 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         region: TestRegion,
         test_name: str,
         uid: UUID,
-        role_arn: str = "",
     ) -> "Stack":
         stack = cls(region, stack_properties["StackId"], template, test_name, uid)
         stack.set_stack_properties(stack_properties)
