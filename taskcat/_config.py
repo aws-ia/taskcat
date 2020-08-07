@@ -369,7 +369,7 @@ class Config:
                     region.client,
                     self.config.project.name,
                     test_name,
-                    test.az_blacklist
+                    test.az_blacklist,
                 ).results
         return parameters
 
@@ -414,5 +414,8 @@ class Config:
                 project_root=self.project_root,
                 regions=region_list,
                 tags=tag_list,
+                uid=self.uid,
+                _project_name=self.config.project.name,
+                _shorten_stack_name=self.config.project.shorten_stack_name,
             )
         return tests

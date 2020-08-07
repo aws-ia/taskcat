@@ -344,13 +344,70 @@ class TestRegion(RegionObj):
 
 
 @dataclass
+# pylint: disable=too-many-instance-attributes
 class TestObj:
-    template_path: Path
-    template: Template
-    project_root: Path
-    name: TestName
-    regions: List[TestRegion]
-    tags: List[Tag]
+    def __init__(
+        self,
+        template_path: Path,
+        template: Template,
+        project_root: Path,
+        name: TestName,
+        regions: List[TestRegion],
+        tags: List[Tag],
+        uid: UUID,
+        _project_name: str,
+        _stack_name: str = "",
+        _stack_name_prefix: str = "",
+        _stack_name_suffix: str = "",
+        _shorten_stack_name: bool = False,
+    ):
+        self.template_path = template_path
+        self.template = template
+        self.project_root = project_root
+        self.name = name
+        self.regions = regions
+        self.tags = tags
+        self.uid = uid
+        self._project_name = _project_name
+        self._stack_name = _stack_name
+        self._stack_name_prefix = _stack_name_prefix
+        self._stack_name_suffix = _stack_name_suffix
+        self._shorten_stack_name = _shorten_stack_name
+        self._assert_param_combo()
+
+    def _assert_param_combo(self):
+        throw = False
+        if self._stack_name_prefix and self._stack_name_suffix:
+            throw = True
+        if self._stack_name and (self._stack_name_prefix or self._stack_name_suffix):
+            throw = True
+        if throw:
+            raise TaskCatException(
+                "Please provide only *ONE* of stack_name, stack_name_prefix, \
+                or stack_name_suffix"
+            )
+
+    @property
+    def stack_name(self):
+        prefix = "tCaT-"
+        if self._stack_name:
+            return self._stack_name
+        # TODO: prefix *OR* suffix
+        if self._stack_name_prefix:
+            if self._shorten_stack_name:
+                return "{}{}-{}".format(
+                    self._stack_name_prefix, self.name, self.uid.hex[:6]
+                )
+            return "{}{}-{}-{}".format(
+                self._stack_name_prefix, self._project_name, self.name, self.uid.hex
+            )
+        if self._stack_name_suffix:
+            return "{}{}-{}-{}".format(
+                prefix, self._project_name, self.name, self._stack_name_suffix
+            )
+        if self._shorten_stack_name:
+            return "{}{}-{}".format(prefix, self.name, self.uid.hex[:6])
+        return "{}{}-{}-{}".format(prefix, self._project_name, self.name, self.uid.hex)
 
 
 @dataclass
