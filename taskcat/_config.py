@@ -239,7 +239,7 @@ class Config:
                     profile=profile,
                     _boto3_cache=boto3_cache,
                     taskcat_id=self.uid,
-                    _role_name=test.role_name
+                    _role_name=test.role_name,
                 )
         return region_objects
 

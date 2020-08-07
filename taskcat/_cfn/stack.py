@@ -382,9 +382,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         uid: UUID,
         role_arn: str = "",
     ) -> "Stack":
-        stack = cls(
-            region, stack_properties["StackId"], template, test_name, uid
-        )
+        stack = cls(region, stack_properties["StackId"], template, test_name, uid)
         stack.set_stack_properties(stack_properties)
         return stack
 

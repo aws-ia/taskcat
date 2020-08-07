@@ -14,7 +14,6 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_nested_dict
 from taskcat.exceptions import TaskCatException
-from taskcat.regions_to_partitions import PARTITIONS
 
 LOG = logging.getLogger(__name__)
 
@@ -91,6 +90,7 @@ AzId = NewType("AzId", str)
 Templates = NewType("Templates", Dict[TestName, Template])
 # regex validation
 
+
 class ParameterKeyField(FieldEncoder):
     @property
     def json_schema(self):
@@ -141,7 +141,6 @@ class S3AclField(FieldEncoder):
 JsonSchemaMixin.register_field_encoders({S3Acl: S3AclField()})
 
 
-
 class AlNumDashField(FieldEncoder):
     @property
     def json_schema(self):
@@ -179,17 +178,21 @@ class RegionObj:
     taskcat_id: UUID
     _boto3_cache: Boto3Cache
     _role_name: Optional[str]
+
     def client(self, service: str):
         return self._boto3_cache.client(service, region=self.name, profile=self.profile)
+
     @property
     def session(self):
         return self._boto3_cache.session(region=self.name, profile=self.profile)
+
     @property
     def role_arn(self):
         if self._role_name:
-            return  f"arn:{self.partition}:iam::{self.account_id}:role/{self._role_name}"
+            return f"arn:{self.partition}:iam::{self.account_id}:role/{self._role_name}"
         else:
             return None
+
 
 @dataclass
 class S3BucketObj:

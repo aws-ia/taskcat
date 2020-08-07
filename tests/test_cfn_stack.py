@@ -225,7 +225,7 @@ def mock_client_method(*args, **kwargs):
 
 @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
 @mock.patch("taskcat._dataclasses.S3BucketObj")
-def make_test_region_obj(name, m_s3, m_boto, role_name=''):
+def make_test_region_obj(name, m_s3, m_boto, role_name=""):
     boto_cache = m_boto()
     s3 = m_s3(
         name="test_bucket",
@@ -247,7 +247,7 @@ def make_test_region_obj(name, m_s3, m_boto, role_name=''):
         _boto3_cache=boto_cache,
         s3_bucket=s3,
         parameters={},
-        _role_name=role_name
+        _role_name=role_name,
     )
     region.s3_bucket = s3
     return region
@@ -292,11 +292,7 @@ class TestStack(unittest.TestCase):
         region.client = mock_cfn_client
         region.client.return_value = mock_cfn_client
         template = make_test_template()
-        stack = Stack.create(
-            region=region,
-            stack_name="stack_name",
-            template=template,
-        )
+        stack = Stack.create(region=region, stack_name="stack_name", template=template)
         self.assertIsInstance(stack._timer, Timer)
         # disabled due to a concurrency issue with the tests
         # self.assertEqual(stack._timer.is_alive(), True)
