@@ -7,12 +7,82 @@ import inspect
 import logging
 import sys
 import types
+from typing import List
+
+from taskcat._common_utils import exit_with_code
 
 LOG = logging.getLogger(__name__)
 
 
+def _get_log_level(args, exit_func=exit_with_code):
+    log_level = "INFO"
+    if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
+        exit_func(1, "--debug and --quiet cannot be specified simultaneously")
+    if "-d" in args or "--debug" in args:
+        log_level = "DEBUG"
+    if "-q" in args or "--quiet" in args:
+        log_level = "ERROR"
+    return log_level
+
+
+class SetVerbosity(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        LOG.setLevel(_get_log_level([option_string]))
+
+
+class GlobalArgs:
+    ARGS = [
+        [
+            ["-q", "--quiet"],
+            {
+                "action": SetVerbosity,
+                "nargs": 0,
+                "help": "reduce output to the minimum",
+                "dest": "_quiet",
+            },
+        ],
+        [
+            ["-d", "--debug"],
+            {
+                "action": SetVerbosity,
+                "nargs": 0,
+                "help": "adds debug output and tracebacks",
+                "dest": "_debug",
+            },
+        ],
+        [["--profile"], {"help": "set the default profile used.", "dest": "_profile"}],
+    ]
+
+    def __init__(self):
+        self._profile = "default"
+
+    @property
+    def profile(self):
+        return self._profile
+
+    @profile.setter
+    def profile(self, profile):
+        self._profile = profile
+
+
+GLOBAL_ARGS = GlobalArgs()
+
+
 class CliCore:
     USAGE = "{prog}{global_opts}{command}{command_opts}{subcommand}{subcommand_opts}"
+
+    longform_required: List = []
+
+    @classmethod
+    def longform_param_required(cls, param_name):
+        def wrapper(command_func):
+            formatted_param = param_name.lower().replace("_", "-")
+            cls.longform_required.append(
+                f"{command_func.__qualname__}.{formatted_param}"
+            )
+            return command_func
+
+        return wrapper
 
     def __init__(self, prog_name, module_package, description, version=None, args=None):
         self.name = prog_name
@@ -39,8 +109,7 @@ class CliCore:
         methods = inspect.getmembers(module, predicate=inspect.isfunction)
         return [method for method in methods if not method[0].startswith("_")]
 
-    @staticmethod
-    def _get_params(item):
+    def _get_params(self, item):
         params = []
         for param in inspect.signature(item).parameters.values():
             if param.name == "self" or param.name.startswith("_"):
@@ -59,9 +128,13 @@ class CliCore:
                 )
             if action == "store":
                 kwargs.update({"type": val_type})
-            params.append(
-                [[name] if required else [f"-{name[0]}", f"--{name}"], kwargs]
-            )
+            if required:
+                params.append([[name], kwargs])
+            else:
+                if f"{item.__qualname__}.{name}" in self.longform_required:
+                    params.append([[f"--{name}"], kwargs])
+                else:
+                    params.append([[f"-{name[0]}", f"--{name}"], kwargs])
         return params
 
     @staticmethod

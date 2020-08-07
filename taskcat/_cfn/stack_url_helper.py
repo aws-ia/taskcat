@@ -108,7 +108,7 @@ class StackURLHelper:
         # replace each key we have a value for
         for key in values:
             rep_text = "##" + key + "##"
-            rep_with = "" + values[key] + ""
+            rep_with = "" + str(values[key]) + ""
 
             result = result.replace(rep_text, rep_with)
 

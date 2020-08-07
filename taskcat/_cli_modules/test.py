@@ -10,6 +10,7 @@ import yaml
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
 from taskcat._cfn_lint import Lint as TaskCatLint
+from taskcat._cli_core import GLOBAL_ARGS
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
@@ -30,6 +31,7 @@ class Test:
     Performs functional tests on CloudFormation templates.
     """
 
+    # pylint: disable=too-many-locals
     @staticmethod
     def retry(
         region: str,
@@ -37,6 +39,10 @@ class Test:
         resource_name: str,
         config_file: str = "./.taskcat.yml",
         project_root: str = "./",
+        no_delete: bool = False,
+        keep_failed: bool = False,
+        minimal_output: bool = False,
+        dont_wait_for_delete: bool = False,
     ):
         """[ALPHA] re-launches a child stack using the same parameters as previous
         launch
@@ -47,6 +53,10 @@ class Test:
         :param config_file: path to either a taskat project config file or a
         CloudFormation template
         :param project_root: root path of the project relative to input_file
+        :param no_delete: don't delete stacks after test is complete
+        :param keep_failed: do not delete failed stacks
+        :param minimal_output: Reduces output during test runs
+        :param dont_wait_for_delete: Exits immediately after calling stack_delete
         """
         LOG.warning("test retry is in alpha feature, use with caution")
         project_root_path: Path = Path(project_root).expanduser().resolve()
@@ -62,7 +72,7 @@ class Test:
         resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
         properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(".taskcat.yml", "r") as filepointer:
+        with open(str(input_file_path), "r") as filepointer:
             config_yaml = yaml.safe_load(filepointer)
 
         config_yaml["project"]["regions"] = [region]
@@ -75,20 +85,26 @@ class Test:
         with open("/tmp/.taskcat.yml.temp", "w") as filepointer:  # nosec
             yaml.safe_dump(config_yaml, filepointer)
 
-        cfn.delete_stack(StackName=resource["PhysicalResourceId"])
-        LOG.info("waiting for old stack to delete...")
-        cfn.get_waiter("stack_delete_complete").wait(
-            StackName=resource["PhysicalResourceId"]
-        )
+        if resource["PhysicalResourceId"]:
+            cfn.delete_stack(StackName=resource["PhysicalResourceId"])
+            LOG.info("waiting for old stack to delete...")
+            cfn.get_waiter("stack_delete_complete").wait(
+                StackName=resource["PhysicalResourceId"]
+            )
 
         Test.run(
             input_file="/tmp/.taskcat.yml.temp",  # nosec
             project_root=project_root,
             lint_disable=True,
+            no_delete=no_delete,
+            keep_failed=keep_failed,
+            minimal_output=minimal_output,
+            dont_wait_for_delete=dont_wait_for_delete,
         )
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     @staticmethod  # noqa: C901
+    # pylint: disable=too-many-arguments
     def run(  # noqa: C901
         test_names: str = "ALL",
         regions: str = "ALL",
@@ -99,6 +115,9 @@ class Test:
         enable_sig_v2: bool = False,
         keep_failed: bool = False,
         output_directory: str = "./taskcat_outputs",
+        minimal_output: bool = False,
+        dont_wait_for_delete: bool = False,
+        skip_upload: bool = False,
     ):
         """tests whether CloudFormation templates are able to successfully launch
 
@@ -106,16 +125,19 @@ class Test:
         :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a
         CloudFormation template
-        :param project_root_path: root path of the project relative to input_file
+        :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
         :param keep_failed: do not delete failed stacks
         :param output_directory: Where to store generated logfiles
+        :param minimal_output: Reduces output during test runs
+        :param dont_wait_for_delete: Exits immediately after calling stack_delete
         """
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
-        args = _build_args(enable_sig_v2, regions)
+        # pylint: disable=too-many-arguments
+        args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
         config = Config.create(
             project_root=project_root_path,
             project_config_path=input_file_path,
@@ -126,18 +148,24 @@ class Test:
         _trim_tests(test_names, config)
         boto3_cache = Boto3Cache()
         templates = config.get_templates()
-        # 1. lint
-        if not lint_disable:
-            lint = TaskCatLint(config, templates)
-            errors = lint.lints[1]
-            lint.output_results()
-            if errors or not lint.passed:
-                raise TaskCatException("Lint failed with errors")
-        # 2. build lambdas
-        LambdaBuild(config, config.project_root)
-        # 3. s3 sync
+        if skip_upload and not config.config.project.s3_bucket:
+            raise TaskCatException(
+                "cannot skip_buckets without specifying s3_bucket in config"
+            )
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, config.project_root)
+        if not skip_upload:
+            # 1. lint
+            if not lint_disable:
+                lint = TaskCatLint(config, templates)
+                errors = lint.lints[1]
+                lint.output_results()
+                if errors or not lint.passed:
+                    raise TaskCatException("Lint failed with errors")
+            # 2. build lambdas
+            if config.config.project.package_lambda:
+                LambdaBuild(config, project_root_path)
+            # 3. s3 sync
+            stage_in_s3(buckets, config.config.project.name, config.project_root)
         # 4. launch stacks
         regions = config.get_regions(boto3_cache)
         parameters = config.get_rendered_parameters(buckets, regions, templates)
@@ -148,7 +176,7 @@ class Test:
             shorten_stack_name=config.config.project.shorten_stack_name,
         )
         test_definition.create_stacks()
-        terminal_printer = TerminalPrinter()
+        terminal_printer = TerminalPrinter(minimalist=minimal_output)
         # 5. wait for completion
         terminal_printer.report_test_progress(stacker=test_definition)
         status = test_definition.status()
@@ -165,10 +193,12 @@ class Test:
             if len(status["COMPLETE"]) > 0:
                 LOG.info("deleting successful stacks")
                 test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
-                terminal_printer.report_test_progress(stacker=test_definition)
+                if not dont_wait_for_delete:
+                    terminal_printer.report_test_progress(stacker=test_definition)
         else:
             test_definition.delete_stacks()
-            terminal_printer.report_test_progress(stacker=test_definition)
+            if not dont_wait_for_delete:
+                terminal_printer.report_test_progress(stacker=test_definition)
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events
         # 8. delete buckets
@@ -248,7 +278,7 @@ def _trim_tests(test_names, config):
                 del config.config.tests[test]
 
 
-def _build_args(enable_sig_v2, regions):
+def _build_args(enable_sig_v2, regions, default_profile):
     args: Dict[str, Any] = {}
     if enable_sig_v2:
         args["project"] = {"s3_enable_sig_v2": enable_sig_v2}
@@ -256,4 +286,10 @@ def _build_args(enable_sig_v2, regions):
         if "project" not in args:
             args["project"] = {}
         args["project"]["regions"] = regions.split(",")
+    if default_profile:
+        _auth_dict = {"default": default_profile}
+        if not args.get("project"):
+            args["project"] = {"auth": _auth_dict}
+        else:
+            args["project"]["auth"] = _auth_dict
     return args

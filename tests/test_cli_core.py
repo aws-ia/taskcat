@@ -2,14 +2,13 @@ import unittest
 
 import mock
 from taskcat import _cli_modules
-from taskcat._cli import GLOBAL_ARGS
-from taskcat._cli_core import CliCore
+from taskcat._cli_core import GLOBAL_ARGS, CliCore
 
 
 class TestCliCore(unittest.TestCase):
     def test_cli_core(self):
         cli = CliCore(
-            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS
+            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS.ARGS
         )
         self.assertIn("lint", cli._modules)
         self.assertIn("package", cli._modules)
@@ -22,7 +21,7 @@ class TestCliCore(unittest.TestCase):
 
     def test_parse(self):
         cli = CliCore(
-            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS
+            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS.ARGS
         )
         cli.parser.parse_args = mock.Mock()
         actual = cli.parse()
@@ -30,7 +29,7 @@ class TestCliCore(unittest.TestCase):
 
     def test_run(self):
         cli = CliCore(
-            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS
+            "taskcat-test", _cli_modules, "test description", "0.1", GLOBAL_ARGS.ARGS
         )
         cli._modules["lint"] = mock.Mock()
         cli.parse(["lint", "-i", "test-taskcat.yml", "-p", "./"])

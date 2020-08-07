@@ -7,8 +7,7 @@ from taskcat._amiupdater import (
     AMIUpdaterCommitNeededException,
     AMIUpdaterFatalException,
 )
-from taskcat._client_factory import Boto3Cache
-from taskcat._common_utils import exit_with_code, neglect_submodule_templates
+from taskcat._common_utils import exit_with_code
 from taskcat._config import Config
 
 LOG = logging.getLogger(__name__)
@@ -31,37 +30,12 @@ class UpdateAMI:
         else:
             _project_root = Path(project_root)
 
-        _boto3cache = Boto3Cache()
-        _c = Config.create(
+        config = Config.create(
             project_root=_project_root,
             project_config_path=Path(_project_root / ".taskcat.yml"),
         )
 
-        # Stripping out any test-specific regions/auth.
-        config_dict = _c.config.to_dict()
-        for _, test_config in config_dict["tests"].items():
-            if test_config.get("auth", None):
-                del test_config["auth"]
-            if test_config.get("regions", None):
-                del test_config["regions"]
-        new_config = Config.create(
-            project_config_path=Path(_project_root / ".taskcat.yml"), args=config_dict
-        )
-
-        # Fetching the region objects.
-        regions = new_config.get_regions(boto3_cache=_boto3cache)
-        region_key = list(regions.keys())[0]
-
-        unprocessed_templates = new_config.get_templates().values()
-        finalized_templates = neglect_submodule_templates(
-            project_root=Path(_project_root), template_list=unprocessed_templates
-        )
-
-        amiupdater = AMIUpdater(
-            template_list=finalized_templates,
-            regions=regions[region_key],
-            boto3cache=_boto3cache,
-        )
+        amiupdater = AMIUpdater(config=config)
         try:
             amiupdater.update_amis()
         except AMIUpdaterCommitNeededException:

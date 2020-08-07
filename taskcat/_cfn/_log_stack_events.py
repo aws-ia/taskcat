@@ -22,7 +22,6 @@ class _CfnLogTools:
         return stack.events(refresh=True)
 
     def get_cfnlogs(self, stack: Stack):
-        LOG.info(f"Collecting logs for {stack.name}")
         # Collect stack_events
         stack_events = self.get_cfn_stack_events(stack)
         events = []
@@ -43,7 +42,6 @@ class _CfnLogTools:
         return events
 
     def createcfnlogs(self, stacks: Stacker, logpath: Path):
-        LOG.info("Collecting CloudFormation Logs")
         for stack in stacks.stacks:
             stackname = stack.name
             region = stack.region_name
@@ -69,23 +67,6 @@ class _CfnLogTools:
             else:
                 reason = "Stack launch was successful"
 
-            LOG.info("\t |StackName: " + stackname)
-            LOG.info("\t |Region: " + region)
-            LOG.info("\t |Logging to: " + str(logpath))
-            LOG.info(
-                "\t |Tested on: "
-                + str(datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
-            )
-            LOG.info(
-                "----------------------------------------------------------------------"
-                "--------------------"
-            )
-            LOG.info("ResourceStatusReason: ")
-            LOG.info(textwrap.fill(str(reason), 85))
-            LOG.info(
-                "======================================================================"
-                "===================="
-            )
             with open(str(logpath), "a") as log_output:
                 log_output.write(
                     "------------------------------------------------------------------"

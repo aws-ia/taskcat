@@ -15,7 +15,7 @@ class TestCli(unittest.TestCase):
     @mock.patch("taskcat._cli.LOG.error")
     @mock.patch("taskcat._cli._welcome", autospec=True)
     @mock.patch("taskcat._cli.get_installed_version", autospec=True)
-    @mock.patch("taskcat._cli_core.CliCore", autospec=True)
+    @mock.patch("taskcat._cli_core.CliCore")
     @mock.patch("taskcat._cli._setup_logging", autospec=True)
     @mock.patch("taskcat._common_utils.exit_with_code", autospec=True)
     @mock.patch("sys.argv", autospec=True)
@@ -23,6 +23,9 @@ class TestCli(unittest.TestCase):
     def test_main(
         self, m_signal, m_argv, m_exit, m_log_setup, m_cli, m_ver, m_welcome, m_error
     ):
+        mock_clicore_instantiation = mock.MagicMock()
+        mock_clicore_instantiation.parsed_args = mock.MagicMock()
+        m_cli.return_value = mock_clicore_instantiation
         main(cli_core_class=m_cli, exit_func=m_exit)
         self.assertEqual(True, m_signal.called)
         self.assertEqual(True, m_log_setup.called)
