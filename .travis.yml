@@ -17,8 +17,12 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
+addons:
+  apt:
+    packages:
+      - docker-ce
 before_install:
-  - pip install -r travis-specific-requirements.txt
+  - pip install -r requirements.txt
   - pip install -r dev-requirements.txt
   - cd /tmp
   - GIT_SECRETS_RELEASE=1.3.0
