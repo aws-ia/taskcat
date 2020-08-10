@@ -4,12 +4,17 @@ import re
 import uuid
 from typing import Set
 
-from taskcat._common_utils import CommonTools, fetch_ssm_parameter_value
+from taskcat._common_utils import (
+    CommonTools,
+    fetch_secretsmanager_parameter_value,
+    fetch_ssm_parameter_value,
+)
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
 
 
+# pylint: disable=too-many-instance-attributes
 class ParamGen:
     RE_GETURL = re.compile(r"(?<=._url_)(.+)(?=]$)", re.IGNORECASE)
     RE_COUNT = re.compile(r"(?!\w+_)\d{1,2}", re.IGNORECASE)
@@ -32,9 +37,23 @@ class ParamGen:
     )
     RE_GETVAL = re.compile(r"(?<=._getval_)(\w+)(?=]$)", re.IGNORECASE)
     RE_CURRENT_REGION = re.compile(r"\$\[taskcat_current_region]", re.IGNORECASE)
+    RE_PROJECT_NAME = re.compile(r"\$\[taskcat_project_name]", re.IGNORECASE)
+    RE_TEST_NAME = re.compile(r"\$\[taskcat_test_name]", re.IGNORECASE)
     RE_SSM_PARAMETER = re.compile(r"\$\[taskcat_ssm_.*]$", re.IGNORECASE)
+    RE_SECRETSMANAGER_PARAMETER = re.compile(
+        r"\$\[taskcat_secretsmanager_.*]$", re.IGNORECASE
+    )
 
-    def __init__(self, param_dict, bucket_name, region, boto_client, az_excludes=None):
+    def __init__(
+        self,
+        param_dict,
+        bucket_name,
+        region,
+        boto_client,
+        project_name,
+        test_name,
+        az_excludes=None,
+    ):
         self.regxfind = CommonTools.regxfind
         self._param_dict = param_dict
         _missing_params = []
@@ -56,6 +75,8 @@ class ParamGen:
         self.bucket_name = bucket_name
         self._boto_client = boto_client
         self.region = region
+        self.project_name = project_name
+        self.test_name = test_name
         if not az_excludes:
             self.az_excludes: Set[str] = set()
         else:
@@ -77,6 +98,8 @@ class ParamGen:
                     self.bucket_name,
                     self.region,
                     self._boto_client,
+                    self.project_name,
+                    self.test_name,
                     self.az_excludes,
                 )
                 nested_pg.transform_parameter()
@@ -140,6 +163,10 @@ class ParamGen:
             self._regex_replace_param_value(
                 self.RE_CURRENT_REGION, self._gen_current_region()
             )
+            self._regex_replace_param_value(
+                self.RE_PROJECT_NAME, self._get_project_name()
+            )
+            self._regex_replace_param_value(self.RE_TEST_NAME, self._get_test_name())
             self.results.update({self.param_name: self.param_value})
 
     def get_available_azs(self, count):
@@ -293,6 +320,12 @@ class ParamGen:
     def _gen_current_region(self):
         return self.region
 
+    def _get_project_name(self):
+        return self.project_name
+
+    def _get_test_name(self):
+        return self.test_name
+
     def _gen_password_wrapper(self, gen_regex, type_regex, count_regex):
         if gen_regex.search(self.param_value):
             passlen = int(self.regxfind(count_regex, self.param_value))
@@ -373,6 +406,17 @@ class ParamGen:
             ssm_value_str = self.regxfind(ssm_param_value_regex, self.param_value)
             param_path = "_".join(ssm_value_str[:-1].split("_")[2:])
             param_value = fetch_ssm_parameter_value(self._boto_client, param_path)
+            self._regex_replace_param_value(re.compile("^.*"), param_value)
+
+    def _get_secretsmanager_param_value_wrapper(self, secretsmanager_param_value_regex):
+        if secretsmanager_param_value_regex.search(self.param_value):
+            sm_value_str = self.regxfind(
+                secretsmanager_param_value_regex, self.param_value
+            )
+            sm_arn = "_".join(sm_value_str.split("_")[2:])
+            param_value = fetch_secretsmanager_parameter_value(
+                self._boto_client, sm_arn
+            )
             self._regex_replace_param_value(re.compile("^.*"), param_value)
 
     def _getval_wrapper(self, getval_regex):

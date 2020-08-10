@@ -62,14 +62,8 @@ class Stacker:
         ]
         fan_out(self._create_stacks_for_test, {"tags": tags}, tests, threads)
 
-    def _get_stack_name_for_test(self, test):
-        prefix = f"{self.stack_name_prefix}-" if self.stack_name_prefix else ""
-        if self.shorten_stack_name:
-            return "{}{}-{}".format(prefix, test.name, self.uid.hex[:6])
-        return "{}{}-{}-{}".format(prefix, self.project_name, test.name, self.uid.hex)
-
     def _create_stacks_for_test(self, test, tags, threads: int = 32):
-        stack_name = self._get_stack_name_for_test(test)
+        stack_name = test.stack_name
         tags.append(Tag({"Key": "taskcat-project-name", "Value": self.project_name}))
         tags.append(Tag({"Key": "taskcat-test-name", "Value": test.name}))
         tags += test.tags
