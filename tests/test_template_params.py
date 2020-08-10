@@ -151,6 +151,8 @@ class TestParamGen(unittest.TestCase):
         "param_dict": {},
         "bucket_name": "tcat-tag-skdfklsdfklsjf",
         "region": "us-east-1",
+        "project_name": "foobar",
+        "test_name": "testy_mc_testerson",
         "boto_client": client_factory_instance(),
     }
     rp_namedtup = namedtuple("RegexTestPattern", "test_string test_pattern_attribute")
@@ -240,6 +242,17 @@ class TestParamGen(unittest.TestCase):
         rp_namedtup(
             test_string="$[taskcat_ssm_/aws/foo/bar/blah]",
             test_pattern_attribute="RE_SSM_PARAMETER",
+        ),
+        rp_namedtup(
+            test_string="$[taskcat_secretsmanager_arn:aws:blah]",
+            test_pattern_attribute="RE_SECRETSMANAGER_PARAMETER",
+        ),
+        rp_namedtup(
+            test_string="$[taskcat_project_name]",
+            test_pattern_attribute="RE_PROJECT_NAME",
+        ),
+        rp_namedtup(
+            test_string="$[taskcat_test_name]", test_pattern_attribute="RE_TEST_NAME"
         ),
     ]
 
@@ -507,3 +520,27 @@ class TestParamGen(unittest.TestCase):
             bclient, "/path/to/my/example/ssm_param/nested_with_underscores"
         )
         self.assertEqual(pg.param_value, "blah")
+
+    def test__get_project_name(self):
+        input_params = {"Project_Name": "$[taskcat_project_name]"}
+        bclient = MockClient
+        bclient.logger = logger
+        class_kwargs = self.class_kwargs
+        class_kwargs["param_dict"] = input_params
+        class_kwargs["boto_client"] = bclient
+        pg = ParamGen(**class_kwargs)
+        pg.transform_parameter()
+        expected_result = {"Project_Name": "foobar"}
+        self.assertEqual(pg.results, expected_result)
+
+    def test__get_test_name(self):
+        input_params = {"Test_Name": "$[taskcat_test_name]"}
+        bclient = MockClient
+        bclient.logger = logger
+        class_kwargs = self.class_kwargs
+        class_kwargs["param_dict"] = input_params
+        class_kwargs["boto_client"] = bclient
+        pg = ParamGen(**class_kwargs)
+        pg.transform_parameter()
+        expected_result = {"Test_Name": "testy_mc_testerson"}
+        self.assertEqual(pg.results, expected_result)
