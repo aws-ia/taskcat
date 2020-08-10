@@ -206,6 +206,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.region_name = region.name
         self.client: boto3.client = region.client("cloudformation")
         self.completion_time: timedelta = timedelta(0)
+        self.role_arn = region.role_arn
 
         # properties from additional cfn api calls
         self._events: Events = Events()
@@ -276,14 +277,17 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             ),
             template_cache=tcat_template_cache,
         )
-        stack_id = cfn_client.create_stack(
-            StackName=stack_name,
-            TemplateURL=template.url,
-            Parameters=parameters,
-            DisableRollback=disable_rollback,
-            Tags=tags,
-            Capabilities=Capabilities.ALL,
-        )["StackId"]
+        create_options = {
+            "StackName": stack_name,
+            "TemplateURL": template.url,
+            "Parameters": parameters,
+            "DisableRollback": disable_rollback,
+            "Tags": tags,
+            "Capabilities": Capabilities.ALL,
+        }
+        if region.role_arn:
+            create_options["RoleARN"] = region.role_arn
+        stack_id = cfn_client.create_stack(**create_options)["StackId"]
         stack = cls(region, stack_id, template, test_name, uuid)
         # fetch property values from cfn
         stack.refresh()

@@ -71,6 +71,7 @@ METADATA = {
     "shorten_stack_name": {
         "description": "Shorten stack names generated for tests, set to true to enable"
     },
+    "role_name": {"description": "Role name to use when launching CFN Stacks."},
 }
 
 # types
@@ -87,7 +88,6 @@ S3BucketName = NewType("S3BucketName", AlNumDash)
 TestName = NewType("TestName", AlNumDash)
 AzId = NewType("AzId", str)
 Templates = NewType("Templates", Dict[TestName, Template])
-
 # regex validation
 
 
@@ -168,9 +168,6 @@ class AzIdField(FieldEncoder):
 JsonSchemaMixin.register_field_encoders({AzId: AzIdField()})
 
 
-#
-
-
 # dataclasses
 @dataclass
 class RegionObj:
@@ -180,6 +177,7 @@ class RegionObj:
     profile: str
     taskcat_id: UUID
     _boto3_cache: Boto3Cache
+    _role_name: Optional[str]
 
     def client(self, service: str):
         return self._boto3_cache.client(service, region=self.name, profile=self.profile)
@@ -187,6 +185,12 @@ class RegionObj:
     @property
     def session(self):
         return self._boto3_cache.session(region=self.name, profile=self.profile)
+
+    @property
+    def role_arn(self):
+        if self._role_name:
+            return f"arn:{self.partition}:iam::{self.account_id}:role/{self._role_name}"
+        return None
 
 
 @dataclass
@@ -392,6 +396,7 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
     )
+    role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
 
 
 # pylint: disable=too-many-instance-attributes
@@ -442,6 +447,7 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     shorten_stack_name: Optional[bool] = field(
         default=None, metadata=METADATA["shorten_stack_name"]
     )
+    role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
 
 
 PROPAGATE_KEYS = ["tags", "parameters", "auth"]
