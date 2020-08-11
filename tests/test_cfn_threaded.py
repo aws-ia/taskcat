@@ -11,6 +11,23 @@ def return_mock(*args, **kwargs):
     return mock.Mock()
 
 
+def return_mock_client(*args, **kwargs):
+    x = {
+        "StackId": "arn:aws:cloudformation:us-east-2:123456789012:stack/"
+        + "mystack-mynestedstack-sggfrhxhum7w/"
+        + "f449b250-b969-11e0-a185-5081d0136786"
+    }
+    y = {"Stacks": [{"Parameters": [], "Outputs": [], "Tags": []}]}
+    m = mock.Mock(autospec=True)
+    m.create_stack = mock.Mock(return_value=x)
+    m.describe_stacks = mock.Mock(return_value=y)
+    return m
+
+
+def return_s3_url_maker(*args, **kwargs):
+    return "https://foo.s3.us-east-1.amazonaws.com/bar"
+
+
 @mock.patch(
     "taskcat._dataclasses.S3BucketObj._bucket_matches_existing", return_value=True
 )
@@ -54,8 +71,10 @@ class TestStacker(unittest.TestCase):
         stacker.delete_stacks()
         stacker.stacks[0].delete.assert_called_once()
 
-    @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
-    def test_status(self):
+    # @mock.patch("taskcat._cfn.threaded.Stack.create", return_mock)
+    @mock.patch("taskcat._dataclasses.RegionObj.client", return_mock_client)
+    @mock.patch("taskcat._cfn.stack.s3_url_maker", return_s3_url_maker)
+    def test_status(self, *args, **kwargs):
         test_proj = (Path(__file__).parent / "./data/nested-fail").resolve()
         project_name, tests = get_tests(test_proj)
         stacker = Stacker(project_name=project_name, tests=tests)
@@ -71,6 +90,20 @@ class TestStacker(unittest.TestCase):
             "COMPLETE": {"stack-id": ""},
             "FAILED": {},
             "IN_PROGRESS": {"stack-id2": ""},
+        }
+        self.assertEqual(expected, statuses)
+        stacker.stacks[0].id = "stack-id"
+        stacker.stacks[0].status_reason = ""
+        stacker.stacks[0].status = "DELETE_IN_PROGRESS"
+        stacker.stacks[1].id = "stack-id2"
+        stacker.stacks[1].status_reason = ""
+        stacker.stacks[1].status = "DELETE_COMPLETE"
+        statuses = stacker.status()
+        _reason = "COMPLETE event not detected. Potential out-of-band action against the stack."
+        expected = {
+            "COMPLETE": {},
+            "FAILED": {"stack-id2": _reason},
+            "IN_PROGRESS": {"stack-id": ""},
         }
         self.assertEqual(expected, statuses)
 
