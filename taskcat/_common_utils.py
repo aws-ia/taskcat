@@ -49,6 +49,7 @@ def s3_url_maker(bucket, key, s3_client, autobucket=False):
                 resp = requests.get(f"https://{bucket}.s3.amazonaws.com/{key}")
                 location = resp.headers.get("x-amz-bucket-region")
                 if not location:
+                    # pylint: disable=raise-missing-from
                     raise TaskCatException(
                         f"failed to discover region for bucket {bucket}"
                     )
@@ -71,6 +72,7 @@ def get_s3_domain(region):
     try:
         return S3_PARTITION_MAP[REGIONS[region]]
     except KeyError:
+        # pylint: disable=raise-missing-from
         raise TaskCatException(f"cannot find the S3 hostname for region {region}")
 
 
@@ -120,16 +122,19 @@ def param_list_to_dict(original_keys):
     # - Used to give an Parameter => Index mapping for replacement.
     param_index = {}
     if not isinstance(original_keys, list):
+        # pylint: disable=raise-missing-from
         raise TaskCatException(
             'Invalid parameter file, outermost json element must be a list ("[]")'
         )
     for (idx, param_dict) in enumerate(original_keys):
         if not isinstance(param_dict, dict):
+            # pylint: disable=raise-missing-from
             raise TaskCatException(
                 'Invalid parameter %s parameters must be of type dict ("{}")'
                 % param_dict
             )
         if "ParameterKey" not in param_dict or "ParameterValue" not in param_dict:
+            # pylint: disable=raise-missing-from
             raise TaskCatException(
                 f"Invalid parameter {param_dict} all items must "
                 f"have both ParameterKey and ParameterValue keys"
@@ -228,6 +233,7 @@ def fetch_secretsmanager_parameter_value(boto_client, secret_arn):
     try:
         response = secrets_manager.get_secret_value(SecretId=secret_arn)["SecretString"]
     except Exception as e:
+        # pylint: disable=raise-missing-from
         raise TaskCatException(
             "ARN: {} encountered an error: {}".format(secret_arn, str(e))
         )

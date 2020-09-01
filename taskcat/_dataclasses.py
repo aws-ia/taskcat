@@ -160,7 +160,7 @@ class AzIdField(FieldEncoder):
         return {
             "type": "string",
             "pattern": r"^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)"
-            r"[0-9]-az[0-9]|usw2-lax1-az1)$",
+            r"[0-9]-az[0-9]|usw2-lax1-az(1|2))$",
             "description": "Availability Zone ID, eg.: 'use1-az1'",
         }
 

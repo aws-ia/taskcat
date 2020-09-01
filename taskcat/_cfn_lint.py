@@ -101,25 +101,40 @@ class Lint:
             lint_errors.add(str(e))
         lints[name]["results"][tpath] = results
 
-    def output_results(self):
+    def output_results(self):  # noqa: C901
         """
         Prints lint results to terminal using taskcat console formatting
 
         :return:
         """
+        passed = set()
+        issue = {"warning": {}, "error": {}}
         lints = self.lints[0]
         for test in lints:
             for result in lints[test]["results"]:
                 if not lints[test]["results"][result]:
-                    LOG.info(f"Lint passed for test {test} on template {result}")
+                    passed.add(result)
                 else:
-                    msg = f"Lint detected issues for test {test} on template {result}:"
                     if self._is_error(lints[test]["results"][result]):
-                        LOG.error(msg)
+                        if result in issue["error"].keys():
+                            continue
+                        issue["error"][result] = lints[test]["results"][result]
                     else:
-                        LOG.warning(msg)
-                for inner_result in lints[test]["results"][result]:
-                    self._format_message(inner_result, test, result)
+                        if result in issue["warning"].keys():
+                            continue
+                        issue["warning"][result] = lints[test]["results"][result]
+        for filename in passed:
+            LOG.info(f"Linting passed for file: {filename}")
+        for filename, result_data in issue["warning"].items():
+            LOG.warning("---")
+            LOG.warning(f"Linting detected issues in: {filename}")
+            for result_message in result_data:
+                self._format_message(result_message, result_data)
+        for filename, result_data in issue["error"].items():
+            LOG.error("---")
+            LOG.error(f"Linting detected issues in: {filename}")
+            for result_message in result_data:
+                self._format_message(result_message, result_data)
 
     @property
     def passed(self):
@@ -139,7 +154,8 @@ class Lint:
                 return True
         return False
 
-    def _format_message(self, message, test, result):
+    @staticmethod
+    def _format_message(message, full_results):
         sev = message.rule.id[0]
         code = message.rule.id[1:]
         prefix = f"    line {message.linenumber} [{code}] [{message.rule.shortdesc}] "
@@ -149,9 +165,7 @@ class Lint:
         if sev == "E":
             LOG.error(message)
         elif sev == "W":
-            if "E" + code not in [
-                r.__str__().lstrip("[") for r in self.lints[0][test]["results"][result]
-            ]:
+            if "E" + code not in [r.__str__().lstrip("[") for r in full_results]:
                 LOG.warning(message)
         else:
             LOG.error("linter produced unkown output: " + message)

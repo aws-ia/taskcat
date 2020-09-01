@@ -211,6 +211,8 @@ class Test:
                         bucket.delete(delete_objects=True)
                         deleted.append(bucket.name)
         # 9. raise if something failed
+        # - grabbing the status again to ensure everything deleted OK.
+        status = test_definition.status()
         if len(status["FAILED"]) > 0:
             raise TaskCatException(
                 f'One or more stacks failed tests: {status["FAILED"]}'
