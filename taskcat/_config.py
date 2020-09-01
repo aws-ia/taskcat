@@ -142,6 +142,7 @@ class Config:
             except Exception as e:  # pylint: disable=broad-except
                 LOG.debug(str(e), exc_info=True)
                 if not template_file:
+                    # pylint: disable=raise-missing-from
                     raise error
 
     @staticmethod

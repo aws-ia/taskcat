@@ -37,6 +37,7 @@ class Config:
                 cls.raw_dict = yaml.safe_load(_f)
             except yaml.YAMLError as e:
                 LOG.error(f"[{file_name}] - YAML Syntax Error!")
+                # pylint: disable=raise-missing-from
                 raise AMIUpdaterFatalException(str(e))
         try:
             for _x in cls.raw_dict.get("global").get("AMIs").keys():
@@ -47,6 +48,7 @@ class Config:
                 f"{configtype} config file [{file_name}]" f"is not structured properly!"
             )
             LOG.error(f"{e}")
+            # pylint: disable=raise-missing-from
             raise AMIUpdaterFatalException(str(e))
 
     @classmethod
@@ -152,12 +154,14 @@ class AMIUpdaterFatalException(TaskCatException):
     """Raised when AMIUpdater experiences a fatal error"""
 
     def __init__(self, message=None):
+        # pylint: disable=super-with-arguments
         super(AMIUpdaterFatalException, self).__init__(message)
         self.message = message
 
 
 class AMIUpdaterCommitNeededException(TaskCatException):
     def __init__(self, message=None):
+        # pylint: disable=super-with-arguments
         super(AMIUpdaterCommitNeededException, self).__init__(message)
         self.message = message
 

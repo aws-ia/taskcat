@@ -94,17 +94,20 @@ class Boto3Cache:
             account_id = sts_client.get_caller_identity()["Account"]
         except ClientError as e:
             if e.response["Error"]["Code"] == "AccessDenied":
+                # pylint: disable=raise-missing-from
                 raise TaskCatException(
                     f"Not able to fetch account number from {region} using profile "
                     f"{profile}. {str(e)}"
                 )
             raise
         except NoCredentialsError as e:
+            # pylint: disable=raise-missing-from
             raise TaskCatException(
                 f"Not able to fetch account number from {region} using profile "
                 f"{profile}. {str(e)}"
             )
         except ProfileNotFound as e:
+            # pylint: disable=raise-missing-from
             raise TaskCatException(
                 f"Not able to fetch account number from {region} using profile "
                 f"{profile}. {str(e)}"
