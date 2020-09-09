@@ -12,7 +12,7 @@ if [[ ${EXIT_CODE} -ne 0 ]] ; then
     exit 1
 fi
 
-if [[ $(cat /tmp/output | grep -c "Lint passed for test mytest on template") -ne 1 ]]
+if [[ $(cat /tmp/output | egrep -c "Linting passed for file:.*/tests/data/lambda_build_with_submodules/templates/test.template.yaml") -ne 1 ]]
 then
     echo '$ taskcat lint -p ./tests/data/lambda_build_with_submodules'
     cat /tmp/output
@@ -30,7 +30,7 @@ if [[ ${EXIT_CODE} -ne 0 ]] ; then
     exit 1
 fi
 
-if [[ $(cat /tmp/output | grep -c "Lint passed for test taskcat-json on template ") -ne 5 ]]
+if [[ $(cat /tmp/output | grep -c "Linting passed for file:.*/tests/data/nested-fail/templates/test.*.yaml") -ne 5 ]]
 then
     echo '$ taskcat lint -p ./tests/data/nested-fail'
     cat /tmp/output

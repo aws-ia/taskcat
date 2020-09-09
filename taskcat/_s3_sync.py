@@ -221,5 +221,6 @@ class S3Sync:
                 if retry == 5 or (
                     isinstance(e, S3UploadFailedError) and "(AccessDenied)" in str(e)
                 ):
+                    # pylint: disable=raise-missing-from
                     raise TaskCatException("Failed to upload to S3")
                 time.sleep(retry * 2)

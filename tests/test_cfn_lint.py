@@ -193,7 +193,7 @@ class TestCfnLint(unittest.TestCase):
             lint.output_results()
             self.assertTrue(
                 mock_log_info.call_args[0][0].startswith(
-                    "Lint passed for test test1 on template "
+                    f"Linting passed for file: {str(templates['test1'].template_path)}"
                 )
             )
             self.assertEqual(mock_log_error.called, False)
@@ -211,8 +211,8 @@ class TestCfnLint(unittest.TestCase):
             test.append(rule)
             lint.output_results()
             self.assertTrue(
-                mock_log_warning.call_args_list[0][0][0].startswith(
-                    "Lint detected issues for test test1 on template "
+                mock_log_warning.call_args_list[1][0][0].startswith(
+                    f"Linting detected issues in: {str(templates['test1'].template_path)}"
                 )
             )
             mock_log_warning.assert_has_calls(
@@ -232,7 +232,7 @@ class TestCfnLint(unittest.TestCase):
             lint.output_results()
             self.assertTrue(
                 mock_log_warning.call_args[0][0].startswith(
-                    "Lint detected issues for test test1 on template "
+                    f"Linting detected issues in: {str(templates['test1'].template_path)}"
                 )
             )
             mock_log_error.assert_called_once_with(

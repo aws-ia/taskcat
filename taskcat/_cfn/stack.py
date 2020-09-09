@@ -56,6 +56,7 @@ class StackStatus:
         "UPDATE_ROLLBACK_FAILED",
         "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
         "UPDATE_ROLLBACK_COMPLETE",
+        "OUT_OF_ORDER_EVENT",
     ]
 
 
@@ -217,7 +218,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.parameters: List[Parameter] = []
         self.creation_time: datetime = datetime.fromtimestamp(0)
         self.deletion_time: datetime = datetime.fromtimestamp(0)
-        self.status: str = ""
+        self._status: str = ""
         self.status_reason: str = ""
         self.disable_rollback: bool = False
         self.timeout_in_minutes: int = 0
@@ -226,6 +227,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self.tags: List[Tag] = []
         self.parent_id: str = ""
         self.root_id: str = ""
+        self._launch_succeeded: bool = False
         self._auto_refresh_interval: timedelta = timedelta(seconds=60)
         self._last_event_refresh: datetime = datetime.fromtimestamp(0)
         self._last_resource_refresh: datetime = datetime.fromtimestamp(0)
@@ -249,6 +251,34 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         if datetime.now() - last_refresh > self._auto_refresh_interval:
             return True
         return False
+
+    @property
+    def status(self):
+        if self._status in StackStatus.COMPLETE:
+            if not self.launch_succeeded:
+                self._status = "OUT_OF_ORDER_EVENT"
+                self.status_reason = (
+                    "COMPLETE event not detected. "
+                    + "Potential out-of-band action against the stack."
+                )
+        return self._status
+
+    @status.setter
+    def status(self, status):
+        _complete = StackStatus.COMPLETE.copy()
+        del _complete[_complete.index("DELETE_COMPLETE")]
+        self._status = status
+        if status in StackStatus.FAILED:
+            self._launch_succeeded = False
+            return
+        if status in _complete:
+            self._launch_succeeded = True
+            return
+        return
+
+    @property
+    def launch_succeeded(self):
+        return self._launch_succeeded
 
     @classmethod
     def create(
