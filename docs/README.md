@@ -1,10 +1,10 @@
 # taskcat
-[![Build Status](https://travis-ci.org/aws-quickstart/taskcat.svg?branch=master)](https://travis-ci.org/aws-quickstart/taskcat)
+[![Build Status](https://travis-ci.org/aws-quickstart/taskcat.svg?branch=main)](https://travis-ci.org/aws-quickstart/taskcat)
 [![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
-[![taskcat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png)](https://github.com/aws-quickstart/taskcat)
+[![taskcat logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/main/assets/docs/images/logo.png)](https://github.com/aws-quickstart/taskcat)
 
 **[Installation](#installation)**
 
@@ -156,7 +156,7 @@ tests:
     template: ./templates/my-template.yaml
 ```
 
-Complete example with comments: [tests/data/config_full_example/.taskcat.yml](https://raw.githubusercontent.com/taskcat/taskcat/master/tests/data/config_full_example/.taskcat.yml)
+Complete example with comments: [tests/data/config_full_example/.taskcat.yml](https://raw.githubusercontent.com/taskcat/taskcat/main/tests/data/config_full_example/.taskcat.yml)
 
 ### Parameter overrides
 a parameter override file can be created in `<PROJECT_ROOT>/.taskcat_overrides.yml`.
