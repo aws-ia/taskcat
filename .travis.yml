@@ -11,7 +11,7 @@ language: python
 
 branches:
   only:
-  - master
+  - main
 
 python:
   - "3.6"
@@ -35,7 +35,7 @@ jobs:
   include:
   - stage: "[Version Bump] Check/Create Release PR"
     name: "[Version Bump] Check/Create Release PR"
-    if: branch = master AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
+    if: branch = main AND commit_message !~ /(Bump|Release taskcat)/ AND type = push
     before_script:
     - |
       pip install bump2version
@@ -54,19 +54,19 @@ jobs:
       - export NEW_VERSION=$(cat VERSION)
       - git push "https://${GHT}:@github.com/${TRAVIS_REPO_SLUG}" "release/v${RELEASE_ID}" --force || travis_terminate 1
       - |
-          OPEN_PR=$(hub pr list -s open --base master --head "release/v${RELEASE_ID}" -L 1 -f "%I")
+          OPEN_PR=$(hub pr list -s open --base main --head "release/v${RELEASE_ID}" -L 1 -f "%I")
           if [ -z "${OPEN_PR}" ]; then
             hub pull-request -m "Release taskcat [${NEW_VERSION}]"  -h "release/v${RELEASE_ID}"
           fi
       - |
-          OPEN_PR=$(hub pr list -s open --base master --head "release/v${RELEASE_ID}" -L 1 -f "%I")
+          OPEN_PR=$(hub pr list -s open --base main --head "release/v${RELEASE_ID}" -L 1 -f "%I")
           LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
           hub api -XPATCH repos/${TRAVIS_REPO_SLUG}/issues/${OPEN_PR} -f body="${TAG_BODY}"
 
   - stage: "[Version Bump] Create PyPI Development release"
     name: "[Version Bump] Create PyPI Development release"
-    if: branch = master AND type = push
+    if: branch = main AND type = push
     before_script:
       - pip install bump2version
       - pip install packaging
@@ -104,11 +104,11 @@ jobs:
         user: $PYPI_USER
         password: $PYPI_PASSWORD
         on:
-          branch: master
+          branch: main
 
   - stage: "Tag build changelog/Push pypi and github release/Update docs"
     name: "Tag build changelog/Push pypi and github release/Update docs"
-    if: branch = master AND fork = false AND type = push 
+    if: branch = main AND fork = false AND type = push 
     script:
       - |
         echo "${TRAVIS_COMMIT_MESSAGE}" | egrep -i 'Merge pull request.*from aws-quickstart/release.*$'
@@ -125,7 +125,7 @@ jobs:
         api_key: "$GHT"
         file: directory/*
         on:
-          branch: master
+          branch: main
           fork: false
           condition: $RELEASE_THE_KRAKEN = true
           
@@ -134,7 +134,7 @@ jobs:
         user: $PYPI_USER
         password: $PYPI_PASSWORD
         on:
-          branch: master
+          branch: main
           fork: false
           condition: $RELEASE_THE_KRAKEN = true
      
