@@ -57,7 +57,7 @@ class ReportBuilder:
         logo = "taskcat"
         repo_link = "https://github.com/aws-quickstart/taskcat"
         css_url = (
-            "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/"
+            "https://raw.githubusercontent.com/aws-quickstart/taskcat/main/"
             "assets/css/taskcat_reporting.css"
         )
         output_css = requests.get(css_url).text
