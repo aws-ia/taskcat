@@ -59,7 +59,7 @@ def get_pending_builds(history):
     repo = Github(get_token()).get_repo(GITHUB_REPO_NAME)
     prs = repo.get_pulls(state="open")
     for pr in prs:
-        if pr.base.ref != "master":
+        if pr.base.ref != "main":
             continue
         for comment in pr.get_issue_comments():
             if comment.id in history:
