@@ -334,6 +334,7 @@ class AMIUpdater:
                 profile=profile,
                 _boto3_cache=self.boto3_cache,
                 taskcat_id=self.config.uid,
+                _role_name=None,
             )
         return regions
 
