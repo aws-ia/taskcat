@@ -103,6 +103,7 @@ taskcat has several configuration files which can be used to set behaviors in a 
     * `parameters` _Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence_
         * `<PARAMETER_NAME>`
     * `s3_bucket` _Name of S3 bucket to upload project to, if left out a bucket will be auto-generated_
+    * `s3_regional_buckets` _Boolean flag to upload the project to a bucket generated in each region where it will be deployed_
     * `tags` _Tags to apply to CloudFormation template_
         * `<TAG_NAME>`
 
