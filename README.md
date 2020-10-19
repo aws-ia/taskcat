@@ -208,7 +208,7 @@ the effective test configuration would become:
 tests:
   default:
     template: ./template.yaml
-    s3_bucket: my-global-ec2-keypair
+    s3_bucket: my-globally-defined-bucket
     parameters:
       KeyPair: my-global-ec2-keypair
 ```
@@ -237,7 +237,7 @@ would result in this effective test configuration:
 tests:
   default:
     template: ./template.yaml
-    s3_bucket: my-project-ec2-keypair
+    s3_bucket: my-project-s3-bucket
     parameters:
       KeyPair: my-global-ec2-keypair
 ```
