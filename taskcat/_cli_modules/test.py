@@ -1,6 +1,7 @@
 # pylint: disable=duplicate-code
 # noqa: B950,F841
 import logging
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List as ListType
 
@@ -30,6 +31,132 @@ class Test:
     """
     Performs functional tests on CloudFormation templates.
     """
+
+    def __init__(
+        self,
+        test_names: str = "ALL",
+        regions: str = "ALL",
+        input_file: str = "./.taskcat.yml",
+        project_root: str = "./",
+        enable_sig_v2: bool = False,
+        minimal_output: bool = False,
+    ):
+        """Manages the lifecycle of stacks for a given taskcat test.
+
+        :param test_names: comma separated list of tests to run
+        :param regions: comma separated list of regions to test in
+        :param input_file: path to either a taskat project config file or a
+        CloudFormation template
+        :param project_root: root path of the project relative to input_file
+        :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
+        :param minimal_output: Reduces output during test runs
+        """
+
+        self.uid = uuid.uuid4()
+        self.test_names = test_names
+        self.regions = regions
+
+        # Temporary attributes that need removed
+        self.minimal_output = minimal_output
+
+        project_root_path: Path = Path(project_root).expanduser().resolve()
+        input_file_path: Path = project_root_path / input_file
+
+        args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
+
+        self.config = Config.create(
+            project_root=project_root_path,
+            project_config_path=input_file_path,
+            args=args
+            # TODO: detect if input file is taskcat config or CloudFormation template
+        )
+
+    def create_stacks(self, skip_upload: bool = False, lint_disable: bool = False):
+        """Creates the resources and stacks needed for testing
+
+        :param skip_upload: dont upload resources to s3
+        :param lint_disable: disable cfn-lint checks
+        """
+
+        _trim_regions(self.regions, self.config)
+        _trim_tests(self.test_names, self.config)
+
+        boto3_cache = Boto3Cache()
+
+        templates = self.config.get_templates()
+
+        if skip_upload and not self.config.config.project.s3_bucket:
+            raise TaskCatException(
+                "cannot skip_buckets without specifying s3_bucket in config"
+            )
+
+        buckets = self.config.get_buckets(boto3_cache)
+
+        if not skip_upload:
+            # 1. lint
+            if not lint_disable:
+                lint = TaskCatLint(self.config, templates)
+                errors = lint.lints[1]
+                lint.output_results()
+                if errors or not lint.passed:
+                    raise TaskCatException("Lint failed with errors")
+            # 2. build lambdas
+            if self.config.config.project.package_lambda:
+                LambdaBuild(self.config, self.config.project_root)
+            # 3. s3 sync
+            stage_in_s3(
+                buckets, self.config.config.project.name, self.config.project_root
+            )
+        # 4. launch stacks
+        regions = self.config.get_regions(boto3_cache)
+        parameters = self.config.get_rendered_parameters(buckets, regions, templates)
+        tests = self.config.get_tests(templates, regions, buckets, parameters)
+
+        self.test_definition = Stacker(
+            self.config.config.project.name,
+            tests,
+            shorten_stack_name=self.config.config.project.shorten_stack_name,
+        )
+        self.test_definition.create_stacks()
+        terminal_printer = TerminalPrinter(minimalist=self.minimal_output)
+        # 5. wait for completion
+        terminal_printer.report_test_progress(stacker=self.test_definition)
+
+        # TODO: summarise stack statusses (did they complete/delete ok) and print any
+
+    def delete_stacks(
+        self, keep_failed: bool = False, dont_wait_for_delete: bool = False
+    ):
+        """Deletes the resources and stacks used for testing
+
+        :param keep_failed: do not delete failed stacks
+        :param dont_wait_for_delete: Exits immediately after calling stack_delete
+        """
+
+        status = self.test_definition.status()
+
+        terminal_printer = TerminalPrinter(minimalist=self.minimal_output)
+
+        if keep_failed:
+            if len(status["COMPLETE"]) > 0:
+                LOG.info("deleting successful stacks")
+                self.test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
+                if not dont_wait_for_delete:
+                    terminal_printer.report_test_progress(stacker=self.test_definition)
+        else:
+            self.test_definition.delete_stacks()
+            if not dont_wait_for_delete:
+                terminal_printer.report_test_progress(stacker=self.test_definition)
+
+        buckets = self.config.get_buckets()
+
+        if keep_failed is True and len(status["FAILED"]) == 0:
+            deleted: ListType[str] = []
+            for test in buckets.values():
+                for bucket in test.values():
+                    if (bucket.name not in deleted) and not bucket.regional_buckets:
+                        bucket.delete(delete_objects=True)
+                        deleted.append(bucket.name)
 
     # pylint: disable=too-many-locals
     @staticmethod
@@ -103,9 +230,10 @@ class Test:
         )
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    @staticmethod  # noqa: C901
+    @classmethod  # noqa: C901
     # pylint: disable=too-many-arguments
     def run(  # noqa: C901
+        cls,
         test_names: str = "ALL",
         regions: str = "ALL",
         input_file: str = "./.taskcat.yml",
@@ -133,86 +261,31 @@ class Test:
         :param output_directory: Where to store generated logfiles
         :param minimal_output: Reduces output during test runs
         :param dont_wait_for_delete: Exits immediately after calling stack_delete
+        :param skip_upload: dont upload resources to s3
         """
-        project_root_path: Path = Path(project_root).expanduser().resolve()
-        input_file_path: Path = project_root_path / input_file
-        # pylint: disable=too-many-arguments
-        args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
-        config = Config.create(
-            project_root=project_root_path,
-            project_config_path=input_file_path,
-            args=args
-            # TODO: detect if input file is taskcat config or CloudFormation template
+
+        test = cls(
+            test_names, regions, input_file, project_root, enable_sig_v2, minimal_output
         )
-        _trim_regions(regions, config)
-        _trim_tests(test_names, config)
-        boto3_cache = Boto3Cache()
-        templates = config.get_templates()
-        if skip_upload and not config.config.project.s3_bucket:
-            raise TaskCatException(
-                "cannot skip_buckets without specifying s3_bucket in config"
-            )
-        buckets = config.get_buckets(boto3_cache)
-        if not skip_upload:
-            # 1. lint
-            if not lint_disable:
-                lint = TaskCatLint(config, templates)
-                errors = lint.lints[1]
-                lint.output_results()
-                if errors or not lint.passed:
-                    raise TaskCatException("Lint failed with errors")
-            # 2. build lambdas
-            if config.config.project.package_lambda:
-                LambdaBuild(config, project_root_path)
-            # 3. s3 sync
-            stage_in_s3(buckets, config.config.project.name, config.project_root)
-        # 4. launch stacks
-        regions = config.get_regions(boto3_cache)
-        parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(templates, regions, buckets, parameters)
-        test_definition = Stacker(
-            config.config.project.name,
-            tests,
-            shorten_stack_name=config.config.project.shorten_stack_name,
-        )
-        test_definition.create_stacks()
-        terminal_printer = TerminalPrinter(minimalist=minimal_output)
-        # 5. wait for completion
-        terminal_printer.report_test_progress(stacker=test_definition)
-        status = test_definition.status()
-        # 6. create report
+
+        test.create_stacks(skip_upload, lint_disable)
+
         report_path = Path(output_directory).resolve()
         report_path.mkdir(exist_ok=True)
         cfn_logs = _CfnLogTools()
-        cfn_logs.createcfnlogs(test_definition, report_path)
-        ReportBuilder(test_definition, report_path / "index.html").generate_report()
-        # 7. delete stacks
+        cfn_logs.createcfnlogs(test.test_definition, report_path)
+        ReportBuilder(
+            test.test_definition, report_path / "index.html"
+        ).generate_report()
+
         if no_delete:
             LOG.info("Skipping delete due to cli argument")
-        elif keep_failed:
-            if len(status["COMPLETE"]) > 0:
-                LOG.info("deleting successful stacks")
-                test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
-                if not dont_wait_for_delete:
-                    terminal_printer.report_test_progress(stacker=test_definition)
         else:
-            test_definition.delete_stacks()
-            if not dont_wait_for_delete:
-                terminal_printer.report_test_progress(stacker=test_definition)
-        # TODO: summarise stack statusses (did they complete/delete ok) and print any
-        #  error events
-        # 8. delete buckets
+            test.delete_stacks(keep_failed, dont_wait_for_delete)
 
-        if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
-            deleted: ListType[str] = []
-            for test in buckets.values():
-                for bucket in test.values():
-                    if (bucket.name not in deleted) and not bucket.regional_buckets:
-                        bucket.delete(delete_objects=True)
-                        deleted.append(bucket.name)
-        # 9. raise if something failed
+        # raise if something failed
         # - grabbing the status again to ensure everything deleted OK.
-        status = test_definition.status()
+        status = test.test_definition.status()
         if len(status["FAILED"]) > 0:
             raise TaskCatException(
                 f'One or more stacks failed tests: {status["FAILED"]}'
