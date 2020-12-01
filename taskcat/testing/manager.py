@@ -25,7 +25,11 @@ class TestManager:
 
     def __init__(self, config: Config):
         """
-        docstring
+        Creates a TestManager that manages the lifecycle of AWS resources while running a test.
+        This instance returned has an additonal property test_definiton that is set after the
+        run method is called.
+
+        :param config: takes a taskcat Config object.
         """
         self.config: Config = config
         self.minimal_output: bool = True
@@ -100,7 +104,7 @@ class TestManager:
 
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
-        :param skip_upload: Use template in an existing cloudformation bucket.
+        :param skip_upload: Use templates in an existing cloudformation bucket.
         :param lint_disable: disable cfn-lint checks
         """
 
@@ -155,7 +159,11 @@ class TestManager:
         dont_wait_for_delete: bool = True,
     ):
         """
-        docstring
+        Ends a Taskcat test run by deleting the test related resources in AWS.
+
+        :param no_delete: don't delete stacks or buckets
+        :param keep_failed: do not delete failed stacks
+        :param dont_wait_for_delete: returns immediately after calling stack_delete
         """
 
         terminal_printer = TerminalPrinter(minimalist=self.minimal_output)
@@ -203,6 +211,8 @@ class TestManager:
     ):
         """
         Generates a report of the status of Cloudformation stacks.
+
+        :param output_directory: Where to store generated logfiles
         """
         report_path = Path(output_directory).resolve()
         report_path.mkdir(exist_ok=True)
