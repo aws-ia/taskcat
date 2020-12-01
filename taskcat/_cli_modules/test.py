@@ -92,8 +92,7 @@ class Test:
             dont_wait_for_delete=dont_wait_for_delete,
         )
 
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    @staticmethod  # noqa: C901
+    @staticmethod
     # pylint: disable=too-many-arguments
     def run(  # noqa: C901
         test_names: str = "ALL",
@@ -123,6 +122,7 @@ class Test:
         :param output_directory: Where to store generated logfiles
         :param minimal_output: Reduces output during test runs
         :param dont_wait_for_delete: Exits immediately after calling stack_delete
+        :param skip_upload: Use templates in an existing cloudformation bucket.
         """
         # Create a TestManager and start the Tests
         test_manager = TestManager.from_file(
@@ -134,6 +134,7 @@ class Test:
         # Create Report
         test_manager.report(output_directory)
 
+        # Remove the buckets and stacks created for this test run
         test_manager.end(no_delete, keep_failed, dont_wait_for_delete)
 
     def resume(self, run_id):  # pylint: disable=no-self-use
