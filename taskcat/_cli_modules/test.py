@@ -8,7 +8,7 @@ import yaml
 
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
-from taskcat.testing.manager import TestManager
+from taskcat.testing import TestManager
 
 from .delete import Delete
 from .list import List
