@@ -27,8 +27,8 @@ class TestManager:
         Creates a TestManager that manages the lifecycle of AWS resources while running
         a test.
 
-        This instance returned has an additonal property test_definiton that is set after
-        the run method is called.
+        This instance returned has an additonal property test_definiton that is set
+        after the run method is called.
 
         :param config: takes a taskcat Config object.
         :param printer: an object capable of reporting test progress
