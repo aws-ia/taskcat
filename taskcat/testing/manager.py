@@ -24,13 +24,15 @@ class TestManager:
 
     def __init__(self, config: Config, printer: object = None):
         """
-        Creates a TestManager that manages the lifecycle of AWS resources while running a test.
-        This instance returned has an additonal property test_definiton that is set after the
-        run method is called.
+        Creates a TestManager that manages the lifecycle of AWS resources while running
+        a test.
+
+        This instance returned has an additonal property test_definiton that is set after
+        the run method is called.
 
         :param config: takes a taskcat Config object.
         :param printer: an object capable of reporting test progress
-        """  # noqa: C0301
+        """
         self.config: Config = config
         self.printer = printer
         self.test_definition: Stacker
