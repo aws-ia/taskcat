@@ -12,7 +12,6 @@ from taskcat._config import Config
 from taskcat._generate_reports import ReportBuilder
 from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
-from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -23,16 +22,17 @@ class TestManager:
     Manages the lifecycle of AWS resources while running a test.
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, printer: object = None):
         """
         Creates a TestManager that manages the lifecycle of AWS resources while running a test.
         This instance returned has an additonal property test_definiton that is set after the
         run method is called.
 
         :param config: takes a taskcat Config object.
-        """
+        :param printer: an object capable of reporting test progress
+        """  # noqa: C0301
         self.config: Config = config
-        self.minimal_output: bool = True
+        self.printer = printer
         self.test_definition: Stacker
 
     @classmethod
@@ -148,9 +148,8 @@ class TestManager:
             shorten_stack_name=self.config.config.project.shorten_stack_name,
         )
         self.test_definition.create_stacks()
-        terminal_printer = TerminalPrinter(minimalist=self.minimal_output)
 
-        terminal_printer.report_test_progress(stacker=self.test_definition)
+        self.printer.report_test_progress(stacker=self.test_definition)
 
     def end(
         self,
@@ -166,8 +165,6 @@ class TestManager:
         :param dont_wait_for_delete: returns immediately after calling stack_delete
         """
 
-        terminal_printer = TerminalPrinter(minimalist=self.minimal_output)
-
         status = self.test_definition.status()
 
         # Delete Stacks
@@ -181,7 +178,7 @@ class TestManager:
             self.test_definition.delete_stacks()
 
         if not dont_wait_for_delete:
-            terminal_printer.report_test_progress(stacker=self.test_definition)
+            self.printer.report_test_progress(stacker=self.test_definition)
 
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
         #  error events

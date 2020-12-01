@@ -8,6 +8,7 @@ import yaml
 
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
+from taskcat._tui import TerminalPrinter
 from taskcat.testing import TestManager
 
 from .delete import Delete
@@ -124,11 +125,14 @@ class Test:
         :param dont_wait_for_delete: Exits immediately after calling stack_delete
         :param skip_upload: Use templates in an existing cloudformation bucket.
         """
+
+        terminal_printer = TerminalPrinter(minimalist=minimal_output)
+
         # Create a TestManager and start the Tests
         test_manager = TestManager.from_file(
             project_root, input_file, regions, enable_sig_v2
         )
-        test_manager.minimal_output = minimal_output
+        test_manager.printer = terminal_printer
         test_manager.start(test_names, regions, skip_upload, lint_disable)
 
         # Create Report
