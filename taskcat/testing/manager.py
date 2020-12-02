@@ -1,7 +1,7 @@
 import logging
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List as ListType
+from typing import Any, Dict, List as ListType, Union
 
 from taskcat._cfn._log_stack_events import _CfnLogTools
 from taskcat._cfn.threaded import Stacker
@@ -12,6 +12,7 @@ from taskcat._config import Config
 from taskcat._generate_reports import ReportBuilder
 from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
+from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
 
 LOG = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class TestManager:
     Manages the lifecycle of AWS resources while running a test.
     """
 
-    def __init__(self, config: Config, printer: object = None):
+    def __init__(self, config: Config, printer: Union[TerminalPrinter, None] = None):
         """
         Creates a TestManager that manages the lifecycle of AWS resources while running
         a test.
@@ -33,9 +34,13 @@ class TestManager:
         :param config: takes a taskcat Config object.
         :param printer: an object capable of reporting test progress
         """
-        self.config: Config = config
-        self.printer = printer
+        self.config = config
         self.test_definition: Stacker
+
+        if printer is None:
+            self.printer = TerminalPrinter(minimalist=True)
+        else:
+            self.printer = printer
 
     @classmethod
     def from_file(
