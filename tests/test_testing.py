@@ -106,3 +106,33 @@ class TestTestManager(unittest.TestCase):
         test_manager = TestManager(mock_config, mock_printer)
 
         self.assertEqual(test_manager.printer, mock_printer, "Should use our printer.")
+
+    def test_start_default(self):
+        pass
+
+    def test_start_skip_upload(self):
+        pass
+
+    def test_start_list_disable(self):
+        pass
+
+    def test_end_default(self):
+        pass
+
+    def test_end_no_delete(self):
+        pass
+
+    def test_end_keep_failed(self):
+        pass
+
+    def test_report(self):
+        pass
+
+    def test_trim_regions(self):
+        pass
+
+    def test_trim_tests(self):
+        pass
+
+    def test_build_args(self):
+        pass
