@@ -107,8 +107,58 @@ class TestTestManager(unittest.TestCase):
 
         self.assertEqual(test_manager.printer, mock_printer, "Should use our printer.")
 
-    def test_start_default(self):
-        pass
+    @mock.patch("taskcat.testing.manager.Stacker", autospec=True)
+    @mock.patch("taskcat.testing.manager.stage_in_s3", autospec=True)
+    @mock.patch("taskcat.testing.manager.LambdaBuild", autospec=True)
+    def test_start_default(self, mock_lambda, mock_stage_s3, mock_stacker):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/nested-fail").resolve()
+
+        test_manager = TestManager.from_file(str(base_path))
+
+        # Create all the config mocks
+        mock_get_buckets = mock.Mock()
+        mock_get_regions = mock.Mock()
+        mock_get_parameters = mock.Mock()
+        mock_get_tests = mock.Mock()
+        mock_printer = mock.Mock()
+
+        # Assign all the config mocks
+        test_manager.config.get_buckets = mock_get_buckets
+        test_manager.config.get_regions = mock_get_regions
+        test_manager.config.get_rendered_parameters = mock_get_parameters
+        test_manager.config.get_tests = mock_get_tests
+        test_manager.printer = mock_printer
+
+        test_manager.start()
+
+        # Test all the mocks
+        mock_get_buckets.assert_called_once()
+        mock_lambda.assert_called_once_with(test_manager.config, base_path)
+        mock_stage_s3.assert_called_once_with(
+            mock_get_buckets.return_value,
+            test_manager.config.config.project.name,
+            test_manager.config.project_root,
+        )
+        mock_get_regions.assert_called_once()
+        mock_get_parameters.assert_called_once_with(
+            mock_get_buckets.return_value, mock_get_regions.return_value, mock.ANY
+        )
+        mock_get_tests.assert_called_once_with(
+            mock.ANY,
+            mock_get_regions.return_value,
+            mock_get_buckets.return_value,
+            mock_get_parameters.return_value,
+        )
+        mock_stacker.assert_called_with(
+            test_manager.config.config.project.name,
+            mock_get_tests.return_value,
+            shorten_stack_name=test_manager.config.config.project.shorten_stack_name,
+        )
+        mock_stacker.return_value.create_stacks.assert_called_once()
+        mock_printer.report_test_progress.assert_called_once_with(
+            stacker=test_manager.test_definition
+        )
 
     def test_start_skip_upload(self):
         pass
