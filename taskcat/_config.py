@@ -123,7 +123,7 @@ class Config:
             sources.append({"source": "CliArgument", "config": args})
         return cls(sources=sources, uid=uid, project_root=project_root)
 
-    # pylint: disable=protected-access
+    # pylint: disable=protected-access, inconsistent-return-statements
     @staticmethod
     def _get_project_source(base_cls, project_config_path, project_root, template_file):
         try:

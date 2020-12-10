@@ -1,4 +1,4 @@
-pre-commit~=1.17
+pre-commit~=2.12
 black>=19.3b,<20.0
 pylint~=2.3
 pytest-cov~=2.7
