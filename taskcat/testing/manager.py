@@ -207,7 +207,7 @@ class TestManager:
         status = self.test_definition.status()
         if len(status["FAILED"]) > 0:
             raise TaskCatException(
-                f'One or more stacks failed tests: {status["FAILED"]}'
+                f'One or more stacks failed to create: {status["FAILED"]}'
             )
 
     def report(

@@ -271,7 +271,7 @@ class TestTestManager(unittest.TestCase):
         with self.assertRaises(TaskCatException) as ex:
             test_manager.end(keep_failed=True)
 
-        self.assertTrue("One or more stacks failed tests:" in str(ex.exception))
+        self.assertTrue("One or more stacks failed to create:" in str(ex.exception))
 
     @patch("taskcat.testing.manager.Config")
     @patch("taskcat.testing.manager._CfnLogTools")
