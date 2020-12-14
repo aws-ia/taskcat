@@ -8,7 +8,7 @@ import yaml
 from mock import ANY, MagicMock, Mock, patch
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
-from taskcat.testing import TestManager
+from taskcat.testing import DeployTest
 
 # Save some typing
 m = Mock
@@ -16,16 +16,16 @@ mm = MagicMock
 
 
 class TestTestManager(unittest.TestCase):
-    @patch("taskcat.testing.manager.Config", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config", autospec=True)
     def test_from_file(self, mock_config: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
         input_path = base_path / ".taskcat.yml"
 
-        test_manager = TestManager.from_file(str(base_path))
+        test_manager = DeployTest.from_file(str(base_path))
 
         self.assertIsInstance(
-            test_manager, TestManager, "Should return an instance of TestManager."
+            test_manager, DeployTest, "Should return an instance of DeployTest."
         )
 
         _, kwargs = mock_config.create.call_args_list[0]
@@ -52,19 +52,21 @@ class TestTestManager(unittest.TestCase):
             "Should turn our str into a Path.",
         )
 
-    @patch("taskcat.testing.manager.Config", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config", autospec=True)
     def test_from_dict(self, mock_config: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
         input_path = base_path / ".taskcat.yml"
 
+        mock_config.return_value.uid = "test"
+
         with open(str(input_path)) as f:
             test_config = yaml.load(f, Loader=yaml.FullLoader)
 
-        test_manager = TestManager.from_dict(test_config, project_root=str(base_path))
+        test_manager = DeployTest.from_dict(test_config, project_root=str(base_path))
 
         self.assertIsInstance(
-            test_manager, TestManager, "Should return an instance of TestManager."
+            test_manager, DeployTest, "Should return an instance of DeployTest."
         )
 
         _, kwargs = mock_config.call_args_list[0]
@@ -86,13 +88,17 @@ class TestTestManager(unittest.TestCase):
             self.assertTrue("config" in item, "Should contain config key.")
             self.assertTrue("source" in item, "Should contain source key.")
 
-    @patch("taskcat.testing.manager.Config", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config")
     def test_default(self, mock_config: mm):
 
-        test_manager = TestManager(mock_config)
+        mock_config.return_value.uid = "test"
+
+        test_manager = DeployTest(mock_config())
 
         self.assertEqual(
-            test_manager.config, mock_config, "Should set our config property."
+            test_manager.config,
+            mock_config.return_value,
+            "Should set our config property.",
         )
         self.assertFalse(
             hasattr(test_manager, "test_definition"), "Should not set test_definition."
@@ -103,23 +109,24 @@ class TestTestManager(unittest.TestCase):
             "Should create a TerminalPrinter if none passed in.",
         )
 
-    @patch("taskcat.testing.manager.Config", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config")
     def test_printer_overide(self, mock_config: mm):
+        mock_config.return_value.uid = "test"
 
         mock_printer = MagicMock()
 
-        test_manager = TestManager(mock_config, mock_printer)
+        test_manager = DeployTest(mock_config(), mock_printer)
 
         self.assertEqual(test_manager.printer, mock_printer, "Should use our printer.")
 
-    @patch("taskcat.testing.manager.Stacker", autospec=True)
-    @patch("taskcat.testing.manager.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.manager.LambdaBuild", autospec=True)
+    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
+    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.deploy_test.LambdaBuild", autospec=True)
     def test_start_default(self, mock_lambda: mm, mock_stage_s3: mm, mock_stacker: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
 
-        test_manager = TestManager.from_file(str(base_path))
+        test_manager = DeployTest.from_file(str(base_path))
 
         # Create all the config mocks
         mock_get_buckets: m = Mock()
@@ -135,7 +142,7 @@ class TestTestManager(unittest.TestCase):
         test_manager.config.get_tests = mock_get_tests
         test_manager.printer = mock_printer
 
-        test_manager.start()
+        test_manager.run()
 
         # Test all the mocks
         mock_get_buckets.assert_called_once()
@@ -165,14 +172,14 @@ class TestTestManager(unittest.TestCase):
             stacker=test_manager.test_definition
         )
 
-    @patch("taskcat.testing.manager.Stacker", autospec=True)
-    @patch("taskcat.testing.manager.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.manager.Config")
+    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
+    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config")
     def test_start_skip_upload(
         self, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
 
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         config_obj = mock_config.return_value
 
@@ -180,7 +187,7 @@ class TestTestManager(unittest.TestCase):
 
         # Should fail if we don't specify an existing s3 bucket
         with self.assertRaises(TaskCatException) as ex:
-            test_manager.start(skip_upload=True)
+            test_manager.run(skip_upload=True)
 
         self.assertEqual(
             str(ex.exception),
@@ -189,20 +196,20 @@ class TestTestManager(unittest.TestCase):
 
         test_manager.config.config.project.s3_bucket = "FakeBucket"
 
-        test_manager.start(skip_upload=True)
+        test_manager.run(skip_upload=True)
 
         # Test all the mocks
         self.assertFalse(mock_stage_s3.called, "Should not stage in s3.")
 
-    @patch("taskcat.testing.manager.Stacker", autospec=True)
-    @patch("taskcat.testing.manager.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.manager.Config")
-    @patch("taskcat.testing.manager.TaskCatLint", autospec=True)
+    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
+    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.deploy_test.TaskCatLint", autospec=True)
     def test_start_lint(
         self, mock_lint: mm, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
 
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         config_obj = mock_config.return_value
         config_obj.config.project.s3_bucket = ""
@@ -211,11 +218,11 @@ class TestTestManager(unittest.TestCase):
         lint_obj.lints = [False, False]
         lint_obj.passed = True
 
-        test_manager.start(lint_disable=True)
+        test_manager.run(lint_disable=True)
 
         lint_obj.output_results.assert_not_called()
 
-        test_manager.start()
+        test_manager.run()
 
         lint_obj.output_results.assert_called_once()
 
@@ -223,45 +230,45 @@ class TestTestManager(unittest.TestCase):
 
         # Should fail if we don't specify an existing s3 bucket
         with self.assertRaises(TaskCatException) as ex:
-            test_manager.start()
+            test_manager.run()
 
         self.assertEqual(str(ex.exception), "Lint failed with errors")
 
-    @patch("taskcat.testing.manager.Config")
+    @patch("taskcat.testing.deploy_test.Config")
     def test_end_default(self, mock_config: mm):
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         td_mock = MagicMock()
 
         test_manager.test_definition = td_mock
 
-        test_manager.end()
+        test_manager.clean_up()
 
         td_mock.status.assert_called()
         td_mock.delete_stacks.assert_called_once()
 
-    @patch("taskcat.testing.manager.Config")
+    @patch("taskcat.testing.deploy_test.Config")
     def test_end_no_delete(self, mock_config: mm):
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         td_mock: mm = MagicMock()
 
         test_manager.test_definition = td_mock
 
-        test_manager.end(no_delete=True)
+        test_manager.clean_up(no_delete=True)
 
         td_mock.delete_stacks.assert_not_called()
 
-    @patch("taskcat.testing.manager.Config")
+    @patch("taskcat.testing.deploy_test.Config")
     def test_end_keep_failed(self, mock_config: mm):
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         td_mock = MagicMock()
         td_mock.status.return_value = {"COMPLETE": [1], "FAILED": []}
 
         test_manager.test_definition = td_mock
 
-        test_manager.end(keep_failed=True)
+        test_manager.clean_up(keep_failed=True)
 
         td_mock.delete_stacks.assert_called_once_with({"status": "CREATE_COMPLETE"})
 
@@ -269,15 +276,15 @@ class TestTestManager(unittest.TestCase):
 
         # Should fail if a stack fails.
         with self.assertRaises(TaskCatException) as ex:
-            test_manager.end(keep_failed=True)
+            test_manager.clean_up(keep_failed=True)
 
         self.assertTrue("One or more stacks failed to create:" in str(ex.exception))
 
-    @patch("taskcat.testing.manager.Config")
-    @patch("taskcat.testing.manager._CfnLogTools")
-    @patch("taskcat.testing.manager.ReportBuilder")
+    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.deploy_test._CfnLogTools")
+    @patch("taskcat.testing.deploy_test.ReportBuilder")
     def test_report(self, mock_report: mm, mock_log: mm, mock_config: mm):
-        test_manager = TestManager(mock_config())
+        test_manager = DeployTest(mock_config())
 
         td_mock = MagicMock()
 
