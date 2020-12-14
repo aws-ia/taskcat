@@ -8,6 +8,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 from typing import List
 
 from boto3.exceptions import S3UploadFailedError
+from boto3.s3.transfer import TransferConfig
 
 from taskcat._logger import PrintMsg
 from taskcat.exceptions import TaskCatException
@@ -210,7 +211,11 @@ class S3Sync:
             )
             try:
                 s3_client.upload_file(
-                    local_filename, bucket, prefix + s3_path, ExtraArgs={"ACL": acl}
+                    local_filename,
+                    bucket,
+                    prefix + s3_path,
+                    ExtraArgs={"ACL": acl},
+                    Config=TransferConfig(use_threads=False),
                 )
                 break
             except Exception as e:  # pylint: disable=broad-except
