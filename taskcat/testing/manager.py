@@ -8,7 +8,7 @@ from taskcat._tui import TerminalPrinter
 from taskcat.testing import CFNTest
 from taskcat.testing.ab_test import Test
 
-T = List[Test]
+Tests = List[Test]
 
 
 class TestManager:
@@ -21,13 +21,13 @@ class TestManager:
         self,
         config: Config,
         printer: Union[TerminalPrinter, None] = None,
-        tests: Union[T, None] = None,
+        tests: Union[Tests, None] = None,
     ):
 
         self.config = config
         self.printer = printer
         # The defaults in the future will be Lint, Unit, Deploy in that order.
-        self.tests: T = [CFNTest(config, printer)]
+        self.tests: Tests = [CFNTest(config, printer)]
 
         if tests:
             self.update_tests(tests)
@@ -103,8 +103,8 @@ class TestManager:
         for test in self.tests:
             test.clean_up()
 
-    def update_tests(self, tests: T) -> None:
-        new_tests: T = []
+    def update_tests(self, tests: Tests) -> None:
+        new_tests: Tests = []
 
         # This may have not been the best way to do this
         # but its important that the lis of tests maintain their order.

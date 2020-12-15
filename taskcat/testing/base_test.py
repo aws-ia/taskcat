@@ -1,7 +1,7 @@
-import uuid
-from typing import Union
+from typing import Any
 
-from .ab_test import Test
+from taskcat._config import Config
+from taskcat.testing.ab_test import Test
 
 
 class BaseTest(Test):
@@ -10,22 +10,34 @@ class BaseTest(Test):
     implement the the run and clean_up methods.
     """
 
-    def __init__(self, uid: Union[uuid.UUID, None] = None):
-        self.uid = uid if uid else uuid.uuid4()
+    def __init__(self, config: Config):
+        self.config = config
         self.passed = False
+        self.result = None
 
     @property
-    def uid(self) -> uuid.UUID:
-        return self._uid
+    def config(self) -> Config:
+        return self._config
 
-    @uid.setter
-    def uid(self, uid: uuid.UUID) -> None:
-        self._uid = uid
+    @config.setter
+    def config(self, config: Config) -> None:
+        # It should be possible to check if config is already set
+        # and if it is throw an exception. Might be needed since
+        # child objects rely on the configs uid.
+        self._config = config
 
     @property
     def passed(self) -> bool:
         return self._passed
 
     @passed.setter
-    def passed(self, value: bool) -> None:
-        self._passed = value
+    def passed(self, new_value: bool) -> None:
+        self._passed = new_value
+
+    @property
+    def result(self) -> Any:
+        return self._result
+
+    @result.setter
+    def result(self, new_value: Any) -> None:
+        self._result = new_value

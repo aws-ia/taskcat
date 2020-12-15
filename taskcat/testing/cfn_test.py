@@ -44,8 +44,7 @@ class CFNTest(BaseTest):
         :param config: takes a taskcat Config object.
         :param printer: an object capable of reporting test progress
         """
-        super().__init__(config.uid)
-        self.config = config
+        super().__init__(config)
         self.test_definition: Stacker
         self.test_names = test_names
         self.regions = regions

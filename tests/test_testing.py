@@ -16,7 +16,7 @@ mm = MagicMock
 
 
 class TestTestManager(unittest.TestCase):
-    @patch("taskcat.testing.deploy_test.Config", autospec=True)
+    @patch("taskcat.testing.cfn_test.Config", autospec=True)
     def test_from_file(self, mock_config: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
@@ -52,7 +52,7 @@ class TestTestManager(unittest.TestCase):
             "Should turn our str into a Path.",
         )
 
-    @patch("taskcat.testing.deploy_test.Config", autospec=True)
+    @patch("taskcat.testing.cfn_test.Config", autospec=True)
     def test_from_dict(self, mock_config: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
@@ -88,7 +88,7 @@ class TestTestManager(unittest.TestCase):
             self.assertTrue("config" in item, "Should contain config key.")
             self.assertTrue("source" in item, "Should contain source key.")
 
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Config")
     def test_default(self, mock_config: mm):
 
         mock_config.return_value.uid = "test"
@@ -109,7 +109,7 @@ class TestTestManager(unittest.TestCase):
             "Should create a TerminalPrinter if none passed in.",
         )
 
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Config")
     def test_printer_overide(self, mock_config: mm):
         mock_config.return_value.uid = "test"
 
@@ -119,9 +119,9 @@ class TestTestManager(unittest.TestCase):
 
         self.assertEqual(test_manager.printer, mock_printer, "Should use our printer.")
 
-    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
-    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.deploy_test.LambdaBuild", autospec=True)
+    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.cfn_test.LambdaBuild", autospec=True)
     def test_start_default(self, mock_lambda: mm, mock_stage_s3: mm, mock_stacker: mm):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
@@ -172,9 +172,9 @@ class TestTestManager(unittest.TestCase):
             stacker=test_manager.test_definition
         )
 
-    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
-    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.cfn_test.Config")
     def test_start_skip_upload(
         self, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
@@ -201,10 +201,10 @@ class TestTestManager(unittest.TestCase):
         # Test all the mocks
         self.assertFalse(mock_stage_s3.called, "Should not stage in s3.")
 
-    @patch("taskcat.testing.deploy_test.Stacker", autospec=True)
-    @patch("taskcat.testing.deploy_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.deploy_test.Config")
-    @patch("taskcat.testing.deploy_test.TaskCatLint", autospec=True)
+    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing.cfn_test.TaskCatLint", autospec=True)
     def test_start_lint(
         self, mock_lint: mm, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
@@ -234,7 +234,7 @@ class TestTestManager(unittest.TestCase):
 
         self.assertEqual(str(ex.exception), "Lint failed with errors")
 
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Config")
     def test_end_default(self, mock_config: mm):
         test_manager = CFNTest(mock_config())
 
@@ -247,7 +247,7 @@ class TestTestManager(unittest.TestCase):
         td_mock.status.assert_called()
         td_mock.delete_stacks.assert_called_once()
 
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Config")
     def test_end_no_delete(self, mock_config: mm):
         test_manager = CFNTest(mock_config())
 
@@ -259,7 +259,7 @@ class TestTestManager(unittest.TestCase):
 
         td_mock.delete_stacks.assert_not_called()
 
-    @patch("taskcat.testing.deploy_test.Config")
+    @patch("taskcat.testing.cfn_test.Config")
     def test_end_keep_failed(self, mock_config: mm):
         test_manager = CFNTest(mock_config())
 
@@ -280,9 +280,9 @@ class TestTestManager(unittest.TestCase):
 
         self.assertTrue("One or more stacks failed to create:" in str(ex.exception))
 
-    @patch("taskcat.testing.deploy_test.Config")
-    @patch("taskcat.testing.deploy_test._CfnLogTools")
-    @patch("taskcat.testing.deploy_test.ReportBuilder")
+    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing.cfn_test._CfnLogTools")
+    @patch("taskcat.testing.cfn_test.ReportBuilder")
     def test_report(self, mock_report: mm, mock_log: mm, mock_config: mm):
         test_manager = CFNTest(mock_config())
 

@@ -1,15 +1,13 @@
-import uuid
-from typing import Union
-
-from .base_test import BaseTest
+from taskcat._config import Config
+from taskcat.testing.base_test import BaseTest
 
 
 class LintTest(BaseTest):
-    def __init__(self, uid: Union[uuid.UUID, None] = None):  # pylint: disable=W0235
-        super().__init__(uid)
+    def __init__(self, config: Config):  # pylint: disable=W0235
+        super().__init__(config)
 
-    def run(self):  # pylint: disable=W0221
+    def run(self):
         raise NotImplementedError
 
-    def clean_up(self):  # pylint: disable=W0221
+    def clean_up(self):
         raise NotImplementedError

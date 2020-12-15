@@ -1,38 +1,50 @@
-import uuid
 from abc import ABC, abstractmethod
+from typing import Any
+
+from taskcat._config import Config
 
 
 class Test(ABC):
     """Abstract Test class the forces subclasses to implement
-    a run method to be called to start a test run and optionally
-    a clean_up method to be called afterwards. All subclasses must
-    have a uid and passed property.
+    a run method to be called to start a test run and a clean_up
+    method to be called afterwards. All subclasses must have a
+    config, passed and result property.
     """
 
     @property  # type: ignore
     @abstractmethod
-    def uid(self):
+    def config(self) -> Config:
         pass
 
-    @uid.setter  # type: ignore
+    @config.setter  # type: ignore
     @abstractmethod
-    def uid(self, uid: uuid.UUID):
+    def config(self, config: Config) -> None:
         pass
 
     @property  # type: ignore
     @abstractmethod
-    def passed(self):
+    def passed(self) -> bool:
         pass
 
     @passed.setter  # type: ignore
     @abstractmethod
-    def passed(self, passed: bool):
+    def passed(self, new_value: bool) -> None:
+        pass
+
+    @property  # type: ignore
+    @abstractmethod
+    def result(self) -> Any:
+        pass
+
+    @result.setter  # type: ignore
+    @abstractmethod
+    def result(self, new_value: Any) -> None:
         pass
 
     @abstractmethod
-    def run(self):
+    def run(self) -> None:
         """Run the Test."""
 
     @abstractmethod
-    def clean_up(self, *args, **kwargs):
+    def clean_up(self) -> None:
         """Clean up the Test."""
