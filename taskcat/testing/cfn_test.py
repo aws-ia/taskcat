@@ -22,7 +22,18 @@ class CFNTest(BaseTest):
     Manages the lifecycle of AWS resources while running a test.
     """
 
-    def __init__(self, config: Config, printer: Union[TerminalPrinter, None] = None):
+    def __init__(
+        self,
+        config: Config,
+        printer: Union[TerminalPrinter, None] = None,
+        test_names: str = "ALL",
+        regions: str = "ALL",
+        skip_upload: bool = False,
+        lint_disable: bool = False,
+        no_delete: bool = False,
+        keep_failed: bool = False,
+        dont_wait_for_delete: bool = True,
+    ):
         """
         Creates a TestManager that manages the lifecycle of AWS resources while running
         a test.
@@ -36,20 +47,20 @@ class CFNTest(BaseTest):
         super().__init__(config.uid)
         self.config = config
         self.test_definition: Stacker
+        self.test_names = test_names
+        self.regions = regions
+        self.skip_upload = skip_upload
+        self.lint_disable = lint_disable
+        self.no_delete = no_delete
+        self.keep_failed = keep_failed
+        self.dont_wait_for_delete = dont_wait_for_delete
 
         if printer is None:
             self.printer = TerminalPrinter(minimalist=True)
         else:
             self.printer = printer
 
-    # pylint: disable=W0221
-    def run(
-        self,
-        test_names: str = "ALL",
-        regions: str = "ALL",
-        skip_upload: bool = False,
-        lint_disable: bool = False,
-    ) -> None:
+    def run(self) -> None:
         """
         Starts a Taskcat test run by creating the required resources in AWS.
 
@@ -59,23 +70,23 @@ class CFNTest(BaseTest):
         :param lint_disable: disable cfn-lint checks
         """
 
-        _trim_regions(regions, self.config)
-        _trim_tests(test_names, self.config)
+        _trim_regions(self.regions, self.config)
+        _trim_tests(self.test_names, self.config)
 
         boto3_cache = Boto3Cache()
 
         templates = self.config.get_templates()
 
-        if skip_upload and not self.config.config.project.s3_bucket:
+        if self.skip_upload and not self.config.config.project.s3_bucket:
             raise TaskCatException(
                 "cannot skip_buckets without specifying s3_bucket in config"
             )
 
         buckets = self.config.get_buckets(boto3_cache)
 
-        if not skip_upload:
+        if not self.skip_upload:
             # 1. lint
-            if not lint_disable:
+            if not self.lint_disable:
                 lint = TaskCatLint(self.config, templates)
                 errors = lint.lints[1]
                 lint.output_results()
@@ -102,12 +113,7 @@ class CFNTest(BaseTest):
 
         self.printer.report_test_progress(stacker=self.test_definition)
 
-    def clean_up(
-        self,
-        no_delete: bool = False,
-        keep_failed: bool = False,
-        dont_wait_for_delete: bool = True,
-    ):  # pylint: disable=W0221
+    def clean_up(self) -> None:
         """
         Ends a Taskcat test run by deleting the test related resources in AWS.
 
@@ -119,16 +125,16 @@ class CFNTest(BaseTest):
         status = self.test_definition.status()
 
         # Delete Stacks
-        if no_delete:
+        if self.no_delete:
             LOG.info("Skipping delete due to cli argument")
-        elif keep_failed:
+        elif self.keep_failed:
             if len(status["COMPLETE"]) > 0:
                 LOG.info("deleting successful stacks")
                 self.test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
         else:
             self.test_definition.delete_stacks()
 
-        if not dont_wait_for_delete:
+        if not self.dont_wait_for_delete:
             self.printer.report_test_progress(stacker=self.test_definition)
 
         # TODO: summarise stack statusses (did they complete/delete ok) and print any
@@ -137,7 +143,9 @@ class CFNTest(BaseTest):
         # Delete Templates and Buckets
         buckets = self.config.get_buckets()
 
-        if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
+        if not self.no_delete or (
+            self.keep_failed is True and len(status["FAILED"]) == 0
+        ):
             deleted: ListType[str] = []
             for test in buckets.values():
                 for bucket in test.values():
