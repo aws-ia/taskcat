@@ -8,7 +8,7 @@ import yaml
 from mock import ANY, MagicMock, Mock, patch
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
-from taskcat.testing import DeployTest
+from taskcat.testing import CFNTest
 
 # Save some typing
 m = Mock
@@ -22,10 +22,10 @@ class TestTestManager(unittest.TestCase):
         base_path = Path(base_path + "data/nested-fail").resolve()
         input_path = base_path / ".taskcat.yml"
 
-        test_manager = DeployTest.from_file(str(base_path))
+        test_manager = CFNTest.from_file(str(base_path))
 
         self.assertIsInstance(
-            test_manager, DeployTest, "Should return an instance of DeployTest."
+            test_manager, CFNTest, "Should return an instance of CFNTest."
         )
 
         _, kwargs = mock_config.create.call_args_list[0]
@@ -63,10 +63,10 @@ class TestTestManager(unittest.TestCase):
         with open(str(input_path)) as f:
             test_config = yaml.load(f, Loader=yaml.FullLoader)
 
-        test_manager = DeployTest.from_dict(test_config, project_root=str(base_path))
+        test_manager = CFNTest.from_dict(test_config, project_root=str(base_path))
 
         self.assertIsInstance(
-            test_manager, DeployTest, "Should return an instance of DeployTest."
+            test_manager, CFNTest, "Should return an instance of CFNTest."
         )
 
         _, kwargs = mock_config.call_args_list[0]
@@ -93,7 +93,7 @@ class TestTestManager(unittest.TestCase):
 
         mock_config.return_value.uid = "test"
 
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         self.assertEqual(
             test_manager.config,
@@ -115,7 +115,7 @@ class TestTestManager(unittest.TestCase):
 
         mock_printer = MagicMock()
 
-        test_manager = DeployTest(mock_config(), mock_printer)
+        test_manager = CFNTest(mock_config(), mock_printer)
 
         self.assertEqual(test_manager.printer, mock_printer, "Should use our printer.")
 
@@ -126,7 +126,7 @@ class TestTestManager(unittest.TestCase):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
 
-        test_manager = DeployTest.from_file(str(base_path))
+        test_manager = CFNTest.from_file(str(base_path))
 
         # Create all the config mocks
         mock_get_buckets: m = Mock()
@@ -179,7 +179,7 @@ class TestTestManager(unittest.TestCase):
         self, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
 
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         config_obj = mock_config.return_value
 
@@ -209,7 +209,7 @@ class TestTestManager(unittest.TestCase):
         self, mock_lint: mm, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
 
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         config_obj = mock_config.return_value
         config_obj.config.project.s3_bucket = ""
@@ -236,7 +236,7 @@ class TestTestManager(unittest.TestCase):
 
     @patch("taskcat.testing.deploy_test.Config")
     def test_end_default(self, mock_config: mm):
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         td_mock = MagicMock()
 
@@ -249,7 +249,7 @@ class TestTestManager(unittest.TestCase):
 
     @patch("taskcat.testing.deploy_test.Config")
     def test_end_no_delete(self, mock_config: mm):
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         td_mock: mm = MagicMock()
 
@@ -261,7 +261,7 @@ class TestTestManager(unittest.TestCase):
 
     @patch("taskcat.testing.deploy_test.Config")
     def test_end_keep_failed(self, mock_config: mm):
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         td_mock = MagicMock()
         td_mock.status.return_value = {"COMPLETE": [1], "FAILED": []}
@@ -284,7 +284,7 @@ class TestTestManager(unittest.TestCase):
     @patch("taskcat.testing.deploy_test._CfnLogTools")
     @patch("taskcat.testing.deploy_test.ReportBuilder")
     def test_report(self, mock_report: mm, mock_log: mm, mock_config: mm):
-        test_manager = DeployTest(mock_config())
+        test_manager = CFNTest(mock_config())
 
         td_mock = MagicMock()
 

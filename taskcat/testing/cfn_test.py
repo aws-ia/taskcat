@@ -19,7 +19,7 @@ from taskcat.testing.base_test import BaseTest
 LOG = logging.getLogger(__name__)
 
 
-class DeployTest(BaseTest):
+class CFNTest(BaseTest):
     """
     Manages the lifecycle of AWS resources while running a test.
     """

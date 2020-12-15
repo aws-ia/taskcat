@@ -2,7 +2,7 @@ from typing import List, Union
 
 from taskcat._config import Config
 from taskcat._tui import TerminalPrinter
-from taskcat.testing import DeployTest
+from taskcat.testing import CFNTest
 from taskcat.testing.ab_test import Test
 
 T = List[Test]
@@ -24,7 +24,7 @@ class TestManager:
         self.config = config
         self.printer = printer
         # The defaults in the future will be Lint, Unit, Deploy in that order.
-        self.tests: T = [DeployTest(config, printer)]
+        self.tests: T = [CFNTest(config, printer)]
 
         if tests:
             self.update_tests(tests)
