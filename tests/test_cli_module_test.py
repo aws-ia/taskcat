@@ -7,8 +7,9 @@ from taskcat._cli_modules.test import Test
 
 
 class TestTestCli(unittest.TestCase):
+    @mock.patch("taskcat._cli_modules.test.CFNTest", autospec=True)
     @mock.patch("taskcat._cli_modules.test.TestManager", autospec=True)
-    def test_test_run(self, mock_manager):
+    def test_test_run(self, mock_manager, mock_test):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
         input_path = base_path / ".taskcat.yml"
@@ -23,9 +24,9 @@ class TestTestCli(unittest.TestCase):
         # Mock manager is the class, here we get an instance of it
         test_manager = mock_manager.from_file.return_value
 
-        test_manager.start.assert_called_once_with("ALL", "ALL", False, False)
-        test_manager.report.assert_called_once_with("./taskcat_outputs")
-        test_manager.end.assert_called_once_with(False, False, False)
+        test_manager.__enter__.assert_called_once()
+        mock_test.return_value.report.assert_called_once_with("./taskcat_outputs")
+        test_manager.__exit__.assert_called_once()
 
     @mock.patch("taskcat._cli_modules.test.Config", autospec=True)
     @mock.patch("taskcat._cli_modules.test.Test", autospec=True)

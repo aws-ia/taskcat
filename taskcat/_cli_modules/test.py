@@ -9,7 +9,7 @@ import yaml
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
 from taskcat._tui import TerminalPrinter
-from taskcat.testing import TestManager
+from taskcat.testing import CFNTest, TestManager
 
 from .delete import Delete
 from .list import List
@@ -132,14 +132,23 @@ class Test:
         test_manager = TestManager.from_file(
             project_root, input_file, regions, enable_sig_v2
         )
-        test_manager.printer = terminal_printer
-        test_manager.start(test_names, regions, skip_upload, lint_disable)
 
-        # Create Report
-        test_manager.report(output_directory)
+        test = CFNTest(
+            config=test_manager.config,
+            printer=terminal_printer,
+            test_names=test_names,
+            regions=regions,
+            skip_upload=skip_upload,
+            lint_disable=lint_disable,
+            no_delete=no_delete,
+            keep_failed=keep_failed,
+            dont_wait_for_delete=dont_wait_for_delete,
+        )
 
-        # Remove the buckets and stacks created for this test run
-        test_manager.end(no_delete, keep_failed, dont_wait_for_delete)
+        test_manager.tests = [test]
+
+        with test_manager:
+            test.report(output_directory)
 
     def resume(self, run_id):  # pylint: disable=no-self-use
         """resumes a monitoring of a previously started test run"""
