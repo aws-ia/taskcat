@@ -5,8 +5,9 @@ from typing import Any, Dict, List, Union
 from taskcat._cli_core import GLOBAL_ARGS
 from taskcat._config import Config
 from taskcat._tui import TerminalPrinter
-from taskcat.testing import CFNTest
-from taskcat.testing.ab_test import Test
+
+from .ab_test import Test
+from .cfn_test import CFNTest
 
 Tests = List[Test]
 
@@ -27,7 +28,6 @@ class TestManager:
         self.printer = printer
 
         # The defaults in the future will be Lint, Unit, CfnTest in that order.
-
         self.tests = tests if tests else [CFNTest(config, printer)]
 
     def __enter__(self):

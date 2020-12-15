@@ -12,7 +12,8 @@ from taskcat._lambda_build import LambdaBuild
 from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
-from taskcat.testing.base_test import BaseTest
+
+from .base_test import BaseTest
 
 LOG = logging.getLogger(__name__)
 

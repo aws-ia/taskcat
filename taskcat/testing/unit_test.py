@@ -1,5 +1,6 @@
 from taskcat._config import Config
-from taskcat.testing.base_test import BaseTest
+
+from .base_test import BaseTest
 
 
 class UnitTest(BaseTest):

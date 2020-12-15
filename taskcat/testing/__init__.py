@@ -1,4 +1,4 @@
-from taskcat.testing.cfn_test import CFNTest  # noqa: F401
-from taskcat.testing.lint_test import LintTest  # noqa: F401
-from taskcat.testing.manager import TestManager  # noqa: F401
-from taskcat.testing.unit_test import UnitTest  # noqa: F401
+from .cfn_test import CFNTest  # noqa: F401
+from .lint_test import LintTest  # noqa: F401
+from .manager import TestManager  # noqa: F401
+from .unit_test import UnitTest  # noqa: F401

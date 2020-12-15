@@ -1,7 +1,8 @@
 from typing import Any
 
 from taskcat._config import Config
-from taskcat.testing.ab_test import Test
+
+from .ab_test import Test
 
 
 class BaseTest(Test):
