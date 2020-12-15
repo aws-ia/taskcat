@@ -11,9 +11,9 @@ class BaseTest(Test):
     """
 
     def __init__(self, config: Config):
-        self.config = config
-        self.passed = False
-        self.result = None
+        self.config: Config = config
+        self.passed: bool = False
+        self.result: Any = None
 
     @property
     def config(self) -> Config:
