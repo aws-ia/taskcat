@@ -850,7 +850,7 @@ class TestAMIUpdater(unittest.TestCase):
         b = APIResultsData(**instance_args)
 
         with self.assertRaises(TypeError):
-            a < b
+            a < b  # noqa: B015
 
     def test_APIResults_greaterthan_comparison_standard(self):
         from taskcat._amiupdater import APIResultsData
@@ -870,7 +870,7 @@ class TestAMIUpdater(unittest.TestCase):
         b = APIResultsData(**instance_args)
 
         with self.assertRaises(TypeError):
-            a > b
+            a > b  # noqa: B015
 
     def test_APIResults_lessthan_comparison_custom(self):
         from taskcat._amiupdater import APIResultsData
