@@ -42,3 +42,17 @@ class BaseTest(Test):
     @result.setter
     def result(self, new_value: Any) -> None:
         self._result = new_value
+
+    def __enter__(self):
+
+        try:
+            self.run()
+        except BaseException as ex:
+            self.clean_up()
+            raise ex
+
+        return self.result
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # we could optionally call self.report() on exiting.
+        self.clean_up()

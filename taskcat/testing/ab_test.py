@@ -42,6 +42,14 @@ class Test(ABC):
         pass
 
     @abstractmethod
+    def __enter__(self) -> Any:
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        pass
+
+    @abstractmethod
     def run(self) -> None:
         """Run the Test."""
 

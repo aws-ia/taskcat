@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+from unittest.mock import DEFAULT, patch
 
 from taskcat import Config
 from taskcat.testing.ab_test import Test
@@ -34,6 +35,16 @@ class TestBaseTest(unittest.TestCase):
 
         self.assertTrue(base.passed, "Should set passed property.")
         self.assertIsInstance(base.result, list, "Should set result property.")
+
+    def test_context(self):
+        base = BaseTest(self.base_config)
+
+        with patch.multiple(base, run=DEFAULT, clean_up=DEFAULT) as mocks:
+            with base as result:
+                self.assertIsNone(result)
+
+            mocks["run"].assert_called()
+            mocks["clean_up"].assert_called()
 
     def test_inheritance(self):
         base = BaseTest(self.base_config)
