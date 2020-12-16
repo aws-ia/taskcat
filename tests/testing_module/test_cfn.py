@@ -70,6 +70,10 @@ class TestCFNTest(unittest.TestCase):
     @patch("taskcat.testing.cfn_test.LambdaBuild", autospec=True)
     def test_run(self, mock_lambda: mm, mock_stage_s3: mm, mock_stacker: mm):
 
+        stacker = mock_stacker.return_value
+
+        stacker.stacks = []
+
         cfn_test = CFNTest(self.base_config)
 
         # Create all the config mocks
@@ -118,10 +122,26 @@ class TestCFNTest(unittest.TestCase):
             stacker=cfn_test.test_definition
         )
 
+        self.assertTrue(cfn_test.passed, "Should set passed after a successful deploy.")
+        self.assertIsInstance(
+            cfn_test.result, list, "Should set result to a list of stacks."
+        )
+
+    def test_run_failure(self):
+        # We should test what happens when a stack fails.
+        # Right now the current behavior is to just throw an exception
+        # but maybe we should catch it, set passed to False and result
+        # to some information, like the error
+        pass
+
     @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
     @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
     @patch("taskcat.testing.cfn_test.Config")
     def test_skip_upload(self, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm):
+
+        stacker = mock_stacker.return_value
+
+        stacker.stacks = []
 
         cfn_test = CFNTest(mock_config(), skip_upload=True)
 
@@ -152,6 +172,10 @@ class TestCFNTest(unittest.TestCase):
     def test_lint(
         self, mock_lint: mm, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
+
+        stacker = mock_stacker.return_value
+
+        stacker.stacks = []
 
         cfn_test = CFNTest(mock_config(), lint_disable=True)
 

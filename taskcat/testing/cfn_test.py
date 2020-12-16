@@ -18,7 +18,7 @@ from .base_test import BaseTest
 LOG = logging.getLogger(__name__)
 
 
-class CFNTest(BaseTest):
+class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
     """
     Manages the lifecycle of AWS resources while running a test.
     """
@@ -112,6 +112,9 @@ class CFNTest(BaseTest):
         self.test_definition.create_stacks()
 
         self.printer.report_test_progress(stacker=self.test_definition)
+
+        self.passed = True
+        self.result = self.test_definition.stacks
 
     def clean_up(self) -> None:
         """
