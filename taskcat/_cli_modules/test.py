@@ -1,5 +1,6 @@
 # pylint: disable=duplicate-code
 # noqa: B950,F841
+import inspect
 import logging
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import yaml
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
 from taskcat._tui import TerminalPrinter
-from taskcat.testing import CFNTest, TestManager
+from taskcat.testing import CFNTest
 
 from .delete import Delete
 from .list import List
@@ -94,7 +95,7 @@ class Test:
         )
 
     @staticmethod
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,W0613
     def run(  # noqa: C901
         test_names: str = "ALL",
         regions: str = "ALL",
@@ -126,28 +127,29 @@ class Test:
         :param skip_upload: Use templates in an existing cloudformation bucket.
         """
 
+        test = CFNTest.from_file(
+            project_root=project_root,
+            input_file=input_file,
+            regions=regions,
+            enable_sig_v2=enable_sig_v2,
+        )
+
+        # This code is temporary and should be removed once its easier
+        # to create a config object
+        frame = inspect.currentframe()
+
+        if frame is not None:
+            args, _, _, values = inspect.getargvalues(frame)
+
+            for i in args:
+                if hasattr(test, i):
+                    setattr(test, i, values[i])
+
         terminal_printer = TerminalPrinter(minimalist=minimal_output)
 
-        # Create a TestManager and start the Tests
-        test_manager = TestManager.from_file(
-            project_root, input_file, regions, enable_sig_v2
-        )
+        test.printer = terminal_printer
 
-        test = CFNTest(
-            config=test_manager.config,
-            printer=terminal_printer,
-            test_names=test_names,
-            regions=regions,
-            skip_upload=skip_upload,
-            lint_disable=lint_disable,
-            no_delete=no_delete,
-            keep_failed=keep_failed,
-            dont_wait_for_delete=dont_wait_for_delete,
-        )
-
-        test_manager.tests = [test]
-
-        with test_manager:
+        with test:
             test.report(output_directory)
 
     def resume(self, run_id):  # pylint: disable=no-self-use
