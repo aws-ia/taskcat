@@ -2,6 +2,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import DEFAULT, patch
 
+import yaml
+
 from taskcat import Config
 from taskcat.testing.ab_test import Test
 from taskcat.testing.base_test import BaseTest
@@ -14,12 +16,12 @@ class TestBaseTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        input_file = ".taskcat.yml"
-        project_root_path = Path(__file__).parent / "../data/nested-fail"
-        input_file_path = project_root_path / input_file
+        cls.input_file = ".taskcat.yml"
+        cls.project_root_path = Path(__file__).parent / "../data/nested-fail"
+        cls.input_file_path = cls.project_root_path / cls.input_file
 
         cls.base_config = Config.create(
-            project_root=project_root_path, project_config_path=input_file_path,
+            project_root=cls.project_root_path, project_config_path=cls.input_file_path,
         )
 
     def test_init(self):
@@ -50,3 +52,22 @@ class TestBaseTest(unittest.TestCase):
         base = BaseTest(self.base_config)
 
         self.assertIsInstance(base, Test)
+
+    def test_from_file(self):
+
+        base = BaseTest.from_file(project_root=self.project_root_path)
+
+        self.assertIsInstance(base, BaseTest, "Should return an instance of BaseTest.")
+
+        self.assertIsInstance(base.config, Config)
+
+    def test_from_dict(self):
+
+        with open(self.input_file_path) as f:
+            test_config = yaml.load(f, Loader=yaml.FullLoader)
+
+        base = BaseTest.from_dict(test_config, project_root=self.project_root_path)
+
+        self.assertIsInstance(base, BaseTest, "Should return an instance of BaseTest.")
+
+        self.assertIsInstance(base.config, Config)

@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Type, TypeVar
 
 from taskcat._config import Config
+
+T = TypeVar("T", bound="Test")  # pylint: disable=invalid-name
 
 
 class Test(ABC):
@@ -56,3 +58,24 @@ class Test(ABC):
     @abstractmethod
     def clean_up(self) -> None:
         """Clean up the Test."""
+
+    @classmethod
+    def from_file(
+        cls: Type[T],
+        project_root: str,
+        input_file: str,
+        regions: str,
+        enable_sig_v2: bool,
+    ) -> T:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_dict(
+        cls: Type[T],
+        input_config: dict,
+        project_root: str,
+        regions: str,
+        enable_sig_v2: bool,
+    ) -> T:
+        pass
