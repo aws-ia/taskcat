@@ -6,7 +6,7 @@ from typing import Any, Dict, Type, TypeVar
 from taskcat._cli_core import GLOBAL_ARGS
 from taskcat._config import Config
 
-from .ab_test import Test
+from ._abstract_test import Test
 
 T = TypeVar("T", bound="BaseTest")  # pylint: disable=invalid-name
 

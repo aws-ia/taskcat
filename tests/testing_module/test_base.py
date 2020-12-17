@@ -5,7 +5,7 @@ from unittest.mock import DEFAULT, patch
 import yaml
 
 from taskcat import Config
-from taskcat.testing.ab_test import Test
+from taskcat.testing._abstract_test import Test
 from taskcat.testing.base_test import BaseTest
 
 

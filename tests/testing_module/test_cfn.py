@@ -65,9 +65,9 @@ class TestCFNTest(unittest.TestCase):
 
         self.assertEqual(cfn_test.printer, mock_printer, "Should use our printer.")
 
-    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
-    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.cfn_test.LambdaBuild", autospec=True)
+    @patch("taskcat.testing._cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing._cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing._cfn_test.LambdaBuild", autospec=True)
     def test_run(self, mock_lambda: mm, mock_stage_s3: mm, mock_stacker: mm):
 
         stacker = mock_stacker.return_value
@@ -134,9 +134,9 @@ class TestCFNTest(unittest.TestCase):
         # to some information, like the error
         pass
 
-    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
-    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing._cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing._cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing._cfn_test.Config")
     def test_skip_upload(self, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm):
 
         stacker = mock_stacker.return_value
@@ -165,10 +165,10 @@ class TestCFNTest(unittest.TestCase):
         # Test all the mocks
         self.assertFalse(mock_stage_s3.called, "Should not stage in s3.")
 
-    @patch("taskcat.testing.cfn_test.Stacker", autospec=True)
-    @patch("taskcat.testing.cfn_test.stage_in_s3", autospec=True)
-    @patch("taskcat.testing.cfn_test.Config")
-    @patch("taskcat.testing.cfn_test.TaskCatLint", autospec=True)
+    @patch("taskcat.testing._cfn_test.Stacker", autospec=True)
+    @patch("taskcat.testing._cfn_test.stage_in_s3", autospec=True)
+    @patch("taskcat.testing._cfn_test.Config")
+    @patch("taskcat.testing._cfn_test.TaskCatLint", autospec=True)
     def test_lint(
         self, mock_lint: mm, mock_config: mm, mock_stage_s3: mm, mock_stacker: mm
     ):
@@ -204,7 +204,7 @@ class TestCFNTest(unittest.TestCase):
 
         self.assertEqual(str(ex.exception), "Lint failed with errors")
 
-    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing._cfn_test.Config")
     def test_clean_up(self, mock_config: mm):
         cfn_test = CFNTest(mock_config())
 
@@ -217,7 +217,7 @@ class TestCFNTest(unittest.TestCase):
         td_mock.status.assert_called()
         td_mock.delete_stacks.assert_called_once()
 
-    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing._cfn_test.Config")
     def test_end_no_delete(self, mock_config: mm):
         cfn_test = CFNTest(mock_config(), no_delete=True)
 
@@ -229,7 +229,7 @@ class TestCFNTest(unittest.TestCase):
 
         td_mock.delete_stacks.assert_not_called()
 
-    @patch("taskcat.testing.cfn_test.Config")
+    @patch("taskcat.testing._cfn_test.Config")
     def test_end_keep_failed(self, mock_config: mm):
         cfn_test = CFNTest(mock_config(), keep_failed=True)
 
@@ -250,9 +250,9 @@ class TestCFNTest(unittest.TestCase):
 
         self.assertTrue("One or more stacks failed to create:" in str(ex.exception))
 
-    @patch("taskcat.testing.cfn_test.Config")
-    @patch("taskcat.testing.cfn_test._CfnLogTools")
-    @patch("taskcat.testing.cfn_test.ReportBuilder")
+    @patch("taskcat.testing._cfn_test.Config")
+    @patch("taskcat.testing._cfn_test._CfnLogTools")
+    @patch("taskcat.testing._cfn_test.ReportBuilder")
     def test_report(self, mock_report: mm, mock_log: mm, mock_config: mm):
         cfn_test = CFNTest(mock_config())
 

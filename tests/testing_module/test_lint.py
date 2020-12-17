@@ -2,8 +2,8 @@ import unittest
 from pathlib import Path
 
 from taskcat import Config
+from taskcat.testing._lint_test import LintTest
 from taskcat.testing.base_test import BaseTest
-from taskcat.testing.lint_test import LintTest
 
 
 class TestLintTest(unittest.TestCase):

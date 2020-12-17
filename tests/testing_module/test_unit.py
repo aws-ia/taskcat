@@ -2,8 +2,8 @@ import unittest
 from pathlib import Path
 
 from taskcat import Config
+from taskcat.testing._unit_test import UnitTest
 from taskcat.testing.base_test import BaseTest
-from taskcat.testing.unit_test import UnitTest
 
 
 class TestUnitTest(unittest.TestCase):

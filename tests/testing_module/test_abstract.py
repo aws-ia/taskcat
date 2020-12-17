@@ -1,7 +1,7 @@
 import unittest
 from abc import ABC
 
-from taskcat.testing.ab_test import Test
+from taskcat.testing._abstract_test import Test
 
 
 class TestAbstractTest(unittest.TestCase):
