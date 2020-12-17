@@ -95,7 +95,7 @@ class Test:
         )
 
     @staticmethod
-    # pylint: disable=too-many-arguments,W0613
+    # pylint: disable=too-many-arguments,W0613,line-too-long
     def run(  # noqa: C901
         test_names: str = "ALL",
         regions: str = "ALL",
@@ -114,8 +114,7 @@ class Test:
 
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
-        :param input_file: path to either a taskat project config file or a
-        CloudFormation template
+        :param input_file: path to either a taskat project config file or a CloudFormation template
         :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
@@ -125,7 +124,7 @@ class Test:
         :param minimal_output: Reduces output during test runs
         :param dont_wait_for_delete: Exits immediately after calling stack_delete
         :param skip_upload: Use templates in an existing cloudformation bucket.
-        """
+        """  # noqa: B950
 
         test = CFNTest.from_file(
             project_root=project_root,

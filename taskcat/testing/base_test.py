@@ -1,11 +1,14 @@
+# pylint: disable=line-too-long
 import uuid
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Type, TypeVar
 
 from taskcat._cli_core import GLOBAL_ARGS
 from taskcat._config import Config
 
 from .ab_test import Test
+
+T = TypeVar("T", bound="BaseTest")  # pylint: disable=invalid-name
 
 
 class BaseTest(Test):
@@ -62,18 +65,23 @@ class BaseTest(Test):
 
     @classmethod
     def from_file(
-        cls,
+        cls: Type[T],
         project_root: str = "./",
         input_file: str = "./.taskcat.yml",
         regions: str = "ALL",
         enable_sig_v2: bool = False,
-    ):
-        """
-        Creates a Test using a Taskcat config file.
+    ) -> T:
+        """Creates a Test from a Taskcat config file.
 
-        :param project_root: root path of the project relative to input_file
-        :param input_file: path to a taskcat config file
-        """
+        Args:
+            project_root (str, optional): The path to the directory with your template and config file. Defaults to "./".
+            input_file (str, optional): The name of the Taskcat confile file. Defaults to "./.taskcat.yml".
+            regions (str, optional): A comma separated list of regions to test in. Defaults to "ALL".
+            enable_sig_v2 (bool, optional): Enable legacy sigv2 requests for auto-created buckets. Defaults to False.
+
+        Returns:
+            T: Returns a Test instance.
+        """  # noqa: B950
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / input_file
         # pylint: disable=too-many-arguments
@@ -89,18 +97,23 @@ class BaseTest(Test):
 
     @classmethod
     def from_dict(
-        cls,
+        cls: Type[T],
         input_config: dict,
         project_root: str = "./",
         regions: str = "ALL",
         enable_sig_v2: bool = False,
-    ):
-        """
-        Creates a Test using a dictionary Taskcat config.
+    ) -> T:
+        """Creates a Test from a Taskcat configuration in dictionary form.
 
-        :param project_root: root path of the project relative to input_file
-        :param input_file: path to a taskcat config file
-        """
+        Args:
+            input_config (dict): A Taskcat configuration in the form of a dict.
+            project_root (str, optional): The path to the directory with your template and config file. Defaults to "./".
+            regions (str, optional): A comma separated list of regions to test in. Defaults to "ALL".
+            enable_sig_v2 (bool, optional): Enable legacy sigv2 requests for auto-created buckets. Defaults to False.
+
+        Returns:
+            T: Returns a Test instance.
+        """  # noqa: B950
         project_root_path: Path = Path(project_root).expanduser().resolve()
 
         # pylint: disable=too-many-arguments

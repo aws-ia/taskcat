@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 import logging
 from pathlib import Path
 from typing import List as ListType, Union
@@ -20,7 +21,8 @@ LOG = logging.getLogger(__name__)
 
 class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
     """
-    Manages the lifecycle of AWS resources while running a test.
+    Tests Cloudformation template by making sure the stack can properly deploy
+    in the specified regions.
     """
 
     def __init__(
@@ -35,16 +37,19 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         keep_failed: bool = False,
         dont_wait_for_delete: bool = True,
     ):
-        """
-        Creates a TestManager that manages the lifecycle of AWS resources while running
-        a test.
+        """Creates a Test from an existing Config object.
 
-        This instance returned has an additonal property test_definiton that is set
-        after the run method is called.
-
-        :param config: takes a taskcat Config object.
-        :param printer: an object capable of reporting test progress
-        """
+        Args:
+            config (Config): A pre-configured Taskcat Config instance.
+            printer (Union[TerminalPrinter, None], optional): A printer object that will handle Test output. Defaults to TerminalPrinter.
+            test_names (str, optional): A comma separated list of tests to run. Defaults to "ALL".
+            regions (str, optional): A comma separated list of regions to test in. Defaults to "ALL".
+            skip_upload (bool, optional): Use templates in an existing cloudformation bucket. Defaults to False.
+            lint_disable (bool, optional): Disable linting with cfn-lint. Defaults to False.
+            no_delete (bool, optional): Don't delete stacks after test is complete. Defaults to False.
+            keep_failed (bool, optional): Don't delete failed stacks. Defaults to False.
+            dont_wait_for_delete (bool, optional): Exits immediately after calling stack_delete. Defaults to True.
+        """  # noqa: B950
         super().__init__(config)
         self.test_definition: Stacker
         self.test_names = test_names
@@ -61,13 +66,11 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             self.printer = printer
 
     def run(self) -> None:
-        """
-        Starts a Taskcat test run by creating the required resources in AWS.
+        """Deploys the required Test resources in AWS.
 
-        :param test_names: comma separated list of tests to run
-        :param regions: comma separated list of regions to test in
-        :param skip_upload: Use templates in an existing cloudformation bucket.
-        :param lint_disable: disable cfn-lint checks
+        Raises:
+            TaskCatException: If skip_upload is set without specifying s3_bucket in config.
+            TaskCatException: If linting fails with errors.
         """
 
         _trim_regions(self.regions, self.config)
@@ -117,14 +120,11 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         self.result = self.test_definition.stacks
 
     def clean_up(self) -> None:
-        """
-        Ends a Taskcat test run by deleting the test related resources in AWS.
+        """Deletes the Test related resources in AWS.
 
-        :param no_delete: don't delete stacks or buckets
-        :param keep_failed: do not delete failed stacks
-        :param dont_wait_for_delete: returns immediately after calling stack_delete
+        Raises:
+            TaskCatException: If one or more stacks failed to create.
         """
-
         status = self.test_definition.status()
 
         # Delete Stacks
@@ -168,11 +168,11 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
     def report(
         self, output_directory: str = "./taskcat_outputs",
     ):
-        """
-        Generates a report of the status of Cloudformation stacks.
+        """Generates a report of the status of Cloudformation stacks.
 
-        :param output_directory: Where to store generated logfiles
-        """
+        Args:
+            output_directory (str, optional): The directory to save the report in. Defaults to "./taskcat_outputs".
+        """  # noqa: B950
         report_path = Path(output_directory).resolve()
         report_path.mkdir(exist_ok=True)
         cfn_logs = _CfnLogTools()
