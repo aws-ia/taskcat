@@ -4,6 +4,8 @@ from pathlib import Path
 from time import sleep
 from typing import Dict, List, Union
 
+from yaml.scanner import ScannerError
+
 import cfnlint
 from taskcat._cfn.stack_url_helper import StackURLHelper
 from taskcat.exceptions import TaskCatException
@@ -22,9 +24,16 @@ class TemplateCache:
         if template_path not in self._templates:
             try:
                 self._lock[template_path] = True
-                self._templates[template_path] = cfnlint.decode.cfn_yaml.load(
-                    template_path
-                )
+                try:
+                    self._templates[template_path] = cfnlint.decode.cfn_yaml.load(
+                        template_path
+                    )
+                except ScannerError as e:
+                    LOG.error(
+                        f"Failed to parse template {template_path} {e.problem} at "
+                        f"{e.problem_mark}"
+                    )
+                    raise
                 self._lock[template_path] = False
             except Exception:  # pylint: disable=broad-except
                 self._lock[template_path] = False
