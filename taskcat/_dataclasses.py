@@ -429,6 +429,7 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     s3_regional_buckets: Optional[bool] = field(
         default=None, metadata=METADATA["s3_regional_buckets"]
     )
+    regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
 
 
 @dataclass
