@@ -91,6 +91,35 @@ taskcat test run
 
 add `--help to see the supported flags and arguments`
 
+### Python
+Taskcat can be imported into Python and used in the testing framework of your choice.
+```python
+from taskcat.testing import CFNTest
+
+test = CFNTest.from_file(project_root='./template_dir')
+
+with test as stacks:
+    # Calling 'with' or 'test.run()' will deploy the stacks.
+    for stack in stacks:
+        print(f"Testing {stack.name}")
+
+        bucket_name = ""
+
+        for output in stack.outputs:
+
+            if output.key == "LogsBucketName":
+                bucket_name = output.value
+                break
+
+        assert "logs" in bucket_name
+
+        assert stack.region.name in bucket_name
+
+        print(f"Created bucket: {bucket_name}")
+```
+
+The example used here is very simple, you would most likely leverage other python modules like boto3 to do more advanced testing. The `CFNTest` object can be passed the same arguments as `taskcat test run`. See the [docs](https://aws-quickstart.github.io/taskcat/apidocs/taskcat/testing/index.html) for more details.
+
 ### Config files
 taskcat has several configuration files which can be used to set behaviors in a flexible way.
 
