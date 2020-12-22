@@ -37,7 +37,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         keep_failed: bool = False,
         dont_wait_for_delete: bool = True,
     ):
-        """Creates a Test from an existing Config object.
+        """The constructor creates a test from the given Config object.
 
         Args:
             config (Config): A pre-configured Taskcat Config instance.
