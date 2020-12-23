@@ -77,9 +77,8 @@ class CliCore:
     def longform_param_required(cls, param_name):
         def wrapper(command_func):
             formatted_param = param_name.lower().replace("_", "-")
-            cls.longform_required.append(
-                f"{command_func.__qualname__}.{formatted_param}"
-            )
+            qualname = command_func.__qualname__.replace(".__init__", "")
+            cls.longform_required.append(f"{qualname}.{formatted_param}")
             return command_func
 
         return wrapper

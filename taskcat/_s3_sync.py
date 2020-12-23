@@ -41,13 +41,14 @@ class S3Sync:
 
     exclude_remote_path_prefixes: List[str] = []
 
-    def __init__(self, s3_client, bucket, prefix, path, acl="private"):
+    def __init__(self, s3_client, bucket, prefix, path, acl="private", dry_run=False):
         """Syncronizes local file system with an s3 bucket/prefix
 
         """
         if prefix != "" and not prefix.endswith("/"):
             prefix = prefix + "/"
         self.s3_client = s3_client
+        self.dry_run = dry_run
         file_list = self._get_local_file_list(path)
         s3_file_list = self._get_s3_file_list(bucket, prefix)
         self._sync(file_list, s3_file_list, bucket, prefix, acl=acl)
@@ -154,29 +155,37 @@ class S3Sync:
         return keep
 
     # TODO: refactor
-    def _sync(
+    def _sync(  # noqa: C901
         self, local_list, s3_list, bucket, prefix, acl, threads=16
     ):  # pylint: disable=too-many-locals
         # determine which files to remove from S3
         remove_from_s3 = []
         for s3_file in s3_list.keys():
             if s3_file not in local_list.keys() and not self._exclude_remote(s3_file):
-                LOG.info(
-                    f"s3://{bucket}/{prefix + prefix + s3_file}",
-                    extra={"nametag": PrintMsg.S3DELETE},
-                )
+                if self.dry_run:
+                    LOG.info(
+                        f"[DRY RUN] s3://{bucket}/{prefix + prefix + s3_file}",
+                        extra={"nametag": PrintMsg.S3DELETE},
+                    )
+                else:
+                    LOG.info(
+                        f"s3://{bucket}/{prefix + prefix + s3_file}",
+                        extra={"nametag": PrintMsg.S3DELETE},
+                    )
                 remove_from_s3.append({"Key": prefix + s3_file})
         # deleting objects, max 1k objects per s3 delete_objects call
-        for objects in [
-            remove_from_s3[i : i + 1000] for i in range(0, len(remove_from_s3), 1000)
-        ]:
-            response = self.s3_client.delete_objects(
-                Bucket=bucket, Delete={"Objects": objects}
-            )
-            if "Errors" in response.keys():
-                for error in response["Errors"]:
-                    LOG.error("S3 delete error: %s" % str(error))
-                raise TaskCatException("Failed to delete one or more files from S3")
+        if not self.dry_run:
+            for objects in [
+                remove_from_s3[i : i + 1000]
+                for i in range(0, len(remove_from_s3), 1000)
+            ]:
+                response = self.s3_client.delete_objects(
+                    Bucket=bucket, Delete={"Objects": objects}
+                )
+                if "Errors" in response.keys():
+                    for error in response["Errors"]:
+                        LOG.error("S3 delete error: %s" % str(error))
+                    raise TaskCatException("Failed to delete one or more files from S3")
         # build list of files to upload
         upload_to_s3 = []
         for local_file in local_list:
@@ -200,12 +209,17 @@ class S3Sync:
         pool.close()
         pool.join()
 
-    @staticmethod
-    def _s3_upload_file(paths, prefix, s3_client, acl):
+    def _s3_upload_file(self, paths, prefix, s3_client, acl):
         local_filename, bucket, s3_path = paths
         retry = 0
         # backoff and retry
         while retry < 5:
+            if self.dry_run:
+                LOG.info(
+                    f"[DRY_RUN] s3://{bucket}/{prefix + s3_path}",
+                    extra={"nametag": PrintMsg.S3},
+                )
+                break
             LOG.info(
                 f"s3://{bucket}/{prefix + s3_path}", extra={"nametag": PrintMsg.S3}
             )
