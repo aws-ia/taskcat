@@ -43,6 +43,15 @@
                     "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
                     "type": "object"
                 },
+                "regions": {
+                    "description": "List of AWS regions",
+                    "items": {
+                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
                     "type": "string"
@@ -280,6 +289,7 @@
             "default": {
                 "auth": null,
                 "parameters": null,
+                "regions": null,
                 "s3_bucket": null,
                 "s3_regional_buckets": null,
                 "tags": null
