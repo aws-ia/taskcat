@@ -271,6 +271,10 @@ or run it from anywhere by providing the path to the project root
 taskcat test run -p ./quickstart-aws-vpc
 ```
 
+### Non-standard credentials
+
+Taskcat leverages the credential mechanisms of the AWS CLI, with the exception of environment variables. To integrate advanced credential handling (such as AWS SSO), [please see issue #596 for an example]( https://github.com/aws-quickstart/taskcat/issues/596)
+
 ### Configuration files
 The configuration files required for taskcat have changed, to ease migration, if taskcat
 is run and legacy config files are found, they are converted and written to new file
