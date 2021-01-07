@@ -208,10 +208,14 @@ class TestCFNTest(unittest.TestCase):
     def test_clean_up(self, mock_config: mm):
         cfn_test = CFNTest(mock_config())
 
+        # Clean up when stacks failed to create
+        cfn_test.clean_up()
+
         td_mock = MagicMock()
 
         cfn_test.test_definition = td_mock
 
+        # Clean up after stacks have created
         cfn_test.clean_up()
 
         td_mock.status.assert_called()

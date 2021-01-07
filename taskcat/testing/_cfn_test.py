@@ -119,12 +119,17 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         self.passed = True
         self.result = self.test_definition.stacks
 
-    def clean_up(self) -> None:
+    def clean_up(self) -> None:  # noqa: C901
         """Deletes the Test related resources in AWS.
 
         Raises:
             TaskCatException: If one or more stacks failed to create.
         """
+
+        if not hasattr(self, "test_definition"):
+            LOG.warning("No stacks were created... skipping cleanup.")
+            return
+
         status = self.test_definition.status()
 
         # Delete Stacks
