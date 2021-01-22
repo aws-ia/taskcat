@@ -1,24 +1,16 @@
 # pylint: disable=duplicate-code
 # noqa: B950,F841
+import inspect
 import logging
 from pathlib import Path
-from typing import Any, Dict, List as ListType
 
 import boto3
 import yaml
 
-from taskcat._cfn._log_stack_events import _CfnLogTools
-from taskcat._cfn.threaded import Stacker
-from taskcat._cfn_lint import Lint as TaskCatLint
-from taskcat._cli_core import GLOBAL_ARGS
-from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
-from taskcat._generate_reports import ReportBuilder
-from taskcat._lambda_build import LambdaBuild
-from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
-from taskcat.exceptions import TaskCatException
+from taskcat.testing import CFNTest
 
 from .delete import Delete
 from .list import List
@@ -102,9 +94,8 @@ class Test:
             dont_wait_for_delete=dont_wait_for_delete,
         )
 
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    @staticmethod  # noqa: C901
-    # pylint: disable=too-many-arguments
+    @staticmethod
+    # pylint: disable=too-many-arguments,W0613,line-too-long
     def run(  # noqa: C901
         test_names: str = "ALL",
         regions: str = "ALL",
@@ -123,8 +114,7 @@ class Test:
 
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
-        :param input_file: path to either a taskat project config file or a
-        CloudFormation template
+        :param input_file: path to either a taskat project config file or a CloudFormation template
         :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
@@ -133,90 +123,33 @@ class Test:
         :param output_directory: Where to store generated logfiles
         :param minimal_output: Reduces output during test runs
         :param dont_wait_for_delete: Exits immediately after calling stack_delete
-        """
-        project_root_path: Path = Path(project_root).expanduser().resolve()
-        input_file_path: Path = project_root_path / input_file
-        # pylint: disable=too-many-arguments
-        args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
-        config = Config.create(
-            project_root=project_root_path,
-            project_config_path=input_file_path,
-            args=args
-            # TODO: detect if input file is taskcat config or CloudFormation template
-        )
-        _trim_regions(regions, config)
-        _trim_tests(test_names, config)
-        boto3_cache = Boto3Cache()
-        templates = config.get_templates()
-        if skip_upload and not config.config.project.s3_bucket:
-            raise TaskCatException(
-                "cannot skip_buckets without specifying s3_bucket in config"
-            )
-        buckets = config.get_buckets(boto3_cache)
-        if not skip_upload:
-            # 1. lint
-            if not lint_disable:
-                lint = TaskCatLint(config, templates)
-                errors = lint.lints[1]
-                lint.output_results()
-                if errors or not lint.passed:
-                    raise TaskCatException("Lint failed with errors")
-            # 2. build lambdas
-            if config.config.project.package_lambda:
-                LambdaBuild(config, project_root_path)
-            # 3. s3 sync
-            stage_in_s3(buckets, config.config.project.name, config.project_root)
-        # 4. launch stacks
-        regions = config.get_regions(boto3_cache)
-        parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(templates, regions, buckets, parameters)
-        test_definition = Stacker(
-            config.config.project.name,
-            tests,
-            shorten_stack_name=config.config.project.shorten_stack_name,
-        )
-        test_definition.create_stacks()
-        terminal_printer = TerminalPrinter(minimalist=minimal_output)
-        # 5. wait for completion
-        terminal_printer.report_test_progress(stacker=test_definition)
-        status = test_definition.status()
-        # 6. create report
-        report_path = Path(output_directory).resolve()
-        report_path.mkdir(exist_ok=True)
-        cfn_logs = _CfnLogTools()
-        cfn_logs.createcfnlogs(test_definition, report_path)
-        ReportBuilder(test_definition, report_path / "index.html").generate_report()
-        # 7. delete stacks
-        if no_delete:
-            LOG.info("Skipping delete due to cli argument")
-        elif keep_failed:
-            if len(status["COMPLETE"]) > 0:
-                LOG.info("deleting successful stacks")
-                test_definition.delete_stacks({"status": "CREATE_COMPLETE"})
-                if not dont_wait_for_delete:
-                    terminal_printer.report_test_progress(stacker=test_definition)
-        else:
-            test_definition.delete_stacks()
-            if not dont_wait_for_delete:
-                terminal_printer.report_test_progress(stacker=test_definition)
-        # TODO: summarise stack statusses (did they complete/delete ok) and print any
-        #  error events
-        # 8. delete buckets
+        :param skip_upload: Use templates in an existing cloudformation bucket.
+        """  # noqa: B950
 
-        if not no_delete or (keep_failed is True and len(status["FAILED"]) == 0):
-            deleted: ListType[str] = []
-            for test in buckets.values():
-                for bucket in test.values():
-                    if (bucket.name not in deleted) and not bucket.regional_buckets:
-                        bucket.delete(delete_objects=True)
-                        deleted.append(bucket.name)
-        # 9. raise if something failed
-        # - grabbing the status again to ensure everything deleted OK.
-        status = test_definition.status()
-        if len(status["FAILED"]) > 0:
-            raise TaskCatException(
-                f'One or more stacks failed tests: {status["FAILED"]}'
-            )
+        test = CFNTest.from_file(
+            project_root=project_root,
+            input_file=input_file,
+            regions=regions,
+            enable_sig_v2=enable_sig_v2,
+        )
+
+        # This code is temporary and should be removed once its easier
+        # to create a config object
+        frame = inspect.currentframe()
+
+        if frame is not None:
+            args, _, _, values = inspect.getargvalues(frame)
+
+            for i in args:
+                if hasattr(test, i):
+                    setattr(test, i, values[i])
+
+        terminal_printer = TerminalPrinter(minimalist=minimal_output)
+
+        test.printer = terminal_printer
+
+        with test:
+            test.report(output_directory)
 
     def resume(self, run_id):  # pylint: disable=no-self-use
         """resumes a monitoring of a previously started test run"""
@@ -256,42 +189,3 @@ class Test:
         Delete(
             package=project, aws_profile=aws_profile, region=regions, _stack_type="test"
         )
-
-
-def _trim_regions(regions, config):
-    if regions != "ALL":
-        for test in config.config.tests.values():
-            to_pop = []
-            idx = 0
-            if test.regions:
-                for _ in test.regions:
-                    if test.regions[idx] not in regions.split(","):
-                        to_pop.append(idx)
-                    idx += 1
-                to_pop.reverse()
-                for idx in to_pop:
-                    test.regions.pop(idx)
-
-
-def _trim_tests(test_names, config):
-    if test_names != "ALL":
-        for test in list(config.config.tests):
-            if test not in test_names.split(","):
-                del config.config.tests[test]
-
-
-def _build_args(enable_sig_v2, regions, default_profile):
-    args: Dict[str, Any] = {}
-    if enable_sig_v2:
-        args["project"] = {"s3_enable_sig_v2": enable_sig_v2}
-    if regions != "ALL":
-        if "project" not in args:
-            args["project"] = {}
-        args["project"]["regions"] = regions.split(",")
-    if default_profile:
-        _auth_dict = {"default": default_profile}
-        if not args.get("project"):
-            args["project"] = {"auth": _auth_dict}
-        else:
-            args["project"]["auth"] = _auth_dict
-    return args

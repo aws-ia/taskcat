@@ -2,7 +2,8 @@
 
 SOURCE="../../taskcat/"
 OMIT="../../taskcat/_stacker.py"
-CMD="coverage run -a --source ${SOURCE} --omit ${OMIT} ../../bin/taskcat"
+COV_CMD="coverage run -a --source ${SOURCE} --omit ${OMIT}"
+BIN="../../bin/taskcat"
 
 eval "$(pyenv init -)"
 cd e2e/tests/
@@ -22,7 +23,7 @@ for ver in "$@" ; do
     for t in $(ls -1 *.sh) ; do
         chmod +x ./${t}
         echo "  running tests in ${t}..."
-        BIN=${CMD} ./${t} || failed
+        BIN=${BIN} COV_CMD=${COV_CMD} ./${t} || failed
     done
 done
 

@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Creates an S3 bucket to store logs."
+
+Parameters:
+  BucketPrefix:
+    Type: String
+    Description: The name of the Application or Project using this bucket.
+    MinLength: 2
+    ConstraintDescription: "use only lower case letters or numbers"
+    AllowedPattern: '[a-z0-9\-]+'
+  KeepBucket:
+    Type: String
+    Description: Keep the bucket if the stack is deleted.
+    AllowedValues:
+      - 'TRUE'
+      - 'FALSE'
+    Default: 'FALSE'
+
+Conditions:
+  RetainBucket: !Equals [ !Ref KeepBucket, "TRUE" ]
+  DeleteBucket: !Equals [ !Ref KeepBucket, "FALSE" ]
+
+Resources:
+  LogsBucket:
+    Condition: DeleteBucket
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        !Sub ${BucketPrefix}-logs-${AWS::Region}
+
+  RetainLogsBucket:
+    Condition: RetainBucket
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName:
+        !Sub ${BucketPrefix}-logs-${AWS::Region}
+
+Outputs:
+  LogsBucketName:
+    Description: Name of the logs bucket.
+    Value: !If [RetainBucket, !Ref RetainLogsBucket, !Ref LogsBucket]
+    Export:
+      Name: !Sub ${BucketPrefix}-LogsBucket

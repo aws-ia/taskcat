@@ -3,7 +3,7 @@
 EXIT_CODE=0
 PROJECT_ROOT='../../tests/data/lambda_build_with_submodules'
 
-${BIN} package -p ${PROJECT_ROOT}  >& /tmp/output || EXIT_CODE=$?
+${COV_CMD} ${BIN} package -p ${PROJECT_ROOT}  >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ taskcat package -p ./tests/data/lambda_build_with_submodules'

@@ -7,17 +7,23 @@ from taskcat._cli_modules.test import Test
 
 
 class TestTestCli(unittest.TestCase):
-    @mock.patch("taskcat._cli_modules.test.Config", autospec=True)
-    @mock.patch("taskcat._cli_modules.test.LambdaBuild", autospec=True)
-    @mock.patch("taskcat._cli_modules.test.ReportBuilder", autospec=True)
-    def test_test_run(self, mock_report_builder, mock_lambda_build, mock_config):
+    @mock.patch("taskcat._cli_modules.test.CFNTest", autospec=True)
+    def test_test_run(self, mock_test):
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/nested-fail").resolve()
+        input_path = base_path / ".taskcat.yml"
 
-        Test.run(project_root=base_path, input_file=base_path / ".taskcat.yml")
-        mock_report_builder.assert_called()
-        mock_lambda_build.assert_called()
-        mock_config.create.assert_called()
+        Test.run(project_root=base_path, input_file=input_path)
+
+        # Make sure we created test_manager using from_file
+        mock_test.from_file.assert_called_once_with(base_path, input_path, "ALL", False)
+
+        # Mock test is the class, here we get an instance of it
+        test = mock_test.from_file.return_value
+
+        test.__enter__.assert_called_once()
+        test.report.assert_called_once_with("./taskcat_outputs")
+        test.__exit__.assert_called_once()
 
     @mock.patch("taskcat._cli_modules.test.Config", autospec=True)
     @mock.patch("taskcat._cli_modules.test.Test", autospec=True)

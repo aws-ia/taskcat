@@ -3,7 +3,7 @@
 EXIT_CODE=0
 
 # pass without any nested stacks
-${BIN} lint -p ../../tests/data/lambda_build_with_submodules >& /tmp/output || EXIT_CODE=$?
+${COV_CMD} ${BIN} lint -p ../../tests/data/lambda_build_with_submodules >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ taskcat lint -p ./tests/data/lambda_build_with_submodules'
@@ -21,7 +21,7 @@ then
 fi
 
 # pass with 4 descendant templates
-${BIN} lint -p ../../tests/data/nested-fail >& /tmp/output || EXIT_CODE=$?
+${COV_CMD} ${BIN} lint -p ../../tests/data/nested-fail >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ taskcat lint -p ./tests/data/nested-fail'
@@ -39,7 +39,7 @@ then
 fi
 
 # pass with warning
-${BIN} lint -p ../../tests/data/lint-warning  >& /tmp/output || EXIT_CODE=$?
+${COV_CMD} ${BIN} lint -p ../../tests/data/lint-warning  >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ taskcat lint -p ../../tests/data/lint-warning'
@@ -57,7 +57,7 @@ then
 fi
 
 # fail with error
-${BIN} lint -p ../../tests/data/lint-error >& /tmp/output || EXIT_CODE=$?
+${COV_CMD} ${BIN} lint -p ../../tests/data/lint-error >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 1 ]] ; then
     echo '$ taskcat lint -p ../../tests/data/lint-error'

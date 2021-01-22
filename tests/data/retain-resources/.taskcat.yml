@@ -1,0 +1,12 @@
+---
+project:
+  name: retain-resources
+  regions:
+    - us-east-1
+    - us-east-2
+tests:
+  log-bucket:
+    template: ./test.template.yaml
+    parameters:
+      BucketPrefix: 'taskcat-$[taskcat_random-string]'
+      KeepBucket: 'FALSE'
