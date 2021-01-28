@@ -420,5 +420,8 @@ class Config:
                 uid=self.uid,
                 _project_name=self.config.project.name,
                 _shorten_stack_name=self.config.project.shorten_stack_name,
+                _stack_name=test.stack_name,
+                _stack_name_prefix=test.stack_name_prefix,
+                _stack_name_suffix=test.stack_name_suffix,
             )
         return tests

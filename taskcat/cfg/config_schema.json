@@ -267,6 +267,18 @@
                     "description": "Enable regional auto-buckets.",
                     "type": "boolean"
                 },
+                "stack_name": {
+                    "description": "Cloudformation Stack Name",
+                    "type": "string"
+                },
+                "stack_name_prefix": {
+                    "description": "Prefix to apply to generated CFN Stack Name",
+                    "type": "string"
+                },
+                "stack_name_suffix": {
+                    "description": "Suffix to apply to generated CFN Stack Name",
+                    "type": "string"
+                },
                 "tags": {
                     "additionalProperties": {
                         "type": "string"
