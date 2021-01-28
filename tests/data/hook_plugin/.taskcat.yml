@@ -1,0 +1,24 @@
+project:
+  name: hook
+  owner: owner@company.com
+  package_lambda: false
+  regions:
+  - us-east-1
+  - us-west-2
+tests:
+  hook-fail:
+    template: templates/test.template.yaml
+    prehooks:
+    - type: testhook
+      config:
+        generate_failure: true
+  hook-pass:
+    template: templates/test.template.yaml
+    prehooks:
+      - type: testhook
+        config:
+          generate_failure: false
+  hook-nonexist:
+    template: templates/test.template.yaml
+    prehooks:
+      - type: testhookthatdoesntexist
