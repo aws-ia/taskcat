@@ -72,6 +72,9 @@ METADATA = {
         "description": "Shorten stack names generated for tests, set to true to enable"
     },
     "role_name": {"description": "Role name to use when launching CFN Stacks."},
+    "stack_name": {"description": "Cloudformation Stack Name"},
+    "stack_name_prefix": {"description": "Prefix to apply to generated CFN Stack Name"},
+    "stack_name_suffix": {"description": "Suffix to apply to generated CFN Stack Name"},
 }
 
 # types
@@ -455,6 +458,13 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
         default=None, metadata=METADATA["az_ids"]
     )
     role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
+    stack_name: Optional[str] = field(default=None, metadata=METADATA["stack_name"])
+    stack_name_prefix: Optional[str] = field(
+        default=None, metadata=METADATA["stack_name_prefix"]
+    )
+    stack_name_suffix: Optional[str] = field(
+        default=None, metadata=METADATA["stack_name_suffix"]
+    )
 
 
 # pylint: disable=too-many-instance-attributes
