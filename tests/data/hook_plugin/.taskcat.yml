@@ -5,6 +5,7 @@ project:
   regions:
   - us-east-1
   - us-west-2
+  s3_bucket: test-bucket
 tests:
   hook-fail:
     template: templates/test.template.yaml
