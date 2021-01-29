@@ -16,6 +16,7 @@ def execute_hooks(
     for name, test in config.config.tests.items():
         if getattr(test, stage):
             for hook in getattr(test, stage):
+                LOG.warning(f"{stage} is alpha functionality, use with caution.")
                 try:
                     plugin = import_module(f"taskcat_plugin_{hook.type}")
                 except ModuleNotFoundError as e:
