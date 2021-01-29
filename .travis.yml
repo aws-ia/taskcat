@@ -139,3 +139,7 @@ jobs:
           condition: $RELEASE_THE_KRAKEN = true
      
   # Add Docker provider
+cache:
+  directories:
+  - $HOME/.cache/pip
+  - $HOME/.cache/pre-commit
