@@ -123,7 +123,7 @@ class Config:
             sources.append({"source": "CliArgument", "config": args})
         return cls(sources=sources, uid=uid, project_root=project_root)
 
-    # pylint: disable=protected-access
+    # pylint: disable=protected-access,inconsistent-return-statements
     @staticmethod
     def _get_project_source(base_cls, project_config_path, project_root, template_file):
         try:
@@ -420,5 +420,8 @@ class Config:
                 uid=self.uid,
                 _project_name=self.config.project.name,
                 _shorten_stack_name=self.config.project.shorten_stack_name,
+                _stack_name=test.stack_name,
+                _stack_name_prefix=test.stack_name_prefix,
+                _stack_name_suffix=test.stack_name_suffix,
             )
         return tests
