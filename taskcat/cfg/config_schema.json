@@ -43,6 +43,20 @@
                     "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
                     "type": "object"
                 },
+                "posthooks": {
+                    "description": "hooks to execute after executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
+                },
+                "prehooks": {
+                    "description": "hooks to execute prior to executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
+                },
                 "regions": {
                     "description": "List of AWS regions",
                     "items": {
@@ -66,6 +80,21 @@
                     },
                     "description": "Tags to apply to CloudFormation template",
                     "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "HookData": {
+            "additionalProperties": false,
+            "description": "Hook definition",
+            "properties": {
+                "config": {
+                    "description": "hook configuration",
+                    "type": "object"
+                },
+                "type": {
+                    "description": "hook type",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -144,6 +173,20 @@
                     },
                     "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
                     "type": "object"
+                },
+                "posthooks": {
+                    "description": "hooks to execute after executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
+                },
+                "prehooks": {
+                    "description": "hooks to execute prior to executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
                 },
                 "regions": {
                     "description": "List of AWS regions",
@@ -245,6 +288,20 @@
                     "description": "Parameter key-values to pass to CloudFormation, parameters provided in global config take precedence",
                     "type": "object"
                 },
+                "posthooks": {
+                    "description": "hooks to execute after executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
+                },
+                "prehooks": {
+                    "description": "hooks to execute prior to executing tests",
+                    "items": {
+                        "$ref": "#/definitions/HookData"
+                    },
+                    "type": "array"
+                },
                 "regions": {
                     "description": "List of AWS regions",
                     "items": {
@@ -301,6 +358,8 @@
             "default": {
                 "auth": null,
                 "parameters": null,
+                "posthooks": null,
+                "prehooks": null,
                 "regions": null,
                 "s3_bucket": null,
                 "s3_regional_buckets": null,
@@ -319,6 +378,8 @@
                 "owner": null,
                 "package_lambda": null,
                 "parameters": null,
+                "posthooks": null,
+                "prehooks": null,
                 "regions": null,
                 "role_name": null,
                 "s3_bucket": null,
