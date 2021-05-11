@@ -72,15 +72,13 @@ METADATA = {
         "description": "Shorten stack names generated for tests, set to true to enable"
     },
     "role_name": {"description": "Role name to use when launching CFN Stacks."},
-
     "stack_name": {"description": "Cloudformation Stack Name"},
     "stack_name_prefix": {"description": "Prefix to apply to generated CFN Stack Name"},
     "stack_name_suffix": {"description": "Suffix to apply to generated CFN Stack Name"},
-
     "prehooks": {"description": "hooks to execute prior to executing tests"},
     "posthooks": {"description": "hooks to execute after executing tests"},
     "type": {"description": "hook type"},
-    "config": {"description": "hook configuration"}
+    "config": {"description": "hook configuration"},
 }
 
 # types
@@ -491,7 +489,6 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
     )
     posthooks: Optional[List[HookData]] = field(
         default=None, metadata=METADATA["posthooks"]
-
     )
 
 
