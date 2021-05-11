@@ -2,7 +2,7 @@
 
 EXIT_CODE=0
 
-${COV_CMD} -m unittest discover test_imported/ >& /tmp/output || EXIT_CODE=$?
+python -m unittest discover test_imported/ >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
     echo '$ python -m unittest discover test_imported/'
