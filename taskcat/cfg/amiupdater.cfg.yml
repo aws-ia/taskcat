@@ -54,6 +54,12 @@ global:
       name: RHEL-7.6_HVM-????????-arm64-?-Hourly2-GP2
       owner-id: '309956199498'
       architecture: arm64
+    RHELHA83HVM:
+      name: RHEL_HA-8.3_HVM-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
+    RHELHA84HVM:
+      name: RHEL_HA-8.4.0_HVM-????????-x86_64-?-Hourly2-GP2
+      owner-id: '309956199498'
     SLES11SP3HVM:
       name: suse-sles-11-sp3-v????????-hvm-ssd-x86_64
       owner-alias: amazon
