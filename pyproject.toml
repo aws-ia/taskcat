@@ -1,0 +1,11 @@
+[tool.portray.mkdocs.theme]
+favicon = "https://aws-ia.github.io/assets/img/logonav.png"
+logo = "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png"
+name = "material"
+palette = {primary = "deep orange", accent = "orange"}
+
+[[tool.portray.mkdocs.nav]]
+Home = "README.md"
+
+[[tool.portray.mkdocs.nav]]
+Schema = "docs/taskcat_schema.md"
