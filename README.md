@@ -10,8 +10,6 @@
 
 **[Usage](#Usage)**
 
-**[Migrating from v0.8.x](#migrating-from-08x)**
-
 ## What is taskcat?
 **taskcat** is a tool that tests AWS CloudFormation templates. It deploys your AWS
 CloudFormation template in multiple AWS Regions and generates a report with a pass/fail

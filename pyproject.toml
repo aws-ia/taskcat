@@ -3,9 +3,14 @@ favicon = "https://aws-ia.github.io/assets/img/logonav.png"
 logo = "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png"
 name = "material"
 palette = {primary = "deep orange", accent = "orange"}
+include_reference_documentation = false
 
 [[tool.portray.mkdocs.nav]]
 Home = "README.md"
 
 [[tool.portray.mkdocs.nav]]
-Schema = "docs/taskcat_schema.md"
+Schema = "docs/schema/taskcat_schema.md"
+
+[[tool.portray.mkdocs.nav]]
+API = "docs/apidocs/taskcat/index.html"
+
