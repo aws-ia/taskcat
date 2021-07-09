@@ -1,0 +1,19 @@
+reprint
+mock<3.0,>=2.0.0
+tabulate<1.0,>=0.8.2
+cfn_lint<1.0,>=0.13.0
+setuptools>=40.4.3
+boto3<2.0,>=1.9.21
+botocore<2.0,>=1.12.21
+yattag<2.0,>=1.10.0
+PyYAML~=5.1
+jinja2<3.0,>=2.10.0
+requests>2.17.0
+jsonschema~=3.0
+docker~=4.0
+dulwich~=0.19
+dataclasses-jsonschema<3.0,>=2.9.0
+pip
+
+[:python_version < "3.7"]
+dataclasses
