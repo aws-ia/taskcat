@@ -17,7 +17,7 @@ grade for each region. You can specify the regions and number of Availability Zo
 want to include in the test, and pass in parameter values from your AWS CloudFormation
 template. taskcat is implemented as a Python class that you import, instantiate, and run.
 
-taskcat was developed by the AWS QuickStart team to test AWS CloudFormation templates
+taskcat was developed by the aws-ia team to test AWS CloudFormation templates
 that automatically deploy workloads on AWS. We’re pleased to make the tool available to
 all developers who want to validate their custom AWS CloudFormation templates across
 AWS Regions
