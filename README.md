@@ -302,7 +302,37 @@ The configuration files required for taskcat have changed, to ease migration, if
 is run and legacy config files are found, they are converted and written to new file
 locations. For more information on the new format, see the [config file docs](#config-files).
 
-----
+### Dynamic values
+The example below shows an input file for a stack that requires seven parameters ,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
+
+Note: you can auto generate values at runtime (see examples below).
+
+> The following json will evaluate
+
+
+#### From:
+```
+     InstanceType: t2.small
+     AvailablityZones: $[taskcat_genaz_2]
+     RandomString: $[taskcat_random-string]
+     RandomNumbers: $[taskcat_random-numbers]
+     GenerateUUID: $[taskcat_genuuid]
+     Password: $[taskcat_genpass_8A]
+     PasswordConfirm: $[taskcat_getval_Password]
+```
+#### To:
+
+```
+     InstanceType: t2.small
+     AvailablityZones: us-east-1a: us-east1b
+     RandomString: yysuawpwubvotiqgwjcu
+     RandomNumbers: 56188163597280820763
+     GenerateUUID: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+     Password: tI8zN3iX8
+     PasswordConfirm: tI8zN3iX8
+```
+
+
 **GitHub:**
 
 [![GitHub stars](https://img.shields.io/github/stars/aws-quickstart/taskcat.svg?style=social&label=Stars)](https://github.com/aws-quickstart/taskcat)
