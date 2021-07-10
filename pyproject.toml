@@ -9,9 +9,6 @@ palette = {primary = "black", accent = "orange"}
  Home = "README.md"
 
 [[tool.portray.mkdocs.nav]]
-aws-ia = "https://aws-ia.github.io/?target=_blank" 
-
-[[tool.portray.mkdocs.nav]]
 Schema = "docs/schema/taskcat_schema.md"
 
 [[tool.portray.mkdocs.nav]]

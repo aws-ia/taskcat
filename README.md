@@ -1,13 +1,13 @@
-![logo](https://aws-ia.github.io/assets/img/taskcat-bg.png)
+[![logo](https://aws-ia.github.io/assets/img/taskcat-bg.png)](https://aws-ia.github.io/)
+__https://aws-ia.github.io__
 
-# taskcat
-[![Build Status](https://travis-ci.com/aws-quickstart/taskcat.svg?branch=main)](https://travis-ci.com/aws-quickstart/taskcat)
-[![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.com/aws-quickstart/taskcat.svg?branch=main)](https://travis-ci.com/aws-quickstart/taskcat) [![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 **[Installation](#Installation)**
 
 **[Usage](#Usage)**
+
+**[Support](#Support)**
 
 ## What is taskcat?
 **taskcat** is a tool that tests AWS CloudFormation templates. It deploys your AWS
@@ -303,14 +303,15 @@ is run and legacy config files are found, they are converted and written to new 
 locations. For more information on the new format, see the [config file docs](#config-files).
 
 ### Dynamic values
-The example below shows an input file for a stack that requires seven parameters ,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
+The example below shows an input file for a stack that requires six parameters ,`InstanceType`, `AvailablityZones`, `RandomString`, `RandomNumbers`, `GenerateUUID` and `Password`
 
-Note: you can auto generate values at runtime (see examples below).
+Note: Value that matches the following pattern will be replaced:
+ * All runtime injection parameters must start with `$[`
+ * Parameters must end with` ]`
 
-> The following json will evaluate
+__(see examples below)__
 
-
-#### From:
+#### From: (defined in taskcat.yaml')
 ```
      InstanceType: t2.small
      AvailablityZones: $[taskcat_genaz_2]
@@ -320,8 +321,8 @@ Note: you can auto generate values at runtime (see examples below).
      Password: $[taskcat_genpass_8A]
      PasswordConfirm: $[taskcat_getval_Password]
 ```
-#### To:
 
+#### To: (At runtime passed to cloudformation API)
 ```
      InstanceType: t2.small
      AvailablityZones: us-east-1a: us-east1b
@@ -332,8 +333,77 @@ Note: you can auto generate values at runtime (see examples below).
      PasswordConfirm: tI8zN3iX8
 ```
 
+### Gen Passwords
+**More info on Passwords Generation**
 
-**GitHub:**
+To generate a random 8 character alpha-numeric password for testing use $[taskcat_genpass_8] as the value in the json input file
+ * The number (8) in the injection string tells taskcat you want a password that character long.
+ * Changing the 8 to 12 would result in a 12 character string
+
+(Optionally - you can specify the type of password by adding A or S)
+
+ * A alpha-numeric passwords
+ * S passwords with special characters
+
+> Example: $[taskcat_genpass_8A]
+
+> Generates: tI8zN3iX8
+
+> Example: $[taskcat_genpass_8S]
+
+> Generates: mA5@cB5!
+
+#### (Retrieve previously generated value based on parameter name)
+UseCase: Need to confirm a dynamically generated password
+
+
+> Example MyAppPassword $[taskcat_genpass_8A]
+
+> Generates: pI8zN4iX8
+
+> Example ConfirmMyAppPassword: $[taskcat_getval_MyAppPassword]
+
+> Generates: pI8zN4iX8
+
+### Auto input AvailablityZones
+**More info on passsing in AvailablityZones based on test region**
+Value that matches the following pattern will be replaced
+
+* Parameters must end with ]
+* genaz in invoked when taskcat_genaz_X is found
+* A number of AZ's will be selected from the region the stack is attempting to launch
+
+> Example: $[taskcat_genaz_2]
+
+> Generates: us-east-1a, us-east-2b
+
+> (if the region is us-east-1)
+
+### Auto generated s3 bucket
+> Example: $[taskcat_autobucket]
+
+> Generates: evaluates to auto generated bucket name (taskcat-tag-sample-taskcat-project-5fba6597)
+
+### Auto generate UUID String
+> Example: $[taskcat_genuuid]
+
+> Generates: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+
+### A generate Random Values
+String:
+
+> Example: $[taskcat_random-string]
+
+> Generates: yysuawpwubvotiqgwjcu
+
+Numbers:
+
+> Example: $[taskcat_random-numbers]
+
+> Generates: 56188163597280820763
+
+
+# GitHub
 
 [![GitHub stars](https://img.shields.io/github/stars/aws-quickstart/taskcat.svg?style=social&label=Stars)](https://github.com/aws-quickstart/taskcat)
 [![GitHub issues](https://img.shields.io/github/issues/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/issues)
@@ -341,7 +411,7 @@ Note: you can auto generate values at runtime (see examples below).
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/aws-quickstart/taskcat.svg)](https://github.com/aws-quickstart/taskcat/pulls?q=is%3Apr+is%3Aclosed)
 
-**PyPi:**
+# PyPi
 
 [![PyPI - Downloads](https://img.shields.io/pypi/dw/taskcat.svg)](https://pypi.org/project/taskcat/#history)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/taskcat.svg)](https://pypi.org/project/taskcat/#history)
