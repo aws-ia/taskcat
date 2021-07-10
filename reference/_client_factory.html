@@ -1,0 +1,1707 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://aws-ia.github.io/assets/img/logonav.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
+    
+    
+      
+        <title>Client Factory - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#ff6e42">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-orange" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-_client_factory" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+               Client Factory
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://aws-ia.github.io/?target=_blank" class="md-nav__link">
+        aws-ia
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/schema/taskcat_schema.html" class="md-nav__link">
+        Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/apidocs/taskcat/index.html" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_amiupdater.html" class="md-nav__link">
+         Amiupdater
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_cli_core.html" class="md-nav__link">
+         Cli Core
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+           Client Factory
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="_client_factory.html" class="md-nav__link md-nav__link--active">
+         Client Factory
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boto3cache" class="md-nav__link">
+    Boto3Cache
+  </a>
+  
+    <nav class="md-nav" aria-label="Boto3Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#account_id" class="md-nav__link">
+    account_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client" class="md-nav__link">
+    client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default_region" class="md-nav__link">
+    get_default_region
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partition" class="md-nav__link">
+    partition
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource" class="md-nav__link">
+    resource
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session" class="md-nav__link">
+    session
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_common_utils.html" class="md-nav__link">
+         Common Utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_config.html" class="md-nav__link">
+         Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_dataclasses.html" class="md-nav__link">
+         Dataclasses
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_legacy_config.html" class="md-nav__link">
+         Legacy Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_logger.html" class="md-nav__link">
+         Logger
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_name_generator.html" class="md-nav__link">
+         Name Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_project_generator.html" class="md-nav__link">
+         Project Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_stage.html" class="md-nav__link">
+         S3 Stage
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_sync.html" class="md-nav__link">
+         S3 Sync
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_template_params.html" class="md-nav__link">
+         Template Params
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_tui.html" class="md-nav__link">
+         Tui
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat_plugin_testhook.html" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16" type="checkbox" id="__nav_5_16" >
+      
+      <label class="md-nav__link" for="__nav_5_16">
+        Taskcat
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_16">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/exceptions.html" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/regions_to_partitions.html" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_4" type="checkbox" id="__nav_5_16_4" >
+      
+      <label class="md-nav__link" for="__nav_5_16_4">
+         Cfn
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_4">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack.html" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack_url_helper.html" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/template.html" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/threaded.html" class="md-nav__link">
+        Threaded
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_5" type="checkbox" id="__nav_5_16_5" >
+      
+      <label class="md-nav__link" for="__nav_5_16_5">
+         Cli Modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/delete.html" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/deploy.html" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/lint.html" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/list.html" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/package.html" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/test.html" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/update_ami.html" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/upload.html" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_6" type="checkbox" id="__nav_5_16_6" >
+      
+      <label class="md-nav__link" for="__nav_5_16_6">
+        Testing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_6">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/base_test.html" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#boto3cache" class="md-nav__link">
+    Boto3Cache
+  </a>
+  
+    <nav class="md-nav" aria-label="Boto3Cache">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#account_id" class="md-nav__link">
+    account_id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client" class="md-nav__link">
+    client
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default_region" class="md-nav__link">
+    get_default_region
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partition" class="md-nav__link">
+    partition
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource" class="md-nav__link">
+    resource
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session" class="md-nav__link">
+    session
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-quickstart/taskcat/edit/main/reference/_client_factory.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="module-_client_factory">Module _client_factory</h1>
+<p>None</p>
+<p>None</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="s s-Atom">import</span> <span class="s s-Atom">logging</span>
+
+<span class="s s-Atom">import</span> <span class="s s-Atom">operator</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">functools</span> <span class="s s-Atom">import</span> <span class="s s-Atom">reduce</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">time</span> <span class="s s-Atom">import</span> <span class="s s-Atom">sleep</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">typing</span> <span class="s s-Atom">import</span> <span class="nv">Any</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">,</span> <span class="nv">List</span>
+
+<span class="s s-Atom">import</span> <span class="s s-Atom">boto3</span>
+
+<span class="s s-Atom">import</span> <span class="s s-Atom">botocore</span><span class="p">.</span><span class="s s-Atom">loaders</span> <span class="s s-Atom">as</span> <span class="s s-Atom">boto_loader</span>
+
+<span class="s s-Atom">import</span> <span class="s s-Atom">botocore</span><span class="p">.</span><span class="s s-Atom">regions</span> <span class="s s-Atom">as</span> <span class="s s-Atom">boto_regions</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">botocore</span><span class="p">.</span><span class="s s-Atom">config</span> <span class="s s-Atom">import</span> <span class="nv">Config</span> <span class="s s-Atom">as</span> <span class="nv">BotoConfig</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">botocore</span><span class="p">.</span><span class="s s-Atom">exceptions</span> <span class="s s-Atom">import</span> <span class="nv">ClientError</span><span class="p">,</span> <span class="nv">NoCredentialsError</span><span class="p">,</span> <span class="nv">ProfileNotFound</span>
+
+<span class="s s-Atom">from</span> <span class="s s-Atom">taskcat</span><span class="p">.</span><span class="s s-Atom">exceptions</span> <span class="s s-Atom">import</span> <span class="nv">TaskCatException</span>
+
+<span class="nv">LOG</span> <span class="o">=</span> <span class="s s-Atom">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="k">__</span><span class="s s-Atom">name__</span><span class="p">)</span>
+
+<span class="nv">REGIONAL_ENDPOINT_SERVICES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;sts&quot;</span><span class="p">]</span>
+
+<span class="s s-Atom">class</span> <span class="nv">Boto3Cache</span><span class="s s-Atom">:</span>
+
+    <span class="nv">RETRIES</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="nv">BACKOFF</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="nv">DELAY</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+    <span class="nv">CLIENT_THROTTLE_RETRIES</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">init__</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="k">_</span><span class="s s-Atom">boto3</span><span class="o">=</span><span class="s s-Atom">boto3</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">boto3</span> <span class="o">=</span> <span class="k">_</span><span class="s s-Atom">boto3</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">session_cache:</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="nv">Session</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">client_cache:</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="s s-Atom">client</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">resource_cache:</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="s s-Atom">resource</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">account_info:</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="nv">Dict</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">,</span> <span class="s s-Atom">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">lock_cache_update</span> <span class="o">=</span> <span class="nv">False</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">session</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">profile</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="nn">region</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="nv">None</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="nv">Session</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_region</span><span class="p">(</span><span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span>
+
+        <span class="nn">try</span><span class="p">:</span>
+
+            <span class="s s-Atom">session</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span>
+
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">session_cache</span><span class="p">,</span>
+
+                <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">],</span>
+
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">boto3</span><span class="p">.</span><span class="nv">Session</span><span class="p">,</span>
+
+                <span class="p">[],</span>
+
+                <span class="p">{</span><span class="s2">&quot;region_name&quot;</span><span class="s s-Atom">:</span> <span class="s s-Atom">region</span><span class="p">,</span> <span class="s2">&quot;profile_name&quot;</span><span class="s s-Atom">:</span> <span class="s s-Atom">profile</span><span class="p">},</span>
+
+            <span class="p">)</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">ProfileNotFound</span><span class="s s-Atom">:</span>
+
+            <span class="s s-Atom">if</span> <span class="s s-Atom">profile</span> <span class="p">!</span><span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="s s-Atom">:</span>
+
+                <span class="s s-Atom">raise</span>
+
+            <span class="s s-Atom">session</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">boto3</span><span class="p">.</span><span class="nv">Session</span><span class="p">(</span><span class="s s-Atom">region_name</span><span class="o">=</span><span class="s s-Atom">region</span><span class="p">)</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_set</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">session_cache</span><span class="p">,</span> <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">],</span> <span class="s s-Atom">session</span><span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">session</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">client</span><span class="p">(</span>
+
+        <span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">service</span><span class="p">:</span> <span class="s s-Atom">str</span><span class="p">,</span> <span class="nn">profile</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="nn">region</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="nv">None</span>
+
+    <span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="nn">client</span><span class="p">:</span>
+
+        <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_region</span><span class="p">(</span><span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span>
+
+        <span class="s s-Atom">session</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">session</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)</span>
+
+        <span class="s s-Atom">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="s s-Atom">:</span> <span class="nv">BotoConfig</span><span class="p">(</span><span class="s s-Atom">retries=</span><span class="p">{</span><span class="s2">&quot;max_attempts&quot;</span><span class="s s-Atom">:</span> <span class="mi">20</span><span class="p">})}</span>
+
+        <span class="s s-Atom">if</span> <span class="s s-Atom">service</span> <span class="s s-Atom">in</span> <span class="nv">REGIONAL_ENDPOINT_SERVICES</span><span class="s s-Atom">:</span>
+
+            <span class="s s-Atom">kwargs</span><span class="p">.</span><span class="nf">update</span><span class="p">({</span><span class="s2">&quot;endpoint_url&quot;</span><span class="s s-Atom">:</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_endpoint_url</span><span class="p">(</span><span class="s s-Atom">service</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)})</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">client_cache</span><span class="p">,</span>
+
+            <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">service</span><span class="p">],</span>
+
+            <span class="s s-Atom">session</span><span class="p">.</span><span class="s s-Atom">client</span><span class="p">,</span>
+
+            <span class="p">[</span><span class="s s-Atom">service</span><span class="p">],</span>
+
+            <span class="s s-Atom">kwargs</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">resource</span><span class="p">(</span>
+
+        <span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">service</span><span class="p">:</span> <span class="s s-Atom">str</span><span class="p">,</span> <span class="nn">profile</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="nn">region</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="nv">None</span>
+
+    <span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="s s-Atom">boto3</span><span class="p">.</span><span class="nn">resource</span><span class="p">:</span>
+
+        <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_region</span><span class="p">(</span><span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span>
+
+        <span class="s s-Atom">session</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">session</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">resource_cache</span><span class="p">,</span>
+
+            <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">service</span><span class="p">],</span>
+
+            <span class="s s-Atom">session</span><span class="p">.</span><span class="s s-Atom">resource</span><span class="p">,</span>
+
+            <span class="p">[</span><span class="s s-Atom">service</span><span class="p">],</span>
+
+        <span class="p">)</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">partition</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">profile</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">account_info</span><span class="p">,</span> <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">],</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">get_account_info</span><span class="p">,</span> <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">]</span>
+
+        <span class="p">)[</span><span class="s2">&quot;partition&quot;</span><span class="p">]</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">account_id</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">profile</span><span class="p">:</span> <span class="s s-Atom">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">account_info</span><span class="p">,</span> <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">],</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">get_account_info</span><span class="p">,</span> <span class="p">[</span><span class="s s-Atom">profile</span><span class="p">]</span>
+
+        <span class="p">)[</span><span class="s2">&quot;account_id&quot;</span><span class="p">]</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_account_info</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">partition</span><span class="p">,</span> <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_partition</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">)</span>
+
+        <span class="s s-Atom">session</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">session</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)</span>
+
+        <span class="s s-Atom">sts_client</span> <span class="o">=</span> <span class="s s-Atom">session</span><span class="p">.</span><span class="nf">client</span><span class="p">(</span><span class="s2">&quot;sts&quot;</span><span class="p">,</span> <span class="s s-Atom">region_name</span><span class="o">=</span><span class="s s-Atom">region</span><span class="p">)</span>
+
+        <span class="nn">try</span><span class="p">:</span>
+
+            <span class="s s-Atom">account_id</span> <span class="o">=</span> <span class="s s-Atom">sts_client</span><span class="p">.</span><span class="nf">get_caller_identity</span><span class="p">()[</span><span class="s2">&quot;Account&quot;</span><span class="p">]</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">ClientError</span> <span class="s s-Atom">as</span> <span class="nn">e</span><span class="p">:</span>
+
+            <span class="s s-Atom">if</span> <span class="s s-Atom">e</span><span class="p">.</span><span class="s s-Atom">response</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">][</span><span class="s2">&quot;Code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;AccessDenied&quot;</span><span class="s s-Atom">:</span>
+
+                <span class="s s-Atom">#</span> <span class="nn">pylint</span><span class="p">:</span> <span class="s s-Atom">disable</span><span class="o">=</span><span class="s s-Atom">raise</span><span class="o">-</span><span class="s s-Atom">missing</span><span class="o">-</span><span class="s s-Atom">from</span>
+
+                <span class="s s-Atom">raise</span> <span class="nv">TaskCatException</span><span class="p">(</span>
+
+                    <span class="s s-Atom">f</span><span class="s2">&quot;Not able to fetch account number from {region} using profile &quot;</span>
+
+                    <span class="s s-Atom">f</span><span class="s2">&quot;{profile}. {str(e)}&quot;</span>
+
+                <span class="p">)</span>
+
+            <span class="s s-Atom">raise</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">NoCredentialsError</span> <span class="s s-Atom">as</span> <span class="nn">e</span><span class="p">:</span>
+
+            <span class="s s-Atom">#</span> <span class="nn">pylint</span><span class="p">:</span> <span class="s s-Atom">disable</span><span class="o">=</span><span class="s s-Atom">raise</span><span class="o">-</span><span class="s s-Atom">missing</span><span class="o">-</span><span class="s s-Atom">from</span>
+
+            <span class="s s-Atom">raise</span> <span class="nv">TaskCatException</span><span class="p">(</span>
+
+                <span class="s s-Atom">f</span><span class="s2">&quot;Not able to fetch account number from {region} using profile &quot;</span>
+
+                <span class="s s-Atom">f</span><span class="s2">&quot;{profile}. {str(e)}&quot;</span>
+
+            <span class="p">)</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">ProfileNotFound</span> <span class="s s-Atom">as</span> <span class="nn">e</span><span class="p">:</span>
+
+            <span class="s s-Atom">#</span> <span class="nn">pylint</span><span class="p">:</span> <span class="s s-Atom">disable</span><span class="o">=</span><span class="s s-Atom">raise</span><span class="o">-</span><span class="s s-Atom">missing</span><span class="o">-</span><span class="s s-Atom">from</span>
+
+            <span class="s s-Atom">raise</span> <span class="nv">TaskCatException</span><span class="p">(</span>
+
+                <span class="s s-Atom">f</span><span class="s2">&quot;Not able to fetch account number from {region} using profile &quot;</span>
+
+                <span class="s s-Atom">f</span><span class="s2">&quot;{profile}. {str(e)}&quot;</span>
+
+            <span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="p">{</span><span class="s2">&quot;partition&quot;</span><span class="s s-Atom">:</span> <span class="s s-Atom">partition</span><span class="p">,</span> <span class="s2">&quot;account_id&quot;</span><span class="s s-Atom">:</span> <span class="s s-Atom">account_id</span><span class="p">}</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">make_parent_keys</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">cache</span><span class="p">:</span> <span class="s s-Atom">dict</span><span class="p">,</span> <span class="nn">keys</span><span class="p">:</span> <span class="s s-Atom">list</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">if</span> <span class="nn">keys</span><span class="p">:</span>
+
+            <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">cache</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s s-Atom">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="s s-Atom">:</span>
+
+                <span class="s s-Atom">cache</span><span class="p">[</span><span class="s s-Atom">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">make_parent_keys</span><span class="p">(</span><span class="s s-Atom">cache</span><span class="p">[</span><span class="s s-Atom">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s s-Atom">keys</span><span class="p">[</span><span class="mi">1</span><span class="s s-Atom">:</span><span class="p">])</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">cache_lookup</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">cache</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">,</span> <span class="s s-Atom">create_func</span><span class="p">,</span> <span class="s s-Atom">args</span><span class="o">=</span><span class="nv">None</span><span class="p">,</span> <span class="s s-Atom">kwargs</span><span class="o">=</span><span class="nv">None</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="nn">try</span><span class="p">:</span>
+
+            <span class="s s-Atom">value</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_get</span><span class="p">(</span><span class="s s-Atom">cache</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">)</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">KeyError</span><span class="s s-Atom">:</span>
+
+            <span class="s s-Atom">args</span> <span class="o">=</span> <span class="p">[]</span> <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">args</span> <span class="s s-Atom">else</span> <span class="s s-Atom">args</span>
+
+            <span class="s s-Atom">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">kwargs</span> <span class="s s-Atom">else</span> <span class="s s-Atom">kwargs</span>
+
+            <span class="s s-Atom">value</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_with_retry</span><span class="p">(</span><span class="s s-Atom">create_func</span><span class="p">,</span> <span class="s s-Atom">args</span><span class="p">,</span> <span class="s s-Atom">kwargs</span><span class="p">)</span>
+
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_set</span><span class="p">(</span><span class="s s-Atom">cache</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">,</span> <span class="s s-Atom">value</span><span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">value</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_with_retry</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">create_func</span><span class="p">,</span> <span class="s s-Atom">args</span><span class="p">,</span> <span class="s s-Atom">kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">retries</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nv">RETRIES</span>
+
+        <span class="s s-Atom">delay</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nv">DELAY</span>
+
+        <span class="s s-Atom">while</span> <span class="nn">retries</span><span class="p">:</span>
+
+            <span class="nn">try</span><span class="p">:</span>
+
+                <span class="s s-Atom">return</span> <span class="nf">create_func</span><span class="p">(</span><span class="o">*</span><span class="s s-Atom">args</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span>
+
+            <span class="s s-Atom">except</span> <span class="nv">KeyError</span> <span class="s s-Atom">as</span> <span class="nn">e</span><span class="p">:</span>
+
+                <span class="s s-Atom">if</span> <span class="nf">str</span><span class="p">(</span><span class="s s-Atom">e</span><span class="p">)</span> <span class="o">not</span> <span class="s s-Atom">in</span> <span class="p">[</span><span class="s2">&quot;&#39;credential_provider&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;endpoint_resolver&#39;&quot;</span><span class="p">]</span><span class="s s-Atom">:</span>
+
+                    <span class="s s-Atom">raise</span>
+
+                <span class="s s-Atom">backoff</span> <span class="o">=</span> <span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="nv">RETRIES</span> <span class="o">-</span> <span class="s s-Atom">retries</span> <span class="o">+</span> <span class="s s-Atom">delay</span><span class="p">)</span> <span class="o">*</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nv">BACKOFF</span>
+
+                <span class="nf">sleep</span><span class="p">(</span><span class="s s-Atom">backoff</span><span class="p">)</span>
+
+    <span class="s s-Atom">@staticmethod</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_endpoint_url</span><span class="p">(</span><span class="s s-Atom">service</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">data</span> <span class="o">=</span> <span class="s s-Atom">boto_loader</span><span class="p">.</span><span class="nf">create_loader</span><span class="p">().</span><span class="nf">load_data</span><span class="p">(</span><span class="s2">&quot;endpoints&quot;</span><span class="p">)</span>
+
+        <span class="s s-Atom">endpoint_data</span> <span class="o">=</span> <span class="s s-Atom">boto_regions</span><span class="p">.</span><span class="nv">EndpointResolver</span><span class="p">(</span><span class="s s-Atom">data</span><span class="p">).</span><span class="nf">construct_endpoint</span><span class="p">(</span>
+
+            <span class="s s-Atom">service</span><span class="p">,</span> <span class="s s-Atom">region</span>
+
+        <span class="p">)</span>
+
+        <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">endpoint_data:</span>
+
+            <span class="s s-Atom">raise</span> <span class="nv">TaskCatException</span><span class="p">(</span>
+
+                <span class="s s-Atom">f</span><span class="s2">&quot;unable to resolve endpoint for {service} in {region}&quot;</span>
+
+            <span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">f</span><span class="s2">&quot;https://{service}.{region}.{endpoint_data[&#39;dnsSuffix&#39;]}&quot;</span>
+
+    <span class="s s-Atom">@staticmethod</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">cache_get</span><span class="p">(</span><span class="nn">cache</span><span class="p">:</span> <span class="s s-Atom">dict</span><span class="p">,</span> <span class="s s-Atom">key_list:</span> <span class="nv">List</span><span class="p">[</span><span class="s s-Atom">str</span><span class="p">])</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">return</span> <span class="nf">reduce</span><span class="p">(</span><span class="s s-Atom">operator</span><span class="p">.</span><span class="s s-Atom">getitem</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">,</span> <span class="s s-Atom">cache</span><span class="p">)</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">cache_set</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="nn">cache</span><span class="p">:</span> <span class="s s-Atom">dict</span><span class="p">,</span> <span class="s s-Atom">key_list:</span> <span class="s s-Atom">list</span><span class="p">,</span> <span class="nn">value</span><span class="p">:</span> <span class="nv">Any</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">make_parent_keys</span><span class="p">(</span><span class="s s-Atom">cache</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">[:-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">cache_get</span><span class="p">(</span><span class="s s-Atom">cache</span><span class="p">,</span> <span class="s s-Atom">key_list</span><span class="p">[:-</span><span class="mi">1</span><span class="p">])[</span><span class="s s-Atom">key_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="s s-Atom">value</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_region</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">if</span> <span class="o">not</span> <span class="nn">region</span><span class="p">:</span>
+
+            <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">get_default_region</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">region</span>
+
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">get_partition</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">profile</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+        <span class="s s-Atom">partition_regions</span> <span class="o">=</span> <span class="p">[</span>
+
+            <span class="p">(</span><span class="s2">&quot;aws&quot;</span><span class="p">,</span> <span class="s2">&quot;us-east-1&quot;</span><span class="p">),</span>
+
+            <span class="p">(</span><span class="s2">&quot;aws-cn&quot;</span><span class="p">,</span> <span class="s2">&quot;cn-north-1&quot;</span><span class="p">),</span>
+
+            <span class="p">(</span><span class="s2">&quot;aws-us-gov&quot;</span><span class="p">,</span> <span class="s2">&quot;us-gov-west-1&quot;</span><span class="p">),</span>
+
+        <span class="p">]</span>
+
+        <span class="s s-Atom">for</span> <span class="s s-Atom">partition</span><span class="p">,</span> <span class="s s-Atom">region</span> <span class="s s-Atom">in</span> <span class="s s-Atom">partition_regions:</span>
+
+            <span class="nn">try</span><span class="p">:</span>
+
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">session</span><span class="p">(</span><span class="s s-Atom">profile</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">).</span><span class="nf">client</span><span class="p">(</span>
+
+                    <span class="s2">&quot;sts&quot;</span><span class="p">,</span> <span class="s s-Atom">region_name</span><span class="o">=</span><span class="s s-Atom">region</span>
+
+                <span class="p">).</span><span class="nf">get_caller_identity</span><span class="p">()</span>
+
+                <span class="nf">return</span> <span class="p">(</span><span class="s s-Atom">partition</span><span class="p">,</span> <span class="s s-Atom">region</span><span class="p">)</span>
+
+            <span class="s s-Atom">except</span> <span class="nv">ClientError</span> <span class="s s-Atom">as</span> <span class="nn">e</span><span class="p">:</span>
+
+                <span class="s s-Atom">if</span> <span class="s2">&quot;InvalidClientTokenId&quot;</span> <span class="s s-Atom">in</span> <span class="nf">str</span><span class="p">(</span><span class="s s-Atom">e</span><span class="p">)</span><span class="s s-Atom">:</span>
+
+                    <span class="s s-Atom">continue</span>
+
+                <span class="s s-Atom">raise</span>
+
+        <span class="s s-Atom">raise</span> <span class="nv">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot find suitable AWS partition&quot;</span><span class="p">)</span>
+
+    <span class="s s-Atom">def</span> <span class="nf">get_default_region</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">profile_name=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
+
+        <span class="nn">try</span><span class="p">:</span>
+
+            <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">boto3</span><span class="p">.</span><span class="s s-Atom">session</span><span class="p">.</span><span class="nv">Session</span><span class="p">(</span><span class="s s-Atom">profile_name</span><span class="o">=</span><span class="s s-Atom">profile_name</span><span class="p">).</span><span class="s s-Atom">region_name</span>
+
+        <span class="s s-Atom">except</span> <span class="nv">ProfileNotFound</span><span class="s s-Atom">:</span>
+
+            <span class="s s-Atom">if</span> <span class="s s-Atom">profile_name</span> <span class="p">!</span><span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="s s-Atom">:</span>
+
+                <span class="s s-Atom">raise</span>
+
+            <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">boto3</span><span class="p">.</span><span class="s s-Atom">session</span><span class="p">.</span><span class="nv">Session</span><span class="p">().</span><span class="s s-Atom">region_name</span>
+
+        <span class="s s-Atom">if</span> <span class="o">not</span> <span class="nn">region</span><span class="p">:</span>
+
+            <span class="k">_</span><span class="p">,</span> <span class="s s-Atom">region</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">get_partition</span><span class="p">(</span><span class="s s-Atom">profile_name</span><span class="p">)</span>
+
+            <span class="nv">LOG</span><span class="p">.</span><span class="nf">warning</span><span class="p">(</span>
+
+                <span class="s2">&quot;Region not set in credential chain, defaulting to {}&quot;</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="s s-Atom">region</span><span class="p">)</span>
+
+            <span class="p">)</span>
+
+        <span class="s s-Atom">return</span> <span class="s s-Atom">region</span>
+</code></pre></div>
+
+</details>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">REGIONAL_ENDPOINT_SERVICES</span>
+</code></pre></div>
+
+<h2 id="classes">Classes</h2>
+<h3 id="boto3cache">Boto3Cache</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Boto3Cache</span><span class="p">(</span>
+    <span class="n">_boto3</span><span class="o">=&lt;</span><span class="n">module</span> <span class="s1">&#39;boto3&#39;</span> <span class="kn">from</span> <span class="s1">&#39;/Users/tonynv/.pyenv/versions/3.9.1/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/boto3/__init__.py&#39;</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">BACKOFF</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">CLIENT_THROTTLE_RETRIES</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">DELAY</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">RETRIES</span>
+</code></pre></div>
+
+<h4 id="methods">Methods</h4>
+<h4 id="account_id">account_id</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">account_id</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">account_id</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nf">str</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_cache_lookup</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_account_info</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">profile</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_account_info</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">profile</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="o">[</span><span class="n">&quot;account_id&quot;</span><span class="o">]</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="client">client</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">client</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">service</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">client</span> <span class="n">at</span> <span class="mh">0x103f3b4c0</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">client</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">service</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="nl">profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="nl">region</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">boto3</span><span class="p">.</span><span class="nl">client</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">profile</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="k">session</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">kwargs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;config&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">BotoConfig</span><span class="p">(</span><span class="n">retries</span><span class="o">=</span><span class="err">{</span><span class="ss">&quot;max_attempts&quot;</span><span class="err">:</span><span class="w"> </span><span class="mi">20</span><span class="err">}</span><span class="p">)</span><span class="err">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">REGIONAL_ENDPOINT_SERVICES</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">kwargs</span><span class="p">.</span><span class="k">update</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;endpoint_url&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_endpoint_url</span><span class="p">(</span><span class="n">service</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span><span class="err">}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_cache_lookup</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_client_cache</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="o">[</span><span class="n">profile, region, service</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">session</span><span class="p">.</span><span class="n">client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="o">[</span><span class="n">service</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">kwargs</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="get_default_region">get_default_region</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_default_region</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">profile_name</span><span class="o">=</span><span class="s1">&#39;default&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">get_default_region</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">profile_name</span><span class="o">=</span><span class="s">&quot;default&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nl">str:</span>
+
+        <span class="nl">try:</span>
+
+            <span class="n">region</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_boto3</span><span class="p">.</span><span class="n">session</span><span class="p">.</span><span class="n">Session</span><span class="p">(</span><span class="n">profile_name</span><span class="o">=</span><span class="n">profile_name</span><span class="p">).</span><span class="n">region_name</span>
+
+        <span class="n">except</span> <span class="nl">ProfileNotFound:</span>
+
+            <span class="k">if</span> <span class="n">profile_name</span> <span class="o">!=</span> <span class="s">&quot;default&quot;</span><span class="o">:</span>
+
+                <span class="n">raise</span>
+
+            <span class="n">region</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_boto3</span><span class="p">.</span><span class="n">session</span><span class="p">.</span><span class="n">Session</span><span class="p">().</span><span class="n">region_name</span>
+
+        <span class="k">if</span> <span class="k">not</span> <span class="nl">region:</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">region</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_get_partition</span><span class="p">(</span><span class="n">profile_name</span><span class="p">)</span>
+
+            <span class="n">LOG</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span>
+
+                <span class="s">&quot;Region not set in credential chain, defaulting to {}&quot;</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">region</span>
+</code></pre></div>
+
+</details>
+<h4 id="partition">partition</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">partition</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">partition</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nf">str</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_cache_lookup</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_account_info</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">profile</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_account_info</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">profile</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="o">[</span><span class="n">&quot;partition&quot;</span><span class="o">]</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="resource">resource</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">resource</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">service</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">resource</span> <span class="n">at</span> <span class="mh">0x103f3b550</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">resource</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">service</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="nl">profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="nl">region</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">boto3</span><span class="p">.</span><span class="nl">resource</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">profile</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="k">session</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_cache_lookup</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_resource_cache</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="o">[</span><span class="n">profile, region, service</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">session</span><span class="p">.</span><span class="n">resource</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="o">[</span><span class="n">service</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="session">session</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">session</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">session</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">profile:</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;default&quot;</span><span class="p">,</span> <span class="nl">region:</span> <span class="n">str</span> <span class="o">=</span> <span class="n">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">boto3</span><span class="p">.</span><span class="nl">Session:</span>
+
+        <span class="n">region</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_get_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
+
+        <span class="nl">try:</span>
+
+            <span class="n">session</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_cache_lookup</span><span class="p">(</span>
+
+                <span class="n">self</span><span class="p">.</span><span class="n">_session_cache</span><span class="p">,</span>
+
+                <span class="p">[</span><span class="n">profile</span><span class="p">,</span> <span class="n">region</span><span class="p">],</span>
+
+                <span class="n">self</span><span class="p">.</span><span class="n">_boto3</span><span class="p">.</span><span class="n">Session</span><span class="p">,</span>
+
+                <span class="p">[],</span>
+
+                <span class="p">{</span><span class="s">&quot;region_name&quot;</span><span class="o">:</span> <span class="n">region</span><span class="p">,</span> <span class="s">&quot;profile_name&quot;</span><span class="o">:</span> <span class="n">profile</span><span class="p">},</span>
+
+            <span class="p">)</span>
+
+        <span class="n">except</span> <span class="nl">ProfileNotFound:</span>
+
+            <span class="k">if</span> <span class="n">profile</span> <span class="o">!=</span> <span class="s">&quot;default&quot;</span><span class="o">:</span>
+
+                <span class="n">raise</span>
+
+            <span class="n">session</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_boto3</span><span class="p">.</span><span class="n">Session</span><span class="p">(</span><span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">_cache_set</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_session_cache</span><span class="p">,</span> <span class="p">[</span><span class="n">profile</span><span class="p">,</span> <span class="n">region</span><span class="p">],</span> <span class="n">session</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">session</span>
+</code></pre></div>
+
+</details>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="_cli_core.html" title="Cli Core" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                 Cli Core
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="_common_utils.html" title="Common Utils" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                 Common Utils
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.82b56eb2.min.js"></script>
+      
+    
+  </body>
+</html>

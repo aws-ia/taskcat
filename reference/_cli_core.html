@@ -1,0 +1,2921 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://aws-ia.github.io/assets/img/logonav.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
+    
+    
+      
+        <title>Cli Core - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#ff6e42">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-orange" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-_cli_core" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+               Cli Core
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://aws-ia.github.io/?target=_blank" class="md-nav__link">
+        aws-ia
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/schema/taskcat_schema.html" class="md-nav__link">
+        Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/apidocs/taskcat/index.html" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_amiupdater.html" class="md-nav__link">
+         Amiupdater
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+           Cli Core
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="_cli_core.html" class="md-nav__link md-nav__link--active">
+         Cli Core
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clicore" class="md-nav__link">
+    CliCore
+  </a>
+  
+    <nav class="md-nav" aria-label="CliCore">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longform_param_required" class="md-nav__link">
+    longform_param_required
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse" class="md-nav__link">
+    parse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customparser" class="md-nav__link">
+    CustomParser
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_argument" class="md-nav__link">
+    add_argument
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_argument_group" class="md-nav__link">
+    add_argument_group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_mutually_exclusive_group" class="md-nav__link">
+    add_mutually_exclusive_group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_subparsers" class="md-nav__link">
+    add_subparsers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert_arg_line_to_args" class="md-nav__link">
+    convert_arg_line_to_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error" class="md-nav__link">
+    error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit" class="md-nav__link">
+    exit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_help" class="md-nav__link">
+    format_help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_usage" class="md-nav__link">
+    format_usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default" class="md-nav__link">
+    get_default
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_args" class="md-nav__link">
+    parse_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_intermixed_args" class="md-nav__link">
+    parse_intermixed_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_known_args" class="md-nav__link">
+    parse_known_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_known_intermixed_args" class="md-nav__link">
+    parse_known_intermixed_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print_help" class="md-nav__link">
+    print_help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print_usage" class="md-nav__link">
+    print_usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register" class="md-nav__link">
+    register
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_defaults" class="md-nav__link">
+    set_defaults
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalargs" class="md-nav__link">
+    GlobalArgs
+  </a>
+  
+    <nav class="md-nav" aria-label="GlobalArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setverbosity" class="md-nav__link">
+    SetVerbosity
+  </a>
+  
+    <nav class="md-nav" aria-label="SetVerbosity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_2" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_usage_1" class="md-nav__link">
+    format_usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_client_factory.html" class="md-nav__link">
+         Client Factory
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_common_utils.html" class="md-nav__link">
+         Common Utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_config.html" class="md-nav__link">
+         Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_dataclasses.html" class="md-nav__link">
+         Dataclasses
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_legacy_config.html" class="md-nav__link">
+         Legacy Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_logger.html" class="md-nav__link">
+         Logger
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_name_generator.html" class="md-nav__link">
+         Name Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_project_generator.html" class="md-nav__link">
+         Project Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_stage.html" class="md-nav__link">
+         S3 Stage
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_sync.html" class="md-nav__link">
+         S3 Sync
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_template_params.html" class="md-nav__link">
+         Template Params
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_tui.html" class="md-nav__link">
+         Tui
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat_plugin_testhook.html" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16" type="checkbox" id="__nav_5_16" >
+      
+      <label class="md-nav__link" for="__nav_5_16">
+        Taskcat
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_16">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/exceptions.html" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/regions_to_partitions.html" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_4" type="checkbox" id="__nav_5_16_4" >
+      
+      <label class="md-nav__link" for="__nav_5_16_4">
+         Cfn
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_4">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack.html" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack_url_helper.html" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/template.html" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/threaded.html" class="md-nav__link">
+        Threaded
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_5" type="checkbox" id="__nav_5_16_5" >
+      
+      <label class="md-nav__link" for="__nav_5_16_5">
+         Cli Modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/delete.html" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/deploy.html" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/lint.html" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/list.html" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/package.html" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/test.html" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/update_ami.html" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/upload.html" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_6" type="checkbox" id="__nav_5_16_6" >
+      
+      <label class="md-nav__link" for="__nav_5_16_6">
+        Testing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_6">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/base_test.html" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clicore" class="md-nav__link">
+    CliCore
+  </a>
+  
+    <nav class="md-nav" aria-label="CliCore">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#longform_param_required" class="md-nav__link">
+    longform_param_required
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse" class="md-nav__link">
+    parse
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customparser" class="md-nav__link">
+    CustomParser
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomParser">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_argument" class="md-nav__link">
+    add_argument
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_argument_group" class="md-nav__link">
+    add_argument_group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_mutually_exclusive_group" class="md-nav__link">
+    add_mutually_exclusive_group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add_subparsers" class="md-nav__link">
+    add_subparsers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#convert_arg_line_to_args" class="md-nav__link">
+    convert_arg_line_to_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error" class="md-nav__link">
+    error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exit" class="md-nav__link">
+    exit
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_help" class="md-nav__link">
+    format_help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_usage" class="md-nav__link">
+    format_usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default" class="md-nav__link">
+    get_default
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_args" class="md-nav__link">
+    parse_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_intermixed_args" class="md-nav__link">
+    parse_intermixed_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_known_args" class="md-nav__link">
+    parse_known_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parse_known_intermixed_args" class="md-nav__link">
+    parse_known_intermixed_args
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print_help" class="md-nav__link">
+    print_help
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print_usage" class="md-nav__link">
+    print_usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register" class="md-nav__link">
+    register
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_defaults" class="md-nav__link">
+    set_defaults
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#globalargs" class="md-nav__link">
+    GlobalArgs
+  </a>
+  
+    <nav class="md-nav" aria-label="GlobalArgs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-variables" class="md-nav__link">
+    Instance variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setverbosity" class="md-nav__link">
+    SetVerbosity
+  </a>
+  
+    <nav class="md-nav" aria-label="SetVerbosity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_2" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_usage_1" class="md-nav__link">
+    format_usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-quickstart/taskcat/edit/main/reference/_cli_core.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="module-_cli_core">Module _cli_core</h1>
+<p>None</p>
+<p>None</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="c1"># This should ultimately become it&#39;s own module, as it has great general purpose</span>
+
+<span class="c1"># utility.</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">types</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._common_utils</span> <span class="kn">import</span> <span class="n">exit_with_code</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">CustomParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;error: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">message</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_log_level</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">exit_func</span><span class="o">=</span><span class="n">exit_with_code</span><span class="p">):</span>
+
+    <span class="n">log_level</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;-d&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;--debug&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;-q&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;--quiet&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">):</span>
+
+        <span class="n">exit_func</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;--debug and --quiet cannot be specified simultaneously&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;-d&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;--debug&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+        <span class="n">log_level</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;-q&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">or</span> <span class="s2">&quot;--quiet&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+        <span class="n">log_level</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+
+    <span class="k">return</span> <span class="n">log_level</span>
+
+<span class="k">class</span> <span class="nc">SetVerbosity</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">_get_log_level</span><span class="p">([</span><span class="n">option_string</span><span class="p">]))</span>
+
+<span class="k">class</span> <span class="nc">GlobalArgs</span><span class="p">:</span>
+
+    <span class="n">ARGS</span> <span class="o">=</span> <span class="p">[</span>
+
+        <span class="p">[</span>
+
+            <span class="p">[</span><span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">],</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">SetVerbosity</span><span class="p">,</span>
+
+                <span class="s2">&quot;nargs&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+                <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;reduce output to the minimum&quot;</span><span class="p">,</span>
+
+                <span class="s2">&quot;dest&quot;</span><span class="p">:</span> <span class="s2">&quot;_quiet&quot;</span><span class="p">,</span>
+
+            <span class="p">},</span>
+
+        <span class="p">],</span>
+
+        <span class="p">[</span>
+
+            <span class="p">[</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--debug&quot;</span><span class="p">],</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">SetVerbosity</span><span class="p">,</span>
+
+                <span class="s2">&quot;nargs&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+
+                <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;adds debug output and tracebacks&quot;</span><span class="p">,</span>
+
+                <span class="s2">&quot;dest&quot;</span><span class="p">:</span> <span class="s2">&quot;_debug&quot;</span><span class="p">,</span>
+
+            <span class="p">},</span>
+
+        <span class="p">],</span>
+
+        <span class="p">[[</span><span class="s2">&quot;--profile&quot;</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;set the default profile used.&quot;</span><span class="p">,</span> <span class="s2">&quot;dest&quot;</span><span class="p">:</span> <span class="s2">&quot;_profile&quot;</span><span class="p">}],</span>
+
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+
+    <span class="nd">@property</span>
+
+    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span>
+
+    <span class="nd">@profile</span><span class="o">.</span><span class="n">setter</span>
+
+    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_profile</span> <span class="o">=</span> <span class="n">profile</span>
+
+<span class="n">GLOBAL_ARGS</span> <span class="o">=</span> <span class="n">GlobalArgs</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">CliCore</span><span class="p">:</span>
+
+    <span class="n">USAGE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{prog}{global_opts}{command}{command_opts}{subcommand}{subcommand_opts}</span><span class="s2">&quot;</span>
+
+    <span class="n">longform_required</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="k">def</span> <span class="nf">longform_param_required</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">command_func</span><span class="p">):</span>
+
+            <span class="n">formatted_param</span> <span class="o">=</span> <span class="n">param_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+            <span class="n">qualname</span> <span class="o">=</span> <span class="n">command_func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.__init__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="bp">cls</span><span class="o">.</span><span class="n">longform_required</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qualname</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">formatted_param</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">command_func</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prog_name</span><span class="p">,</span> <span class="n">module_package</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">prog_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">module_package</span> <span class="o">=</span> <span class="n">module_package</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plugin_modules</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="n">args</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[],</span> <span class="s2">&quot;commands&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_args</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_parser</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">subcommand_parsers</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_parser</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_args</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_build_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;commands&quot;</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span> <span class="s2">&quot;subcommands&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+            <span class="k">for</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">method_function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_methods</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">method_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+
+                    <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="n">method_function</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;commands&quot;</span><span class="p">][</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;subcommands&quot;</span><span class="p">][</span><span class="n">method_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_class_methods</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+
+        <span class="n">methods</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">method</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;self&quot;</span> <span class="ow">or</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">required</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="n">param</span><span class="o">.</span><span class="n">empty</span>
+
+            <span class="n">default</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span> <span class="k">else</span> <span class="kc">None</span>
+
+            <span class="n">val_type</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="k">else</span> <span class="nb">str</span>
+
+            <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;store_true&quot;</span> <span class="k">if</span> <span class="n">val_type</span> <span class="o">==</span> <span class="nb">bool</span> <span class="k">else</span> <span class="s2">&quot;store&quot;</span>
+
+            <span class="n">param_help</span> <span class="o">=</span> <span class="n">CliCore</span><span class="o">.</span><span class="n">_get_param_help</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span> <span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="n">param_help</span><span class="p">}</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="p">:</span>
+
+                <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+
+                    <span class="p">{</span><span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="n">required</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">default</span><span class="p">,</span> <span class="s2">&quot;dest&quot;</span><span class="p">:</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;store&quot;</span><span class="p">:</span>
+
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">val_type</span><span class="p">})</span>
+
+            <span class="k">if</span> <span class="n">required</span><span class="p">:</span>
+
+                <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">name</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">longform_required</span><span class="p">:</span>
+
+                    <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">])</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_param_help</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+
+        <span class="n">help_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">docstring</span> <span class="o">=</span> <span class="p">(</span>
+
+            <span class="n">item</span><span class="o">.</span><span class="vm">__doc__</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">)</span>
+
+            <span class="k">else</span> <span class="n">item</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__doc__</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">docstring</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="n">help_str</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">docstring</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;:param </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">):</span>
+
+                <span class="n">help_str</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;:param </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">help_str</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_help</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+
+        <span class="n">help_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="n">help_str</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
+
+                <span class="n">help_str</span> <span class="o">+=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">help_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_command_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commands</span><span class="p">):</span>
+
+        <span class="n">help_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">commands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">mod_help</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mod_help</span><span class="p">:</span>
+
+                <span class="n">help_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">help_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">mod_help</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">help_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_add_subparser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+
+        <span class="n">sub_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+
+            <span class="n">mod</span><span class="p">,</span>
+
+            <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">,</span>
+
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_arguments</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">sub_parser</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sub_parser</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_add_arguments</span><span class="p">(</span><span class="n">input_args</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="n">input_args</span><span class="p">:</span>
+
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_add_sub</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">6</span> <span class="ow">or</span> <span class="s2">&quot;required&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">required</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;required&quot;</span><span class="p">]</span>
+
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;required&quot;</span><span class="p">)</span>
+
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">sub</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
+
+        <span class="k">return</span> <span class="n">sub</span>
+
+    <span class="k">def</span> <span class="nf">_build_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">CustomParser</span><span class="p">(</span>
+
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+
+            <span class="n">usage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_build_usage</span><span class="p">(),</span>
+
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
+
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">)</span>
+
+        <span class="c1"># Add global arguments</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_arguments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">],</span> <span class="n">parser</span><span class="p">)</span>
+
+        <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_command_help</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">)</span>
+
+        <span class="n">command_parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_sub</span><span class="p">(</span>
+
+            <span class="n">parser</span><span class="o">=</span><span class="n">parser</span><span class="p">,</span>
+
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;commands&quot;</span><span class="p">,</span>
+
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;_command&quot;</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_parser</span> <span class="o">=</span> <span class="n">command_parser</span>
+
+        <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
+
+            <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_usage</span><span class="p">({</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">mod</span><span class="p">})</span>
+
+            <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">mod</span><span class="p">])</span>
+
+            <span class="n">mod_parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_subparser</span><span class="p">(</span>
+
+                <span class="n">usage</span><span class="p">,</span>
+
+                <span class="n">description</span><span class="p">,</span>
+
+                <span class="n">mod</span><span class="p">,</span>
+
+                <span class="n">command_parser</span><span class="p">,</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;commands&quot;</span><span class="p">][</span><span class="n">mod</span><span class="p">][</span><span class="s2">&quot;args&quot;</span><span class="p">],</span>
+
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">subcommand_parsers</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod_parser</span>
+
+            <span class="c1"># add subcommand parser if subcommands exist</span>
+
+            <span class="n">subcommands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;commands&quot;</span><span class="p">][</span><span class="n">mod</span><span class="p">][</span><span class="s2">&quot;subcommands&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">subcommands</span><span class="p">:</span>
+
+                <span class="n">class_methods</span> <span class="o">=</span> <span class="p">{</span>
+
+                    <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_methods</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">mod</span><span class="p">])</span>
+
+                <span class="p">}</span>
+
+                <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_command_help</span><span class="p">(</span><span class="n">class_methods</span><span class="p">)</span>
+
+                <span class="n">subcommand_parser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_sub</span><span class="p">(</span>
+
+                    <span class="n">parser</span><span class="o">=</span><span class="n">mod_parser</span><span class="p">,</span>
+
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;subcommands&quot;</span><span class="p">,</span>
+
+                    <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+
+                    <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+                    <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+
+                    <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;_subcommand&quot;</span><span class="p">,</span>
+
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">subcommand_name</span><span class="p">,</span> <span class="n">subcommand_args</span> <span class="ow">in</span> <span class="n">subcommands</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                    <span class="n">usage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_usage</span><span class="p">({</span><span class="s2">&quot;subcommand&quot;</span><span class="p">:</span> <span class="n">subcommand_name</span><span class="p">})</span>
+
+                    <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help</span><span class="p">(</span><span class="n">class_methods</span><span class="p">[</span><span class="n">subcommand_name</span><span class="p">])</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add_subparser</span><span class="p">(</span>
+
+                        <span class="n">usage</span><span class="p">,</span>
+
+                        <span class="n">description</span><span class="p">,</span>
+
+                        <span class="n">subcommand_name</span><span class="p">,</span>
+
+                        <span class="n">subcommand_parser</span><span class="p">,</span>
+
+                        <span class="n">subcommand_args</span><span class="p">,</span>
+
+                    <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parser</span>
+
+    <span class="k">def</span> <span class="nf">_build_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="n">args</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="k">if</span> <span class="s2">&quot;command&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;command&gt;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;subcommand&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;subcommand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[subcommand]&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;global_opts&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;global_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[args]&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;command_opts&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;command_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[args]&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;subcommand_opts&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;subcommand_opts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;[args]&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">val</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+
+                <span class="n">args</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> &quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">USAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_plugin_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># pylint: disable=invalid-name</span>
+
+        <span class="n">members</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_package</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">)</span>
+
+        <span class="n">member_name_class</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;CLINAME&quot;</span><span class="p">):</span>
+
+                <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">CLINAME</span>
+
+            <span class="n">member_name_class</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="bp">cls</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="n">member_name_class</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_import_plugin_module</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">),</span> <span class="n">class_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_args</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_args</span><span class="o">.</span><span class="vm">__dict__</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;_command&quot;</span><span class="p">]]</span>
+
+        <span class="n">subcommand</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;_subcommand&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">subcommand</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;_subcommand&quot;</span><span class="p">]</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subcommand</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="n">command</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">command</span><span class="p">(),</span> <span class="n">subcommand</span><span class="p">)(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">GLOBAL_ARGS</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
+</code></pre></div>
+
+<h2 id="classes">Classes</h2>
+<h3 id="clicore">CliCore</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CliCore</span><span class="p">(</span>
+    <span class="n">prog_name</span><span class="p">,</span>
+    <span class="n">module_package</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">USAGE</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">longform_required</span>
+</code></pre></div>
+
+<h4 id="static-methods">Static methods</h4>
+<h4 id="longform_param_required">longform_param_required</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">longform_param_required</span><span class="p">(</span>
+    <span class="n">param_name</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">longform_param_required</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">param_name</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">def</span><span class="w"> </span><span class="n">wrapper</span><span class="p">(</span><span class="n">command_func</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">formatted_param</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">param_name</span><span class="p">.</span><span class="nf">lower</span><span class="p">().</span><span class="nf">replace</span><span class="p">(</span><span class="ss">&quot;_&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;-&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">qualname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command_func</span><span class="p">.</span><span class="n">__qualname__</span><span class="p">.</span><span class="nf">replace</span><span class="p">(</span><span class="ss">&quot;.__init__&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">cls</span><span class="p">.</span><span class="n">longform_required</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;{qualname}.{formatted_param}&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">command_func</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">wrapper</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="methods">Methods</h4>
+<h4 id="parse">parse</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">parse</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">args</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">args</span>:
+
+            <span class="nv">args</span> <span class="o">=</span> []
+
+        <span class="nv">self</span>.<span class="nv">parsed_args</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parser</span>.<span class="nv">parse_args</span><span class="ss">(</span><span class="nv">args</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">parsed_args</span>
+</code></pre></div>
+
+</details>
+<h4 id="run">run</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">run</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="nv">args</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parsed_args</span>.<span class="nv">__dict__</span>
+
+        <span class="nv">command</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_modules</span>[<span class="nv">args</span>[<span class="s2">&quot;</span><span class="s">_command</span><span class="s2">&quot;</span>]]
+
+        <span class="nv">subcommand</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">_subcommand</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">args</span>:
+
+            <span class="nv">subcommand</span> <span class="o">=</span> <span class="nv">args</span>[<span class="s2">&quot;</span><span class="s">_subcommand</span><span class="s2">&quot;</span>]
+
+        <span class="nv">args</span> <span class="o">=</span> {<span class="nv">k</span>: <span class="nv">v</span> <span class="k">for</span> <span class="nv">k</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">args</span>.<span class="nv">items</span><span class="ss">()</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">k</span>.<span class="nv">startswith</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">_</span><span class="s2">&quot;</span><span class="ss">)</span>}
+
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">subcommand</span>:
+
+            <span class="k">return</span> <span class="nv">command</span><span class="ss">(</span><span class="o">**</span><span class="nv">args</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">command</span><span class="ss">()</span>, <span class="nv">subcommand</span><span class="ss">)(</span><span class="o">**</span><span class="nv">args</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h3 id="customparser">CustomParser</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CustomParser</span><span class="p">(</span>
+    <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">usage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">epilog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">parents</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">formatter_class</span><span class="o">=&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span><span class="s1">&#39;&gt;,</span>
+    <span class="n">prefix_chars</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span>
+    <span class="n">fromfile_prefix_chars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">argument_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">conflict_handler</span><span class="o">=</span><span class="s1">&#39;error&#39;</span><span class="p">,</span>
+    <span class="n">add_help</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_abbrev</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">exit_on_error</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
+<ul>
+<li>argparse.ArgumentParser</li>
+<li>argparse._AttributeHolder</li>
+<li>argparse._ActionsContainer</li>
+</ul>
+<h4 id="methods_1">Methods</h4>
+<h4 id="add_argument">add_argument</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>add_argument(dest, ..., name=value, ...)</p>
+<p>add_argument(option_string, option_string, ..., name=value, ...)</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">add_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        add_argument(dest, ..., name=value, ...)</span>
+
+<span class="sd">        add_argument(option_string, option_string, ..., name=value, ...)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if no positional args are supplied or only one is supplied and</span>
+
+        <span class="c1"># it doesn&#39;t look like an option string, parse a positional</span>
+
+        <span class="c1"># argument</span>
+
+        <span class="n">chars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix_chars</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span> <span class="ow">or</span> <span class="n">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chars</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="s1">&#39;dest&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+
+                <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;dest supplied twice for positional argument&#39;</span><span class="p">)</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_positional_kwargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># otherwise, we&#39;re adding an optional argument</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_optional_kwargs</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># if no default was supplied, use the parser-level default</span>
+
+        <span class="k">if</span> <span class="s1">&#39;default&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;dest&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">dest</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">:</span>
+
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">[</span><span class="n">dest</span><span class="p">]</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_default</span> <span class="k">is</span> <span class="ow">not</span> <span class="n">None</span><span class="p">:</span>
+
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_default</span>
+
+        <span class="c1"># create the action object, and add it to the parser</span>
+
+        <span class="n">action_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pop_action_class</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">action_class</span><span class="p">):</span>
+
+            <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown action &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action_class</span><span class="p">,))</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="n">action_class</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># raise an error if the action type is not callable</span>
+
+        <span class="n">type_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry_get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">action</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">type_func</span><span class="p">):</span>
+
+            <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not callable&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_func</span><span class="p">,))</span>
+
+        <span class="k">if</span> <span class="n">type_func</span> <span class="k">is</span> <span class="n">FileType</span><span class="p">:</span>
+
+            <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is a FileType class object, instance of it&#39;</span>
+
+                             <span class="s1">&#39; must be passed&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">type_func</span><span class="p">,))</span>
+
+        <span class="c1"># raise an error if the metavar does not match the type</span>
+
+        <span class="k">if</span> <span class="n">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_get_formatter&quot;</span><span class="p">):</span>
+
+            <span class="n">try</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">_format_args</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">None</span><span class="p">)</span>
+
+            <span class="n">except</span> <span class="n">TypeError</span><span class="p">:</span>
+
+                <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="s2">&quot;length of metavar tuple does not match nargs&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="add_argument_group">add_argument_group</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">add_argument_group</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">add_argument_group</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">*</span><span class="nv">args</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="nv">group</span> <span class="o">=</span> <span class="nv">_ArgumentGroup</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">*</span><span class="nv">args</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">_action_groups</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">group</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">group</span>
+</code></pre></div>
+
+</details>
+<h4 id="add_mutually_exclusive_group">add_mutually_exclusive_group</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">add_mutually_exclusive_group</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">add_mutually_exclusive_group</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="nv">group</span> <span class="o">=</span> <span class="nv">_MutuallyExclusiveGroup</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">group</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">group</span>
+</code></pre></div>
+
+</details>
+<h4 id="add_subparsers">add_subparsers</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">add_subparsers</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">add_subparsers</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">_subparsers</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+
+            <span class="nv">self</span>.<span class="nv">error</span><span class="ss">(</span><span class="nv">_</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">cannot have multiple subparser arguments</span><span class="s1">&#39;</span><span class="ss">))</span>
+
+        # <span class="nv">add</span> <span class="nv">the</span> <span class="nv">parser</span> <span class="nv">class</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">arguments</span> <span class="k">if</span> <span class="nv">it</span><span class="s1">&#39;</span><span class="s">s not present</span>
+
+        <span class="nv">kwargs</span>.<span class="nv">setdefault</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">parser_class</span><span class="s1">&#39;</span>, <span class="nv">type</span><span class="ss">(</span><span class="nv">self</span><span class="ss">))</span>
+
+        <span class="k">if</span> <span class="s1">&#39;</span><span class="s">title</span><span class="s1">&#39;</span> <span class="nv">in</span> <span class="nv">kwargs</span> <span class="nv">or</span> <span class="s1">&#39;</span><span class="s">description</span><span class="s1">&#39;</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+
+            <span class="nv">title</span> <span class="o">=</span> <span class="nv">_</span><span class="ss">(</span><span class="nv">kwargs</span>.<span class="nv">pop</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">title</span><span class="s1">&#39;</span>, <span class="s1">&#39;</span><span class="s">subcommands</span><span class="s1">&#39;</span><span class="ss">))</span>
+
+            <span class="nv">description</span> <span class="o">=</span> <span class="nv">_</span><span class="ss">(</span><span class="nv">kwargs</span>.<span class="nv">pop</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">description</span><span class="s1">&#39;</span>, <span class="nv">None</span><span class="ss">))</span>
+
+            <span class="nv">self</span>.<span class="nv">_subparsers</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">add_argument_group</span><span class="ss">(</span><span class="nv">title</span>, <span class="nv">description</span><span class="ss">)</span>
+
+        <span class="k">else</span>:
+
+            <span class="nv">self</span>.<span class="nv">_subparsers</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_positionals</span>
+
+        # <span class="nv">prog</span> <span class="nv">defaults</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">usage</span> <span class="nv">message</span> <span class="nv">of</span> <span class="nv">this</span> <span class="nv">parser</span>, <span class="nv">skipping</span>
+
+        # <span class="nv">optional</span> <span class="nv">arguments</span> <span class="nv">and</span> <span class="nv">with</span> <span class="nv">no</span> <span class="s2">&quot;</span><span class="s">usage:</span><span class="s2">&quot;</span> <span class="nv">prefix</span>
+
+        <span class="k">if</span> <span class="nv">kwargs</span>.<span class="nv">get</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">prog</span><span class="s1">&#39;</span><span class="ss">)</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+            <span class="nv">formatter</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_formatter</span><span class="ss">()</span>
+
+            <span class="nv">positionals</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_positional_actions</span><span class="ss">()</span>
+
+            <span class="nv">groups</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span>
+
+            <span class="nv">formatter</span>.<span class="nv">add_usage</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">usage</span>, <span class="nv">positionals</span>, <span class="nv">groups</span>, <span class="s1">&#39;&#39;</span><span class="ss">)</span>
+
+            <span class="nv">kwargs</span>[<span class="s1">&#39;</span><span class="s">prog</span><span class="s1">&#39;</span>] <span class="o">=</span> <span class="nv">formatter</span>.<span class="nv">format_help</span><span class="ss">()</span>.<span class="nv">strip</span><span class="ss">()</span>
+
+        # <span class="nv">create</span> <span class="nv">the</span> <span class="nv">parsers</span> <span class="nv">action</span> <span class="nv">and</span> <span class="nv">add</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">positionals</span> <span class="nv">list</span>
+
+        <span class="nv">parsers_class</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_pop_action_class</span><span class="ss">(</span><span class="nv">kwargs</span>, <span class="s1">&#39;</span><span class="s">parsers</span><span class="s1">&#39;</span><span class="ss">)</span>
+
+        <span class="nv">action</span> <span class="o">=</span> <span class="nv">parsers_class</span><span class="ss">(</span><span class="nv">option_strings</span><span class="o">=</span>[], <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">_subparsers</span>.<span class="nv">_add_action</span><span class="ss">(</span><span class="nv">action</span><span class="ss">)</span>
+
+        # <span class="k">return</span> <span class="nv">the</span> <span class="nv">created</span> <span class="nv">parsers</span> <span class="nv">action</span>
+
+        <span class="k">return</span> <span class="nv">action</span>
+</code></pre></div>
+
+</details>
+<h4 id="convert_arg_line_to_args">convert_arg_line_to_args</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">convert_arg_line_to_args</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">arg_line</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">convert_arg_line_to_args</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">arg_line</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">arg_line</span><span class="o">]</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="error">error</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">error</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">message</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">error</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">message</span><span class="ss">)</span>:
+
+        <span class="nv">sys</span>.<span class="nv">stderr</span>.<span class="nv">write</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">error: %s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nv">message</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">print_help</span><span class="ss">()</span>
+
+        <span class="nv">sys</span>.<span class="k">exit</span><span class="ss">(</span><span class="mi">2</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="exit">exit</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">exit</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">status</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">message</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="k">exit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">status</span><span class="o">=</span><span class="mi">0</span>, <span class="nv">message</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">message</span>:
+
+            <span class="nv">self</span>.<span class="nv">_print_message</span><span class="ss">(</span><span class="nv">message</span>, <span class="nv">_sys</span>.<span class="nv">stderr</span><span class="ss">)</span>
+
+        <span class="nv">_sys</span>.<span class="k">exit</span><span class="ss">(</span><span class="nv">status</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="format_help">format_help</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">format_help</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="nv">formatter</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_formatter</span><span class="ss">()</span>
+
+        # <span class="nv">usage</span>
+
+        <span class="nv">formatter</span>.<span class="nv">add_usage</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">usage</span>, <span class="nv">self</span>.<span class="nv">_actions</span>,
+
+                            <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span><span class="ss">)</span>
+
+        # <span class="nv">description</span>
+
+        <span class="nv">formatter</span>.<span class="nv">add_text</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">description</span><span class="ss">)</span>
+
+        # <span class="nv">positionals</span>, <span class="nv">optionals</span> <span class="nv">and</span> <span class="nv">user</span><span class="o">-</span><span class="nv">defined</span> <span class="nv">groups</span>
+
+        <span class="k">for</span> <span class="nv">action_group</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_action_groups</span>:
+
+            <span class="nv">formatter</span>.<span class="nv">start_section</span><span class="ss">(</span><span class="nv">action_group</span>.<span class="nv">title</span><span class="ss">)</span>
+
+            <span class="nv">formatter</span>.<span class="nv">add_text</span><span class="ss">(</span><span class="nv">action_group</span>.<span class="nv">description</span><span class="ss">)</span>
+
+            <span class="nv">formatter</span>.<span class="nv">add_arguments</span><span class="ss">(</span><span class="nv">action_group</span>.<span class="nv">_group_actions</span><span class="ss">)</span>
+
+            <span class="nv">formatter</span>.<span class="nv">end_section</span><span class="ss">()</span>
+
+        # <span class="nv">epilog</span>
+
+        <span class="nv">formatter</span>.<span class="nv">add_text</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">epilog</span><span class="ss">)</span>
+
+        # <span class="nv">determine</span> <span class="nv">help</span> <span class="nv">from</span> <span class="nv">format</span> <span class="nv">above</span>
+
+        <span class="k">return</span> <span class="nv">formatter</span>.<span class="nv">format_help</span><span class="ss">()</span>
+</code></pre></div>
+
+</details>
+<h4 id="format_usage">format_usage</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">format_usage</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="nv">formatter</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_formatter</span><span class="ss">()</span>
+
+        <span class="nv">formatter</span>.<span class="nv">add_usage</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">usage</span>, <span class="nv">self</span>.<span class="nv">_actions</span>,
+
+                            <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">formatter</span>.<span class="nv">format_help</span><span class="ss">()</span>
+</code></pre></div>
+
+</details>
+<h4 id="get_default">get_default</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_default</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">dest</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">get_default</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">dest</span><span class="ss">)</span>:
+
+        <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_actions</span>:
+
+            <span class="k">if</span> <span class="nv">action</span>.<span class="nv">dest</span> <span class="o">==</span> <span class="nv">dest</span> <span class="nv">and</span> <span class="nv">action</span>.<span class="nv">default</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+
+                <span class="k">return</span> <span class="nv">action</span>.<span class="nv">default</span>
+
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_defaults</span>.<span class="nv">get</span><span class="ss">(</span><span class="nv">dest</span>, <span class="nv">None</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="parse_args">parse_args</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">parse_args</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">args</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">namespace</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="nv">args</span>, <span class="nv">argv</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parse_known_args</span><span class="ss">(</span><span class="nv">args</span>, <span class="nv">namespace</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">argv</span>:
+
+            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">_</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">unrecognized arguments: %s</span><span class="s1">&#39;</span><span class="ss">)</span>
+
+            <span class="nv">self</span>.<span class="nv">error</span><span class="ss">(</span><span class="nv">msg</span> <span class="o">%</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>.<span class="nv">join</span><span class="ss">(</span><span class="nv">argv</span><span class="ss">))</span>
+
+        <span class="k">return</span> <span class="nv">args</span>
+</code></pre></div>
+
+</details>
+<h4 id="parse_intermixed_args">parse_intermixed_args</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_intermixed_args</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">parse_intermixed_args</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">args</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">namespace</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="nv">args</span>, <span class="nv">argv</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parse_known_intermixed_args</span><span class="ss">(</span><span class="nv">args</span>, <span class="nv">namespace</span><span class="ss">)</span>
+
+        <span class="k">if</span> <span class="nv">argv</span>:
+
+            <span class="nv">msg</span> <span class="o">=</span> <span class="nv">_</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">unrecognized arguments: %s</span><span class="s1">&#39;</span><span class="ss">)</span>
+
+            <span class="nv">self</span>.<span class="nv">error</span><span class="ss">(</span><span class="nv">msg</span> <span class="o">%</span> <span class="s1">&#39;</span><span class="s"> </span><span class="s1">&#39;</span>.<span class="nv">join</span><span class="ss">(</span><span class="nv">argv</span><span class="ss">))</span>
+
+        <span class="k">return</span> <span class="nv">args</span>
+</code></pre></div>
+
+</details>
+<h4 id="parse_known_args">parse_known_args</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_known_args</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">parse_known_args</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="o">=</span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">namespace</span><span class="o">=</span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">system</span><span class="w"> </span><span class="n">args</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_sys</span><span class="p">.</span><span class="n">argv</span><span class="o">[</span><span class="n">1:</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">sure</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">mutable</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">Namespace</span><span class="w"> </span><span class="n">built</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">parser</span><span class="w"> </span><span class="n">defaults</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">namespace</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">namespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Namespace</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">add</span><span class="w"> </span><span class="ow">any</span><span class="w"> </span><span class="k">action</span><span class="w"> </span><span class="n">defaults</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">aren</span><span class="s1">&#39;t present</span>
+
+<span class="s1">        for action in self._actions:</span>
+
+<span class="s1">            if action.dest is not SUPPRESS:</span>
+
+<span class="s1">                if not hasattr(namespace, action.dest):</span>
+
+<span class="s1">                    if action.default is not SUPPRESS:</span>
+
+<span class="s1">                        setattr(namespace, action.dest, action.default)</span>
+
+<span class="s1">        # add any parser defaults that aren&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">present</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">dest</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">_defaults</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">hasattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_defaults</span><span class="o">[</span><span class="n">dest</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nf">parse</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">arguments</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">exit</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="ow">any</span><span class="w"> </span><span class="n">errors</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">exit_on_error</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_parse_known_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">namespace</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">ArgumentError</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_sys</span><span class="p">.</span><span class="n">exc_info</span><span class="p">()</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">self</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_parse_known_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">namespace</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">hasattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">_UNRECOGNIZED_ARGS_ATTR</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">args</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">getattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">_UNRECOGNIZED_ARGS_ATTR</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">delattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">_UNRECOGNIZED_ARGS_ATTR</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">namespace</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="parse_known_intermixed_args">parse_known_intermixed_args</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">parse_known_intermixed_args</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">parse_known_intermixed_args</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">args</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">namespace</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        # <span class="nv">returns</span> <span class="nv">a</span> <span class="nv">namespace</span> <span class="nv">and</span> <span class="nv">list</span> <span class="nv">of</span> <span class="nv">extras</span>
+
+        #
+
+        # <span class="nv">positional</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">freely</span> <span class="nv">intermixed</span> <span class="nv">with</span> <span class="nv">optionals</span>.  <span class="nv">optionals</span> <span class="nv">are</span>
+
+        # <span class="nv">first</span> <span class="nv">parsed</span> <span class="nv">with</span> <span class="nv">all</span> <span class="nv">positional</span> <span class="nv">arguments</span> <span class="nv">deactivated</span>.  <span class="nv">The</span> <span class="s1">&#39;</span><span class="s">extras</span><span class="s1">&#39;</span>
+
+        # <span class="nv">are</span> <span class="k">then</span> <span class="nv">parsed</span>.  <span class="k">If</span> <span class="nv">the</span> <span class="nv">parser</span> <span class="nv">definition</span> <span class="nv">is</span> <span class="nv">incompatible</span> <span class="nv">with</span> <span class="nv">the</span>
+
+        # <span class="nv">intermixed</span> <span class="nv">assumptions</span> <span class="ss">(</span><span class="nv">e</span>.<span class="nv">g</span>. <span class="nv">use</span> <span class="nv">of</span> <span class="nv">REMAINDER</span>, <span class="nv">subparsers</span><span class="ss">)</span> <span class="nv">a</span>
+
+        # <span class="nv">TypeError</span> <span class="nv">is</span> <span class="nv">raised</span>.
+
+        #
+
+        # <span class="nv">positionals</span> <span class="nv">are</span> <span class="s1">&#39;</span><span class="s">deactivated</span><span class="s1">&#39;</span> <span class="nv">by</span> <span class="nv">setting</span> <span class="nv">nargs</span> <span class="nv">and</span> <span class="nv">default</span> <span class="nv">to</span>
+
+        # <span class="nv">SUPPRESS</span>.  <span class="nv">This</span> <span class="nv">blocks</span> <span class="nv">the</span> <span class="nv">addition</span> <span class="nv">of</span> <span class="nv">that</span> <span class="nv">positional</span> <span class="nv">to</span> <span class="nv">the</span>
+
+        # <span class="nv">namespace</span>
+
+        <span class="nv">positionals</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_positional_actions</span><span class="ss">()</span>
+
+        <span class="nv">a</span> <span class="o">=</span> [<span class="nv">action</span> <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">positionals</span>
+
+             <span class="k">if</span> <span class="nv">action</span>.<span class="nv">nargs</span> <span class="nv">in</span> [<span class="nv">PARSER</span>, <span class="nv">REMAINDER</span>]]
+
+        <span class="k">if</span> <span class="nv">a</span>:
+
+            <span class="nv">raise</span> <span class="nv">TypeError</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">parse_intermixed_args: positional arg</span><span class="s1">&#39;</span>
+
+                            <span class="s1">&#39;</span><span class="s"> with nargs=%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nv">a</span>[<span class="mi">0</span>].<span class="nv">nargs</span><span class="ss">)</span>
+
+        <span class="k">if</span> [<span class="nv">action</span>.<span class="nv">dest</span> <span class="k">for</span> <span class="nv">group</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span>
+
+            <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">group</span>.<span class="nv">_group_actions</span> <span class="k">if</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">positionals</span>]:
+
+            <span class="nv">raise</span> <span class="nv">TypeError</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">parse_intermixed_args: positional in</span><span class="s1">&#39;</span>
+
+                            <span class="s1">&#39;</span><span class="s"> mutuallyExclusiveGroup</span><span class="s1">&#39;</span><span class="ss">)</span>
+
+        <span class="nv">try</span>:
+
+            <span class="nv">save_usage</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">usage</span>
+
+            <span class="nv">try</span>:
+
+                <span class="k">if</span> <span class="nv">self</span>.<span class="nv">usage</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+                    # <span class="nv">capture</span> <span class="nv">the</span> <span class="nv">full</span> <span class="nv">usage</span> <span class="k">for</span> <span class="nv">use</span> <span class="nv">in</span> <span class="nv">error</span> <span class="nv">messages</span>
+
+                    <span class="nv">self</span>.<span class="nv">usage</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">format_usage</span><span class="ss">()</span>[<span class="mi">7</span>:]
+
+                <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">positionals</span>:
+
+                    # <span class="nv">deactivate</span> <span class="nv">positionals</span>
+
+                    <span class="nv">action</span>.<span class="nv">save_nargs</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">nargs</span>
+
+                    # <span class="nv">action</span>.<span class="nv">nargs</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="nv">action</span>.<span class="nv">nargs</span> <span class="o">=</span> <span class="nv">SUPPRESS</span>
+
+                    <span class="nv">action</span>.<span class="nv">save_default</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">default</span>
+
+                    <span class="nv">action</span>.<span class="nv">default</span> <span class="o">=</span> <span class="nv">SUPPRESS</span>
+
+                <span class="nv">namespace</span>, <span class="nv">remaining_args</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parse_known_args</span><span class="ss">(</span><span class="nv">args</span>,
+
+                                                                  <span class="nv">namespace</span><span class="ss">)</span>
+
+                <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">positionals</span>:
+
+                    # <span class="nv">remove</span> <span class="nv">the</span> <span class="nv">empty</span> <span class="nv">positional</span> <span class="nv">values</span> <span class="nv">from</span> <span class="nv">namespace</span>
+
+                    <span class="k">if</span> <span class="ss">(</span><span class="nv">hasattr</span><span class="ss">(</span><span class="nv">namespace</span>, <span class="nv">action</span>.<span class="nv">dest</span><span class="ss">)</span>
+
+                            <span class="nv">and</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">namespace</span>, <span class="nv">action</span>.<span class="nv">dest</span><span class="ss">)</span><span class="o">==</span>[]<span class="ss">)</span>:
+
+                        <span class="nv">from</span> <span class="nv">warnings</span> <span class="nv">import</span> <span class="nv">warn</span>
+
+                        <span class="nv">warn</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">Do not expect %s in %s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="ss">(</span><span class="nv">action</span>.<span class="nv">dest</span>, <span class="nv">namespace</span><span class="ss">))</span>
+
+                        <span class="nv">delattr</span><span class="ss">(</span><span class="nv">namespace</span>, <span class="nv">action</span>.<span class="nv">dest</span><span class="ss">)</span>
+
+            <span class="nv">finally</span>:
+
+                # <span class="nv">restore</span> <span class="nv">nargs</span> <span class="nv">and</span> <span class="nv">usage</span> <span class="nv">before</span> <span class="nv">exiting</span>
+
+                <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">positionals</span>:
+
+                    <span class="nv">action</span>.<span class="nv">nargs</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">save_nargs</span>
+
+                    <span class="nv">action</span>.<span class="nv">default</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">save_default</span>
+
+            <span class="nv">optionals</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_optional_actions</span><span class="ss">()</span>
+
+            <span class="nv">try</span>:
+
+                # <span class="nv">parse</span> <span class="nv">positionals</span>.  <span class="nv">optionals</span> <span class="nv">aren</span><span class="s1">&#39;</span><span class="s">t normally required, but</span>
+
+                # <span class="nv">they</span> <span class="nv">could</span> <span class="nv">be</span>, <span class="nv">so</span> <span class="nv">make</span> <span class="nv">sure</span> <span class="nv">they</span> <span class="nv">aren</span><span class="s1">&#39;</span><span class="s">t.</span>
+
+                <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">optionals</span>:
+
+                    <span class="nv">action</span>.<span class="nv">save_required</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">required</span>
+
+                    <span class="nv">action</span>.<span class="nv">required</span> <span class="o">=</span> <span class="nv">False</span>
+
+                <span class="k">for</span> <span class="nv">group</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span>:
+
+                    <span class="nv">group</span>.<span class="nv">save_required</span> <span class="o">=</span> <span class="nv">group</span>.<span class="nv">required</span>
+
+                    <span class="nv">group</span>.<span class="nv">required</span> <span class="o">=</span> <span class="nv">False</span>
+
+                <span class="nv">namespace</span>, <span class="nv">extras</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">parse_known_args</span><span class="ss">(</span><span class="nv">remaining_args</span>,
+
+                                                          <span class="nv">namespace</span><span class="ss">)</span>
+
+            <span class="nv">finally</span>:
+
+                # <span class="nv">restore</span> <span class="nv">parser</span> <span class="nv">values</span> <span class="nv">before</span> <span class="nv">exiting</span>
+
+                <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">optionals</span>:
+
+                    <span class="nv">action</span>.<span class="nv">required</span> <span class="o">=</span> <span class="nv">action</span>.<span class="nv">save_required</span>
+
+                <span class="k">for</span> <span class="nv">group</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_mutually_exclusive_groups</span>:
+
+                    <span class="nv">group</span>.<span class="nv">required</span> <span class="o">=</span> <span class="nv">group</span>.<span class="nv">save_required</span>
+
+        <span class="nv">finally</span>:
+
+            <span class="nv">self</span>.<span class="nv">usage</span> <span class="o">=</span> <span class="nv">save_usage</span>
+
+        <span class="k">return</span> <span class="nv">namespace</span>, <span class="nv">extras</span>
+</code></pre></div>
+
+</details>
+<h4 id="print_help">print_help</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">file</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">print_help</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">file</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">file</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+            <span class="nv">file</span> <span class="o">=</span> <span class="nv">_sys</span>.<span class="nv">stdout</span>
+
+        <span class="nv">self</span>.<span class="nv">_print_message</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">format_help</span><span class="ss">()</span>, <span class="nv">file</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="print_usage">print_usage</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">print_usage</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">file</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">print_usage</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">file</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">file</span> <span class="nv">is</span> <span class="nv">None</span>:
+
+            <span class="nv">file</span> <span class="o">=</span> <span class="nv">_sys</span>.<span class="nv">stdout</span>
+
+        <span class="nv">self</span>.<span class="nv">_print_message</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">format_usage</span><span class="ss">()</span>, <span class="nv">file</span><span class="ss">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="register">register</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">registry_name</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">,</span>
+    <span class="nb">object</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">registry_name</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="k">object</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_registries</span><span class="p">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">registry_name</span><span class="p">,</span><span class="w"> </span><span class="err">{}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">registry</span><span class="o">[</span><span class="n">value</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">object</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="set_defaults">set_defaults</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_defaults</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">set_defaults</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="nv">self</span>.<span class="nv">_defaults</span>.<span class="nv">update</span><span class="ss">(</span><span class="nv">kwargs</span><span class="ss">)</span>
+
+        # <span class="k">if</span> <span class="nv">these</span> <span class="nv">defaults</span> <span class="nv">match</span> <span class="nv">any</span> <span class="nv">existing</span> <span class="nv">arguments</span>, <span class="nv">replace</span>
+
+        # <span class="nv">the</span> <span class="nv">previous</span> <span class="nv">default</span> <span class="nv">on</span> <span class="nv">the</span> <span class="nv">object</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">new</span> <span class="nv">one</span>
+
+        <span class="k">for</span> <span class="nv">action</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_actions</span>:
+
+            <span class="k">if</span> <span class="nv">action</span>.<span class="nv">dest</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+
+                <span class="nv">action</span>.<span class="nv">default</span> <span class="o">=</span> <span class="nv">kwargs</span>[<span class="nv">action</span>.<span class="nv">dest</span>]
+</code></pre></div>
+
+</details>
+<h3 id="globalargs">GlobalArgs</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">GlobalArgs</span><span class="p">(</span>
+
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables_1">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">ARGS</span>
+</code></pre></div>
+
+<h4 id="instance-variables">Instance variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">profile</span>
+</code></pre></div>
+
+<h3 id="setverbosity">SetVerbosity</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">SetVerbosity</span><span class="p">(</span>
+    <span class="n">option_strings</span><span class="p">,</span>
+    <span class="n">dest</span><span class="p">,</span>
+    <span class="n">nargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">const</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">metavar</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
+<ul>
+<li>argparse.Action</li>
+<li>argparse._AttributeHolder</li>
+</ul>
+<h4 id="methods_2">Methods</h4>
+<h4 id="format_usage_1">format_usage</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">format_usage</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">option_strings</span>[<span class="mi">0</span>]
+</code></pre></div>
+
+</details>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="_amiupdater.html" title="Amiupdater" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                 Amiupdater
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="_client_factory.html" title="Client Factory" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                 Client Factory
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.82b56eb2.min.js"></script>
+      
+    
+  </body>
+</html>

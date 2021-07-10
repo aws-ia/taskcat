@@ -1,0 +1,2392 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://aws-ia.github.io/assets/img/logonav.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
+    
+    
+      
+        <title>Config - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#ff6e42">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-orange" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-_config" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+               Config
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://aws-ia.github.io/?target=_blank" class="md-nav__link">
+        aws-ia
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/schema/taskcat_schema.html" class="md-nav__link">
+        Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/apidocs/taskcat/index.html" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_amiupdater.html" class="md-nav__link">
+         Amiupdater
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_cli_core.html" class="md-nav__link">
+         Cli Core
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_client_factory.html" class="md-nav__link">
+         Client Factory
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_common_utils.html" class="md-nav__link">
+         Common Utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+           Config
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="_config.html" class="md-nav__link md-nav__link--active">
+         Config
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    Config
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_params_from_templates" class="md-nav__link">
+    get_params_from_templates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_buckets" class="md-nav__link">
+    get_buckets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_regions" class="md-nav__link">
+    get_regions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_rendered_parameters" class="md-nav__link">
+    get_rendered_parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_templates" class="md-nav__link">
+    get_templates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_tests" class="md-nav__link">
+    get_tests
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_dataclasses.html" class="md-nav__link">
+         Dataclasses
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_legacy_config.html" class="md-nav__link">
+         Legacy Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_logger.html" class="md-nav__link">
+         Logger
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_name_generator.html" class="md-nav__link">
+         Name Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_project_generator.html" class="md-nav__link">
+         Project Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_stage.html" class="md-nav__link">
+         S3 Stage
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_sync.html" class="md-nav__link">
+         S3 Sync
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_template_params.html" class="md-nav__link">
+         Template Params
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_tui.html" class="md-nav__link">
+         Tui
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat_plugin_testhook.html" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16" type="checkbox" id="__nav_5_16" >
+      
+      <label class="md-nav__link" for="__nav_5_16">
+        Taskcat
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_16">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/exceptions.html" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/regions_to_partitions.html" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_4" type="checkbox" id="__nav_5_16_4" >
+      
+      <label class="md-nav__link" for="__nav_5_16_4">
+         Cfn
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_4">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack.html" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack_url_helper.html" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/template.html" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/threaded.html" class="md-nav__link">
+        Threaded
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_5" type="checkbox" id="__nav_5_16_5" >
+      
+      <label class="md-nav__link" for="__nav_5_16_5">
+         Cli Modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/delete.html" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/deploy.html" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/lint.html" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/list.html" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/package.html" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/test.html" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/update_ami.html" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/upload.html" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_6" type="checkbox" id="__nav_5_16_6" >
+      
+      <label class="md-nav__link" for="__nav_5_16_6">
+        Testing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_6">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/base_test.html" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    Config
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    create
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_params_from_templates" class="md-nav__link">
+    get_params_from_templates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_buckets" class="md-nav__link">
+    get_buckets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_regions" class="md-nav__link">
+    get_regions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_rendered_parameters" class="md-nav__link">
+    get_rendered_parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_templates" class="md-nav__link">
+    get_templates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_tests" class="md-nav__link">
+    get_tests
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-quickstart/taskcat/edit/main/reference/_config.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="module-_config">Module _config</h1>
+<p>None</p>
+<p>None</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">ClientError</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._cfn.template</span> <span class="kn">import</span> <span class="n">Template</span><span class="p">,</span> <span class="n">tcat_template_cache</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._client_factory</span> <span class="kn">import</span> <span class="n">Boto3Cache</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._dataclasses</span> <span class="kn">import</span> <span class="p">(</span>
+
+    <span class="n">BaseConfig</span><span class="p">,</span>
+
+    <span class="n">RegionObj</span><span class="p">,</span>
+
+    <span class="n">S3BucketObj</span><span class="p">,</span>
+
+    <span class="n">Tag</span><span class="p">,</span>
+
+    <span class="n">TestObj</span><span class="p">,</span>
+
+    <span class="n">TestRegion</span><span class="p">,</span>
+
+    <span class="n">generate_bucket_name</span><span class="p">,</span>
+
+    <span class="n">generate_regional_bucket_name</span><span class="p">,</span>
+
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._legacy_config</span> <span class="kn">import</span> <span class="n">legacy_overrides</span><span class="p">,</span> <span class="n">parse_legacy_config</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._template_params</span> <span class="kn">import</span> <span class="n">ParamGen</span>
+
+<span class="kn">from</span> <span class="nn">taskcat.exceptions</span> <span class="kn">import</span> <span class="n">TaskCatException</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">GENERAL</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~/.taskcat.yml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+<span class="n">PROJECT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./.taskcat.yml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+<span class="n">PROJECT_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+<span class="n">OVERRIDES</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./.taskcat_overrides.yml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+<span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="p">{</span>
+
+        <span class="s2">&quot;s3_enable_sig_v2&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+
+        <span class="s2">&quot;build_submodules&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+
+        <span class="s2">&quot;package_lambda&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+
+        <span class="s2">&quot;lambda_zip_path&quot;</span><span class="p">:</span> <span class="s2">&quot;lambda_functions/packages&quot;</span><span class="p">,</span>
+
+        <span class="s2">&quot;lambda_source_path&quot;</span><span class="p">:</span> <span class="s2">&quot;lambda_functions/source&quot;</span><span class="p">,</span>
+
+        <span class="s2">&quot;shorten_stack_name&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span> <span class="n">project_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">DEFAULTS</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="s2">&quot;TASKCAT_DEFAULT&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_root</span> <span class="o">=</span> <span class="n">project_root</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="o">=</span> <span class="n">uid</span>
+
+        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+
+            <span class="n">config_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span>
+
+            <span class="n">source_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
+
+            <span class="n">source_config</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+
+            <span class="n">source_config</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="n">source_name</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">source_config</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+
+        <span class="bp">cls</span><span class="p">,</span>
+
+        <span class="n">template_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+        <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+        <span class="n">global_config_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">GENERAL</span><span class="p">,</span>
+
+        <span class="n">project_config_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PROJECT</span><span class="p">,</span>
+
+        <span class="n">overrides_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">OVERRIDES</span><span class="p">,</span>
+
+        <span class="n">env_vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+        <span class="n">project_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PROJECT_ROOT</span><span class="p">,</span>
+
+        <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Config&quot;</span><span class="p">:</span>
+
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">uid</span> <span class="k">if</span> <span class="n">uid</span> <span class="k">else</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+
+        <span class="n">project_source</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_project_source</span><span class="p">(</span>
+
+            <span class="bp">cls</span><span class="p">,</span> <span class="n">project_config_path</span><span class="p">,</span> <span class="n">project_root</span><span class="p">,</span> <span class="n">template_file</span>
+
+        <span class="p">)</span>
+
+        <span class="c1"># general</span>
+
+        <span class="n">legacy_overrides</span><span class="p">(</span>
+
+            <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~/.aws/taskcat_global_override.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+
+            <span class="n">global_config_path</span><span class="p">,</span>
+
+            <span class="s2">&quot;global&quot;</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">global_config_path</span><span class="p">),</span>
+
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_dict_from_file</span><span class="p">(</span><span class="n">global_config_path</span><span class="p">),</span>
+
+            <span class="p">}</span>
+
+        <span class="p">]</span>
+
+        <span class="c1"># project config file</span>
+
+        <span class="k">if</span> <span class="n">project_source</span><span class="p">:</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">project_source</span><span class="p">)</span>
+
+        <span class="c1"># template file</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+
+                <span class="p">{</span>
+
+                    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_file</span><span class="p">),</span>
+
+                    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_dict_from_template</span><span class="p">(</span><span class="n">template_file</span><span class="p">),</span>
+
+                <span class="p">}</span>
+
+            <span class="p">)</span>
+
+        <span class="c1"># override file</span>
+
+        <span class="n">legacy_overrides</span><span class="p">(</span>
+
+            <span class="n">project_root</span> <span class="o">/</span> <span class="s2">&quot;ci/taskcat_project_override.json&quot;</span><span class="p">,</span> <span class="n">overrides_path</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">overrides_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+
+            <span class="n">overrides</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">overrides_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
+
+                <span class="n">override_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+
+            <span class="n">overrides</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">][</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">override_params</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">overrides_path</span><span class="p">),</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">overrides</span><span class="p">})</span>
+
+        <span class="c1"># environment variables</span>
+
+        <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;EnvoronmentVariable&quot;</span><span class="p">,</span>
+
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_dict_from_env_vars</span><span class="p">(</span><span class="n">env_vars</span><span class="p">),</span>
+
+            <span class="p">}</span>
+
+        <span class="p">)</span>
+
+        <span class="c1"># cli arguments</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;CliArgument&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">)</span>
+
+    <span class="c1"># pylint: disable=protected-access,inconsistent-return-statements</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_project_source</span><span class="p">(</span><span class="n">base_cls</span><span class="p">,</span> <span class="n">project_config_path</span><span class="p">,</span> <span class="n">project_root</span><span class="p">,</span> <span class="n">template_file</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_config_path</span><span class="p">),</span>
+
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">base_cls</span><span class="o">.</span><span class="n">_dict_from_file</span><span class="p">(</span><span class="n">project_config_path</span><span class="p">,</span> <span class="n">fail_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+
+            <span class="p">}</span>
+
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="n">e</span>
+
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="n">legacy_conf</span> <span class="o">=</span> <span class="n">parse_legacy_config</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="p">{</span>
+
+                    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_root</span> <span class="o">/</span> <span class="s2">&quot;ci/taskcat.yml&quot;</span><span class="p">),</span>
+
+                    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">legacy_conf</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+
+                <span class="p">}</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+
+                <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">template_file</span><span class="p">:</span>
+
+                    <span class="c1"># pylint: disable=raise-missing-from</span>
+
+                    <span class="k">raise</span> <span class="n">error</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_dict_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fail_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">fail_ok</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="n">config_dict</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
+
+                <span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">config_dict</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;failed to load config from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fail_ok</span><span class="p">:</span>
+
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="n">config_dict</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_dict_from_template</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+        <span class="n">relative_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">))</span>
+
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="p">(</span>
+
+            <span class="n">BaseConfig</span><span class="p">()</span>
+
+            <span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+
+                <span class="p">{</span><span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">relative_path</span><span class="p">},</span> <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{}}}</span>
+
+            <span class="p">)</span>
+
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+
+            <span class="k">raise</span> <span class="n">TaskCatException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;invalid template path </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span>
+
+                <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span> <span class="n">template_cache</span><span class="o">=</span><span class="n">tcat_template_cache</span>
+
+            <span class="p">)</span><span class="o">.</span><span class="n">template</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;failed to load template from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Metadata&quot;</span><span class="p">):</span>
+
+            <span class="k">return</span> <span class="n">config_dict</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Metadata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taskcat&quot;</span><span class="p">):</span>
+
+            <span class="k">return</span> <span class="n">config_dict</span>
+
+        <span class="n">template_config_dict</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;Metadata&quot;</span><span class="p">][</span><span class="s2">&quot;taskcat&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">template_config_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">):</span>
+
+            <span class="n">template_config_dict</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">template_config_dict</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">][</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">relative_path</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">template_config_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tests&quot;</span><span class="p">):</span>
+
+            <span class="n">template_config_dict</span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="k">return</span> <span class="n">template_config_dict</span>
+
+    <span class="c1"># pylint: disable=protected-access</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_dict_from_env_vars</span><span class="p">(</span>
+
+        <span class="n">env_vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">_Environ</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">env_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">env_vars</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+
+        <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">env_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TASKCAT_&quot;</span><span class="p">):</span>
+
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+                <span class="n">sub_key</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="n">key_section</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;tests&quot;</span><span class="p">]:</span>
+
+                    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+
+                        <span class="n">sub_key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+
+                        <span class="n">key_section</span> <span class="o">=</span> <span class="n">section</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_section</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+
+                    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+
+                        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                    <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">]:</span>
+
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">config_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_section</span><span class="p">):</span>
+
+                        <span class="n">config_dict</span><span class="p">[</span><span class="n">key_section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+                    <span class="n">config_dict</span><span class="p">[</span><span class="n">key_section</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">config_dict</span>
+
+    <span class="k">def</span> <span class="nf">get_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boto3_cache</span><span class="p">:</span> <span class="n">Boto3Cache</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">boto3_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">boto3_cache</span> <span class="o">=</span> <span class="n">Boto3Cache</span><span class="p">()</span>
+
+        <span class="n">region_objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RegionObj</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">region_objects</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
+
+                <span class="c1"># TODO: comon_utils/determine_profile_for_region</span>
+
+                <span class="n">profile</span> <span class="o">=</span> <span class="p">(</span>
+
+                    <span class="n">test</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">auth</span>
+
+                    <span class="k">else</span> <span class="s2">&quot;default&quot;</span>
+
+                <span class="p">)</span>
+
+                <span class="n">region_objects</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region</span><span class="p">]</span> <span class="o">=</span> <span class="n">RegionObj</span><span class="p">(</span>
+
+                    <span class="n">name</span><span class="o">=</span><span class="n">region</span><span class="p">,</span>
+
+                    <span class="n">account_id</span><span class="o">=</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">account_id</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
+
+                    <span class="n">partition</span><span class="o">=</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
+
+                    <span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span>
+
+                    <span class="n">_boto3_cache</span><span class="o">=</span><span class="n">boto3_cache</span><span class="p">,</span>
+
+                    <span class="n">taskcat_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+
+                    <span class="n">_role_name</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">role_name</span><span class="p">,</span>
+
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">region_objects</span>
+
+    <span class="k">def</span> <span class="nf">get_buckets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boto3_cache</span><span class="p">:</span> <span class="n">Boto3Cache</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_regions</span><span class="p">(</span><span class="n">boto3_cache</span><span class="p">)</span>
+
+        <span class="n">bucket_objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">S3BucketObj</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">bucket_mappings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">S3BucketObj</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">bucket_mappings</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">region_name</span><span class="p">,</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">s3_regional_buckets</span><span class="p">:</span>
+
+                    <span class="n">bucket_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_regional_bucket_obj</span><span class="p">(</span>
+
+                        <span class="n">bucket_objects</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">test</span>
+
+                    <span class="p">)</span>
+
+                    <span class="n">bucket_objects</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="si">}{</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket_obj</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="n">bucket_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_legacy_bucket_obj</span><span class="p">(</span>
+
+                        <span class="n">bucket_objects</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">test</span>
+
+                    <span class="p">)</span>
+
+                    <span class="n">bucket_objects</span><span class="p">[</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket_obj</span>
+
+                <span class="n">bucket_mappings</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">bucket_obj</span>
+
+        <span class="k">return</span> <span class="n">bucket_mappings</span>
+
+    <span class="k">def</span> <span class="nf">_create_legacy_bucket_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_objects</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+
+        <span class="n">new</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">object_acl</span> <span class="o">=</span> <span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_object_acl</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_object_acl</span>
+
+            <span class="k">else</span> <span class="s2">&quot;private&quot;</span>
+
+        <span class="p">)</span>
+
+        <span class="n">sigv4</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_enable_sig_v2</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="o">.</span><span class="n">s3_bucket</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bucket_objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">):</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">generate_bucket_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">new</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">bucket_objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">):</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">bucket_objects</span><span class="p">[</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="n">bucket_objects</span><span class="p">[</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">]</span><span class="o">.</span><span class="n">auto_generated</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">s3_bucket</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">bucket_region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bucket_region_for_partition</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">partition</span><span class="p">)</span>
+
+        <span class="n">bucket_obj</span> <span class="o">=</span> <span class="n">S3BucketObj</span><span class="p">(</span>
+
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+
+            <span class="n">region</span><span class="o">=</span><span class="n">bucket_region</span><span class="p">,</span>
+
+            <span class="n">account_id</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span>
+
+            <span class="n">s3_client</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">bucket_region</span><span class="p">),</span>
+
+            <span class="n">auto_generated</span><span class="o">=</span><span class="n">auto_generated</span><span class="p">,</span>
+
+            <span class="n">object_acl</span><span class="o">=</span><span class="n">object_acl</span><span class="p">,</span>
+
+            <span class="n">sigv4</span><span class="o">=</span><span class="n">sigv4</span><span class="p">,</span>
+
+            <span class="n">taskcat_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+
+            <span class="n">partition</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span>
+
+            <span class="n">regional_buckets</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">s3_regional_buckets</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new</span><span class="p">:</span>
+
+            <span class="n">bucket_obj</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">bucket_obj</span>
+
+    <span class="k">def</span> <span class="nf">_create_regional_bucket_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_objects</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+
+        <span class="n">_bucket_obj_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="si">}{</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">new</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">object_acl</span> <span class="o">=</span> <span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_object_acl</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_object_acl</span>
+
+            <span class="k">else</span> <span class="s2">&quot;private&quot;</span>
+
+        <span class="p">)</span>
+
+        <span class="n">sigv4</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">s3_enable_sig_v2</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span><span class="o">.</span><span class="n">s3_bucket</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bucket_objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_bucket_obj_key</span><span class="p">):</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">generate_regional_bucket_name</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">new</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">bucket_objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_bucket_obj_key</span><span class="p">):</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="n">bucket_objects</span><span class="p">[</span><span class="n">_bucket_obj_key</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="n">bucket_objects</span><span class="p">[</span><span class="n">_bucket_obj_key</span><span class="p">]</span><span class="o">.</span><span class="n">auto_generated</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test</span><span class="o">.</span><span class="n">s3_bucket</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">auto_generated</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="n">region</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head_bucket</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="s2">&quot;(404)&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+
+                    <span class="n">new</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="k">raise</span>
+
+        <span class="n">bucket_obj</span> <span class="o">=</span> <span class="n">S3BucketObj</span><span class="p">(</span>
+
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+
+            <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+            <span class="n">account_id</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span>
+
+            <span class="n">s3_client</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+
+            <span class="n">auto_generated</span><span class="o">=</span><span class="n">auto_generated</span><span class="p">,</span>
+
+            <span class="n">object_acl</span><span class="o">=</span><span class="n">object_acl</span><span class="p">,</span>
+
+            <span class="n">sigv4</span><span class="o">=</span><span class="n">sigv4</span><span class="p">,</span>
+
+            <span class="n">taskcat_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+
+            <span class="n">partition</span><span class="o">=</span><span class="n">region</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span>
+
+            <span class="n">regional_buckets</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">s3_regional_buckets</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new</span><span class="p">:</span>
+
+            <span class="n">bucket_obj</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">bucket_obj</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_bucket_region_for_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">):</span>
+
+        <span class="n">region</span> <span class="o">=</span> <span class="s2">&quot;us-east-1&quot;</span>
+
+        <span class="k">if</span> <span class="n">partition</span> <span class="o">==</span> <span class="s2">&quot;aws-us-gov&quot;</span><span class="p">:</span>
+
+            <span class="n">region</span> <span class="o">=</span> <span class="s2">&quot;us-gov-east-1&quot;</span>
+
+        <span class="k">elif</span> <span class="n">partition</span> <span class="o">==</span> <span class="s2">&quot;aws-cn&quot;</span><span class="p">:</span>
+
+            <span class="n">region</span> <span class="o">=</span> <span class="s2">&quot;cn-north-1&quot;</span>
+
+        <span class="k">return</span> <span class="n">region</span>
+
+    <span class="k">def</span> <span class="nf">get_rendered_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bucket_objects</span><span class="p">,</span> <span class="n">region_objects</span><span class="p">,</span> <span class="n">template_objects</span><span class="p">):</span>
+
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">template_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params_from_templates</span><span class="p">(</span><span class="n">template_objects</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">parameters</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">region_name</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
+
+                <span class="n">region_params</span> <span class="o">=</span> <span class="n">template_params</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="k">for</span> <span class="n">param_key</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                    <span class="k">if</span> <span class="n">param_key</span> <span class="ow">in</span> <span class="n">region_params</span><span class="p">:</span>
+
+                        <span class="n">region_params</span><span class="p">[</span><span class="n">param_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_value</span>
+
+                <span class="n">region</span> <span class="o">=</span> <span class="n">region_objects</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_name</span><span class="p">]</span>
+
+                <span class="n">s3bucket</span> <span class="o">=</span> <span class="n">bucket_objects</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_name</span><span class="p">]</span>
+
+                <span class="n">parameters</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ParamGen</span><span class="p">(</span>
+
+                    <span class="n">region_params</span><span class="p">,</span>
+
+                    <span class="n">s3bucket</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+                    <span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+                    <span class="n">region</span><span class="o">.</span><span class="n">client</span><span class="p">,</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+                    <span class="n">test_name</span><span class="p">,</span>
+
+                    <span class="n">test</span><span class="o">.</span><span class="n">az_blacklist</span><span class="p">,</span>
+
+                <span class="p">)</span><span class="o">.</span><span class="n">results</span>
+
+        <span class="k">return</span> <span class="n">parameters</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">get_params_from_templates</span><span class="p">(</span><span class="n">template_objects</span><span class="p">):</span>
+
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">template_objects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">parameters</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">parameters</span>
+
+    <span class="k">def</span> <span class="nf">get_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">templates</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">templates</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span>
+
+                <span class="n">template_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project_root</span> <span class="o">/</span> <span class="n">test</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+
+                <span class="n">project_root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project_root</span><span class="p">,</span>
+
+                <span class="n">s3_key_prefix</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
+
+                <span class="n">template_cache</span><span class="o">=</span><span class="n">tcat_template_cache</span><span class="p">,</span>
+
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">templates</span>
+
+    <span class="k">def</span> <span class="nf">get_tests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templates</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">buckets</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+
+        <span class="n">tests</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test_name</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">tests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">region_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">tag_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">test</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+
+                <span class="k">for</span> <span class="n">tag_key</span><span class="p">,</span> <span class="n">tag_value</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                    <span class="n">tag_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">({</span><span class="s2">&quot;Key&quot;</span><span class="p">:</span> <span class="n">tag_key</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="n">tag_value</span><span class="p">}))</span>
+
+            <span class="k">for</span> <span class="n">region_obj</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+                <span class="n">region_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+
+                    <span class="n">TestRegion</span><span class="o">.</span><span class="n">from_region_obj</span><span class="p">(</span>
+
+                        <span class="n">region_obj</span><span class="p">,</span>
+
+                        <span class="n">buckets</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_obj</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+
+                        <span class="n">parameters</span><span class="p">[</span><span class="n">test_name</span><span class="p">][</span><span class="n">region_obj</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+
+                    <span class="p">)</span>
+
+                <span class="p">)</span>
+
+            <span class="n">tests</span><span class="p">[</span><span class="n">test_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">TestObj</span><span class="p">(</span>
+
+                <span class="n">name</span><span class="o">=</span><span class="n">test_name</span><span class="p">,</span>
+
+                <span class="n">template_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project_root</span> <span class="o">/</span> <span class="n">test</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+
+                <span class="n">template</span><span class="o">=</span><span class="n">templates</span><span class="p">[</span><span class="n">test_name</span><span class="p">],</span>
+
+                <span class="n">project_root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">project_root</span><span class="p">,</span>
+
+                <span class="n">regions</span><span class="o">=</span><span class="n">region_list</span><span class="p">,</span>
+
+                <span class="n">tags</span><span class="o">=</span><span class="n">tag_list</span><span class="p">,</span>
+
+                <span class="n">uid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+
+                <span class="n">_project_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+                <span class="n">_shorten_stack_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">shorten_stack_name</span><span class="p">,</span>
+
+                <span class="n">_stack_name</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">stack_name</span><span class="p">,</span>
+
+                <span class="n">_stack_name_prefix</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">stack_name_prefix</span><span class="p">,</span>
+
+                <span class="n">_stack_name_suffix</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">stack_name_suffix</span><span class="p">,</span>
+
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tests</span>
+</code></pre></div>
+
+</details>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">DEFAULTS</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">GENERAL</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">OVERRIDES</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">PROJECT</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">PROJECT_ROOT</span>
+</code></pre></div>
+
+<h2 id="classes">Classes</h2>
+<h3 id="config">Config</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span>
+    <span class="n">project_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="static-methods">Static methods</h4>
+<h4 id="create">create</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+    <span class="n">template_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">global_config_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s1">&#39;/Users/tonynv/.taskcat.yml&#39;</span><span class="p">),</span>
+    <span class="n">project_config_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s1">&#39;/Users/tonynv/work/github/aws-quickstart/python/taskcat/.taskcat.yml&#39;</span><span class="p">),</span>
+    <span class="n">overrides_path</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s1">&#39;/Users/tonynv/work/github/aws-quickstart/python/taskcat/.taskcat_overrides.yml&#39;</span><span class="p">),</span>
+    <span class="n">env_vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">project_root</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">=</span> <span class="n">PosixPath</span><span class="p">(</span><span class="s1">&#39;/Users/tonynv/work/github/aws-quickstart/python/taskcat&#39;</span><span class="p">),</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Config&#39;</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="err">@</span><span class="n">classmethod</span>
+
+    <span class="c1"># pylint: disable=too-many-locals</span>
+
+    <span class="n">def</span> <span class="n">create</span><span class="p">(</span>
+
+        <span class="n">cls</span><span class="p">,</span>
+
+        <span class="n">template_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">None</span><span class="p">,</span>
+
+        <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">None</span><span class="p">,</span>
+
+        <span class="n">global_config_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">GENERAL</span><span class="p">,</span>
+
+        <span class="n">project_config_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PROJECT</span><span class="p">,</span>
+
+        <span class="n">overrides_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">OVERRIDES</span><span class="p">,</span>
+
+        <span class="n">env_vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">dict</span><span class="p">]</span> <span class="o">=</span> <span class="n">None</span><span class="p">,</span>
+
+        <span class="n">project_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">PROJECT_ROOT</span><span class="p">,</span>
+
+        <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span> <span class="o">=</span> <span class="n">None</span><span class="p">,</span>
+
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Config&quot;</span><span class="p">:</span>
+
+        <span class="n">uid</span> <span class="o">=</span> <span class="n">uid</span> <span class="k">if</span> <span class="n">uid</span> <span class="k">else</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+
+        <span class="n">project_source</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_get_project_source</span><span class="p">(</span>
+
+            <span class="n">cls</span><span class="p">,</span> <span class="n">project_config_path</span><span class="p">,</span> <span class="n">project_root</span><span class="p">,</span> <span class="n">template_file</span>
+
+        <span class="p">)</span>
+
+        <span class="c1"># general</span>
+
+        <span class="n">legacy_overrides</span><span class="p">(</span>
+
+            <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~/.aws/taskcat_global_override.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+
+            <span class="n">global_config_path</span><span class="p">,</span>
+
+            <span class="s2">&quot;global&quot;</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">global_config_path</span><span class="p">),</span>
+
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">_dict_from_file</span><span class="p">(</span><span class="n">global_config_path</span><span class="p">),</span>
+
+            <span class="p">}</span>
+
+        <span class="p">]</span>
+
+        <span class="c1"># project config file</span>
+
+        <span class="k">if</span> <span class="n">project_source</span><span class="p">:</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">project_source</span><span class="p">)</span>
+
+        <span class="c1"># template file</span>
+
+        <span class="k">if</span> <span class="n">isinstance</span><span class="p">(</span><span class="n">template_file</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+
+                <span class="p">{</span>
+
+                    <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template_file</span><span class="p">),</span>
+
+                    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">_dict_from_template</span><span class="p">(</span><span class="n">template_file</span><span class="p">),</span>
+
+                <span class="p">}</span>
+
+            <span class="p">)</span>
+
+        <span class="c1"># override file</span>
+
+        <span class="n">legacy_overrides</span><span class="p">(</span>
+
+            <span class="n">project_root</span> <span class="o">/</span> <span class="s2">&quot;ci/taskcat_project_override.json&quot;</span><span class="p">,</span> <span class="n">overrides_path</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">overrides_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+
+            <span class="n">overrides</span> <span class="o">=</span> <span class="n">BaseConfig</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+            <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">overrides_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
+
+                <span class="n">override_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file_handle</span><span class="p">)</span>
+
+            <span class="n">overrides</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">][</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">override_params</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">overrides_path</span><span class="p">),</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">overrides</span><span class="p">})</span>
+
+        <span class="c1"># environment variables</span>
+
+        <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+
+            <span class="p">{</span>
+
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;EnvoronmentVariable&quot;</span><span class="p">,</span>
+
+                <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">cls</span><span class="o">.</span><span class="n">_dict_from_env_vars</span><span class="p">(</span><span class="n">env_vars</span><span class="p">),</span>
+
+            <span class="p">}</span>
+
+        <span class="p">)</span>
+
+        <span class="c1"># cli arguments</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+
+            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;CliArgument&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="n">sources</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+<h4 id="get_params_from_templates">get_params_from_templates</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_params_from_templates</span><span class="p">(</span>
+    <span class="n">template_objects</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_params_from_templates</span><span class="p">(</span><span class="n">template_objects</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">template</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">template_objects</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">parameters</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">template</span><span class="p">.</span><span class="k">parameters</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">parameters</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="methods">Methods</h4>
+<h4 id="get_buckets">get_buckets</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_buckets</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">boto3_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_client_factory</span><span class="o">.</span><span class="n">Boto3Cache</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_buckets</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">boto3_cache</span><span class="p">:</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">regions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_regions</span><span class="p">(</span><span class="n">boto3_cache</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">bucket_objects</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, S3BucketObj</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">bucket_mappings</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, Dict[str, S3BucketObj</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">tests</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">bucket_mappings</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region_name</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">regions</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">s3_regional_buckets</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">bucket_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_create_regional_bucket_obj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">bucket_objects</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"></span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">bucket_objects</span><span class="o">[</span><span class="n">f&quot;{region.account_id}{region.name}&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bucket_obj</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">bucket_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_create_legacy_bucket_obj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">bucket_objects</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"></span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">bucket_objects</span><span class="o">[</span><span class="n">region.account_id</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bucket_obj</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">bucket_mappings</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bucket_obj</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bucket_mappings</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="get_regions">get_regions</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_regions</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">boto3_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_client_factory</span><span class="o">.</span><span class="n">Boto3Cache</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_regions</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">boto3_cache</span><span class="p">:</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">boto3_cache</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">boto3_cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">region_objects</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, Dict[str, RegionObj</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">tests</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">region_objects</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">regions</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">comon_utils</span><span class="o">/</span><span class="n">determine_profile_for_region</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">test</span><span class="p">.</span><span class="n">auth</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">auth</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">auth</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">else</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="w"></span>
+
+<span class="w">                </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">region_objects</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegionObj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">name</span><span class="o">=</span><span class="n">region</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">account_id</span><span class="o">=</span><span class="n">boto3_cache</span><span class="p">.</span><span class="n">account_id</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">partition</span><span class="o">=</span><span class="n">boto3_cache</span><span class="p">.</span><span class="k">partition</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">_boto3_cache</span><span class="o">=</span><span class="n">boto3_cache</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">taskcat_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">uid</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">_role_name</span><span class="o">=</span><span class="n">test</span><span class="p">.</span><span class="n">role_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">region_objects</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="get_rendered_parameters">get_rendered_parameters</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_rendered_parameters</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bucket_objects</span><span class="p">,</span>
+    <span class="n">region_objects</span><span class="p">,</span>
+    <span class="n">template_objects</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_rendered_parameters</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">bucket_objects</span><span class="p">,</span><span class="w"> </span><span class="n">region_objects</span><span class="p">,</span><span class="w"> </span><span class="n">template_objects</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">parameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">template_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_params_from_templates</span><span class="p">(</span><span class="n">template_objects</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">tests</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">parameters</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region_name</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">regions</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">region_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">template_params</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="n">param_key</span><span class="p">,</span><span class="w"> </span><span class="n">param_value</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="k">parameters</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="n">param_key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">region_params</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">region_params</span><span class="o">[</span><span class="n">param_key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">param_value</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region_objects</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_name</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">s3bucket</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bucket_objects</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_name</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">parameters</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ParamGen</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">region_params</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">s3bucket</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">region</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">region</span><span class="p">.</span><span class="n">client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">test_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">test</span><span class="p">.</span><span class="n">az_blacklist</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="p">).</span><span class="n">results</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">parameters</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="get_templates">get_templates</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_templates</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_templates</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">templates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">tests</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">templates</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Template</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">template_path</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">project_root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">project_root</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">project_root</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">s3_key_prefix</span><span class="o">=</span><span class="n">f</span><span class="ss">&quot;{self.config.project.name}/&quot;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">template_cache</span><span class="o">=</span><span class="n">tcat_template_cache</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">templates</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="get_tests">get_tests</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_tests</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">templates</span><span class="p">,</span>
+    <span class="n">regions</span><span class="p">,</span>
+    <span class="n">buckets</span><span class="p">,</span>
+    <span class="n">parameters</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_tests</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">templates</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="n">buckets</span><span class="p">,</span><span class="w"> </span><span class="k">parameters</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test_name</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">tests</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">region_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">tag_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">tags</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="n">tag_key</span><span class="p">,</span><span class="w"> </span><span class="n">tag_value</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">tags</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">tag_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;Key&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tag_key</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Value&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tag_value</span><span class="err">}</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region_obj</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">regions</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="p">.</span><span class="k">values</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">region_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">TestRegion</span><span class="p">.</span><span class="n">from_region_obj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">region_obj</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">buckets</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_obj.name</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="k">parameters</span><span class="o">[</span><span class="n">test_name</span><span class="o">][</span><span class="n">region_obj.name</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">tests</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TestObj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">name</span><span class="o">=</span><span class="n">test_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">template_path</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">project_root</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">template</span><span class="o">=</span><span class="n">templates</span><span class="o">[</span><span class="n">test_name</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">project_root</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">project_root</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">regions</span><span class="o">=</span><span class="n">region_list</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">tags</span><span class="o">=</span><span class="n">tag_list</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">uid</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">uid</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_project_name</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_shorten_stack_name</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">project</span><span class="p">.</span><span class="n">shorten_stack_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_stack_name</span><span class="o">=</span><span class="n">test</span><span class="p">.</span><span class="n">stack_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_stack_name_prefix</span><span class="o">=</span><span class="n">test</span><span class="p">.</span><span class="n">stack_name_prefix</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_stack_name_suffix</span><span class="o">=</span><span class="n">test</span><span class="p">.</span><span class="n">stack_name_suffix</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">tests</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="_common_utils.html" title="Common Utils" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                 Common Utils
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="_dataclasses.html" title="Dataclasses" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                 Dataclasses
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.82b56eb2.min.js"></script>
+      
+    
+  </body>
+</html>

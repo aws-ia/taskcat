@@ -1,2 +1,0 @@
-taskcat
-taskcat_plugin_testhook

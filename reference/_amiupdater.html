@@ -1,0 +1,2779 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://aws-ia.github.io/assets/img/logonav.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.9">
+    
+    
+      
+        <title>Amiupdater - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ca7ac06f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#ff6e42">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="deep-orange" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-_amiupdater" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+               Amiupdater
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://aws-ia.github.io/?target=_blank" class="md-nav__link">
+        aws-ia
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/schema/taskcat_schema.html" class="md-nav__link">
+        Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/apidocs/taskcat/index.html" class="md-nav__link">
+        API
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      <label class="md-nav__link" for="__nav_5">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+           Amiupdater
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="_amiupdater.html" class="md-nav__link md-nav__link--active">
+         Amiupdater
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build_codenames" class="md-nav__link">
+    build_codenames
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query_codenames" class="md-nav__link">
+    query_codenames
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce_api_results" class="md-nav__link">
+    reduce_api_results
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#amiupdater" class="md-nav__link">
+    AMIUpdater
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdater">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_regions_for_profile" class="md-nav__link">
+    get_regions_for_profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_amis" class="md-nav__link">
+    update_amis
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amiupdatercommitneededexception" class="md-nav__link">
+    AMIUpdaterCommitNeededException
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdaterCommitNeededException">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with_traceback" class="md-nav__link">
+    with_traceback
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amiupdaterfatalexception" class="md-nav__link">
+    AMIUpdaterFatalException
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdaterFatalException">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_2" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_2" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with_traceback_1" class="md-nav__link">
+    with_traceback
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apiresultsdata" class="md-nav__link">
+    APIResultsData
+  </a>
+  
+    <nav class="md-nav" aria-label="APIResultsData">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_3" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    Config
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_4" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_filter" class="md-nav__link">
+    get_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_filter" class="md-nav__link">
+    update_filter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec2filtervalue" class="md-nav__link">
+    EC2FilterValue
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regionalcodename" class="md-nav__link">
+    RegionalCodename
+  </a>
+  
+    <nav class="md-nav" aria-label="RegionalCodename">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_5" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template" class="md-nav__link">
+    Template
+  </a>
+  
+    <nav class="md-nav" aria-label="Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_3" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_codename_ami" class="md-nav__link">
+    set_codename_ami
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write" class="md-nav__link">
+    write
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_cli_core.html" class="md-nav__link">
+         Cli Core
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_client_factory.html" class="md-nav__link">
+         Client Factory
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_common_utils.html" class="md-nav__link">
+         Common Utils
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_config.html" class="md-nav__link">
+         Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_dataclasses.html" class="md-nav__link">
+         Dataclasses
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_legacy_config.html" class="md-nav__link">
+         Legacy Config
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_logger.html" class="md-nav__link">
+         Logger
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_name_generator.html" class="md-nav__link">
+         Name Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_project_generator.html" class="md-nav__link">
+         Project Generator
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_stage.html" class="md-nav__link">
+         S3 Stage
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_s3_sync.html" class="md-nav__link">
+         S3 Sync
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_template_params.html" class="md-nav__link">
+         Template Params
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="_tui.html" class="md-nav__link">
+         Tui
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat_plugin_testhook.html" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16" type="checkbox" id="__nav_5_16" >
+      
+      <label class="md-nav__link" for="__nav_5_16">
+        Taskcat
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_16">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/exceptions.html" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/regions_to_partitions.html" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_4" type="checkbox" id="__nav_5_16_4" >
+      
+      <label class="md-nav__link" for="__nav_5_16_4">
+         Cfn
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_4">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack.html" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/stack_url_helper.html" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/template.html" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cfn/threaded.html" class="md-nav__link">
+        Threaded
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_5" type="checkbox" id="__nav_5_16_5" >
+      
+      <label class="md-nav__link" for="__nav_5_16_5">
+         Cli Modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/delete.html" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/deploy.html" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/lint.html" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/list.html" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/package.html" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/test.html" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/update_ami.html" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/_cli_modules/upload.html" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_16_6" type="checkbox" id="__nav_5_16_6" >
+      
+      <label class="md-nav__link" for="__nav_5_16_6">
+        Testing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_5_16_6">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/base_test.html" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="taskcat/testing/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build_codenames" class="md-nav__link">
+    build_codenames
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query_codenames" class="md-nav__link">
+    query_codenames
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce_api_results" class="md-nav__link">
+    reduce_api_results
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#amiupdater" class="md-nav__link">
+    AMIUpdater
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdater">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_regions_for_profile" class="md-nav__link">
+    get_regions_for_profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_amis" class="md-nav__link">
+    update_amis
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amiupdatercommitneededexception" class="md-nav__link">
+    AMIUpdaterCommitNeededException
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdaterCommitNeededException">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_1" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_1" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with_traceback" class="md-nav__link">
+    with_traceback
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#amiupdaterfatalexception" class="md-nav__link">
+    AMIUpdaterFatalException
+  </a>
+  
+    <nav class="md-nav" aria-label="AMIUpdaterFatalException">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ancestors-in-mro_1" class="md-nav__link">
+    Ancestors (in MRO)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_2" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods_2" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#with_traceback_1" class="md-nav__link">
+    with_traceback
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apiresultsdata" class="md-nav__link">
+    APIResultsData
+  </a>
+  
+    <nav class="md-nav" aria-label="APIResultsData">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_3" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    Config
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_4" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_filter" class="md-nav__link">
+    get_filter
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load" class="md-nav__link">
+    load
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_filter" class="md-nav__link">
+    update_filter
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec2filtervalue" class="md-nav__link">
+    EC2FilterValue
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regionalcodename" class="md-nav__link">
+    RegionalCodename
+  </a>
+  
+    <nav class="md-nav" aria-label="RegionalCodename">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables_5" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template" class="md-nav__link">
+    Template
+  </a>
+  
+    <nav class="md-nav" aria-label="Template">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods_3" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set_codename_ami" class="md-nav__link">
+    set_codename_ami
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write" class="md-nav__link">
+    write
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-quickstart/taskcat/edit/main/reference/_amiupdater.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="module-_amiupdater">Module _amiupdater</h1>
+<p>None</p>
+<p>None</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">dataclasses</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">from</span> <span class="nn">multiprocessing.dummy</span> <span class="kn">import</span> <span class="n">Pool</span> <span class="k">as</span> <span class="n">ThreadPool</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span>
+
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>  <span class="c1"># pylint: disable=wrong-import-order</span>
+
+<span class="kn">import</span> <span class="nn">dateutil.parser</span>  <span class="c1"># pylint: disable=wrong-import-order</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._cfn.template</span> <span class="kn">import</span> <span class="n">Template</span> <span class="k">as</span> <span class="n">TCTemplate</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._client_factory</span> <span class="kn">import</span> <span class="n">Boto3Cache</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._common_utils</span> <span class="kn">import</span> <span class="n">deep_get</span><span class="p">,</span> <span class="n">neglect_submodule_templates</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._dataclasses</span> <span class="kn">import</span> <span class="n">RegionObj</span>
+
+<span class="kn">from</span> <span class="nn">taskcat.exceptions</span> <span class="kn">import</span> <span class="n">TaskCatException</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">REGION_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+
+    <span class="s2">&quot;((eu|ap|us|af|me|ca|cn|sa)-|(us-gov-))&quot;</span>
+
+    <span class="s2">&quot;(north(east|west)?|south(east|west)?|central|east|west)-[0-9]&quot;</span><span class="p">,</span>
+
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+
+<span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+
+    <span class="n">raw_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;AMIs&quot;</span><span class="p">:</span> <span class="p">{}}}</span>
+
+    <span class="n">codenames</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">configtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">_f</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="bp">cls</span><span class="o">.</span><span class="n">raw_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">_f</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">] - YAML Syntax Error!&quot;</span><span class="p">)</span>
+
+                <span class="c1"># pylint: disable=raise-missing-from</span>
+
+                <span class="k">raise</span> <span class="n">AMIUpdaterFatalException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">_x</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">raw_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AMIs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+                <span class="bp">cls</span><span class="o">.</span><span class="n">codenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_x</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">configtype</span><span class="si">}</span><span class="s2"> config file [</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="sa">f</span><span class="s2">&quot;is not structured properly!&quot;</span>
+
+            <span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># pylint: disable=raise-missing-from</span>
+
+            <span class="k">raise</span> <span class="n">AMIUpdaterFatalException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="k">def</span> <span class="nf">update_filter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">code_name</span><span class="p">):</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">raw_dict</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">][</span><span class="s2">&quot;AMIs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">code_name</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="k">def</span> <span class="nf">get_filter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">code_name</span><span class="p">):</span>
+
+        <span class="n">_x</span> <span class="o">=</span> <span class="n">deep_get</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">raw_dict</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;global/AMIs/</span><span class="si">{</span><span class="n">code_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+
+            <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_x</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+
+        <span class="p">}</span>
+
+<span class="nd">@dataclass</span>
+
+<span class="k">class</span> <span class="nc">EC2FilterValue</span><span class="p">:</span>
+
+    <span class="c1"># pylint: disable=invalid-name</span>
+
+    <span class="n">Name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">Values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+<span class="nd">@dataclass</span>
+
+<span class="k">class</span> <span class="nc">APIResultsData</span><span class="p">:</span>
+
+    <span class="n">codename</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">ami_id</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">creation_date</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">custom_comparisons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="c1"># See Codenames.parse_api_results for notes on why this is here.</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_comparisons</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">creation_date</span>
+
+        <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="c1"># See Codenames.parse_api_results for notes on why this is here.</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_comparisons</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">creation_date</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">creation_date</span>
+
+        <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+<span class="nd">@dataclass</span>
+
+<span class="k">class</span> <span class="nc">RegionalCodename</span><span class="p">:</span>
+
+    <span class="c1"># pylint: disable=invalid-name</span>
+
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">cn</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">new_ami</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">filters</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="n">_creation_dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cn</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_ami</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">Template</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">underlying</span><span class="p">:</span> <span class="n">TCTemplate</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">codenames</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Mappings/AWSAMIRegionMap&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Metadata/AWSAMIRegionMap/Filters&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">region_codename_lineno</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">region_names</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlying</span><span class="p">:</span> <span class="n">TCTemplate</span> <span class="o">=</span> <span class="n">underlying</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">linesplit</span>
+
+        <span class="n">_template_regions</span> <span class="o">=</span> <span class="n">deep_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping_path</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">for</span> <span class="n">region_name</span><span class="p">,</span> <span class="n">region_data</span> <span class="ow">in</span> <span class="n">_template_regions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">region_name</span> <span class="o">==</span> <span class="s2">&quot;AMI&quot;</span><span class="p">:</span>
+
+                <span class="k">continue</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">region_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">region_name</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">codename</span><span class="p">,</span> <span class="n">cnvalue</span> <span class="ow">in</span> <span class="n">region_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">codename</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">region_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                <span class="n">line_no</span> <span class="o">=</span> <span class="n">codename</span><span class="o">.</span><span class="n">start_mark</span><span class="o">.</span><span class="n">line</span>
+
+                <span class="k">if</span> <span class="n">cnvalue</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;&quot;&quot;&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ls</span><span class="p">[</span><span class="n">line_no</span><span class="p">]:</span>
+
+                        <span class="n">cnvalue</span> <span class="o">=</span> <span class="s1">&#39;&quot;&quot;&#39;</span>
+
+                    <span class="k">elif</span> <span class="s2">&quot;&#39;&#39;&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ls</span><span class="p">[</span><span class="n">line_no</span><span class="p">]:</span>
+
+                        <span class="n">cnvalue</span> <span class="o">=</span> <span class="s2">&quot;&#39;&#39;&quot;</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">region_codename_lineno</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="n">line_no</span><span class="p">,</span> <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">cnvalue</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">set_codename_ami</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cname</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">new_ami</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">region</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_names</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">line_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_codename_lineno</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;line&quot;</span><span class="p">]</span>
+
+            <span class="n">old_ami</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_codename_lineno</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;old&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">old_ami</span> <span class="o">==</span> <span class="n">new_ami</span><span class="p">:</span>
+
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">old_ami</span> <span class="o">==</span> <span class="s1">&#39;&quot;&quot;&#39;</span><span class="p">:</span>
+
+            <span class="n">new_ami</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">new_ami</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+
+        <span class="n">new_record</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">old_ami</span><span class="p">,</span> <span class="n">new_ami</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ls</span><span class="p">[</span><span class="n">line_no</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ls</span><span class="p">[</span><span class="n">line_no</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_record</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">raw_template</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ls</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">AMIUpdaterFatalException</span><span class="p">(</span><span class="n">TaskCatException</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Raised when AMIUpdater experiences a fatal error&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1"># pylint: disable=super-with-arguments</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">AMIUpdaterFatalException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+<span class="k">class</span> <span class="nc">AMIUpdaterCommitNeededException</span><span class="p">(</span><span class="n">TaskCatException</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1"># pylint: disable=super-with-arguments</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">AMIUpdaterCommitNeededException</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+<span class="k">def</span> <span class="nf">_construct_filters</span><span class="p">(</span><span class="n">cname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">EC2FilterValue</span><span class="p">]:</span>
+
+    <span class="n">formatted_filters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">EC2FilterValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">fetched_filters</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_filter</span><span class="p">(</span><span class="n">cname</span><span class="p">)</span>
+
+    <span class="n">formatted_filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">EC2FilterValue</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fetched_filters</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+    <span class="k">if</span> <span class="n">formatted_filters</span><span class="p">:</span>
+
+        <span class="n">formatted_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EC2FilterValue</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;available&quot;</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">formatted_filters</span>
+
+<span class="k">def</span> <span class="nf">build_codenames</span><span class="p">(</span><span class="n">tobj</span><span class="p">:</span> <span class="n">Template</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RegionalCodename</span><span class="p">]:</span>
+
+    <span class="sd">&quot;&quot;&quot;Builds regional codename objects&quot;&quot;&quot;</span>
+
+    <span class="n">built_cn</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">filters</span> <span class="o">=</span> <span class="n">deep_get</span><span class="p">(</span><span class="n">tobj</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="n">tobj</span><span class="o">.</span><span class="n">metadata_path</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">mappings</span> <span class="o">=</span> <span class="n">deep_get</span><span class="p">(</span><span class="n">tobj</span><span class="o">.</span><span class="n">underlying</span><span class="o">.</span><span class="n">template</span><span class="p">,</span> <span class="n">tobj</span><span class="o">.</span><span class="n">mapping_path</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="k">for</span> <span class="n">cname</span><span class="p">,</span> <span class="n">cfilters</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">update_filter</span><span class="p">({</span><span class="n">cname</span><span class="p">:</span> <span class="n">cfilters</span><span class="p">})</span>
+
+    <span class="k">for</span> <span class="n">region</span><span class="p">,</span> <span class="n">cndata</span> <span class="ow">in</span> <span class="n">mappings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="n">_missing_filters</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;AMI&quot;</span><span class="p">:</span>
+
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">REGION_REGEX</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">region</span><span class="p">):</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">] is not a valid region. Please check your template!&quot;</span><span class="p">)</span>
+
+            <span class="k">raise</span> <span class="n">AMIUpdaterFatalException</span>
+
+        <span class="k">for</span> <span class="n">cnname</span> <span class="ow">in</span> <span class="n">cndata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+            <span class="n">_filters</span> <span class="o">=</span> <span class="n">_construct_filters</span><span class="p">(</span><span class="n">cnname</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_filters</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">cnname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_missing_filters</span><span class="p">:</span>
+
+                    <span class="n">_missing_filters</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cnname</span><span class="p">)</span>
+
+                    <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+
+                        <span class="sa">f</span><span class="s2">&quot;No query parameters were found for: </span><span class="si">{</span><span class="n">cnname</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+
+                        <span class="s2">&quot;(Results for this codename are not possible.&quot;</span><span class="p">,</span>
+
+                    <span class="p">)</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">region_cn</span> <span class="o">=</span> <span class="n">RegionalCodename</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">,</span> <span class="n">cn</span><span class="o">=</span><span class="n">cnname</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">_filters</span><span class="p">)</span>
+
+            <span class="n">built_cn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region_cn</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">built_cn</span>
+
+<span class="k">def</span> <span class="nf">_per_codename_amifetch</span><span class="p">(</span><span class="n">region_dict</span><span class="p">,</span> <span class="n">regional_cn</span><span class="p">):</span>
+
+    <span class="n">new_filters</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_filter</span> <span class="ow">in</span> <span class="n">regional_cn</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+
+        <span class="n">new_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataclasses</span><span class="o">.</span><span class="n">asdict</span><span class="p">(</span><span class="n">_filter</span><span class="p">))</span>
+
+    <span class="n">_r</span> <span class="o">=</span> <span class="n">region_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">regional_cn</span><span class="o">.</span><span class="n">region</span><span class="p">)</span>
+
+    <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">_r</span><span class="p">:</span>
+
+        <span class="n">image_results</span> <span class="o">=</span> <span class="n">_r</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;ec2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">describe_images</span><span class="p">(</span><span class="n">Filters</span><span class="o">=</span><span class="n">new_filters</span><span class="p">)[</span><span class="s2">&quot;Images&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+
+        <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">regional_cn</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+
+        <span class="s2">&quot;cn&quot;</span><span class="p">:</span> <span class="n">regional_cn</span><span class="o">.</span><span class="n">cn</span><span class="p">,</span>
+
+        <span class="s2">&quot;api_results&quot;</span><span class="p">:</span> <span class="n">image_results</span><span class="p">,</span>
+
+    <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">query_codenames</span><span class="p">(</span>
+
+    <span class="n">codename_list</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">RegionalCodename</span><span class="p">],</span> <span class="n">region_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RegionObj</span><span class="p">]</span>
+
+<span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Fetches AMI IDs from AWS&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">codename_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="k">raise</span> <span class="n">AMIUpdaterFatalException</span><span class="p">(</span>
+
+            <span class="s2">&quot;No AMI filters were found. Nothing to fetch from the EC2 API.&quot;</span>
+
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">region_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+        <span class="n">_</span> <span class="o">=</span> <span class="n">region_dict</span><span class="p">[</span><span class="n">region</span><span class="p">]</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;ec2&quot;</span><span class="p">)</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">region_dict</span><span class="p">))</span>
+
+    <span class="n">_p</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_per_codename_amifetch</span><span class="p">,</span> <span class="n">region_dict</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_p</span><span class="p">,</span> <span class="n">codename_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">response</span>
+
+<span class="k">def</span> <span class="nf">_image_timestamp</span><span class="p">(</span><span class="n">raw_ts</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">dateutil</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">raw_ts</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">reduce_api_results</span><span class="p">(</span><span class="n">raw_results</span><span class="p">):</span>
+
+    <span class="n">unsorted_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">missing_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">final_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">result_state</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">query_result</span> <span class="ow">in</span> <span class="n">raw_results</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">query_result</span><span class="p">[</span><span class="s2">&quot;api_results&quot;</span><span class="p">]:</span>
+
+            <span class="n">cn_api_results_data</span> <span class="o">=</span> <span class="p">[</span>
+
+                <span class="n">APIResultsData</span><span class="p">(</span>
+
+                    <span class="n">query_result</span><span class="p">[</span><span class="s2">&quot;cn&quot;</span><span class="p">],</span>
+
+                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;ImageId&quot;</span><span class="p">],</span>
+
+                    <span class="n">_image_timestamp</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;CreationDate&quot;</span><span class="p">]),</span>
+
+                    <span class="n">query_result</span><span class="p">[</span><span class="s2">&quot;region&quot;</span><span class="p">],</span>
+
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">query_result</span><span class="p">[</span><span class="s2">&quot;api_results&quot;</span><span class="p">]</span>
+
+            <span class="p">]</span>
+
+            <span class="n">unsorted_results</span> <span class="o">=</span> <span class="n">cn_api_results_data</span> <span class="o">+</span> <span class="n">unsorted_results</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">missing_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">missing_results</span><span class="p">:</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+
+            <span class="s2">&quot;No results were available for the following CODENAME / Region combination&quot;</span>
+
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">missing_result</span> <span class="ow">in</span> <span class="n">missing_results</span><span class="p">:</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">missing_result</span><span class="p">[</span><span class="s1">&#39;cn&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">missing_result</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">sorted_results</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unsorted_results</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_r</span> <span class="ow">in</span> <span class="n">sorted_results</span><span class="p">:</span>
+
+        <span class="n">found_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_r</span><span class="o">.</span><span class="n">region</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">_r</span><span class="o">.</span><span class="n">codename</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">already_found</span> <span class="o">=</span> <span class="n">result_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">found_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">already_found</span><span class="p">:</span>
+
+            <span class="k">continue</span>
+
+        <span class="n">result_state</span><span class="p">[</span><span class="n">found_key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">final_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_r</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_results</span>
+
+<span class="k">class</span> <span class="nc">AMIUpdater</span><span class="p">:</span>
+
+    <span class="n">upstream_config_file</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+
+        <span class="s2">&quot;taskcat&quot;</span><span class="p">,</span> <span class="s2">&quot;/cfg/amiupdater.cfg.yml&quot;</span>
+
+    <span class="p">)</span>
+
+    <span class="n">upstream_config_file_url</span> <span class="o">=</span> <span class="p">(</span>
+
+        <span class="s2">&quot;https://raw.githubusercontent.com/aws-quickstart/&quot;</span>
+
+        <span class="s2">&quot;taskcat/main/cfg/amiupdater.cfg.yml&quot;</span>
+
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">user_config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_upstream_mappings</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">use_upstream_mappings</span><span class="p">:</span>
+
+            <span class="n">Config</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">upstream_config_file</span><span class="p">,</span> <span class="n">configtype</span><span class="o">=</span><span class="s2">&quot;Upstream&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">user_config_file</span><span class="p">:</span>
+
+            <span class="n">Config</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">user_config_file</span><span class="p">,</span> <span class="n">configtype</span><span class="o">=</span><span class="s2">&quot;User&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Needed?</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span> <span class="o">=</span> <span class="n">Boto3Cache</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">template_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_templates</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_regions</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">profile</span> <span class="o">=</span> <span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">auth</span>
+
+            <span class="k">else</span> <span class="s2">&quot;default&quot;</span>
+
+        <span class="p">)</span>
+
+        <span class="n">default_region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">get_default_region</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="p">[</span>
+
+            <span class="n">_r</span><span class="p">[</span><span class="s2">&quot;RegionName&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">_r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">client</span><span class="p">(</span>
+
+                <span class="s2">&quot;ec2&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">default_region</span>
+
+            <span class="p">)</span><span class="o">.</span><span class="n">describe_regions</span><span class="p">()[</span><span class="s2">&quot;Regions&quot;</span><span class="p">]</span>
+
+        <span class="p">]</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_regions_for_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">regions</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">auth</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">region</span><span class="p">,</span> <span class="n">profile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">general</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="n">regions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_regions_for_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="p">[</span><span class="n">region</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">regions</span>
+
+    <span class="k">def</span> <span class="nf">get_regions_for_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">_regions</span><span class="p">):</span>
+
+        <span class="n">regions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">_r</span> <span class="ow">in</span> <span class="n">_regions</span><span class="p">:</span>
+
+            <span class="n">regions</span><span class="p">[</span><span class="n">_r</span><span class="p">]</span> <span class="o">=</span> <span class="n">RegionObj</span><span class="p">(</span>
+
+                <span class="n">name</span><span class="o">=</span><span class="n">_r</span><span class="p">,</span>
+
+                <span class="n">account_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">account_id</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
+
+                <span class="n">partition</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span>
+
+                <span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span>
+
+                <span class="n">_boto3_cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">boto3_cache</span><span class="p">,</span>
+
+                <span class="n">taskcat_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+
+                <span class="n">_role_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">regions</span>
+
+    <span class="k">def</span> <span class="nf">_determine_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">_up</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_templates</span><span class="p">()</span>
+
+        <span class="n">unprocessed_templates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_up</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="n">finalized_templates</span> <span class="o">=</span> <span class="n">neglect_submodule_templates</span><span class="p">(</span>
+
+            <span class="n">project_root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">project_root</span><span class="p">,</span> <span class="n">template_list</span><span class="o">=</span><span class="n">unprocessed_templates</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">finalized_templates</span>
+
+    <span class="k">def</span> <span class="nf">_determine_templates_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">templates</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">tc_template</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_list</span><span class="p">:</span>
+
+            <span class="n">_t</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">underlying</span><span class="o">=</span><span class="n">tc_template</span><span class="p">)</span>
+
+            <span class="n">templates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_t</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">templates</span>
+
+    <span class="k">def</span> <span class="nf">update_amis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">codenames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Determining templates and supported regions&quot;</span><span class="p">)</span>
+
+        <span class="n">templates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_templates_regions</span><span class="p">()</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Determining regional search params for each AMI&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Flush out codenames.</span>
+
+        <span class="k">for</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">:</span>
+
+            <span class="n">template_cn</span> <span class="o">=</span> <span class="n">build_codenames</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">Config</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">tcn</span> <span class="ow">in</span> <span class="n">template_cn</span><span class="p">:</span>
+
+                <span class="n">codenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tcn</span><span class="p">)</span>
+
+        <span class="c1"># Retrieve API Results.</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Retrieving results from the EC2 API&quot;</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">query_codenames</span><span class="p">(</span><span class="n">codenames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="p">)</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Determining the latest AMI for each Codename/Region&quot;</span><span class="p">)</span>
+
+        <span class="n">updated_api_results</span> <span class="o">=</span> <span class="n">reduce_api_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="c1"># Figure out a way to sort dictionary by key-value (timestmap)</span>
+
+        <span class="n">_write_template</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">templates</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">updated_api_results</span><span class="p">:</span>
+
+                <span class="n">changed</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">set_codename_ami</span><span class="p">(</span>
+
+                    <span class="n">result</span><span class="o">.</span><span class="n">codename</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">ami_id</span>
+
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+
+                    <span class="n">_write_template</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">_write_template</span><span class="p">:</span>
+
+                <span class="n">template</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">_write_template</span><span class="p">:</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Templates updated&quot;</span><span class="p">)</span>
+
+            <span class="k">raise</span> <span class="n">AMIUpdaterCommitNeededException</span>
+
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No AMI&#39;s needed updates.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">REGION_REGEX</span>
+</code></pre></div>
+
+<h2 id="functions">Functions</h2>
+<h3 id="build_codenames">build_codenames</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">build_codenames</span><span class="p">(</span>
+    <span class="n">tobj</span><span class="p">:</span> <span class="n">_amiupdater</span><span class="o">.</span><span class="n">Template</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">_amiupdater</span><span class="o">.</span><span class="n">Config</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_amiupdater</span><span class="o">.</span><span class="n">RegionalCodename</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Builds regional codename objects</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">build_codenames</span><span class="p">(</span><span class="nl">tobj</span><span class="p">:</span><span class="w"> </span><span class="n">Template</span><span class="p">,</span><span class="w"> </span><span class="nl">config</span><span class="p">:</span><span class="w"> </span><span class="n">Config</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">List</span><span class="o">[</span><span class="n">RegionalCodename</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Builds regional codename objects&quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">built_cn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">filters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deep_get</span><span class="p">(</span><span class="n">tobj</span><span class="p">.</span><span class="n">underlying</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"> </span><span class="n">tobj</span><span class="p">.</span><span class="n">metadata_path</span><span class="p">,</span><span class="w"> </span><span class="err">{}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">mappings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deep_get</span><span class="p">(</span><span class="n">tobj</span><span class="p">.</span><span class="n">underlying</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"> </span><span class="n">tobj</span><span class="p">.</span><span class="n">mapping_path</span><span class="p">,</span><span class="w"> </span><span class="err">{}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">cname</span><span class="p">,</span><span class="w"> </span><span class="n">cfilters</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">filters</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">update_filter</span><span class="p">(</span><span class="err">{</span><span class="nl">cname</span><span class="p">:</span><span class="w"> </span><span class="n">cfilters</span><span class="err">}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">cndata</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mappings</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">_missing_filters</span><span class="p">:</span><span class="w"> </span><span class="k">Set</span><span class="o">[</span><span class="n">str</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">set</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;AMI&quot;</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">continue</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">REGION_REGEX</span><span class="p">.</span><span class="k">search</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">LOG</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;[{region}] is not a valid region. Please check your template!&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">AMIUpdaterFatalException</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">cnname</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">cndata</span><span class="p">.</span><span class="n">keys</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">_filters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_construct_filters</span><span class="p">(</span><span class="n">cnname</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">_filters</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">cnname</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">_missing_filters</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">_missing_filters</span><span class="p">.</span><span class="k">add</span><span class="p">(</span><span class="n">cnname</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                    </span><span class="nf">LOG</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">f</span><span class="ss">&quot;No query parameters were found for: {cnname.upper()}.&quot;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="ss">&quot;(Results for this codename are not possible.&quot;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">continue</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">region_cn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegionalCodename</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">cn</span><span class="o">=</span><span class="n">cnname</span><span class="p">,</span><span class="w"> </span><span class="n">filters</span><span class="o">=</span><span class="n">_filters</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">built_cn</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">region_cn</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">built_cn</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h3 id="query_codenames">query_codenames</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">query_codenames</span><span class="p">(</span>
+    <span class="n">codename_list</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">_amiupdater</span><span class="o">.</span><span class="n">RegionalCodename</span><span class="p">],</span>
+    <span class="n">region_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_dataclasses</span><span class="o">.</span><span class="n">RegionObj</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Fetches AMI IDs from AWS</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">query_codenames</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">    </span><span class="nl">codename_list</span><span class="p">:</span><span class="w"> </span><span class="k">Set</span><span class="o">[</span><span class="n">RegionalCodename</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">region_dict</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, RegionObj</span><span class="o">]</span><span class="w"></span>
+
+<span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;Fetches AMI IDs from AWS&quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">codename_list</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">AMIUpdaterFatalException</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;No AMI filters were found. Nothing to fetch from the EC2 API.&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">region_dict</span><span class="p">.</span><span class="n">keys</span><span class="p">())</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region_dict</span><span class="o">[</span><span class="n">region</span><span class="o">]</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="ss">&quot;ec2&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThreadPool</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">region_dict</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">partial</span><span class="p">(</span><span class="n">_per_codename_amifetch</span><span class="p">,</span><span class="w"> </span><span class="n">region_dict</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pool</span><span class="p">.</span><span class="k">map</span><span class="p">(</span><span class="n">_p</span><span class="p">,</span><span class="w"> </span><span class="n">codename_list</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">response</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h3 id="reduce_api_results">reduce_api_results</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">reduce_api_results</span><span class="p">(</span>
+    <span class="n">raw_results</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">reduce_api_results</span><span class="p">(</span><span class="n">raw_results</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">unsorted_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">missing_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">final_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">result_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">query_result</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">raw_results</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">query_result</span><span class="o">[</span><span class="n">&quot;api_results&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">cn_api_results_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
+
+<span class="n">                APIResultsData(</span>
+
+<span class="n">                    query_result[&quot;cn&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">x</span><span class="o">[</span><span class="n">&quot;ImageId&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">_image_timestamp</span><span class="p">(</span><span class="n">x</span><span class="o">[</span><span class="n">&quot;CreationDate&quot;</span><span class="o">]</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">query_result</span><span class="o">[</span><span class="n">&quot;region&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">query_result</span><span class="o">[</span><span class="n">&quot;api_results&quot;</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">unsorted_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cn_api_results_data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">unsorted_results</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">missing_results</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_result</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nl">missing_results</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="nf">LOG</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;No results were available for the following CODENAME / Region combination&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">missing_result</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">missing_results</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="nf">LOG</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;- {missing_result[&#39;cn&#39;]} in {missing_result[&#39;region&#39;]}&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">sorted_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sorted</span><span class="p">(</span><span class="n">unsorted_results</span><span class="p">,</span><span class="w"> </span><span class="nf">reverse</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">_r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">sorted_results</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">found_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="ss">&quot;{_r.region}-{_r.codename}&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">already_found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result_state</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="n">found_key</span><span class="p">,</span><span class="w"> </span><span class="k">False</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">already_found</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">continue</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">result_state</span><span class="o">[</span><span class="n">found_key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">final_results</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">_r</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">final_results</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h2 id="classes">Classes</h2>
+<h3 id="amiupdater">AMIUpdater</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">AMIUpdater</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">user_config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_upstream_mappings</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">upstream_config_file</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">upstream_config_file_url</span>
+</code></pre></div>
+
+<h4 id="methods">Methods</h4>
+<h4 id="get_regions_for_profile">get_regions_for_profile</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_regions_for_profile</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">,</span>
+    <span class="n">_regions</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_regions_for_profile</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">profile</span><span class="p">,</span><span class="w"> </span><span class="n">_regions</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">regions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">_r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">_regions</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">regions</span><span class="o">[</span><span class="n">_r</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RegionObj</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">name</span><span class="o">=</span><span class="n">_r</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">account_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">boto3_cache</span><span class="p">.</span><span class="n">account_id</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">partition</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">boto3_cache</span><span class="p">.</span><span class="k">partition</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_boto3_cache</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">boto3_cache</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">taskcat_id</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">uid</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">_role_name</span><span class="o">=</span><span class="k">None</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">regions</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="update_amis">update_amis</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">update_amis</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">update_amis</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>
+
+        <span class="n">codenames</span> <span class="o">=</span> <span class="n">set</span><span class="p">()</span>
+
+        <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Determining templates and supported regions&quot;</span><span class="p">)</span>
+
+        <span class="n">templates</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_determine_templates_regions</span><span class="p">()</span>
+
+        <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Determining regional search params for each AMI&quot;</span><span class="p">)</span>
+
+        <span class="p">#</span> <span class="n">Flush</span> <span class="n">out</span> <span class="n">codenames</span><span class="p">.</span>
+
+        <span class="k">for</span> <span class="n">template</span> <span class="n">in</span> <span class="nl">templates:</span>
+
+            <span class="n">template_cn</span> <span class="o">=</span> <span class="n">build_codenames</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">Config</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">tcn</span> <span class="n">in</span> <span class="nl">template_cn:</span>
+
+                <span class="n">codenames</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tcn</span><span class="p">)</span>
+
+        <span class="p">#</span> <span class="n">Retrieve</span> <span class="n">API</span> <span class="n">Results</span><span class="p">.</span>
+
+        <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Retrieving results from the EC2 API&quot;</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">query_codenames</span><span class="p">(</span><span class="n">codenames</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">regions</span><span class="p">)</span>
+
+        <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Determining the latest AMI for each Codename/Region&quot;</span><span class="p">)</span>
+
+        <span class="n">updated_api_results</span> <span class="o">=</span> <span class="n">reduce_api_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="p">#</span> <span class="n">Figure</span> <span class="n">out</span> <span class="n">a</span> <span class="n">way</span> <span class="n">to</span> <span class="n">sort</span> <span class="n">dictionary</span> <span class="n">by</span> <span class="n">key</span><span class="o">-</span><span class="n">value</span> <span class="p">(</span><span class="n">timestmap</span><span class="p">)</span>
+
+        <span class="n">_write_template</span> <span class="o">=</span> <span class="n">False</span>
+
+        <span class="k">for</span> <span class="n">template</span> <span class="n">in</span> <span class="nl">templates:</span>
+
+            <span class="k">for</span> <span class="n">result</span> <span class="n">in</span> <span class="nl">updated_api_results:</span>
+
+                <span class="n">changed</span> <span class="o">=</span> <span class="n">template</span><span class="p">.</span><span class="n">set_codename_ami</span><span class="p">(</span>
+
+                    <span class="n">result</span><span class="p">.</span><span class="n">codename</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">region</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">ami_id</span>
+
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="nl">changed:</span>
+
+                    <span class="n">_write_template</span> <span class="o">=</span> <span class="n">True</span>
+
+            <span class="k">if</span> <span class="nl">_write_template:</span>
+
+                <span class="n">template</span><span class="p">.</span><span class="n">write</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nl">_write_template:</span>
+
+            <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Templates updated&quot;</span><span class="p">)</span>
+
+            <span class="n">raise</span> <span class="n">AMIUpdaterCommitNeededException</span>
+
+        <span class="n">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;No AMI&#39;s needed updates.&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+<h3 id="amiupdatercommitneededexception">AMIUpdaterCommitNeededException</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">AMIUpdaterCommitNeededException</span><span class="p">(</span>
+    <span class="n">message</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
+<ul>
+<li>taskcat.exceptions.TaskCatException</li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+<h4 id="class-variables_1">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">args</span>
+</code></pre></div>
+
+<h4 id="methods_1">Methods</h4>
+<h4 id="with_traceback">with_traceback</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">with_traceback</span><span class="p">(</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Exception.with_traceback(tb) --</p>
+<p>set self.<strong>traceback</strong> to tb and return self.</p>
+<h3 id="amiupdaterfatalexception">AMIUpdaterFatalException</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">AMIUpdaterFatalException</span><span class="p">(</span>
+    <span class="n">message</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
+<ul>
+<li>taskcat.exceptions.TaskCatException</li>
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+<h4 id="class-variables_2">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">args</span>
+</code></pre></div>
+
+<h4 id="methods_2">Methods</h4>
+<h4 id="with_traceback_1">with_traceback</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">with_traceback</span><span class="p">(</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>Exception.with_traceback(tb) --</p>
+<p>set self.<strong>traceback</strong> to tb and return self.</p>
+<h3 id="apiresultsdata">APIResultsData</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">APIResultsData</span><span class="p">(</span>
+    <span class="n">codename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ami_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">creation_date</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">custom_comparisons</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables_3">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">custom_comparisons</span>
+</code></pre></div>
+
+<h3 id="config">Config</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables_4">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">codenames</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="n">raw_dict</span>
+</code></pre></div>
+
+<h4 id="static-methods">Static methods</h4>
+<h4 id="get_filter">get_filter</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_filter</span><span class="p">(</span>
+    <span class="n">code_name</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_filter</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">code_name</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deep_get</span><span class="p">(</span><span class="n">cls</span><span class="p">.</span><span class="n">raw_dict</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="ss">&quot;global/AMIs/{code_name}&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">{}</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">str(v)</span><span class="o">]</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_x</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">}</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="load">load</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">load</span><span class="p">(</span>
+    <span class="n">file_name</span><span class="p">,</span>
+    <span class="n">configtype</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="err">@</span><span class="n">classmethod</span>
+
+    <span class="n">def</span> <span class="nb">load</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">configtype</span><span class="o">=</span><span class="n">None</span><span class="p">):</span>
+
+        <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">_f</span><span class="p">:</span>
+
+            <span class="n">try</span><span class="p">:</span>
+
+                <span class="n">cls</span><span class="o">.</span><span class="n">raw_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">_f</span><span class="p">)</span>
+
+            <span class="n">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+                <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;[{file_name}] - YAML Syntax Error!&quot;</span><span class="p">)</span>
+
+                <span class="c1"># pylint: disable=raise-missing-from</span>
+
+                <span class="n">raise</span> <span class="n">AMIUpdaterFatalException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="n">try</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">_x</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">raw_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AMIs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+                <span class="n">cls</span><span class="o">.</span><span class="n">codenames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">_x</span><span class="p">)</span>
+
+        <span class="n">except</span> <span class="n">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+
+                <span class="n">f</span><span class="s2">&quot;{configtype} config file [{file_name}]&quot;</span> <span class="n">f</span><span class="s2">&quot;is not structured properly!&quot;</span>
+
+            <span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{e}&quot;</span><span class="p">)</span>
+
+            <span class="c1"># pylint: disable=raise-missing-from</span>
+
+            <span class="n">raise</span> <span class="n">AMIUpdaterFatalException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+</code></pre></div>
+
+</details>
+<h4 id="update_filter">update_filter</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">update_filter</span><span class="p">(</span>
+    <span class="n">code_name</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">update_filter</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">code_name</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">cls</span><span class="p">.</span><span class="n">raw_dict</span><span class="o">[</span><span class="n">&quot;global&quot;</span><span class="o">][</span><span class="n">&quot;AMIs&quot;</span><span class="o">]</span><span class="p">.</span><span class="k">update</span><span class="p">(</span><span class="n">code_name</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h3 id="ec2filtervalue">EC2FilterValue</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">EC2FilterValue</span><span class="p">(</span>
+    <span class="n">Name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">Values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="regionalcodename">RegionalCodename</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">RegionalCodename</span><span class="p">(</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_ami</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="n">filters</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">factory</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">_creation_dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">factory</span><span class="o">&gt;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="class-variables_5">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">new_ami</span>
+</code></pre></div>
+
+<h3 id="template">Template</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Template</span><span class="p">(</span>
+    <span class="n">underlying</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">Template</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h4 id="methods_3">Methods</h4>
+<h4 id="set_codename_ami">set_codename_ami</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_codename_ami</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">cname</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">,</span>
+    <span class="n">new_ami</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">set_codename_ami</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">cname</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">new_ami</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">region_names</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="ss">&quot;{cname}/{region}&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">line_no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">region_codename_lineno</span><span class="o">[</span><span class="n">key</span><span class="o">][</span><span class="n">&quot;line&quot;</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">old_ami</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">region_codename_lineno</span><span class="o">[</span><span class="n">key</span><span class="o">][</span><span class="n">&quot;old&quot;</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">old_ami</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nl">new_ami</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
+
+<span class="w">        </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">old_ami</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;&quot;&quot;&#39;</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">new_ami</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="s1">&#39;&quot;{new_ami}&quot;&#39;</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">new_record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">re</span><span class="p">.</span><span class="n">sub</span><span class="p">(</span><span class="n">old_ami</span><span class="p">,</span><span class="w"> </span><span class="n">new_ami</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_ls</span><span class="o">[</span><span class="n">line_no</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_ls</span><span class="o">[</span><span class="n">line_no</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_record</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+</code></pre></div>
+
+</details>
+<h4 id="write">write</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    def write(self):
+
+        self.underlying.raw_template = &quot;\n&quot;.join(self._ls)
+
+        self.underlying.write()
+</code></pre></div>
+
+</details>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../docs/apidocs/taskcat/index.html" title="API" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                API
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="_cli_core.html" title="Cli Core" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                 Cli Core
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.82b56eb2.min.js"></script>
+      
+    
+  </body>
+</html>
