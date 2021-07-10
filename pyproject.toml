@@ -1,8 +1,8 @@
 [tool.portray.mkdocs.theme]
-favicon = "https://aws-ia.github.io/assets/img/logonav.png"
-logo = "https://raw.githubusercontent.com/aws-quickstart/taskcat/master/assets/docs/images/logo.png"
+favicon = "https://aws-ia.github.io/assets/img/aws-ia-taskcat.png"
+logo = "https://aws-ia.github.io/assets/img/logonav.png"
 name = "material"
-palette = {primary = "deep orange", accent = "orange"}
+palette = {primary = "black", accent = "orange"}
 
 
 [[tool.portray.mkdocs.nav]]
