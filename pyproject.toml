@@ -11,6 +11,6 @@ extra_css = ['docs/custom.css']
  Home = "README.md"
 
 [[tool.portray.mkdocs.nav]]
-Schema = "docs/schema/taskcat_schema.md"
+"Config Schema" = "docs/schema/taskcat_schema.md"
 
 
