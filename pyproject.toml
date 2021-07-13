@@ -13,7 +13,4 @@ extra_css = ['docs/custom.css']
 [[tool.portray.mkdocs.nav]]
 Schema = "docs/schema/taskcat_schema.md"
 
-[[tool.portray.mkdocs.nav]]
-API = "docs/apidocs/taskcat/index.html"
-
 
