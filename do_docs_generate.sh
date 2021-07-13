@@ -1,18 +1,15 @@
 # Clean up docs
-rm -rf docs; mkdir docs
+mkdir -p docs/apidocs
+mkdir -p docs/schema
 # Install docs tools
 pip install portray
 pip install pdocs
 
-# Create docs dir
-mkdir docs/schema
-mkdir docs/apidocs/
 # Gererate API docs
-pdocs as_html taskcat  -o docs/apidocs/
+portray as_html taskcat  -o docs/apidocs/ --overwrite
 
 # Generate taskcat schema docs
 python3 generate_schema.py
 python3 generate_config_docs.py  >docs/schema/taskcat_schema.md
 
 # Push to gh_pages
-portray on_github_pages --overwrite
