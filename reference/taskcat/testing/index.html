@@ -217,7 +217,7 @@
   
     <li class="md-nav__item">
       <a href="../../../docs/schema/taskcat_schema.html" class="md-nav__link">
-        Schema
+        Config Schema
       </a>
     </li>
   
@@ -895,7 +895,7 @@
 <h3 id="cfntest">CFNTest</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CFNTest</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">Config</span><span class="p">,</span>
-    <span class="n">printer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_tui</span><span class="o">.</span><span class="n">TerminalPrinter</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">printer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_tui</span><span class="o">.</span><span class="n">TerminalPrinter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">test_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span><span class="p">,</span>
     <span class="n">regions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span><span class="p">,</span>
     <span class="n">skip_upload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
