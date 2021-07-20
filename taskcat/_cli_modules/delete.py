@@ -20,18 +20,23 @@ class Delete:
         aws_profile: str = "default",
         region="ALL",
         no_verify: bool = False,
-        _stack_type="package",
+        type="package",
     ):
         """
-        :param package: installed package to delete, can be an install name or uuid
+        :param package: installed package to delete, can be an install name, uuid, or project name
         :param aws_profile: aws profile to use for deletion
         :param region: region(s) to delete from, by default, will delete all applicable
         stacks, supply a csv "us-east-1,us-west-1" to override this default
         :param no_verify: ignore region verification, delete will not error if an invalid
         region is detected
+        :param type: [package|project] scope to delete in, package deletes a singular installed package
+        and project deletes all packages in a project
         """
         LOG.warning("delete is in alpha feature, use with caution")
         boto3_cache = Boto3Cache()
+        if type not in ["package", "project"]:
+            LOG.error("type should be either \"package\" or \"project\"")
+            exit(1)
         if region == "default":
             regions = boto3_cache.get_default_region(aws_profile)
         elif region == "ALL":
@@ -57,12 +62,12 @@ class Delete:
                 "test_name": stack["taskcat-test-name"],
                 "taskcat_id": stack["taskcat-id"].hex,
                 "region": stack["region"],
-                "type": "package" if stack.get("taskcat-installer") else "test",
                 "stack_id": stack["stack-id"],
             }
-            if _stack_type == job["type"]:
-                if package in [job["name"], job["taskcat_id"], "ALL"]:
-                    jobs.append(job)
+            if type == "package" and package in [job["name"], job["taskcat_id"], "ALL"]:
+                jobs.append(job)
+            elif type == "project" and package in [job["project_name"], "ALL"]:
+                jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {
                 executor.submit(
