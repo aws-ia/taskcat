@@ -2,11 +2,14 @@
 import logging
 from io import BytesIO
 from pathlib import Path
+import boto3
 
 from dulwich import porcelain
 from dulwich.config import ConfigFile, parse_submodules
 from taskcat._cli_modules.test import Test
 from taskcat._name_generator import generate_name
+from taskcat._cfn.threaded import Stacker
+from taskcat.regions_to_partitions import REGIONS
 
 LOG = logging.getLogger(__name__)
 
@@ -17,7 +20,7 @@ class Deploy:
     PKG_CACHE_PATH = Path("~/.taskcat_package_cache/").expanduser().resolve()
 
     # pylint: disable=too-many-branches,too-many-locals
-    def __init__(  # noqa: C901
+    def run(  # noqa: C901
         self,
         package: str = "./",
         test_names: str = "ALL",
@@ -109,3 +112,44 @@ class Deploy:
                 )
                 LOG.debug(outp.getvalue().decode("utf-8"))
             self._recurse_submodules((path / sub_path), url)
+
+    def list(self, region: str = "ALL", project: str = "none", aws_profile="default", no_verify=False):
+        """
+        Lists identifiers for stacks deployed with taskcat deploy. Stacks deployed with taskcat test run -n
+        will not be listed with this command
+        :param region: names of regions from which to list the taskcat stacks' identifiers
+        :param project: name of projects from which to list the taskcat stacks' identifiers
+        :param no-verify: whether to verify supplied regions
+        """
+        if region == "ALL":
+            region_set: set = set()
+            region_set = region_set.union(
+                # pylint: disable=duplicate-code
+                set(
+                    boto3.Session(profile_name=aws_profile).get_available_regions(
+                        "cloudformation"
+                    )
+                )
+            )
+            regions = list(region_set)
+        elif isinstance(region, str):
+            regions = self._validate_regions(region) if not no_verify else region.split(",")
+        stacks = Stacker.list_stacks([aws_profile], regions)
+        LOG.info("Stacks:")
+        for stack in stacks:
+            job = {
+                "project_name": stack["taskcat-project-name"],
+                "stack_name": stack["stack-name"],
+                "taskcat_id": stack["taskcat-id"].hex,
+                "region": stack["region"],
+            }
+            LOG.info(job)
+
+    # Checks if all regions are valid
+    def _validate_regions(self, region_string):
+        regions = region_string.split(",")
+        for region in regions:
+            if region not in REGIONS:
+                LOG.error(f"Bad region detected: {region}")
+                exit(1)
+        return regions
