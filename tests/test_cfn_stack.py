@@ -3,8 +3,8 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from threading import Timer
+from unittest import mock
 
-import mock
 from taskcat import Config
 from taskcat._cfn.stack import (
     Event,
@@ -296,7 +296,7 @@ class TestStack(unittest.TestCase):
         # self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
         m_s3_url_maker.assert_called_once()
-        self.assertNotEquals(template, stack.template)
+        self.assertNotEqual(template, stack.template)
         mock_template.assert_called_once()
 
     @mock.patch(
@@ -316,7 +316,7 @@ class TestStack(unittest.TestCase):
         # self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
         m_s3_url_maker.assert_called_once()
-        self.assertNotEquals(template, stack.template)
+        self.assertNotEqual(template, stack.template)
         mock_template.assert_called_once()
         region.client.create_stack.assert_called_with(
             Capabilities=[

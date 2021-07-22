@@ -1,8 +1,8 @@
 import unittest
 import uuid
 from pathlib import Path
+from unittest import mock
 
-import mock
 from taskcat import Config
 from taskcat._cfn.threaded import Stacker
 
@@ -43,7 +43,10 @@ def get_tests(test_proj, _):
     return (
         c.config.project.name,
         c.get_tests(
-            templates=templates, regions=regions, buckets=buckets, parameters=params,
+            templates=templates,
+            regions=regions,
+            buckets=buckets,
+            parameters=params,
         ),
     )
 
