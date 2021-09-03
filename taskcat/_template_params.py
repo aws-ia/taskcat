@@ -213,7 +213,7 @@ class ParamGen:
         """
 
         regional_azs = self.get_available_azs(az_id)
-        return regional_azs.split(",")[-1]
+        return regional_azs.split(",")[-1]  # pylint: disable=use-maxsplit-arg
 
     def get_content(self, bucket, object_key):
         """
