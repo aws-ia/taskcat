@@ -75,8 +75,8 @@ class Test:
         config_yaml["tests"] = {"default": {}}
 
         with open(
-            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"
-        ) as filepointer:  # nosec
+            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"  # nosec
+        ) as filepointer:
             yaml.safe_dump(config_yaml, filepointer)
 
         if resource["PhysicalResourceId"]:
