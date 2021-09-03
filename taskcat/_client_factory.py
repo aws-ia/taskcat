@@ -187,7 +187,12 @@ class Boto3Cache:
 
     def get_default_region(self, profile_name="default") -> str:
         try:
-            region = self._boto3.session.Session(profile_name=profile_name).region_name
+            if profile_name != "default":
+                region = self._boto3.session.Session(
+                    profile_name=profile_name
+                ).region_name
+            else:
+                region = self._boto3.session.Session().region_name
         except ProfileNotFound:
             if profile_name != "default":
                 raise
