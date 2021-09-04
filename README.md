@@ -22,7 +22,7 @@ template. taskcat is implemented as a Python class that you import, instantiate,
 taskcat was developed by the AWS QuickStart team to test AWS CloudFormation templates
 that automatically deploy workloads on AWS. We’re pleased to make the tool available to
 all developers who want to validate their custom AWS CloudFormation templates across
-AWS Regions
+AWS Regions.
 
 > Note: taskcat has changed significantly in the 0.9.0 release, for details see
 >[Migrating from v0.8.x](#migrating-from-08x)
