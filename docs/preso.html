@@ -1,0 +1,1168 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://aws-ia.github.io/assets/img/aws-ia-taskcat.png">
+      <meta name="generator" content="mkdocs-1.2.1, mkdocs-material-7.1.10">
+    
+    
+      
+        <title>Preso - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1fe995fd.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#000000">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="custom.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-is-taskcat" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://aws-ia.github.io/assets/img/logonav.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Preso
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://aws-ia.github.io/assets/img/logonav.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-quickstart/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="INSTALLATION.md" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        Usage
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Usage" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Usage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/GENERAL_USAGE.html" class="md-nav__link">
+        General Usage
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/PARAMETER_OVERRIDES.html" class="md-nav__link">
+        Parameter Overrides
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="usage/PSUEDO_PARAMETERS.html" class="md-nav__link">
+        Psuedo Parameters
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="schema/taskcat_schema.html" class="md-nav__link">
+        Configuration Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      <label class="md-nav__link" for="__nav_5">
+        Administrative
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Administrative" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Administrative
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="administrative/CODE_OF_CONDUCT.html" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="administrative/CONTRIBUTING.html" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      <label class="md-nav__link" for="__nav_6">
+        Reference
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat_plugin_testhook.html" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2" type="checkbox" id="__nav_6_2" >
+      
+      <label class="md-nav__link" for="__nav_6_2">
+        Taskcat
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/exceptions.html" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/regions_to_partitions.html" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_4" type="checkbox" id="__nav_6_2_4" >
+      
+      <label class="md-nav__link" for="__nav_6_2_4">
+         Cfn
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_4">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cfn/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cfn/stack.html" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cfn/stack_url_helper.html" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cfn/template.html" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cfn/threaded.html" class="md-nav__link">
+        Threaded
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_5" type="checkbox" id="__nav_6_2_5" >
+      
+      <label class="md-nav__link" for="__nav_6_2_5">
+         Cli Modules
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/delete.html" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/deploy.html" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/lint.html" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/list.html" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/package.html" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/test.html" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/update_ami.html" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/_cli_modules/upload.html" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_6" type="checkbox" id="__nav_6_2_6" >
+      
+      <label class="md-nav__link" for="__nav_6_2_6">
+        Testing
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_6">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/testing/base_test.html" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/taskcat/testing/index.html" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-taskcat" class="md-nav__link">
+    What is taskcat?
+  </a>
+  
+    <nav class="md-nav" aria-label="What is taskcat?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli" class="md-nav__link">
+    CLI
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-help-to-see-the-supported-flags-and-arguments" class="md-nav__link">
+    add --help to see the supported flags and arguments
+  </a>
+  
+    <nav class="md-nav" aria-label="add --help to see the supported flags and arguments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    Python
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-files" class="md-nav__link">
+    Config files
+  </a>
+  
+    <nav class="md-nav" aria-label="Config files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#global-config" class="md-nav__link">
+    Global config
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-config" class="md-nav__link">
+    Project config
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project_roottaskcatyml-provides-project-specific-configuration-please-see-our-schema-reference-for-specific-configuration-options-that-are-available" class="md-nav__link">
+    &lt;PROJECT_ROOT&gt;/.taskcat.yml provides project specific configuration. Please see our schema reference for specific configuration options that are available.
+  </a>
+  
+    <nav class="md-nav" aria-label="&lt;PROJECT_ROOT&gt;/.taskcat.yml provides project specific configuration. Please see our schema reference for specific configuration options that are available.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#precedence" class="md-nav__link">
+    Precedence
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-overrides" class="md-nav__link">
+    Parameter overrides
+  </a>
+  
+    <nav class="md-nav" aria-label="Parameter overrides">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#to-at-runtime-passed-to-cloudformation-api" class="md-nav__link">
+    To: (At runtime passed to cloudformation API)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#questions" class="md-nav__link">
+    Questions?
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thanks" class="md-nav__link">
+    Thanks!
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-quickstart/taskcat/edit/main/docs/preso.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                  <h1>Preso</h1>
+                
+                <h2 id="what-is-taskcat">What is taskcat?</h2>
+<p><strong>taskcat</strong> is a tool that tests AWS CloudFormation templates. It deploys your AWS
+CloudFormation template in multiple AWS Regions and generates a report with a pass/fail
+grade for each region. You can specify the regions and number of Availability Zones you
+want to include in the test, and pass in parameter values from your AWS CloudFormation
+template. taskcat is implemented as a Python class that you import, instantiate, and run.</p>
+<p>taskcat was developed by the aws-ia team to test AWS CloudFormation templates
+that automatically deploy workloads on AWS. We’re pleased to make the tool available to
+all developers who want to validate their custom AWS CloudFormation templates across
+AWS Regions</p>
+<hr />
+<h3 id="cli">CLI</h3>
+<p>The cli is self documenting by using <code>--help</code>. The most common use of taskcat is for
+executing function tests of CloudFormation templates. The command for this is:</p>
+<div class="codehilite"><pre><span></span><code>taskcat <span class="nb">test</span> run
+</code></pre></div>
+
+<h2 id="add-help-to-see-the-supported-flags-and-arguments">add <code>--help to see the supported flags and arguments</code></h2>
+<div class="codehilite"><pre><span></span><code>optional arguments:
+  -h, --help          show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  -v, --version       show program<span class="err">&#39;</span>s version number and <span class="nb">exit</span>
+  -q, --quiet         reduce output to the minimum
+  -d, --debug         adds debug output and tracebacks
+  --profile _PROFILE  <span class="nb">set</span> the default profile used.
+
+commands:
+  delete - <span class="o">[</span>ALPHA<span class="o">]</span> Deletes an installed package <span class="k">in</span> an AWS account/region
+  deploy - <span class="o">[</span>ALPHA<span class="o">]</span> installs a stack into an AWS account/region
+  lint - checks CloudFormation templates <span class="k">for</span> issues using cfn-python-lint
+  list - <span class="o">[</span>ALPHA<span class="o">]</span> lists taskcat <span class="nb">jobs</span> with active stacks
+  package - packages lambda <span class="nb">source</span> files into zip files. If a dockerfile is present <span class="k">in</span> asource folder, it will be run prior to zipping the contents
+  <span class="nb">test</span> - Performs functional tests on CloudFormation templates.
+  update-ami - Updates AMI IDs within CloudFormation templates
+  upload - Uploads project to S3.
+</code></pre></div>
+
+<h3 id="python">Python</h3>
+<p>Taskcat can be imported into Python and used in the testing framework of your choice.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">taskcat.testing</span> <span class="kn">import</span> <span class="n">CFNTest</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">CFNTest</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">project_root</span><span class="o">=</span><span class="s1">&#39;./template_dir&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">test</span> <span class="k">as</span> <span class="n">stacks</span><span class="p">:</span>
+    <span class="c1"># Calling &#39;with&#39; or &#39;test.run()&#39; will deploy the stacks.</span>
+    <span class="k">for</span> <span class="n">stack</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Testing </span><span class="si">{</span><span class="n">stack</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">bucket_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">stack</span><span class="o">.</span><span class="n">outputs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;LogsBucketName&quot;</span><span class="p">:</span>
+                <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">break</span>
+        <span class="k">assert</span> <span class="s2">&quot;logs&quot;</span> <span class="ow">in</span> <span class="n">bucket_name</span>
+        <span class="k">assert</span> <span class="n">stack</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">bucket_name</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created bucket: </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="config-files">Config files</h3>
+<p>taskcat has several configuration files which can be used to set behaviors in a flexible way.</p>
+<h4 id="global-config">Global config</h4>
+<p><code>~/.taskcat.yml</code> provides global settings that become defaults for all projects. Please see our <a href="docs/schema/taskcat_schema.html">schema reference</a> for specific configuration options that are available.</p>
+<h4 id="project-config">Project config</h4>
+<h2 id="project_roottaskcatyml-provides-project-specific-configuration-please-see-our-schema-reference-for-specific-configuration-options-that-are-available"><code>&lt;PROJECT_ROOT&gt;/.taskcat.yml</code> provides project specific configuration. Please see our <a href="docs/schema/taskcat_schema.html">schema reference</a> for specific configuration options that are available.</h2>
+<h4 id="precedence">Precedence</h4>
+<p><code>~/.taskcat.yml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">general</span><span class="p">:</span>
+  <span class="nt">s3_bucket</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-globally-defined-bucket</span>
+  <span class="nt">parameters</span><span class="p">:</span>
+    <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-global-ec2-keypair</span>
+</code></pre></div>
+
+<hr />
+<p>Given a simple project config:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">project</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-project</span>
+  <span class="nt">regions</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">us-east-2</span>
+<span class="nt">tests</span><span class="p">:</span>
+  <span class="nt">default</span><span class="p">:</span>
+    <span class="nt">template</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">./template.yaml</span>
+</code></pre></div>
+
+<hr />
+<p>The effective test configuration would become:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">tests</span><span class="p">:</span>
+  <span class="nt">default</span><span class="p">:</span>
+    <span class="nt">template</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">./template.yaml</span>
+    <span class="nt">s3_bucket</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-globally-defined-bucket</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-global-ec2-keypair</span>
+</code></pre></div>
+
+<p>If any item is re-defined in a project it takes precedence over the global value.
+Anything defined in a test takes precedence over what is defined in the project or
+global configuration. with the <strong>exception</strong> of the <code>parameters</code> section which works in
+reverse. For example, using the same global config as above, given this project config:</p>
+<p>--</p>
+<h3 id="parameter-overrides">Parameter overrides</h3>
+<p>Parameter Overrides were added to the taskcat to solve a couple of common problems. First, many 
+templates share common parameters that are unique to an AWS account, like a KeyPair name 
+or an S3 Bucket, overrides provided a way to store those centrally for all your projects. 
+Second, we didn't want to add sensitive data (usernames, passwords, tokens) to a git 
+repository. The idea was to store sensitive/unique data outside of a git repository, but still 
+execute a test using this data. To that end, <em>any parameter defined in the global config 
+will take precedence over the same parameter in a project-level config</em>. 
+--</p>
+<table>
+<thead>
+<tr>
+<th>Psuedo-Parameter</th>
+<th>Example Value passed to the CloudFormation stack</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$[taskcat_autobucket]</code></td>
+<td>taskcat-tag-sample-taskcat-project-5fba6597</td>
+<td><em>Note: The S3 Bucket is created</em></td>
+</tr>
+<tr>
+<td><code>$[taskcat_genaz_1]</code></td>
+<td>"us-east-1a"</td>
+<td>Fetches a single  Availability Zone within the region being launched in</td>
+</tr>
+<tr>
+<td><code>$[taskcat_genaz_2]</code></td>
+<td>"us-east-1a,us-east-1b"</td>
+<td>Fetches two AvailabilityZones within the region being launched in</td>
+</tr>
+<tr>
+<td><code>$[taskcat_genaz_3]</code></td>
+<td>"us-east-1a,us-east-1b,us-east-1c"</td>
+<td>Fetches three AvailabilityZones within the region being launched in</td>
+</tr>
+<tr>
+<td><code>$[taskcat_genpass_8A]</code></td>
+<td>tI8zN3iX8</td>
+<td>An alphanumberic 8-charater random password. The length is customizable.</td>
+</tr>
+<tr>
+<td><code>$[taskcat_genpass_8S]</code></td>
+<td>mA5@cB5!</td>
+<td>An alphanumberic 8-charater random password. The length is customizable.</td>
+</tr>
+<tr>
+<td><code>$[taskcat_random-string]</code></td>
+<td>yysuawpwubvotiqgwjcu</td>
+<td>Generates a random string</td>
+</tr>
+<tr>
+<td><code>$[taskcat_random-numbers]</code></td>
+<td>56188163597280820763</td>
+<td>Generates random numbers.</td>
+</tr>
+<tr>
+<td><code>$[taskcat_genuuid]</code></td>
+<td>1c2e3483-2c99-45bb-801d-8af68a3b907b</td>
+<td>Generates a UUID</td>
+</tr>
+<tr>
+<td><code>$[taskcat_getval_MyAppPassword]</code></td>
+<td><em>Dynamically generated password for the MyAppPassword parameter</em></td>
+<td>Retreives another parameter value.</td>
+</tr>
+<tr>
+<td>$[taskcat_current_region]</td>
+<td>"us-east-2"</td>
+<td>Region the test is being prepared for</td>
+</tr>
+<tr>
+<td>$[taskcat_project_name]</td>
+<td>"my-example-project"</td>
+<td>Name of the project being tested</td>
+</tr>
+<tr>
+<td>$[taskcat_test_name]</td>
+<td>"cluster-with-windows-ad"</td>
+<td>Name of the test being tested</td>
+</tr>
+<tr>
+<td>$[taskcat_ssm_/path/to/ssm/parameter]</td>
+<td><em>SSM Parameter Value</em></td>
+<td>Retreives values from SSM</td>
+</tr>
+<tr>
+<td>$[taskcat_secretsmanager_SecretNameOrARN]</td>
+<td><em>Value from SecretsManager</em></td>
+<td>Retreives a secret value from SecretsManager given an name or ARN</td>
+</tr>
+<tr>
+<td>---</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>#### From: (defined in taskcat.yaml')</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="codehilite"><pre><span></span><code><span class="w">     </span><span class="nl">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">small</span><span class="w"></span>
+<span class="w">     </span><span class="nl">AvailablityZones</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genaz_2</span><span class="o">]</span><span class="w"></span>
+<span class="w">     </span><span class="nl">RandomString</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_random-string</span><span class="o">]</span><span class="w"></span>
+<span class="w">     </span><span class="nl">RandomNumbers</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_random-numbers</span><span class="o">]</span><span class="w"></span>
+<span class="w">     </span><span class="nl">GenerateUUID</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genuuid</span><span class="o">]</span><span class="w"></span>
+<span class="w">     </span><span class="nl">Password</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genpass_8A</span><span class="o">]</span><span class="w"></span>
+<span class="w">     </span><span class="nl">PasswordConfirm</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_getval_Password</span><span class="o">]</span><span class="w"></span>
+</code></pre></div>
+
+<hr />
+<h4 id="to-at-runtime-passed-to-cloudformation-api">To: (At runtime passed to cloudformation API)</h4>
+<div class="codehilite"><pre><span></span><code>     InstanceType: t2.small
+     AvailablityZones: us-east-1a: us-east1b
+     RandomString: yysuawpwubvotiqgwjcu
+     RandomNumbers: 56188163597280820763
+     GenerateUUID: 1c2e3483-2c99-45bb-801d-8af68a3b907b
+     Password: tI8zN3iX8
+     PasswordConfirm: tI8zN3iX8
+</code></pre></div>
+
+<hr />
+<h2 id="questions">Questions?</h2>
+<h2 id="thanks">Thanks!</h2>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+    
+  </body>
+</html>
