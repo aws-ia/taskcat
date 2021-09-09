@@ -33,7 +33,9 @@ AWS Regions
 
 ## Installation
 
-Currently only installation via pip is supported. Installation via docker coming soon.
+Currently only installation via pip is supported. 
+
+See also [Install and configure TaskCat on Microsoft Windows 10](https://aws.amazon.com/blogs/infrastructure-and-automation/install-and-configure-taskcat-on-microsoft-windows-10/). Installation via docker coming soon.
 
 ### Requirements
 ![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg)
