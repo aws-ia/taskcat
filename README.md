@@ -33,9 +33,7 @@ AWS Regions
 
 ## Installation
 
-Currently only installation via pip is supported. 
-
-See also [Install and configure TaskCat on Microsoft Windows 10](https://aws.amazon.com/blogs/infrastructure-and-automation/install-and-configure-taskcat-on-microsoft-windows-10/). Installation via docker coming soon.
+Only installation via pip is supported.
 
 ### Requirements
 ![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg)
@@ -79,7 +77,7 @@ pip3 install taskcat --user
 ### Windows
 taskcat on Windows is **not supported**.
 
-If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps above.
+If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment. For details, see [Install and configure TaskCat on Microsoft Windows 10](https://aws.amazon.com/blogs/infrastructure-and-automation/install-and-configure-taskcat-on-microsoft-windows-10/). 
 
 ## Usage
 
