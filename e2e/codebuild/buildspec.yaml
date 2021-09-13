@@ -4,8 +4,8 @@ phases:
   install:
     commands:
       - cd /
-      - install.sh 3.7.4 3.6.9
+      - install.sh 3.7.4
   build:
     commands:
       - cd /${PR_REPO_NAME}
-      - dockerd-entrypoint.sh run-e2e.sh 3.7.4 3.6.9
+      - dockerd-entrypoint.sh run-e2e.sh 3.7.4
