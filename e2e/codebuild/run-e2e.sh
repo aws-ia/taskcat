@@ -6,6 +6,7 @@ COV_CMD="coverage run -a --source ${SOURCE} --omit ${OMIT}"
 BIN="../../bin/taskcat"
 
 eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
 cd e2e/tests/
 
 if [[ -f .coverage ]] ; then rm .coverage ; fi
