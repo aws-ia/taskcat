@@ -56,6 +56,9 @@ class LambdaBuild:
         if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
+            if path.is_file():
+                LOG.warning(f"{path} is a file, not a directory, cannot package...")
+                continue
             if (path / "Dockerfile").is_file():
                 tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
                 LOG.info(

@@ -105,7 +105,7 @@ class FilesystemService:
         Given the generated content and a destination path, it will
         write that content to a file in that path.
         """
-        with open(destination_path, "w") as file_handle:
+        with open(destination_path, "w", encoding="utf-8") as file_handle:
             file_handle.write(content)
 
     @staticmethod
@@ -115,7 +115,7 @@ class FilesystemService:
         Template object that responds to `render` method taking
         the template parameters
         """
-        with open(template_path) as file_handle:
+        with open(template_path, encoding="utf-8") as file_handle:
             return Template(file_handle.read())
 
     @staticmethod

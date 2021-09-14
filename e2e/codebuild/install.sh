@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 git clone https://github.com/${PR_GITHUB_ORG}/${PR_REPO_NAME}.git
 cd ${PR_REPO_NAME}
