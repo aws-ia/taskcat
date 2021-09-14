@@ -43,7 +43,7 @@ jobs:
       curl "https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-${HUB_DIST}-${HUB_VERSION}.tgz" -L | tar xvz && sudo ./hub-${HUB_DIST}-${HUB_VERSION}/install && rm -r ./hub-${HUB_DIST}-${HUB_VERSION}
     - mkdir -p ~/.config/taskcat
     - |
-      echo -e "github.com:\n- user: taskcat-ci\n  oauth_token: ${GHT}\n  protocol: https" > ~/.config/hub
+      echo -e "github.com:\n- user: aws-ia-ci\n  oauth_token: ${GHT}\n  protocol: https" > ~/.config/hub
     script:
       - export RELEASE_ID=$(cut -f1-2 -d . VERSION)
       - export ORIGINAL_VERSION=$(cat VERSION)
