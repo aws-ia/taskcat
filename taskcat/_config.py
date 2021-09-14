@@ -105,7 +105,7 @@ class Config:
         )
         if overrides_path.is_file():
             overrides = BaseConfig().to_dict()
-            with open(str(overrides_path), "r") as file_handle:
+            with open(str(overrides_path), "r", encoding="utf-8") as file_handle:
                 override_params = yaml.safe_load(file_handle)
             overrides["project"]["parameters"] = override_params
             sources.append({"source": str(overrides_path), "config": overrides})
@@ -151,7 +151,7 @@ class Config:
         if not file_path.is_file() and fail_ok:
             return config_dict
         try:
-            with open(str(file_path), "r") as file_handle:
+            with open(str(file_path), "r", encoding="utf-8") as file_handle:
                 config_dict = yaml.safe_load(file_handle)
             return config_dict
         except Exception as e:  # pylint: disable=broad-except

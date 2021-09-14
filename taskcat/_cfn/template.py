@@ -57,7 +57,7 @@ class Template:
         self.template_cache = template_cache
         self.template_path: Path = Path(template_path).expanduser().resolve()
         self.template = self.template_cache.get(str(self.template_path))
-        with open(template_path, "r") as file_handle:
+        with open(template_path, "r", encoding="utf-8") as file_handle:
             self.raw_template = file_handle.read()
         project_root = (
             project_root if project_root else self.template_path.parent.parent
@@ -90,7 +90,7 @@ class Template:
     def write(self):
         """writes raw_template back to file, and reloads decoded template, useful if
         the template has been modified"""
-        with open(str(self.template_path), "w") as file_handle:
+        with open(str(self.template_path), "w", encoding="utf-8") as file_handle:
             file_handle.write(self.raw_template)
         self.template = cfnlint.decode.cfn_yaml.load(self.template_path)
         self._find_children()
