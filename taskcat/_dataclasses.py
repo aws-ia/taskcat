@@ -4,7 +4,7 @@ import random
 import string
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, NewType, Optional, Union
+from typing import Any, Dict, List, Mapping, NewType, Optional, Union
 from uuid import UUID, uuid5
 
 import boto3
@@ -19,26 +19,26 @@ LOG = logging.getLogger(__name__)
 
 # property descriptions
 
-METADATA = {
+METADATA: Mapping[str, Mapping[str, Any]] = {
     "project__name": {
         "description": "Project name, used as s3 key prefix when " "uploading objects",
-        "examples": ["my-project-name"]
+        "examples": ["my-project-name"],
     },
     "auth": {
         "description": "AWS authentication section",
-        "examples":[
+        "examples": [
             {
-                    "default":"my-default-profile",
-                    "us-east-2":"specific-profile-for-us-east-2",
-                    "cn-northwest-1": "china-profile"
+                "default": "my-default-profile",
+                "us-east-2": "specific-profile-for-us-east-2",
+                "cn-northwest-1": "china-profile",
             }
-        ]},
+        ],
+    },
     "project__owner": {
         "description": "email address for project owner (not used at present)",
-        "examples":["Bob.Slydell@example.com"]
+        "examples": ["Bob.Slydell@example.com"],
     },
-    "regions": {
-        "description": "List of AWS regions"},
+    "regions": {"description": "List of AWS regions"},
     "az_ids": {
         "description": "List of Availablilty Zones ID's to exclude when generating "
         "availability zones",
@@ -46,27 +46,27 @@ METADATA = {
     "package_lambda": {
         "description": "Package Lambda functions into zips before uploading to s3, "
         "set to false to disable",
-        "examples":[True, False]
+        "examples": [True, False],
     },
     "s3_regional_buckets": {
         "description": "Enable regional auto-buckets.",
-        "examples":[True, False]},
+        "examples": [True, False],
+    },
     "lambda_zip_path": {
-        "description": "Path relative to the project root to place Lambda zip "
-        "files",
-        "default":"lambda_functions/zips",
-        "examples":["functions/packages"]
+        "description": "Path relative to the project root to place Lambda zip " "files",
+        "default": "lambda_functions/zips",
+        "examples": ["functions/packages"],
     },
     "lambda_source_path": {
         "description": "Path relative to the project root containing Lambda zip "
         "files, default is 'lambda_functions/source'",
-        "default":"lambda_functions/source",
-        "examples":["functions/source"]
+        "default": "lambda_functions/source",
+        "examples": ["functions/source"],
     },
     "s3_bucket": {
         "description": "Name of S3 bucket to upload project to, if left out "
         "a bucket will be auto-generated",
-        "examples":["my-s3-bucket-name"]
+        "examples": ["my-s3-bucket-name"],
     },
     "parameters": {
         "description": "Parameter key-values to pass to CloudFormation, "
@@ -76,24 +76,21 @@ METADATA = {
         "description": "Build Lambda zips recursively for submodules, "
         "set to false to disable",
         "default": True,
-        "examples":[True, False]
+        "examples": [True, False],
     },
     "template": {
         "description": "path to template file relative to the project "
         "config file path",
-        "examples":["cloudformation_templates/"]
+        "examples": ["cloudformation_templates/"],
     },
     "tags": {
-            "description": "Tags to apply to CloudFormation template",
-            "examples":[{
-                "CostCenter": "1001"
-            }]
-        },
+        "description": "Tags to apply to CloudFormation template",
+        "examples": [{"CostCenter": "1001"}],
+    },
     "enable_sig_v2": {
         "description": "Enable (deprecated) sigv2 access to auto-generated buckets",
         "default": False,
-        "examples":[True, False]
-
+        "examples": [True, False],
     },
     "s3_object_acl": {
         "description": "ACL for uploaded s3 objects",
@@ -102,7 +99,7 @@ METADATA = {
     "shorten_stack_name": {
         "description": "Shorten stack names generated for tests, set to true to enable",
         "default": False,
-        "examples":[True, False]
+        "examples": [True, False],
     },
     "role_name": {"description": "Role name to use when launching CFN Stacks."},
     "stack_name": {"description": "Cloudformation Stack Name"},
@@ -139,11 +136,7 @@ class ParameterKeyField(FieldEncoder):
             "pattern": r"[a-zA-Z0-9]*^$",
             "Description": "CloudFormation parameter name, can contain letters and "
             "numbers only",
-            "examples":[
-                "ExtremaFajitas",
-                "PizzaShooters",
-                "ShrimpPoppers"
-            ]
+            "examples": ["ExtremaFajitas", "PizzaShooters", "ShrimpPoppers"],
         }
 
 
@@ -158,7 +151,7 @@ class RegionField(FieldEncoder):
             "pattern": r"^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|"
             r"west|southeast|southwest|northeast|northwest)-[0-9]$",
             "description": "AWS Region name",
-            "examples":["us-east-1"]
+            "examples": ["us-east-1"],
         }
 
 
@@ -170,7 +163,7 @@ class S3AclField(FieldEncoder):
     def json_schema(self):
         return {
             "type": "string",
-            "default":"private",
+            "default": "private",
             "pattern": r"^("
             r"bucket-owner-full-control|"
             r"bucket-owner-read|"
@@ -182,10 +175,7 @@ class S3AclField(FieldEncoder):
             "description": "Must be a valid S3 ACL (private, public-read, "
             "aws-exec-read, public-read-write, authenticated-read, "
             "bucket-owner-read, bucket-owner-full-control)",
-            "examples":[
-                "bucket-owner-read",
-                "private"
-            ]
+            "examples": ["bucket-owner-read", "private"],
         }
 
 
@@ -213,10 +203,7 @@ class AzIdField(FieldEncoder):
             "pattern": r"^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)"
             r"[0-9]-az[0-9]|usw2-lax1-az(1|2))$",
             "description": "Availability Zone ID, eg.: 'use1-az1'",
-            "examples":[
-                "usw2-laz1-az1",
-                "use2-az2"
-            ],
+            "examples": ["usw2-laz1-az1", "use2-az2"],
         }
 
 

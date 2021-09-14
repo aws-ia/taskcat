@@ -39,4 +39,3 @@ Installation = "docs/INSTALLATION.md"
 #
 # [[tool.portray.mkdocs.nav]]
 # Usage = "docs/usage/"
-

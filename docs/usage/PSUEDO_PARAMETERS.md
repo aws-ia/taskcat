@@ -41,4 +41,3 @@ Following table describes the supported **psuedo-parameters**.
      Password: tI8zN3iX8
      PasswordConfirm: tI8zN3iX8
 ```
-
