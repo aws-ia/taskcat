@@ -229,7 +229,10 @@ class Stacker:
             if client not in stacks_by_client:
                 stacks_by_client[client] = {"Client": client, "Stacks": []}
             stacks_by_client[client]["Stacks"].append(stack)
-        return [stacks_by_client[r] for r in stacks_by_client]
+        return [
+            stacks_by_client[r]
+            for r in stacks_by_client  # pylint: disable=consider-using-dict-items
+        ]
 
     @staticmethod
     def list_stacks(profiles, regions):

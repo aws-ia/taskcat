@@ -32,7 +32,7 @@ class Config:
 
     @classmethod
     def load(cls, file_name, configtype=None):
-        with open(file_name, "r") as _f:
+        with open(file_name, "r", encoding="utf-8") as _f:
             try:
                 cls.raw_dict = yaml.safe_load(_f)
             except yaml.YAMLError as e:

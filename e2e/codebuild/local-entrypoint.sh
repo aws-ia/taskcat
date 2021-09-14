@@ -24,11 +24,11 @@ done
 
 eval "$(pyenv init -)"
 
-for ver in "3.7.4" "3.6.9" ; do
+for ver in "3.7.4"; do
     pyenv shell ${ver}
-    pip install --upgrade pip > /dev/null 2> /dev/null
-    pip install -r ./dev-requirements.txt > /dev/null
-    pip install -e . > /dev/null
+    $(pyenv which pip) install --upgrade pip > /dev/null 2> /dev/null
+    $(pyenv which pip) install -r ./dev-requirements.txt > /dev/null
+    $(pyenv which pip) install -e . > /dev/null
 done
 
-run-e2e.sh 3.7.4 3.6.9
+run-e2e.sh 3.7.4

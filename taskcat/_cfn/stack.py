@@ -379,7 +379,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 if not isinstance(tempate_body, str):
                     tempate_body = ordered_dump(tempate_body, dumper=yaml.SafeDumper)
                 if not absolute_path.exists():
-                    with open(absolute_path, "w") as fh:
+                    with open(absolute_path, "w", encoding="utf-8") as fh:
                         fh.write(tempate_body)
             template = Template(
                 template_path=str(absolute_path),

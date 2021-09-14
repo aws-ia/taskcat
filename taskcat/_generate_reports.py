@@ -146,6 +146,6 @@ class ReportBuilder:
             html_output = yattag.indent(
                 doc.getvalue(), indentation="    ", newline="\r\n", indent_text=True
             )
-            with open(str(self._output_file.resolve()), "w") as _f:
+            with open(str(self._output_file.resolve()), "w", encoding="utf-8") as _f:
                 _f.write(html_output)
             return html_output

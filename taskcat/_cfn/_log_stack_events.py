@@ -67,7 +67,7 @@ class _CfnLogTools:
             else:
                 reason = "Stack launch was successful"
 
-            with open(str(logpath), "a") as log_output:
+            with open(str(logpath), "a", encoding="utf-8") as log_output:
                 log_output.write(
                     "------------------------------------------------------------------"
                     "-----------\n"

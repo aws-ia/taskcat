@@ -64,7 +64,7 @@ class Test:
         resource = [i for i in events if i["LogicalResourceId"] == resource_name][0]
         properties = yaml.safe_load(resource["ResourceProperties"])
 
-        with open(str(input_file_path), "r") as filepointer:
+        with open(str(input_file_path), "r", encoding="utf-8") as filepointer:
             config_yaml = yaml.safe_load(filepointer)
 
         config_yaml["project"]["regions"] = [region]
@@ -74,7 +74,9 @@ class Test:
         )
         config_yaml["tests"] = {"default": {}}
 
-        with open("/tmp/.taskcat.yml.temp", "w") as filepointer:  # nosec
+        with open(
+            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"  # nosec
+        ) as filepointer:
             yaml.safe_dump(config_yaml, filepointer)
 
         if resource["PhysicalResourceId"]:
