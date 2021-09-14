@@ -11,7 +11,13 @@ with open("VERSION", "r", encoding="utf-8") as fh:
 setup(
     version=VERSION,
     name="taskcat",
-    packages=["taskcat", "taskcat._cfn", "taskcat._cli_modules", "taskcat.testing"],
+    packages=[
+        "taskcat",
+        "taskcat._cfn",
+        "taskcat._cli_modules",
+        "taskcat.testing",
+        "taskcat_plugin_testhook",
+    ],
     description="An OpenSource Cloudformation Deployment Framework",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
@@ -26,7 +32,6 @@ setup(
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Topic :: Software Development :: Libraries",

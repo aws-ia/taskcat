@@ -14,7 +14,6 @@ branches:
   - main
 
 python:
-  - "3.6"
   - "3.7"
   - "3.8"
 before_install:
@@ -139,3 +138,7 @@ jobs:
           condition: $RELEASE_THE_KRAKEN = true
      
   # Add Docker provider
+cache:
+  directories:
+  - $HOME/.cache/pip
+  - $HOME/.cache/pre-commit

@@ -36,7 +36,7 @@ resource_template = {
 
 
 class TestCriteriaMatcher(unittest.TestCase):
-    def test_criteria_matches(self):
+    def test_dictionary(self):
         with self.assertRaises(ValueError) as cm:
             tag = Tag({"Key": "my_key", "Value": "my_value"})
             criteria_matches({"invalid": "blah"}, tag)
@@ -52,6 +52,24 @@ class TestCriteriaMatcher(unittest.TestCase):
         actual = criteria_matches({"key": "my_key", "value": "blah"}, tag)
         self.assertEqual(actual, False)
         actual = criteria_matches({"key": "my_key", "value": "my_value"}, tag)
+        self.assertEqual(actual, True)
+
+    def test_class(self):
+        class foo:
+            def __init__(self) -> None:
+                self.instance_attr = "TestInstance"
+                self._property_attr = "TestProperty"
+
+            @property
+            def property_attr(self):
+                return self._property_attr
+
+        item = foo()
+
+        actual = criteria_matches({"instance_attr": "TestInstance"}, item)
+        self.assertEqual(actual, True)
+
+        actual = criteria_matches({"property_attr": "TestProperty"}, item)
         self.assertEqual(actual, True)
 
 
@@ -278,7 +296,7 @@ class TestStack(unittest.TestCase):
         # self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
         m_s3_url_maker.assert_called_once()
-        self.assertNotEquals(template, stack.template)
+        self.assertNotEqual(template, stack.template)
         mock_template.assert_called_once()
 
     @mock.patch(
@@ -298,7 +316,7 @@ class TestStack(unittest.TestCase):
         # self.assertEqual(stack._timer.is_alive(), True)
         stack._timer.cancel()
         m_s3_url_maker.assert_called_once()
-        self.assertNotEquals(template, stack.template)
+        self.assertNotEqual(template, stack.template)
         mock_template.assert_called_once()
         region.client.create_stack.assert_called_with(
             Capabilities=[

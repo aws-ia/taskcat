@@ -14,6 +14,13 @@ from taskcat._common_utils import exit_with_code
 LOG = logging.getLogger(__name__)
 
 
+class CustomParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write("error: %s\n" % message)
+        self.print_help()
+        sys.exit(2)
+
+
 def _get_log_level(args, exit_func=exit_with_code):
     log_level = "INFO"
     if ("-d" in args or "--debug" in args) and ("-q" in args or "--quiet" in args):
@@ -198,7 +205,7 @@ class CliCore:
         return sub
 
     def _build_parser(self, description, version):
-        parser = argparse.ArgumentParser(
+        parser = CustomParser(
             description=description,
             usage=self._build_usage(),
             formatter_class=argparse.RawDescriptionHelpFormatter,

@@ -35,10 +35,10 @@ RUN curl -L \
         https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | \
         bash && \
     eval "$(pyenv init -)" && \
+    export PATH="$HOME/.pyenv/bin:$PATH" && \
     pyenv install 3.7.4 && \
-    pyenv install 3.6.9 && \
     pyenv global 3.7.4 && \
-    pip --no-cache-dir install boto3 "PyGithub>=1.43.8"
+    $(pyenv which pip) --no-cache-dir install boto3 "PyGithub>=1.43.8"
 
 COPY install.sh /usr/local/bin/
 COPY run-e2e.sh /usr/local/bin/

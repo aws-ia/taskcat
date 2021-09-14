@@ -14,6 +14,7 @@ from taskcat._s3_stage import stage_in_s3
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
 
+from ._hooks import execute_hooks
 from .base_test import BaseTest
 
 LOG = logging.getLogger(__name__)
@@ -102,10 +103,12 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             stage_in_s3(
                 buckets, self.config.config.project.name, self.config.project_root
             )
-
         regions = self.config.get_regions(boto3_cache)
         parameters = self.config.get_rendered_parameters(buckets, regions, templates)
         tests = self.config.get_tests(templates, regions, buckets, parameters)
+
+        # pre-hooks
+        execute_hooks("prehooks", self.config, tests, parameters)
 
         self.test_definition = Stacker(
             self.config.config.project.name,
@@ -113,6 +116,10 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             shorten_stack_name=self.config.config.project.shorten_stack_name,
         )
         self.test_definition.create_stacks()
+
+        # post-hooks
+        # TODO: pass in outputs, once there is a standard interface for a test_definition
+        execute_hooks("posthooks", self.config, tests, parameters)
 
         self.printer.report_test_progress(stacker=self.test_definition)
 

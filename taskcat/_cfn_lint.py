@@ -76,7 +76,7 @@ class Lint:
                 self._run_checks(template, name, lint_errors, lints)
             for err in lint_errors:
                 LOG.error(err)
-        for test in lints:
+        for test in lints:  # pylint: disable=consider-using-dict-items
             for result in lints[test]["results"]:
                 if lints[test]["results"][result]:
                     if self._is_error(lints[test]["results"][result]):
@@ -110,7 +110,7 @@ class Lint:
         passed = set()
         issue = {"warning": {}, "error": {}}
         lints = self.lints[0]
-        for test in lints:
+        for test in lints:  # pylint: disable=consider-using-dict-items
             for result in lints[test]["results"]:
                 if not lints[test]["results"][result]:
                     passed.add(result)

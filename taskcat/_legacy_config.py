@@ -41,7 +41,7 @@ def parse_legacy_config(project_root: Path):
     config_file = (project_root / "ci/taskcat.yml").expanduser().resolve()
     if not config_file.is_file():
         raise TaskCatException(f"No config_file at {config_file}")
-    with open(str(config_file), "r") as file_handle:
+    with open(str(config_file), "r", encoding="utf-8") as file_handle:
         config_dict = yaml.safe_load(file_handle)
     # need to rename global key, as it's a python keyword
     config_dict["global_"] = config_dict.pop("global")
@@ -51,7 +51,7 @@ def parse_legacy_config(project_root: Path):
         parameters = {}
         parameter_file = project_root / "ci/" / test_data.parameter_input
         parameter_file = parameter_file.expanduser().resolve()
-        with open(str(parameter_file), "r") as file_handle:
+        with open(str(parameter_file), "r", encoding="utf-8") as file_handle:
             for param in yaml.safe_load(file_handle):
                 parameters[param["ParameterKey"]] = param["ParameterValue"]
         tests[test_name] = {
@@ -84,7 +84,7 @@ def parse_legacy_config(project_root: Path):
             f"{new_config_path}"
         )
     else:
-        with open(str(new_config_path), "w") as file_handle:
+        with open(str(new_config_path), "w", encoding="utf-8") as file_handle:
             config_dict = new_config.to_dict()
             config_dict.pop("general")
             yaml.dump(config_dict, file_handle, default_flow_style=False)
@@ -93,7 +93,7 @@ def parse_legacy_config(project_root: Path):
 
 def legacy_overrides(legacy_override, overrides_path, override_type):
     if legacy_override.is_file():
-        with open(str(legacy_override), "r") as file_handle:
+        with open(str(legacy_override), "r", encoding="utf-8") as file_handle:
             override_params = yaml.safe_load(file_handle)
         LOG.warning(
             f"overrides file {str(legacy_override)} is in legacy "
@@ -109,7 +109,7 @@ def legacy_overrides(legacy_override, overrides_path, override_type):
             LOG.warning(
                 f"Converting overrides to new format and saving in " f"{overrides_path}"
             )
-            with open(str(overrides_path), "w") as file_handle:
+            with open(str(overrides_path), "w", encoding="utf-8") as file_handle:
                 file_handle.write(yaml.dump(override_params, default_flow_style=False))
         else:
             LOG.warning(

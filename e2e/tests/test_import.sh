@@ -1,7 +1,10 @@
 #!/bin/bash -e
 
 EXIT_CODE=0
-python --version
+SOURCE="../../taskcat/"
+OMIT="../../taskcat/_stacker.py"
+COV_CMD="coverage run -a --source ${SOURCE} --omit ${OMIT}"
+
 python -m unittest discover test_imported/ >& /tmp/output || EXIT_CODE=$?
 
 if [[ ${EXIT_CODE} -ne 0 ]] ; then
