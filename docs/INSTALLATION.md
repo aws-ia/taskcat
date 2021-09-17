@@ -51,7 +51,6 @@ pip3 install taskcat --user
 
 ### Windows
 
-!!! danger
-    Taskcat on Windows is **not supported**.
+Taskcat on Windows is **not supported**.
 
-If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment using the steps above.
+If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment. For details, see [Install and configure TaskCat on Microsoft Windows 10](https://aws.amazon.com/blogs/infrastructure-and-automation/install-and-configure-taskcat-on-microsoft-windows-10/).
