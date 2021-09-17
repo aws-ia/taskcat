@@ -1,0 +1,41 @@
+[tool.portray.mkdocs.theme]
+favicon = "https://aws-ia.github.io/assets/img/aws-ia-taskcat.png"
+logo = "https://aws-ia.github.io/assets/img/logonav.png"
+name = "material"
+palette = {primary = "black", accent = "orange"}
+
+[tool.portray.mkdocs]
+extra_css = ['docs/custom.css']
+
+[[tool.portray.mkdocs.nav]]
+Home = "README.md"
+
+[[tool.portray.mkdocs.nav]]
+Installation = "docs/INSTALLATION.md"
+
+
+[[tool.portray.mkdocs.nav]]
+    [[tool.portray.mkdocs.nav.Usage]]
+        "General Usage" = "docs/usage/GENERAL_USAGE.md"
+
+    [[tool.portray.mkdocs.nav.Usage]]
+        "Parameter Overrides" = "docs/usage/PARAMETER_OVERRIDES.md"
+
+    [[tool.portray.mkdocs.nav.Usage]]
+        "Psuedo Parameters" = "docs/usage/PSUEDO_PARAMETERS.md"
+
+[[tool.portray.mkdocs.nav]]
+"Configuration Schema" = "docs/schema/taskcat_schema.html"
+
+[[tool.portray.mkdocs.nav]]
+    [[tool.portray.mkdocs.nav.Administrative]]
+        "Code of Conduct" = "docs/administrative/CODE_OF_CONDUCT.md"
+
+    [[tool.portray.mkdocs.nav.Administrative]]
+        "Contributing" = "docs/administrative/CONTRIBUTING.md"
+
+# [[tool.portray.mkdocs.nav]]
+# Home = "README.md"
+#
+# [[tool.portray.mkdocs.nav]]
+# Usage = "docs/usage/"

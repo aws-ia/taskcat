@@ -11,6 +11,13 @@
                         "type": "string"
                     },
                     "description": "AWS authentication section",
+                    "examples": [
+                        {
+                            "cn-northwest-1": "china-profile",
+                            "default": "my-default-profile",
+                            "us-east-2": "specific-profile-for-us-east-2"
+                        }
+                    ],
                     "type": "object"
                 },
                 "parameters": {
@@ -60,7 +67,10 @@
                 "regions": {
                     "description": "List of AWS regions",
                     "items": {
-                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
                         "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
@@ -68,10 +78,17 @@
                 },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "examples": [
+                        "my-s3-bucket-name"
+                    ],
                     "type": "string"
                 },
                 "s3_regional_buckets": {
                     "description": "Enable regional auto-buckets.",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "tags": {
@@ -79,6 +96,11 @@
                         "type": "string"
                     },
                     "description": "Tags to apply to CloudFormation template",
+                    "examples": [
+                        {
+                            "CostCenter": "1001"
+                        }
+                    ],
                     "type": "object"
                 }
             },
@@ -108,12 +130,23 @@
                         "type": "string"
                     },
                     "description": "AWS authentication section",
+                    "examples": [
+                        {
+                            "cn-northwest-1": "china-profile",
+                            "default": "my-default-profile",
+                            "us-east-2": "specific-profile-for-us-east-2"
+                        }
+                    ],
                     "type": "object"
                 },
                 "az_blacklist": {
                     "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
                     "items": {
                         "description": "Availability Zone ID, eg.: 'use1-az1'",
+                        "examples": [
+                            "usw2-laz1-az1",
+                            "use2-az2"
+                        ],
                         "pattern": "^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]|usw2-lax1-az(1|2))$",
                         "type": "string"
                     },
@@ -121,27 +154,47 @@
                 },
                 "build_submodules": {
                     "description": "Build Lambda zips recursively for submodules, set to false to disable",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "lambda_source_path": {
                     "description": "Path relative to the project root containing Lambda zip files, default is 'lambda_functions/source'",
+                    "examples": [
+                        "functions/source"
+                    ],
                     "type": "string"
                 },
                 "lambda_zip_path": {
-                    "description": "Path relative to the project root to place Lambda zip files, default is 'lambda_functions/zips'",
+                    "description": "Path relative to the project root to place Lambda zip files",
+                    "examples": [
+                        "functions/packages"
+                    ],
                     "type": "string"
                 },
                 "name": {
                     "description": "Project name, used as s3 key prefix when uploading objects",
+                    "examples": [
+                        "my-project-name"
+                    ],
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
                 "owner": {
                     "description": "email address for project owner (not used at present)",
+                    "examples": [
+                        "Bob.Slydell@example.com"
+                    ],
                     "type": "string"
                 },
                 "package_lambda": {
                     "description": "Package Lambda functions into zips before uploading to s3, set to false to disable",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "parameters": {
@@ -191,7 +244,10 @@
                 "regions": {
                     "description": "List of AWS regions",
                     "items": {
-                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
                         "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
@@ -203,24 +259,44 @@
                 },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "examples": [
+                        "my-s3-bucket-name"
+                    ],
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
                 "s3_enable_sig_v2": {
                     "description": "Enable (deprecated) sigv2 access to auto-generated buckets",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "s3_object_acl": {
-                    "description": "ACL for uploaded s3 objects, defaults to 'private'",
+                    "default": "private",
+                    "description": "ACL for uploaded s3 objects",
+                    "examples": [
+                        "bucket-owner-read",
+                        "private"
+                    ],
                     "pattern": "^(bucket-owner-full-control|bucket-owner-read|authenticated-read|aws-exec-read|public-read-write|public-read|private)$",
                     "type": "string"
                 },
                 "s3_regional_buckets": {
                     "description": "Enable regional auto-buckets.",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "shorten_stack_name": {
                     "description": "Shorten stack names generated for tests, set to true to enable",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "tags": {
@@ -228,10 +304,18 @@
                         "type": "string"
                     },
                     "description": "Tags to apply to CloudFormation template",
+                    "examples": [
+                        {
+                            "CostCenter": "1001"
+                        }
+                    ],
                     "type": "object"
                 },
                 "template": {
                     "description": "path to template file relative to the project config file path",
+                    "examples": [
+                        "cloudformation_templates/"
+                    ],
                     "type": "string"
                 }
             },
@@ -246,12 +330,23 @@
                         "type": "string"
                     },
                     "description": "AWS authentication section",
+                    "examples": [
+                        {
+                            "cn-northwest-1": "china-profile",
+                            "default": "my-default-profile",
+                            "us-east-2": "specific-profile-for-us-east-2"
+                        }
+                    ],
                     "type": "object"
                 },
                 "az_blacklist": {
                     "description": "List of Availablilty Zones ID's to exclude when generating availability zones",
                     "items": {
                         "description": "Availability Zone ID, eg.: 'use1-az1'",
+                        "examples": [
+                            "usw2-laz1-az1",
+                            "use2-az2"
+                        ],
                         "pattern": "^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)[0-9]-az[0-9]|usw2-lax1-az(1|2))$",
                         "type": "string"
                     },
@@ -305,7 +400,10 @@
                 "regions": {
                     "description": "List of AWS regions",
                     "items": {
-                        "description": "AWS Region name eg.: 'us-east-1'",
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
                         "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
@@ -317,11 +415,18 @@
                 },
                 "s3_bucket": {
                     "description": "Name of S3 bucket to upload project to, if left out a bucket will be auto-generated",
+                    "examples": [
+                        "my-s3-bucket-name"
+                    ],
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
                 "s3_regional_buckets": {
                     "description": "Enable regional auto-buckets.",
+                    "examples": [
+                        true,
+                        false
+                    ],
                     "type": "boolean"
                 },
                 "stack_name": {
@@ -341,10 +446,18 @@
                         "type": "string"
                     },
                     "description": "Tags to apply to CloudFormation template",
+                    "examples": [
+                        {
+                            "CostCenter": "1001"
+                        }
+                    ],
                     "type": "object"
                 },
                 "template": {
                     "description": "path to template file relative to the project config file path",
+                    "examples": [
+                        "cloudformation_templates/"
+                    ],
                     "type": "string"
                 }
             },
