@@ -175,19 +175,6 @@ class Test:
         :param aws_profile: aws profile to use for deletion
         :param region: region to delete from, default will scan all regions
         """
-        if region == "ALL":
-            region_set: set = set()
-            region_set = region_set.union(
-                # pylint: disable=duplicate-code
-                set(
-                    boto3.Session(profile_name=aws_profile).get_available_regions(
-                        "cloudformation"
-                    )
-                )
-            )
-            regions = list(region_set)
-        else:
-            regions = [region]
         Delete(
-            package=project, aws_profile=aws_profile, region=regions, _stack_type="test"
+            package=project, aws_profile=aws_profile, region=region, _stack_type="test"
         )
