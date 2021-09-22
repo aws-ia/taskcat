@@ -50,6 +50,6 @@ setup(
     ],
     install_requires=REQUIRED,
     test_suite="tests",
-    tests_require=["mock", "boto3"],
+    tests_require=["boto3"],
     include_package_data=True,
 )

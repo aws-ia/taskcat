@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from mock import MagicMock, patch
 from taskcat import Config
 from taskcat.exceptions import TaskCatException
 from taskcat.testing import CFNTest
@@ -11,7 +11,8 @@ def get_config():
     project_root_path = Path(__file__).parent / "../data/hook_plugin"
     input_file_path = project_root_path / ".taskcat.yml"
     config = Config.create(
-        project_root=project_root_path, project_config_path=input_file_path,
+        project_root=project_root_path,
+        project_config_path=input_file_path,
     )
     config.get_buckets = MagicMock()
     config.get_regions = MagicMock()

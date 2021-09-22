@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
+from unittest.mock import ANY, MagicMock, Mock, patch
 
-from mock import ANY, MagicMock, Mock, patch
 from taskcat import Config
 from taskcat._tui import TerminalPrinter
 from taskcat.exceptions import TaskCatException
@@ -20,7 +20,8 @@ class TestCFNTest(unittest.TestCase):
         input_file_path = project_root_path / input_file
 
         self.base_config = Config.create(
-            project_root=project_root_path, project_config_path=input_file_path,
+            project_root=project_root_path,
+            project_config_path=input_file_path,
         )
 
     def test_init(self):
@@ -42,11 +43,7 @@ class TestCFNTest(unittest.TestCase):
             "dont_wait_for_delete": True,
         }
 
-        self.assertDictContainsSubset(
-            default_attr,
-            cfn_test.__dict__,
-            "Make sure default values are not accidentally changed.",
-        )
+        self.assertEqual(cfn_test.__dict__, {**cfn_test.__dict__, **default_attr})
 
         self.assertFalse(
             hasattr(cfn_test, "test_definition"), "Should not set test_definition."

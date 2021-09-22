@@ -1,8 +1,8 @@
 import errno
 import os
 import unittest
+from unittest import mock
 
-import mock
 from taskcat._common_utils import (
     exit_with_code,
     fetch_ssm_parameter_value,

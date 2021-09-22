@@ -1,6 +1,6 @@
 import unittest
+from unittest import mock
 
-import mock
 from taskcat import _cli_modules
 from taskcat._cli_core import GLOBAL_ARGS, CliCore
 
