@@ -159,7 +159,7 @@ class Test:
         raise NotImplementedError()
 
     @staticmethod
-    def list(profiles: str = "default", regions="ALL", _stack_type="package"):
+    def list(profiles: str = "default", regions="ALL"):
         """
         :param profiles: comma separated list of aws profiles to search
         :param regions: comma separated list of regions to search, default is to check

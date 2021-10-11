@@ -12,31 +12,27 @@ LOG = logging.getLogger(__name__)
 
 
 class Delete:
-    """[ALPHA] Deletes an installed package in an AWS account/region"""
+    """[ALPHA] Deletes an installed project in an AWS account/region"""
 
     def __init__(
         self,
-        package: str,
+        project: str,
         aws_profile: str = "default",
         region="ALL",
         no_verify: bool = False,
-        type="package",
+        delete_all: bool = False,
     ):
         """
-        :param package: installed package to delete, can be an install name, uuid, or project name
+        :param project: installed project to delete, can be an install name, uuid, or project name
         :param aws_profile: aws profile to use for deletion
-        :param region: region(s) to delete from, by default, will delete all applicable
-        stacks, supply a csv "us-east-1,us-west-1" to override this default
-        :param no_verify: ignore region verification, delete will not error if an invalid
-        region is detected
-        :param type: [package|project] scope to delete in, package deletes a singular installed package
-        and project deletes all packages in a project
+        :param region: region(s) to delete from, by default, will delete all applicable\
+            stacks, supply a csv "us-east-1,us-west-1" to override this default
+        :param no_verify: ignore region verification, delete will not error if an invalid\
+            region is detected
+        :param delete_all: delete all deployments of a project, if not added, the command\
+            will delete a single deployment
         """
-        LOG.warning("delete is in alpha feature, use with caution")
         boto3_cache = Boto3Cache()
-        if type not in ["package", "project"]:
-            LOG.error("type should be either \"package\" or \"project\"")
-            exit(1)
         if region == "default":
             regions = boto3_cache.get_default_region(aws_profile)
         elif region == "ALL":
@@ -64,9 +60,9 @@ class Delete:
                 "region": stack["region"],
                 "stack_id": stack["stack-id"],
             }
-            if type == "package" and package in [job["name"], job["taskcat_id"], "ALL"]:
+            if not type and project in [job["name"], job["taskcat_id"], "ALL"]:
                 jobs.append(job)
-            elif type == "project" and package in [job["project_name"], "ALL"]:
+            elif type and project in [job["project_name"], "ALL"]:
                 jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {

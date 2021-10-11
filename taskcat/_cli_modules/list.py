@@ -17,7 +17,7 @@ class List:
         self,
         profiles: Union[str, ListType[str]] = "default",
         regions="ALL",
-        _stack_type="package",
+        _stack_type="project",
     ):
         """
         :param profiles: comma separated list of aws profiles to search
@@ -55,7 +55,7 @@ class List:
                         "active_stacks": 1,
                         "region": stack["region"],
                     }
-                elif name and _stack_type == "package":
+                elif name and _stack_type == "project":
                     jobs[stack_key] = {
                         "name": name,
                         "id": stack["taskcat-id"].hex,
