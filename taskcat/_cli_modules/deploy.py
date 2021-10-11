@@ -11,6 +11,9 @@ from taskcat._name_generator import generate_name
 from taskcat._cfn.threaded import Stacker
 from taskcat.regions_to_partitions import REGIONS
 
+from .list import List
+
+
 LOG = logging.getLogger(__name__)
 
 
@@ -22,39 +25,39 @@ class Deploy:
     # pylint: disable=too-many-branches,too-many-locals
     def run(  # noqa: C901
         self,
-        package: str = "./",
+        project: str = "./",
         test_names: str = "ALL",
         regions: str = "ALL",
         name="",
         input_file: str = "./.taskcat.yml",
     ):
         """
-        :param package: name of package to install can be a path to a local package,
+        :param project: name of project to install can be a path to a local project,\
         a github org/repo, or an AWS Quick Start name
         :param test_names: comma separated list of tests to run
-        :param regions: comma separated list of regions to test in
+        :param regions: comma separated list of regions to test in\
         default
-        :param name: stack name to use, if not specified one will be automatically
+        :param name: stack name to use, if not specified one will be automatically\
         generated
         :param input_file: path to either a taskcat project config file or a CloudFormation template
         """
         LOG.warning("deploy is in alpha feature, use with caution")
         if not name:
             name = generate_name()
-        path = Path(package).resolve()
-        if Path(package).resolve().is_dir():
+        path = Path(project).resolve()
+        if Path(project).resolve().is_dir():
             package_type = "local"
-        elif "/" in package:
+        elif "/" in project:
             package_type = "github"
         else:  # assuming it's an AWS Quick Start
             package_type = "github"
-            package = f"aws-quickstart/quickstart-{package}"
+            project = f"aws-quickstart/quickstart-{project}"
         if package_type == "github":
-            if package.startswith("https://") or package.startswith("git@"):
-                url = package
-                org, repo = package.replace(".git", "").replace(":", "/").split("/")[-2:]
+            if project.startswith("https://") or project.startswith("git@"):
+                url = project
+                org, repo = project.replace(".git", "").replace(":", "/").split("/")[-2:]
             else:
-                org, repo = package.split("/")
+                org, repo = project.split("/")
                 url = f"https://github.com/{org}/{repo}.git"
             path = Deploy.PKG_CACHE_PATH / org / repo
             LOG.info(f"fetching git repo {url}")
@@ -113,37 +116,14 @@ class Deploy:
                 LOG.debug(outp.getvalue().decode("utf-8"))
             self._recurse_submodules((path / sub_path), url)
 
-    def list(self, region: str = "ALL", project: str = "none", aws_profile="default", no_verify=False):
+    @staticmethod
+    def list(profiles: str = "default", regions="ALL"):
         """
-        Lists identifiers for stacks deployed with taskcat deploy. Stacks deployed with taskcat test run -n
-        will not be listed with this command
-        :param region: names of regions from which to list the taskcat stacks' identifiers
-        :param project: name of projects from which to list the taskcat stacks' identifiers
-        :param no-verify: whether to verify supplied regions
+        :param profiles: comma separated list of aws profiles to search
+        :param regions: comma separated list of regions to search, default is to check
+        all commercial regions
         """
-        if region == "ALL":
-            region_set: set = set()
-            region_set = region_set.union(
-                # pylint: disable=duplicate-code
-                set(
-                    boto3.Session(profile_name=aws_profile).get_available_regions(
-                        "cloudformation"
-                    )
-                )
-            )
-            regions = list(region_set)
-        elif isinstance(region, str):
-            regions = self._validate_regions(region) if not no_verify else region.split(",")
-        stacks = Stacker.list_stacks([aws_profile], regions)
-        LOG.info("Stacks:")
-        for stack in stacks:
-            job = {
-                "project_name": stack["taskcat-project-name"],
-                "stack_name": stack["stack-name"],
-                "taskcat_id": stack["taskcat-id"].hex,
-                "region": stack["region"],
-            }
-            LOG.info(job)
+        List(profiles=profiles, regions=regions, _stack_type="project")
 
     # Checks if all regions are valid
     def _validate_regions(self, region_string):
