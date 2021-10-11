@@ -165,7 +165,7 @@ class Test:
         :param regions: comma separated list of regions to search, default is to check
         all commercial regions
         """
-        List(profiles=profiles, regions=regions, _stack_type="test")
+        List(profiles=profiles, regions=regions, stack_type="test")
 
     @staticmethod
     def clean(project: str, aws_profile: str = "default", region="ALL"):

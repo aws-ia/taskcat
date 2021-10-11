@@ -29,8 +29,8 @@ class Delete:
             stacks, supply a csv "us-east-1,us-west-1" to override this default
         :param no_verify: ignore region verification, delete will not error if an invalid\
             region is detected
-        :param delete_all: delete all deployments of a project, if not added, the command\
-            will delete a single deployment
+        :param delete_all: delete all deployment types of a project, if not added, the command\
+            will delete only non-test deployments
         """
         boto3_cache = Boto3Cache()
         if region == "default":
@@ -60,9 +60,9 @@ class Delete:
                 "region": stack["region"],
                 "stack_id": stack["stack-id"],
             }
-            if not type and project in [job["name"], job["taskcat_id"], "ALL"]:
+            if delete_all and project in [job["name"], job["taskcat_id"], "ALL"]:
                 jobs.append(job)
-            elif type and project in [job["project_name"], "ALL"]:
+            elif not delete_all and project in [job["project_name"], "ALL"]:
                 jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {

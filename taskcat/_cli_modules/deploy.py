@@ -2,13 +2,11 @@
 import logging
 from io import BytesIO
 from pathlib import Path
-import boto3
 
 from dulwich import porcelain
 from dulwich.config import ConfigFile, parse_submodules
 from taskcat._cli_modules.test import Test
 from taskcat._name_generator import generate_name
-from taskcat._cfn.threaded import Stacker
 from taskcat.regions_to_partitions import REGIONS
 
 from .list import List
@@ -26,7 +24,7 @@ class Deploy:
     def run(  # noqa: C901
         self,
         project: str = "./",
-        test_names: str = "ALL",
+        test_names: str = "default",
         regions: str = "ALL",
         name="",
         input_file: str = "./.taskcat.yml",
@@ -34,14 +32,14 @@ class Deploy:
         """
         :param project: name of project to install can be a path to a local project,\
         a github org/repo, or an AWS Quick Start name
-        :param test_names: comma separated list of tests to run
+        :param test_names: comma separated list of tests (specified in .taskcat.yml) to run\
+            defaults to the 'default' test. Set to 'ALL' to deploy every entry
         :param regions: comma separated list of regions to test in\
         default
         :param name: stack name to use, if not specified one will be automatically\
         generated
         :param input_file: path to either a taskcat project config file or a CloudFormation template
         """
-        LOG.warning("deploy is in alpha feature, use with caution")
         if not name:
             name = generate_name()
         path = Path(project).resolve()
@@ -70,8 +68,7 @@ class Deploy:
     def _git_clone(url, path):
         outp = BytesIO()
         if path.exists():
-            # TODO: handle updating existing repo
-            LOG.warning("path already exists, updating from remote is not yet implemented")
+            porcelain.pull(url, str(path), force=True, errstream=outp, outstream=outp)
             # shutil.rmtree(path)
         if not path.exists():
             path.mkdir(parents=True)
@@ -123,7 +120,7 @@ class Deploy:
         :param regions: comma separated list of regions to search, default is to check
         all commercial regions
         """
-        List(profiles=profiles, regions=regions, _stack_type="project")
+        List(profiles=profiles, regions=regions, stack_type="project")
 
     # Checks if all regions are valid
     def _validate_regions(self, region_string):
