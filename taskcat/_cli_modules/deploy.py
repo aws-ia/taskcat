@@ -6,6 +6,7 @@ from pathlib import Path
 from dulwich import porcelain
 from dulwich.config import ConfigFile, parse_submodules
 from taskcat._cli_modules.test import Test
+from taskcat._dataclasses import Tag
 from taskcat._name_generator import generate_name
 from taskcat.regions_to_partitions import REGIONS
 
@@ -24,7 +25,7 @@ class Deploy:
     def run(  # noqa: C901
         self,
         project: str = "./",
-        test_names: str = "default",
+        test_names: str = "ALL",
         regions: str = "ALL",
         name="",
         input_file: str = "./.taskcat.yml",
@@ -61,8 +62,8 @@ class Deploy:
             LOG.info(f"fetching git repo {url}")
             self._git_clone(url, path)
             self._recurse_submodules(path, url)
-
-        Test.run(regions=regions, no_delete=True, project_root=path, test_names=test_names)
+        _extra_tags = [(Tag({"Key": "taskcat-installer", "Value": name}))]
+        Test.run(regions=regions, no_delete=True, project_root=path, test_names=test_names, _extra_tags=_extra_tags)
 
     @staticmethod
     def _git_clone(url, path):
