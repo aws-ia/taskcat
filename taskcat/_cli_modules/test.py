@@ -111,9 +111,9 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
+        _extra_tags: list = []
     ):
         """tests whether CloudFormation templates are able to successfully launch
-
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a CloudFormation template
@@ -150,6 +150,7 @@ class Test:
 
         test.printer = terminal_printer
 
+        # Runs here
         with test:
             test.report(output_directory)
 
@@ -159,13 +160,13 @@ class Test:
         raise NotImplementedError()
 
     @staticmethod
-    def list(profiles: str = "default", regions="ALL", _stack_type="package"):
+    def list(profiles: str = "default", regions="ALL"):
         """
         :param profiles: comma separated list of aws profiles to search
         :param regions: comma separated list of regions to search, default is to check
         all commercial regions
         """
-        List(profiles=profiles, regions=regions, _stack_type="test")
+        List(profiles=profiles, regions=regions, stack_type="test")
 
     @staticmethod
     def clean(project: str, aws_profile: str = "default", region="ALL"):

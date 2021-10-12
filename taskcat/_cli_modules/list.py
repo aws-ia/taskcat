@@ -17,14 +17,15 @@ class List:
         self,
         profiles: Union[str, ListType[str]] = "default",
         regions="ALL",
-        _stack_type="package",
+        stack_type="ALL",
     ):
         """
         :param profiles: comma separated list of aws profiles to search
-        :param regions: comma separated list of regions to search, default is to check
-        all commercial regions
+        :param regions: comma separated list of regions to search, default is to check \
+            all commercial regions
+        :param stack_type: type of stacks to check, options are 'test', 'project', or 'ALL'. \
+            default is 'ALL'
         """
-        LOG.warning("list is in alpha feature, use with caution")
         if isinstance(profiles, str):
             profiles = profiles.split(",")
         if regions == "ALL":
@@ -46,7 +47,17 @@ class List:
             stack_key = stack["taskcat-id"].hex + "-" + stack["region"]
             if stack_key not in jobs:
                 name = stack.get("taskcat-installer")
-                if _stack_type == "test" and not name:
+                if stack_type == "ALL":
+                    if not name:
+                        name = stack["taskcat-project-name"]
+                    jobs[stack_key] = {
+                        "name": name,
+                        "id": stack["taskcat-id"].hex,
+                        "project_name": stack["taskcat-project-name"],
+                        "active_stacks": 1,
+                        "region": stack["region"],
+                    }
+                elif stack_type == "test" and not name:
                     name = stack["taskcat-project-name"]
                     jobs[stack_key] = {
                         "name": name,
@@ -55,7 +66,7 @@ class List:
                         "active_stacks": 1,
                         "region": stack["region"],
                     }
-                elif name and _stack_type == "package":
+                elif name and stack_type == "project":
                     jobs[stack_key] = {
                         "name": name,
                         "id": stack["taskcat-id"].hex,
@@ -66,43 +77,46 @@ class List:
             else:
                 jobs[stack_key]["active_stacks"] += 1
 
-        def longest(things: list):
-            lengths = [len(thing) for thing in things]
-            return sorted(lengths)[-1] if lengths else 0
-
-        def spaces(number):
-            ret = ""
-            for _ in range(number):
-                ret += " "
-            return ret
-
-        def pad(string, length):
-            while len(string) < length:
-                string += " "
-            return string
-
-        longest_name = longest([v["name"] for _, v in jobs.items()])
-        longest_project_name = longest([v["project_name"] for _, v in jobs.items()])
+        longest_name = List._longest([v["name"] for _, v in jobs.items()])
+        longest_project_name = List._longest([v["project_name"] for _, v in jobs.items()])
         if not jobs:
             LOG.info("no stacks found")
             return
-        if _stack_type != "test":
+        if stack_type != "test":
             header = (
-                f"NAME{spaces(longest_name)}PROJECT{spaces(longest_project_name)}"
-                f"ID{spaces(34)}REGION"
+                f"NAME{List._spaces(longest_name)}PROJECT{List._spaces(longest_project_name)}"
+                f"ID{List._spaces(34)}REGION"
             )
             column = "{}    {}       {}    {}"
         else:
-            header = f"NAME{spaces(longest_name)}ID{spaces(34)}REGION"
+            header = f"NAME{List._spaces(longest_name)}ID{List._spaces(34)}REGION"
             column = "{}    {}    {}"
         LOG.error(header, extra={"nametag": ""})
         for job in jobs.values():
             args = [
-                pad(job["name"], longest_name),
-                pad(job["project_name"], longest_project_name),
+                List._pad(job["name"], longest_name),
+                List._pad(job["project_name"], longest_project_name),
                 job["id"],
                 job["region"],
             ]
-            if _stack_type == "test":
-                args = [pad(job["name"], longest_name), job["id"], job["region"]]
+            if stack_type == "test":
+                args = [List._pad(job["name"], longest_name), job["id"], job["region"]]
             LOG.error(column.format(*args), extra={"nametag": ""})
+
+    @staticmethod
+    def _longest(things: list):
+        lengths = [len(thing) for thing in things]
+        return sorted(lengths)[-1] if lengths else 0
+
+    @staticmethod
+    def _spaces(number):
+        ret = ""
+        for _ in range(number):
+            ret += " "
+        return ret
+
+    @staticmethod
+    def _pad(string, length):
+        while len(string) < length:
+            string += " "
+        return string
