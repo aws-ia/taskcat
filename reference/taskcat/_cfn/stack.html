@@ -1435,6 +1435,18 @@
   
   
     <li class="md-nav__item">
+      <a href="../_cli_modules/generate_iam_policy.html" class="md-nav__link">
+        Generate Iam Policy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../_cli_modules/index.html" class="md-nav__link">
         Index
       </a>
@@ -3102,7 +3114,7 @@
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">absolute_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
 
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
 
                         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tempate_body</span><span class="p">)</span>
 
@@ -4618,7 +4630,7 @@ ascending or descending, according to their function values.</p>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">absolute_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
 
-                    <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="n">absolute_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
 
                         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tempate_body</span><span class="p">)</span>
 

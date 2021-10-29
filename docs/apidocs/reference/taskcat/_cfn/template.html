@@ -722,6 +722,18 @@
   
   
     <li class="md-nav__item">
+      <a href="../_cli_modules/generate_iam_policy.html" class="md-nav__link">
+        Generate Iam Policy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../_cli_modules/index.html" class="md-nav__link">
         Index
       </a>
@@ -1108,7 +1120,7 @@
 
         <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_cache</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">))</span>
 
-        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="s s-Atom">template_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
+        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="s s-Atom">template_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s s-Atom">encoding=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
 
             <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">raw_template</span> <span class="o">=</span> <span class="s s-Atom">file_handle</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
 
@@ -1162,7 +1174,7 @@
 
 <span class="s2">        the template has been modified&quot;&quot;&quot;</span>
 
-        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
+        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s s-Atom">encoding=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
 
             <span class="s s-Atom">file_handle</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">raw_template</span><span class="p">)</span>
 
@@ -1365,7 +1377,7 @@
     <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">s3_key_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">template_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10e2e4fa0</span><span class="o">&gt;</span>
+    <span class="n">template_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x10dcd50a0</span><span class="o">&gt;</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1393,7 +1405,7 @@
 
         <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_cache</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">))</span>
 
-        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="s s-Atom">template_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
+        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="s s-Atom">template_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s s-Atom">encoding=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
 
             <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">raw_template</span> <span class="o">=</span> <span class="s s-Atom">file_handle</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>
 
@@ -1447,7 +1459,7 @@
 
 <span class="s2">        the template has been modified&quot;&quot;&quot;</span>
 
-        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
+        <span class="s s-Atom">with</span> <span class="nf">open</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s s-Atom">encoding=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="s s-Atom">as</span> <span class="s s-Atom">file_handle:</span>
 
             <span class="s s-Atom">file_handle</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">raw_template</span><span class="p">)</span>
 
@@ -1712,7 +1724,7 @@
 
 <span class="sd">        the template has been modified&quot;&quot;&quot;</span>
 
-        <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
+        <span class="n">with</span> <span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_path</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handle</span><span class="p">:</span>
 
             <span class="n">file_handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_template</span><span class="p">)</span>
 

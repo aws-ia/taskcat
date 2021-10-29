@@ -757,6 +757,18 @@
   
   
     <li class="md-nav__item">
+      <a href="../_cli_modules/generate_iam_policy.html" class="md-nav__link">
+        Generate Iam Policy
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../_cli_modules/index.html" class="md-nav__link">
         Index
       </a>
@@ -1486,7 +1498,13 @@
 
             <span class="n">stacks_by_client</span><span class="p">[</span><span class="n">client</span><span class="p">][</span><span class="s2">&quot;Stacks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="n">stacks_by_client</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">stacks_by_client</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span>
+
+            <span class="n">stacks_by_client</span><span class="p">[</span><span class="n">r</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">stacks_by_client</span>  <span class="c1"># pylint: disable=consider-using-dict-items</span>
+
+        <span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
 
@@ -1998,7 +2016,13 @@
 
 <span class="w">            </span><span class="n">stacks_by_client</span><span class="o">[</span><span class="n">client</span><span class="o">][</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">stacks_by_client[r</span><span class="o">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stacks_by_client</span><span class="err">]</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
+
+<span class="n">            stacks_by_client[r</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stacks_by_client</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nl">pylint</span><span class="p">:</span><span class="w"> </span><span class="n">disable</span><span class="o">=</span><span class="n">consider</span><span class="o">-</span><span class="k">using</span><span class="o">-</span><span class="n">dict</span><span class="o">-</span><span class="n">items</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">]</span><span class="w"></span>
 
 <span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
