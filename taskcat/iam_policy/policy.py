@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import List
 
 import pkg_resources
-
 from taskcat._config import Config
 
 LOG = logging.getLogger(__name__)
