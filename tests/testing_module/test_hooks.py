@@ -11,7 +11,8 @@ def get_config():
     project_root_path = Path(__file__).parent / "../data/hook_plugin"
     input_file_path = project_root_path / ".taskcat.yml"
     config = Config.create(
-        project_root=project_root_path, project_config_path=input_file_path,
+        project_root=project_root_path,
+        project_config_path=input_file_path,
     )
     config.get_buckets = MagicMock()
     config.get_regions = MagicMock()

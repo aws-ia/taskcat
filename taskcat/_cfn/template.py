@@ -96,7 +96,9 @@ class Template:
         self._find_children()
 
     def _template_url_to_path(
-        self, template_url, template_mappings=None,
+        self,
+        template_url,
+        template_mappings=None,
     ):
         try:
 
@@ -133,7 +135,9 @@ class Template:
         if not self.url:
             return ""
         regionless_url = re.sub(
-            r"\.s3\.(.*)\.amazonaws\.com", ".s3.amazonaws.com", self.url,
+            r"\.s3\.(.*)\.amazonaws\.com",
+            ".s3.amazonaws.com",
+            self.url,
         )
         suffix = str(self.template_path).replace(str(self.project_root), "")
         suffix_length = len(suffix.lstrip("/").split("/"))

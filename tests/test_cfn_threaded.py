@@ -43,7 +43,10 @@ def get_tests(test_proj, _):
     return (
         c.config.project.name,
         c.get_tests(
-            templates=templates, regions=regions, buckets=buckets, parameters=params,
+            templates=templates,
+            regions=regions,
+            buckets=buckets,
+            parameters=params,
         ),
     )
 

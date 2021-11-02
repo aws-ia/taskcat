@@ -16,8 +16,7 @@ class Test(ABC):
     @property  # type: ignore
     @abstractmethod
     def config(self) -> Config:
-        """Get or set the current Test configuration.
-        """
+        """Get or set the current Test configuration."""
 
     @config.setter  # type: ignore
     @abstractmethod
@@ -27,8 +26,7 @@ class Test(ABC):
     @property  # type: ignore
     @abstractmethod
     def passed(self) -> bool:
-        """Get the result of the current test. Defaults to False if test hasn't run.
-        """
+        """Get the result of the current test. Defaults to False if test hasn't run."""
 
     @passed.setter  # type: ignore
     @abstractmethod
@@ -38,8 +36,7 @@ class Test(ABC):
     @property  # type: ignore
     @abstractmethod
     def result(self) -> Any:
-        """Get the result of the Test. Defaults to None if test hasn't run.
-        """
+        """Get the result of the Test. Defaults to None if test hasn't run."""
 
     @result.setter  # type: ignore
     @abstractmethod

@@ -10,7 +10,11 @@ LOG = logging.getLogger(__name__)
 
 
 def execute_hooks(
-    stage: str, config: Config, tests: Mapping[str, TestObj], parameters, outputs=None,
+    stage: str,
+    config: Config,
+    tests: Mapping[str, TestObj],
+    parameters,
+    outputs=None,
 ):
     prehook_failures = []
     for name, test in config.config.tests.items():

@@ -41,7 +41,10 @@ class StackURLHelper:
     }
 
     def __init__(
-        self, template_mappings=None, template_parameters=None, parameter_values=None,
+        self,
+        template_mappings=None,
+        template_parameters=None,
+        parameter_values=None,
     ):
         if template_mappings:
             self.mappings = template_mappings
@@ -148,7 +151,7 @@ class StackURLHelper:
         return values_dict
 
     def evaluate_fn_sub(self, expression):
-        """ Return expression with values replaced """
+        """Return expression with values replaced"""
         results = []
 
         # Builtins - Fudge some defaults here since we don't have runtime info
@@ -173,7 +176,7 @@ class StackURLHelper:
 
     @staticmethod
     def evaluate_fn_join(expression):
-        """ Return the joined stuff """
+        """Return the joined stuff"""
         results = []
         new_values_list = []
 
@@ -194,7 +197,7 @@ class StackURLHelper:
 
     @staticmethod
     def evaluate_fn_if(expression):
-        """ Return both possible parts of the expression """
+        """Return both possible parts of the expression"""
         results = []
         value_true = expression.split(",")[1].strip()
         value_false = expression.split(",")[2].strip().strip("]")
@@ -209,6 +212,7 @@ class StackURLHelper:
         results = []
 
         temp = expression.split(": ")[1]
+        # pylint: disable=consider-iterating-dictionary
         if temp.strip("'") in self.SUBSTITUTION.keys():
             temp = self.SUBSTITUTION[temp.strip("'")]
             temp = "'" + temp + "'"
@@ -313,7 +317,7 @@ class StackURLHelper:
         return template_urls
 
     def _flatten_template_controller(self, template_url):
-        """ Recursively evaluate subs/ifs"""
+        """Recursively evaluate subs/ifs"""
         url_list = []
 
         # Replace ${SOMEVAR} with ##SOMEVAR## so finding actual "expressions" is easier
@@ -398,7 +402,9 @@ class StackURLHelper:
         return ""
 
     def template_url_to_path(
-        self, current_template_path, template_url,
+        self,
+        current_template_path,
+        template_url,
     ):
         child_local_paths = []
         child_template_paths = self.flatten_template_url(template_url)
