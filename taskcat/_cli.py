@@ -65,7 +65,7 @@ def _print_tracebacks(log_level):
 
 
 def _print_upgrade_msg(new_version, version):
-    LOG.info("version %s\n" % version, extra={"nametag": ""})
+    LOG.info(f"version {version}\n", extra={"nametag": ""})
     LOG.warning("A newer version of %s is available (%s)", NAME, new_version)
     LOG.info(
         "To upgrade pip version    %s[ pip install --upgrade %s]%s",

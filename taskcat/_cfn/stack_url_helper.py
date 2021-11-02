@@ -209,6 +209,7 @@ class StackURLHelper:
         results = []
 
         temp = expression.split(": ")[1]
+        # pylint: disable=consider-iterating-dictionary
         if temp.strip("'") in self.SUBSTITUTION.keys():
             temp = self.SUBSTITUTION[temp.strip("'")]
             temp = "'" + temp + "'"

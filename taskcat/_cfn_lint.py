@@ -116,11 +116,11 @@ class Lint:
                     passed.add(result)
                 else:
                     if self._is_error(lints[test]["results"][result]):
-                        if result in issue["error"].keys():
+                        if result in issue["error"]:
                             continue
                         issue["error"][result] = lints[test]["results"][result]
                     else:
-                        if result in issue["warning"].keys():
+                        if result in issue["warning"]:
                             continue
                         issue["warning"][result] = lints[test]["results"][result]
         for filename in passed:
