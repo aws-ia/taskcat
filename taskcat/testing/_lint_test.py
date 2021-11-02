@@ -4,8 +4,7 @@ from .base_test import BaseTest
 
 
 class LintTest(BaseTest):
-    """Lints Cloudformation Templates using cfn-lint. (Not yet implemented)
-    """
+    """Lints Cloudformation Templates using cfn-lint. (Not yet implemented)"""
 
     def __init__(self, config: Config):  # pylint: disable=W0235
         """Creates a Test from an existing Config object.

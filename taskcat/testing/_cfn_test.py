@@ -180,7 +180,8 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             )
 
     def report(
-        self, output_directory: str = "./taskcat_outputs",
+        self,
+        output_directory: str = "./taskcat_outputs",
     ):
         """Generates a report of the status of Cloudformation stacks.
 

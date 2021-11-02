@@ -19,8 +19,8 @@ except Exception as e:
 
 def get_resources(template, resource_type=()):
     """
-        Get Resources
-        Filter on type when specified
+    Get Resources
+    Filter on type when specified
     """
     resources = template.get("Resources", {})
     if not isinstance(resources, dict):

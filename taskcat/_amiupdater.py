@@ -7,10 +7,10 @@ from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import Dict, List, Set
 
-import pkg_resources
 import yaml  # pylint: disable=wrong-import-order
 
 import dateutil.parser  # pylint: disable=wrong-import-order
+import pkg_resources
 from taskcat._cfn.template import Template as TCTemplate
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import deep_get, neglect_submodule_templates
