@@ -2,8 +2,8 @@ import signal
 import sys
 
 import requests
-from pkg_resources import get_distribution
 
+from pkg_resources import get_distribution
 from taskcat._cli_core import GLOBAL_ARGS, CliCore, _get_log_level
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger

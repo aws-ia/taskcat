@@ -22,19 +22,10 @@
                 },
                 "parameters": {
                     "additionalProperties": {
-                        "oneOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "boolean"
-                            },
+                        "anyOf": [
                             {
                                 "items": {
-                                    "oneOf": [
+                                    "anyOf": [
                                         {
                                             "type": "integer"
                                         },
@@ -44,6 +35,15 @@
                                     ]
                                 },
                                 "type": "array"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "string"
                             }
                         ]
                     },
@@ -199,19 +199,10 @@
                 },
                 "parameters": {
                     "additionalProperties": {
-                        "oneOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "boolean"
-                            },
+                        "anyOf": [
                             {
                                 "items": {
-                                    "oneOf": [
+                                    "anyOf": [
                                         {
                                             "type": "integer"
                                         },
@@ -221,6 +212,15 @@
                                     ]
                                 },
                                 "type": "array"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "string"
                             }
                         ]
                     },
@@ -354,19 +354,10 @@
                 },
                 "parameters": {
                     "additionalProperties": {
-                        "oneOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "boolean"
-                            },
+                        "anyOf": [
                             {
                                 "items": {
-                                    "oneOf": [
+                                    "anyOf": [
                                         {
                                             "type": "integer"
                                         },
@@ -376,6 +367,15 @@
                                     ]
                                 },
                                 "type": "array"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "string"
                             }
                         ]
                     },

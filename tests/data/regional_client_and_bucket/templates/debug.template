@@ -199,7 +199,7 @@
                     }
                 },
                 "Handler": "index.handler",
-                "Runtime": "python2.7",
+                "Runtime": "python3.7",
                 "Timeout": "5",
                 "Role": {
                     "Fn::GetAtt": [

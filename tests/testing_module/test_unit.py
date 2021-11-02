@@ -17,7 +17,8 @@ class TestUnitTest(unittest.TestCase):
         input_file_path = project_root_path / input_file
 
         cls.base_config = Config.create(
-            project_root=project_root_path, project_config_path=input_file_path,
+            project_root=project_root_path,
+            project_config_path=input_file_path,
         )
 
     def test_methods(self):
