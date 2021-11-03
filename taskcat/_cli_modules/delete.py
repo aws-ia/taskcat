@@ -21,7 +21,7 @@ class Delete:
         aws_profile: str = "default",
         region="ALL",
         no_verify: bool = False,
-        delete_all: bool = False,
+        stack_type: str = "ALL",
     ):
         """
         :param project: installed project to delete, can be an install name, uuid, or project name
@@ -30,8 +30,7 @@ class Delete:
             stacks, supply a csv "us-east-1,us-west-1" to override this default
         :param no_verify: ignore region verification, delete will not error if an invalid\
             region is detected
-        :param delete_all: delete all deployment types of a project, if not added, the command\
-            will delete only non-test deployments
+        :param stack_type: type of stacks to delete, allowable options are ["project","test","ALL"]
         """
         boto3_cache = Boto3Cache()
         if region == "default":
@@ -63,9 +62,9 @@ class Delete:
                 "region": stack["region"],
                 "stack_id": stack["stack-id"],
             }
-            if delete_all and project in [job["name"], job["taskcat_id"], "ALL"]:
+            if stack_type in ["project","ALL"] and project in [job["name"], job["taskcat_id"], "ALL"]:
                 jobs.append(job)
-            elif not delete_all and project in [job["project_name"], "ALL"]:
+            if stack_type in ["test","ALL"] and project in [job["project_name"], "ALL"]:
                 jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {

@@ -189,5 +189,5 @@ class Test:
         :param region: region to delete from, default will scan all regions
         """
         Delete(
-            package=project, aws_profile=aws_profile, region=region, _stack_type="test"
+            project=project, aws_profile=aws_profile, region=region, stack_type="test"
         )
