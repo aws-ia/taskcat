@@ -2,12 +2,12 @@
 # noqa: B950,F841
 import inspect
 import logging
+import os
+import tempfile
 from pathlib import Path
 
 import boto3
 import yaml
-import os
-import tempfile
 
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
@@ -77,7 +77,7 @@ class Test:
         config_yaml["tests"] = {"default": {}}
 
         tmpdir = tempfile.mkdtemp()
-        name = '.taskcat.yml.temp'
+        name = ".taskcat.yml.temp"
         umask = os.umask(0o77)
         file_path = os.path.join(tmpdir, name)
         try:
@@ -100,7 +100,7 @@ class Test:
                 dont_wait_for_delete=dont_wait_for_delete,
             )
         except IOError:
-            LOG.error('IOError when retrying Test Run')
+            LOG.error("IOError when retrying Test Run")
             exit(1)
         else:
             os.remove(file_path)
