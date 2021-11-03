@@ -113,6 +113,7 @@ class TestCFNTest(unittest.TestCase):
             cfn_test.config.config.project.name,
             mock_get_tests.return_value,
             shorten_stack_name=cfn_test.config.config.project.shorten_stack_name,
+            tags=[]
         )
         mock_stacker.return_value.create_stacks.assert_called_once()
         mock_printer.report_test_progress.assert_called_once_with(
