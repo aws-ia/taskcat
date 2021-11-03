@@ -12,7 +12,6 @@ from taskcat.regions_to_partitions import REGIONS
 
 from .list import List
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -54,7 +53,9 @@ class Deploy:
         if package_type == "github":
             if project.startswith("https://") or project.startswith("git@"):
                 url = project
-                org, repo = project.replace(".git", "").replace(":", "/").split("/")[-2:]
+                org, repo = (
+                    project.replace(".git", "").replace(":", "/").split("/")[-2:]
+                )
             else:
                 org, repo = project.split("/")
                 url = f"https://github.com/{org}/{repo}.git"
@@ -63,18 +64,28 @@ class Deploy:
             self._git_clone(url, path)
             self._recurse_submodules(path, url)
         _extra_tags = [(Tag({"Key": "taskcat-installer", "Value": name}))]
-        Test.run(regions=regions, no_delete=True, project_root=path, test_names=test_names, _extra_tags=_extra_tags)
+        Test.run(
+            regions=regions,
+            no_delete=True,
+            project_root=path,
+            test_names=test_names,
+            _extra_tags=_extra_tags,
+        )
 
     @staticmethod
     def _git_clone(url, path):
         outp = BytesIO()
         if path.exists():
             # TODO: handle updating existing repo
-            LOG.warning("path already exists, updating from remote is not yet implemented")
+            LOG.warning(
+                "path already exists, updating from remote is not yet implemented"
+            )
             # shutil.rmtree(path)
         if not path.exists():
             path.mkdir(parents=True)
-            porcelain.clone(url, str(path), checkout=True, errstream=outp, outstream=outp)
+            porcelain.clone(
+                url, str(path), checkout=True, errstream=outp, outstream=outp
+            )
         LOG.debug(outp.getvalue().decode("utf-8"))
 
     def _recurse_submodules(self, path: Path, parent_url):

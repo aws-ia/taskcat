@@ -9,6 +9,7 @@ import yaml
 
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
+from taskcat._dataclasses import Tag
 from taskcat._tui import TerminalPrinter
 from taskcat.testing import CFNTest
 
@@ -111,7 +112,7 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
-        _extra_tags: list = []
+        _extra_tags: List[Tag] = None,
     ):
         """tests whether CloudFormation templates are able to successfully launch
         :param test_names: comma separated list of tests to run

@@ -1,6 +1,7 @@
 # pylint: disable=duplicate-code
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import boto3
 
 from taskcat._cfn.stack import Stack
@@ -46,7 +47,9 @@ class Delete:
             )
             regions = list(region_set)
         elif isinstance(region, str):
-            regions = self._validate_regions(region) if not no_verify else region.split(",")
+            regions = (
+                self._validate_regions(region) if not no_verify else region.split(",")
+            )
         stacks = Stacker.list_stacks([aws_profile], regions)
         jobs = []
         for stack in stacks:
@@ -59,9 +62,16 @@ class Delete:
                 "region": stack["region"],
                 "stack_id": stack["stack-id"],
             }
-            if stack_type in ["project","ALL"] and project in [job["name"], job["taskcat_id"], "ALL"]:
+            if stack_type in ["project", "ALL"] and project in [
+                job["name"],
+                job["taskcat_id"],
+                "ALL",
+            ]:
                 jobs.append(job)
-            if stack_type in ["test","ALL"] and project in [job["project_name"], "ALL"]:
+            if stack_type in ["test", "ALL"] and project in [
+                job["project_name"],
+                "ALL",
+            ]:
                 jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {
