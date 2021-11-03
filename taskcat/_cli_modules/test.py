@@ -111,7 +111,7 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
-        _extra_tags: list = []
+        _extra_tags: list = [],
     ):
         """tests whether CloudFormation templates are able to successfully launch
         :param test_names: comma separated list of tests to run

@@ -37,7 +37,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         no_delete: bool = False,
         keep_failed: bool = False,
         dont_wait_for_delete: bool = True,
-        _extra_tags: list = []
+        _extra_tags: list = [],
     ):
         """The constructor creates a test from the given Config object.
 
@@ -115,7 +115,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             self.config.config.project.name,
             tests,
             shorten_stack_name=self.config.config.project.shorten_stack_name,
-            tags=self._extra_tags
+            tags=self._extra_tags,
         )
         self.test_definition.create_stacks()
 

@@ -78,7 +78,9 @@ class List:
                 jobs[stack_key]["active_stacks"] += 1
 
         longest_name = List._longest([v["name"] for _, v in jobs.items()])
-        longest_project_name = List._longest([v["project_name"] for _, v in jobs.items()])
+        longest_project_name = List._longest(
+            [v["project_name"] for _, v in jobs.items()]
+        )
         if not jobs:
             LOG.info("no stacks found")
             return
