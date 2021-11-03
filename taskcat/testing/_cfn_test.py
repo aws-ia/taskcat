@@ -61,7 +61,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         self.no_delete = no_delete
         self.keep_failed = keep_failed
         self.dont_wait_for_delete = dont_wait_for_delete
-        self._extra_tags = _extra_tags
+        self._extra_tags = _extra_tags if _extra_tags else []
 
         if printer is None:
             self.printer = TerminalPrinter(minimalist=True)
@@ -83,7 +83,9 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         templates = self.config.get_templates()
 
         if self.skip_upload and not self.config.config.project.s3_bucket:
-            raise TaskCatException("cannot skip_buckets without specifying s3_bucket in config")
+            raise TaskCatException(
+                "cannot skip_buckets without specifying s3_bucket in config"
+            )
 
         buckets = self.config.get_buckets(boto3_cache)
 
@@ -99,7 +101,9 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             if self.config.config.project.package_lambda:
                 LambdaBuild(self.config, self.config.project_root)
             # 3. s3 sync
-            stage_in_s3(buckets, self.config.config.project.name, self.config.project_root)
+            stage_in_s3(
+                buckets, self.config.config.project.name, self.config.project_root
+            )
         regions = self.config.get_regions(boto3_cache)
         parameters = self.config.get_rendered_parameters(buckets, regions, templates)
         tests = self.config.get_tests(templates, regions, buckets, parameters)
@@ -156,7 +160,9 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         # Delete Templates and Buckets
         buckets = self.config.get_buckets()
 
-        if not self.no_delete or (self.keep_failed is True and len(status["FAILED"]) == 0):
+        if not self.no_delete or (
+            self.keep_failed is True and len(status["FAILED"]) == 0
+        ):
             deleted: ListType[str] = []
             for test in buckets.values():
                 for bucket in test.values():
@@ -169,7 +175,9 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
 
         status = self.test_definition.status()
         if len(status["FAILED"]) > 0:
-            raise TaskCatException(f'One or more stacks failed to create: {status["FAILED"]}')
+            raise TaskCatException(
+                f'One or more stacks failed to create: {status["FAILED"]}'
+            )
 
     def report(
         self,
@@ -184,7 +192,9 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         report_path.mkdir(exist_ok=True)
         cfn_logs = _CfnLogTools()
         cfn_logs.createcfnlogs(self.test_definition, report_path)
-        ReportBuilder(self.test_definition, report_path / "index.html").generate_report()
+        ReportBuilder(
+            self.test_definition, report_path / "index.html"
+        ).generate_report()
 
 
 def _trim_regions(regions, config):
