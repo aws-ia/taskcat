@@ -75,8 +75,8 @@ class Test:
         config_yaml["tests"] = {"default": {}}
 
         with open(
-            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"  # nosec
-        ) as filepointer:
+            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"
+        ) as filepointer:  # nosec
             yaml.safe_dump(config_yaml, filepointer)
 
         if resource["PhysicalResourceId"]:
@@ -111,7 +111,7 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
-        _extra_tags: list = [],
+        _extra_tags: list = None,
     ):
         """tests whether CloudFormation templates are able to successfully launch
         :param test_names: comma separated list of tests to run
