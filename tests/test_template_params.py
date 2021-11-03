@@ -4,8 +4,8 @@ import re
 import unittest
 from collections import namedtuple
 from io import BytesIO
+from unittest import mock
 
-import mock
 from taskcat._client_factory import Boto3Cache
 from taskcat._template_params import ParamGen
 from taskcat.exceptions import TaskCatException

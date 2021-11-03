@@ -37,6 +37,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         no_delete: bool = False,
         keep_failed: bool = False,
         dont_wait_for_delete: bool = True,
+        _extra_tags: list = None,
     ):
         """The constructor creates a test from the given Config object.
 
@@ -60,6 +61,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         self.no_delete = no_delete
         self.keep_failed = keep_failed
         self.dont_wait_for_delete = dont_wait_for_delete
+        self._extra_tags = _extra_tags if _extra_tags else []
 
         if printer is None:
             self.printer = TerminalPrinter(minimalist=True)
@@ -73,7 +75,6 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             TaskCatException: If skip_upload is set without specifying s3_bucket in config.
             TaskCatException: If linting fails with errors.
         """
-
         _trim_regions(self.regions, self.config)
         _trim_tests(self.test_names, self.config)
 
@@ -114,6 +115,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
             self.config.config.project.name,
             tests,
             shorten_stack_name=self.config.config.project.shorten_stack_name,
+            tags=self._extra_tags,
         )
         self.test_definition.create_stacks()
 

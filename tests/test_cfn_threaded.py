@@ -1,8 +1,8 @@
 import unittest
 import uuid
 from pathlib import Path
+from unittest import mock
 
-import mock
 from taskcat import Config
 from taskcat._cfn.threaded import Stacker
 

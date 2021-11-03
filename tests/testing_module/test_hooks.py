@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from mock import MagicMock, patch
 from taskcat import Config
 from taskcat.exceptions import TaskCatException
 from taskcat.testing import CFNTest
