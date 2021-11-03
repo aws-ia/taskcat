@@ -16,6 +16,7 @@ setup(
         "taskcat._cfn",
         "taskcat._cli_modules",
         "taskcat.testing",
+        "taskcat.iam_policy",
         "taskcat_plugin_testhook",
     ],
     description="An OpenSource Cloudformation Deployment Framework",
@@ -27,7 +28,7 @@ setup(
     "sshvans@amazon.com",
     url="https://aws-quickstart.github.io/taskcat/",
     license="Apache License 2.0",
-    download_url="https://github.com/aws-quickstart/taskcat/tarball/master",
+    download_url="https://github.com/aws-quickstart/taskcat/tarball/main",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
