@@ -1,6 +1,7 @@
 # pylint: disable=duplicate-code
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import boto3
 
 from taskcat._cfn.stack import Stack
@@ -39,11 +40,7 @@ class Delete:
             region_set: set = set()
             region_set = region_set.union(
                 # pylint: disable=duplicate-code
-                set(
-                    boto3.Session(profile_name=aws_profile).get_available_regions(
-                        "cloudformation"
-                    )
-                )
+                set(boto3.Session(profile_name=aws_profile).get_available_regions("cloudformation"))
             )
             regions = list(region_set)
         elif isinstance(region, str):
@@ -85,9 +82,7 @@ class Delete:
                     LOG.info(f"{name_and_region[0]} deleted in {name_and_region[1]}")
 
     def _delete_stack(self, boto3_cache, job, aws_profile):
-        client = boto3_cache.client(
-            "cloudformation", profile=aws_profile, region=job["region"]
-        )
+        client = boto3_cache.client("cloudformation", profile=aws_profile, region=job["region"])
         Stack.delete(client=client, stack_id=job["stack_id"])
 
     # Checks if all regions are valid

@@ -12,7 +12,6 @@ from taskcat.regions_to_partitions import REGIONS
 
 from .list import List
 
-
 LOG = logging.getLogger(__name__)
 
 
