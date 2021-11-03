@@ -31,22 +31,23 @@ class CFNPolicyGenerator:
 
         policy = self._policy_from_resource_types(list(resource_types))
 
-        with open(Path(self._output_file).resolve(), "w") as f:
-            f.write(json.dumps(policy, indent=4, sort_keys=True))
+        with open(Path(self._output_file).resolve(), "w", encoding="utf-8") as _f:
+            _f.write(json.dumps(policy, indent=4, sort_keys=True))
 
-    def _generate_placeholder(self, resource_type_name):
+    @staticmethod
+    def _generate_placeholder(resource_type_name):
         svc_name = resource_type_name.split("::")[1].lower()
-        x = {
+        _x = {
             "create": [f"{svc_name}:*"],
             "read": [f"{svc_name}:*"],
             "update": [f"{svc_name}:*"],
             "delete": [f"{svc_name}:*"],
         }
-        return x
+        return _x
 
     def _policy_from_resource_types(self, resource_types: List[str]):
-        with open(self._data_file_path) as f:
-            data = json.load(f)
+        with open(self._data_file_path, encoding="utf-8") as _f:
+            data = json.load(_f)
 
         _policy = {"Version": "2012-10-17", "Statement": []}
         _statements: dict = {
@@ -73,9 +74,11 @@ class CFNPolicyGenerator:
                 }
             )
         LOG.warning(
-            "NOTE: The generated IAM policy will contain <service>:* IAM Actions where a coverage gap exists within the CloudFormation Resource Spec"
+            "NOTE: The generated IAM policy will contain <service>:* IAM Actions where a"
+            + " coverage gap exists within the CloudFormation Resource Spec"
         )
         LOG.warning(
-            "Provide feedback to the CloudFormation team via: https://github.com/aws-cloudformation/cloudformation-coverage-roadmap "
+            "Provide feedback to the CloudFormation team via: "
+            + "https://github.com/aws-cloudformation/cloudformation-coverage-roadmap "
         )
         return _policy
