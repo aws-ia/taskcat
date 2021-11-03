@@ -6,6 +6,8 @@ from pathlib import Path
 
 import boto3
 import yaml
+import os
+import tempfile
 
 from taskcat._common_utils import determine_profile_for_region
 from taskcat._config import Config
@@ -74,27 +76,37 @@ class Test:
         )
         config_yaml["tests"] = {"default": {}}
 
-        with open(
-            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"
-        ) as filepointer:  # nosec
-            yaml.safe_dump(config_yaml, filepointer)
+        tmpdir = tempfile.mkdtemp()
+        name = '.taskcat.yml.temp'
+        umask = os.umask(0o77)
+        file_path = os.path.join(tmpdir, name)
+        try:
+            with open(file_path, "w", encoding="utf-8") as filepointer:  # nosec
+                yaml.safe_dump(config_yaml, filepointer)
+            if resource["PhysicalResourceId"]:
+                cfn.delete_stack(StackName=resource["PhysicalResourceId"])
+                LOG.info("waiting for old stack to delete...")
+                cfn.get_waiter("stack_delete_complete").wait(
+                    StackName=resource["PhysicalResourceId"]
+                )
 
-        if resource["PhysicalResourceId"]:
-            cfn.delete_stack(StackName=resource["PhysicalResourceId"])
-            LOG.info("waiting for old stack to delete...")
-            cfn.get_waiter("stack_delete_complete").wait(
-                StackName=resource["PhysicalResourceId"]
+            Test.run(
+                input_file=file_path,  # nosec
+                project_root=project_root,
+                lint_disable=True,
+                no_delete=no_delete,
+                keep_failed=keep_failed,
+                minimal_output=minimal_output,
+                dont_wait_for_delete=dont_wait_for_delete,
             )
-
-        Test.run(
-            input_file="/tmp/.taskcat.yml.temp",  # nosec
-            project_root=project_root,
-            lint_disable=True,
-            no_delete=no_delete,
-            keep_failed=keep_failed,
-            minimal_output=minimal_output,
-            dont_wait_for_delete=dont_wait_for_delete,
-        )
+        except IOError:
+            LOG.error('IOError when retrying Test Run')
+            exit(1)
+        else:
+            os.remove(file_path)
+        finally:
+            os.umask(umask)
+            os.rmdir(tmpdir)
 
     @staticmethod
     # pylint: disable=too-many-arguments,W0613,line-too-long
