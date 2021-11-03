@@ -62,9 +62,16 @@ class Delete:
                 "region": stack["region"],
                 "stack_id": stack["stack-id"],
             }
-            if stack_type in ["project","ALL"] and project in [job["name"], job["taskcat_id"], "ALL"]:
+            if stack_type in ["project", "ALL"] and project in [
+                job["name"],
+                job["taskcat_id"],
+                "ALL",
+            ]:
                 jobs.append(job)
-            if stack_type in ["test","ALL"] and project in [job["project_name"], "ALL"]:
+            if stack_type in ["test", "ALL"] and project in [
+                job["project_name"],
+                "ALL",
+            ]:
                 jobs.append(job)
         with ThreadPoolExecutor() as executor:
             stack_futures = {
