@@ -1,5 +1,6 @@
 # pylint: disable=duplicate-code
 import logging
+import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import boto3
@@ -15,6 +16,7 @@ LOG = logging.getLogger(__name__)
 class Delete:
     """[ALPHA] Deletes an installed project in an AWS account/region"""
 
+    # pylint: disable=too-many-locals
     def __init__(
         self,
         project: str,
@@ -88,22 +90,25 @@ class Delete:
                 name_and_region = stack_futures[stack_future]
                 try:
                     stack_future.result()
+                # pylint: disable=broad-except
                 except Exception:
                     LOG.error(f"{name_and_region[0]} failed in {name_and_region[1]}")
                 else:
                     LOG.info(f"{name_and_region[0]} deleted in {name_and_region[1]}")
 
-    def _delete_stack(self, boto3_cache, job, aws_profile):
+    @staticmethod
+    def _delete_stack(boto3_cache, job, aws_profile):
         client = boto3_cache.client(
             "cloudformation", profile=aws_profile, region=job["region"]
         )
         Stack.delete(client=client, stack_id=job["stack_id"])
 
     # Checks if all regions are valid
-    def _validate_regions(self, region_string):
+    @staticmethod
+    def _validate_regions(region_string):
         regions = region_string.split(",")
         for region in regions:
             if region not in REGIONS:
                 LOG.error(f"Bad region detected: {region}")
-                exit(1)
+                sys.exit(1)
         return regions

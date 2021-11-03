@@ -1,5 +1,6 @@
 # pylint: disable=duplicate-code
 import logging
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -69,6 +70,7 @@ class Deploy:
             no_delete=True,
             project_root=path,
             test_names=test_names,
+            input_file=input_file,
             _extra_tags=_extra_tags,
         )
 
@@ -136,10 +138,11 @@ class Deploy:
         List(profiles=profiles, regions=regions, stack_type="project")
 
     # Checks if all regions are valid
-    def _validate_regions(self, region_string):
+    @staticmethod
+    def _validate_regions(region_string):
         regions = region_string.split(",")
         for region in regions:
             if region not in REGIONS:
                 LOG.error(f"Bad region detected: {region}")
-                exit(1)
+                sys.exit(1)
         return regions

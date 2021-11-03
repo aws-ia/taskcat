@@ -3,6 +3,7 @@
 import inspect
 import logging
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -101,7 +102,7 @@ class Test:
             )
         except IOError:
             LOG.error("IOError when retrying Test Run")
-            exit(1)
+            sys.exit(1)
         else:
             os.remove(file_path)
         finally:
