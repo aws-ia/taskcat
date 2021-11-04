@@ -290,7 +290,7 @@ class AMIUpdater:
         "taskcat", "/cfg/amiupdater.cfg.yml"
     )
     upstream_config_file_url = (
-        "https://raw.githubusercontent.com/aws-quickstart/"
+        "https://raw.githubusercontent.com/aws-ia/"
         "taskcat/main/cfg/amiupdater.cfg.yml"
     )
 

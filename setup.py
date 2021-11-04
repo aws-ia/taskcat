@@ -26,9 +26,9 @@ setup(
     "Singh",
     author_email="tonynv@amazon.com, jmmccon@amazon.com, andglenn@amazon.com, "
     "sshvans@amazon.com",
-    url="https://aws-quickstart.github.io/taskcat/",
+    url="https://aws-ia.github.io/taskcat/",
     license="Apache License 2.0",
-    download_url="https://github.com/aws-quickstart/taskcat/tarball/main",
+    download_url="https://github.com/aws-ia/taskcat/tarball/main",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
