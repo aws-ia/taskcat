@@ -1,4 +1,4 @@
-[![logo](https://raw.githubusercontent.com/aws-quickstart/taskcat/main/assets/docs/images/tcat.png)](https://taskcat.io/)
+[![logo](https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png)](https://taskcat.io/)
 
 [![Build Status](https://travis-ci.com/aws-quickstart/taskcat.svg?branch=main)](https://travis-ci.com/aws-quickstart/taskcat) [![PyPI version](https://badge.fury.io/py/taskcat.svg)](https://badge.fury.io/py/taskcat) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
