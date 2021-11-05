@@ -42,9 +42,7 @@ class S3Sync:
     exclude_remote_path_prefixes: List[str] = []
 
     def __init__(self, s3_client, bucket, prefix, path, acl="private", dry_run=False):
-        """Syncronizes local file system with an s3 bucket/prefix
-
-        """
+        """Syncronizes local file system with an s3 bucket/prefix"""
         if prefix != "" and not prefix.endswith("/"):
             prefix = prefix + "/"
         self.s3_client = s3_client

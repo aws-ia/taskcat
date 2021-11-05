@@ -2,6 +2,9 @@
 # noqa: B950,F841
 import inspect
 import logging
+import os
+import sys
+import tempfile
 from pathlib import Path
 
 import boto3
@@ -74,27 +77,37 @@ class Test:
         )
         config_yaml["tests"] = {"default": {}}
 
-        with open(
-            "/tmp/.taskcat.yml.temp", "w", encoding="utf-8"  # nosec
-        ) as filepointer:
-            yaml.safe_dump(config_yaml, filepointer)
+        tmpdir = tempfile.mkdtemp()
+        name = ".taskcat.yml.temp"
+        umask = os.umask(0o77)
+        file_path = os.path.join(tmpdir, name)
+        try:
+            with open(file_path, "w", encoding="utf-8") as filepointer:  # nosec
+                yaml.safe_dump(config_yaml, filepointer)
+            if resource["PhysicalResourceId"]:
+                cfn.delete_stack(StackName=resource["PhysicalResourceId"])
+                LOG.info("waiting for old stack to delete...")
+                cfn.get_waiter("stack_delete_complete").wait(
+                    StackName=resource["PhysicalResourceId"]
+                )
 
-        if resource["PhysicalResourceId"]:
-            cfn.delete_stack(StackName=resource["PhysicalResourceId"])
-            LOG.info("waiting for old stack to delete...")
-            cfn.get_waiter("stack_delete_complete").wait(
-                StackName=resource["PhysicalResourceId"]
+            Test.run(
+                input_file=file_path,  # nosec
+                project_root=project_root,
+                lint_disable=True,
+                no_delete=no_delete,
+                keep_failed=keep_failed,
+                minimal_output=minimal_output,
+                dont_wait_for_delete=dont_wait_for_delete,
             )
-
-        Test.run(
-            input_file="/tmp/.taskcat.yml.temp",  # nosec
-            project_root=project_root,
-            lint_disable=True,
-            no_delete=no_delete,
-            keep_failed=keep_failed,
-            minimal_output=minimal_output,
-            dont_wait_for_delete=dont_wait_for_delete,
-        )
+        except IOError:
+            LOG.error("IOError when retrying Test Run")
+            sys.exit(1)
+        else:
+            os.remove(file_path)
+        finally:
+            os.umask(umask)
+            os.rmdir(tmpdir)
 
     @staticmethod
     # pylint: disable=too-many-arguments,W0613,line-too-long
@@ -111,9 +124,9 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
+        _extra_tags: List = None,
     ):
         """tests whether CloudFormation templates are able to successfully launch
-
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
         :param input_file: path to either a taskat project config file or a CloudFormation template
@@ -150,6 +163,7 @@ class Test:
 
         test.printer = terminal_printer
 
+        # Runs here
         with test:
             test.report(output_directory)
 
@@ -159,13 +173,13 @@ class Test:
         raise NotImplementedError()
 
     @staticmethod
-    def list(profiles: str = "default", regions="ALL", _stack_type="package"):
+    def list(profiles: str = "default", regions="ALL"):
         """
         :param profiles: comma separated list of aws profiles to search
         :param regions: comma separated list of regions to search, default is to check
         all commercial regions
         """
-        List(profiles=profiles, regions=regions, _stack_type="test")
+        List(profiles=profiles, regions=regions, stack_type="test")
 
     @staticmethod
     def clean(project: str, aws_profile: str = "default", region="ALL"):
@@ -175,19 +189,6 @@ class Test:
         :param aws_profile: aws profile to use for deletion
         :param region: region to delete from, default will scan all regions
         """
-        if region == "ALL":
-            region_set: set = set()
-            region_set = region_set.union(
-                # pylint: disable=duplicate-code
-                set(
-                    boto3.Session(profile_name=aws_profile).get_available_regions(
-                        "cloudformation"
-                    )
-                )
-            )
-            regions = list(region_set)
-        else:
-            regions = [region]
         Delete(
-            package=project, aws_profile=aws_profile, region=regions, _stack_type="test"
+            project=project, aws_profile=aws_profile, region=region, stack_type="test"
         )

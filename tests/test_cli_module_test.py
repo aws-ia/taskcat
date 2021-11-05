@@ -1,8 +1,8 @@
 import os
 import unittest
 from pathlib import Path
+from unittest import mock
 
-import mock
 from taskcat._cli_modules.test import Test
 
 

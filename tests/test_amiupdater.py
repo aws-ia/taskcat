@@ -4,11 +4,10 @@ import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch, sentinel
+from unittest.mock import Mock, patch, sentinel
 
 import requests
 
-import mock
 from taskcat._amiupdater import (
     REGION_REGEX,
     AMIUpdater,
@@ -732,13 +731,11 @@ class TestAMIUpdater(unittest.TestCase):
             query_codenames([], {})
 
     def test_query_codenames(self):
-        mock_boto_cache = mock.Mock(
-            "taskcat._client_factory.Boto3Cache", autospec=True
-        )()
-        mock_client = mock.Mock()
+        mock_boto_cache = Mock("taskcat._client_factory.Boto3Cache", autospec=True)()
+        mock_client = Mock()
         mock_client.describe_images.return_value = {"Images": []}
         mock_boto_cache.client.return_value = mock_client
-        mock_regional_codename = mock.Mock(
+        mock_regional_codename = Mock(
             "taskcat._amiupdater.RegionalCodename", autospec=True
         )()
         mock_regional_codename.region = "us-east-1"
@@ -915,9 +912,7 @@ class TestAMIUpdater(unittest.TestCase):
         self.assertTrue(actual)
 
     def test_template_write(self):
-        mock_temp = unittest.mock.Mock(
-            "taskcat._cfn.template.Template", autospec=True
-        )()
+        mock_temp = Mock("taskcat._cfn.template.Template", autospec=True)()
         mock_temp.raw_template = "some-template-data"
         au_template = Template(underlying=mock_temp)
         au_template._ls = "some-other-data"

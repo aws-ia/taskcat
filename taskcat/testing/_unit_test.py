@@ -4,8 +4,7 @@ from .base_test import BaseTest
 
 
 class UnitTest(BaseTest):
-    """UnitTest Cloudformation locally without deploying them to AWS.
-    """
+    """UnitTest Cloudformation locally without deploying them to AWS."""
 
     def __init__(self, config: Config):  # pylint: disable=W0235
         """Creates a Test from an existing Config object.

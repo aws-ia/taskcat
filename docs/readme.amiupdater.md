@@ -16,7 +16,7 @@ For a current list of options, see..
 
 ### Upstream Mappings
 
-By default, AMIUpdater uses a config file bundled with `taskcat`. This config file is populated with common AMI Mappings, such as *Amazon Linux AMI* and *Ubuntu Server 18.04*. To see all of the mappings available, [check out the config file](https://github.com/aws-quickstart/taskcat/blob/master/taskcat/cfg/amiupdater.cfg.yml)
+By default, AMIUpdater uses a config file bundled with `taskcat`. This config file is populated with common AMI Mappings, such as *Amazon Linux AMI* and *Ubuntu Server 18.04*. To see all of the mappings available, [check out the config file](https://github.com/aws-ia/taskcat/blob/master/taskcat/cfg/amiupdater.cfg.yml)
 
 To utilize these upstream mappings, simply leverage them in your templates.
 

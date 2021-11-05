@@ -25,6 +25,7 @@ REGIONS = {
     "us-gov-east-1": "aws-us-gov",
     "us-gov-west-1": "aws-us-gov",
     "us-iso-east-1": "aws-iso",
+    "us-iso-west-1": "aws-iso",
     "us-isob-east-1": "aws-iso-b"
 }
 
@@ -61,7 +62,8 @@ PARTITIONS = {
         "us-gov-west-1"
     ],
     "aws-iso": [
-        "us-iso-east-1"
+        "us-iso-east-1",
+        "us-iso-west-1"
     ],
     "aws-iso-b": [
         "us-isob-east-1"

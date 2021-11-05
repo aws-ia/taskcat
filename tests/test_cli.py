@@ -1,6 +1,6 @@
 import unittest
+from unittest import mock
 
-import mock
 from taskcat._cli import (
     _print_upgrade_msg,
     _setup_logging,

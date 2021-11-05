@@ -1,8 +1,8 @@
 import os
 import unittest
 from pathlib import Path
+from unittest import mock
 
-import mock
 from taskcat._client_factory import Boto3Cache
 from taskcat._config import Config
 from taskcat.exceptions import TaskCatException

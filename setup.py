@@ -16,6 +16,7 @@ setup(
         "taskcat._cfn",
         "taskcat._cli_modules",
         "taskcat.testing",
+        "taskcat.iam_policy",
         "taskcat_plugin_testhook",
     ],
     description="An OpenSource Cloudformation Deployment Framework",
@@ -25,9 +26,9 @@ setup(
     "Singh",
     author_email="tonynv@amazon.com, jmmccon@amazon.com, andglenn@amazon.com, "
     "sshvans@amazon.com",
-    url="https://aws-quickstart.github.io/taskcat/",
+    url="https://aws-ia.github.io/taskcat/",
     license="Apache License 2.0",
-    download_url="https://github.com/aws-quickstart/taskcat/tarball/master",
+    download_url="https://github.com/aws-ia/taskcat/tarball/main",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
@@ -50,6 +51,6 @@ setup(
     ],
     install_requires=REQUIRED,
     test_suite="tests",
-    tests_require=["mock", "boto3"],
+    tests_require=["boto3"],
     include_package_data=True,
 )

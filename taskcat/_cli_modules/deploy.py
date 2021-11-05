@@ -1,120 +1,78 @@
 # pylint: disable=duplicate-code
 import logging
+import sys
 from io import BytesIO
 from pathlib import Path
-from time import sleep
 
 from dulwich import porcelain
 from dulwich.config import ConfigFile, parse_submodules
-from taskcat._cfn.threaded import Stacker
-from taskcat._client_factory import Boto3Cache
-from taskcat._config import Config
+from taskcat._cli_modules.test import Test
 from taskcat._dataclasses import Tag
 from taskcat._name_generator import generate_name
-from taskcat._s3_stage import stage_in_s3
-from taskcat.exceptions import TaskCatException
+from taskcat.regions_to_partitions import REGIONS
+
+from .list import List
 
 LOG = logging.getLogger(__name__)
 
 
 class Deploy:
-    """[ALPHA] installs a stack into an AWS account/region"""
+    """[ALPHA] installs a stack into an AWS account/regions"""
 
     PKG_CACHE_PATH = Path("~/.taskcat_package_cache/").expanduser().resolve()
 
     # pylint: disable=too-many-branches,too-many-locals
-    def __init__(  # noqa: C901
+    def run(  # noqa: C901
         self,
-        package: str,
-        aws_profile: str = "default",
-        region="default",
-        parameters="",
+        project: str = "./",
+        test_names: str = "ALL",
+        regions: str = "ALL",
         name="",
-        wait=False,
+        input_file: str = "./.taskcat.yml",
     ):
         """
-        :param package: name of package to install can be a path to a local package,
+        :param project: name of project to install can be a path to a local project,\
         a github org/repo, or an AWS Quick Start name
-        :param aws_profile: aws profile to use for installation
-        :param region: regions to install into, default will use aws cli configured
+        :param test_names: comma separated list of tests (specified in .taskcat.yml) to run\
+            defaults to the 'default' test. Set to 'ALL' to deploy every entry
+        :param regions: comma separated list of regions to test in\
         default
-        :param parameters: parameters to pass to the stack, in the format
-        Key=Value,AnotherKey=AnotherValue or providing a path to a json or yaml file
-        containing the parameters
-        :param name: stack name to use, if not specified one will be automatically
+        :param name: stack name to use, if not specified one will be automatically\
         generated
-        :param wait: if enabled, taskcat will wait for stack to complete before exiting
+        :param input_file: path to either a taskcat project config file or a CloudFormation template
         """
-        LOG.warning("deploy is in alpha feature, use with caution")
-        boto3_cache = Boto3Cache()
         if not name:
             name = generate_name()
-        if region == "default":
-            region = boto3_cache.get_default_region(profile_name=aws_profile)
-        path = Path(package).resolve()
-        if Path(package).resolve().is_dir():
+        path = Path(project).resolve()
+        if Path(project).resolve().is_dir():
             package_type = "local"
-        elif "/" in package:
+        elif "/" in project:
             package_type = "github"
         else:  # assuming it's an AWS Quick Start
             package_type = "github"
-            package = f"aws-quickstart/quickstart-{package}"
+            project = f"aws-quickstart/quickstart-{project}"
         if package_type == "github":
-            if package.startswith("https://") or package.startswith("git@"):
-                url = package
+            if project.startswith("https://") or project.startswith("git@"):
+                url = project
                 org, repo = (
-                    package.replace(".git", "").replace(":", "/").split("/")[-2:]
+                    project.replace(".git", "").replace(":", "/").split("/")[-2:]
                 )
             else:
-                org, repo = package.split("/")
+                org, repo = project.split("/")
                 url = f"https://github.com/{org}/{repo}.git"
             path = Deploy.PKG_CACHE_PATH / org / repo
             LOG.info(f"fetching git repo {url}")
             self._git_clone(url, path)
             self._recurse_submodules(path, url)
-        config = Config.create(
-            args={"project": {"regions": [region]}},
-            project_config_path=(path / ".taskcat.yml"),
+        _extra_tags = [(Tag({"Key": "taskcat-installer", "Value": name}))]
+        Test.run(
+            regions=regions,
+            no_delete=True,
             project_root=path,
+            test_names=test_names,
+            input_file=input_file,
+            _extra_tags=_extra_tags,
         )
-        # only use one region
-        for test_name in config.config.tests:
-            config.config.tests[test_name].regions = config.config.project.regions
-        # if there's no test called default, take the 1st in the list
-        if "default" not in config.config.tests:
-            config.config.tests["default"] = config.config.tests[
-                list(config.config.tests.keys())[0]
-            ]
-        # until install offers a way to run different "plans" we only need one test
-        for test_name in list(config.config.tests.keys()):
-            if test_name != "default":
-                del config.config.tests[test_name]
-        buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, path)
-        regions = config.get_regions(boto3_cache)
-        templates = config.get_templates()
-        parameters = config.get_rendered_parameters(buckets, regions, templates)
-        tests = config.get_tests(templates, regions, buckets, parameters)
-        tags = [Tag({"Key": "taskcat-installer", "Value": name})]
-        stacks = Stacker(config.config.project.name, tests, tags=tags)
-        stacks.create_stacks()
-        LOG.error(
-            f" {stacks.uid.hex}",
-            extra={"nametag": "\x1b[0;30;47m[INSTALL_ID  ]\x1b[0m"},
-        )
-        LOG.error(f" {name}", extra={"nametag": "\x1b[0;30;47m[INSTALL_NAME]\x1b[0m"})
-        if wait:
-            LOG.info(
-                f"waiting for stack {stacks.stacks[0].name} to complete in "
-                f"{stacks.stacks[0].region_name}"
-            )
-            while stacks.status()["IN_PROGRESS"]:
-                sleep(5)
-        if stacks.status()["FAILED"]:
-            LOG.error("Install failed:")
-            for error in stacks.stacks[0].error_events():
-                LOG.error(f"{error.logical_id}: {error.status_reason}")
-            raise TaskCatException("Stack creation failed")
 
     @staticmethod
     def _git_clone(url, path):
@@ -169,3 +127,22 @@ class Deploy:
                 )
                 LOG.debug(outp.getvalue().decode("utf-8"))
             self._recurse_submodules((path / sub_path), url)
+
+    @staticmethod
+    def list(profiles: str = "default", regions="ALL"):
+        """
+        :param profiles: comma separated list of aws profiles to search
+        :param regions: comma separated list of regions to search, default is to check
+        all commercial regions
+        """
+        List(profiles=profiles, regions=regions, stack_type="project")
+
+    # Checks if all regions are valid
+    @staticmethod
+    def _validate_regions(region_string):
+        regions = region_string.split(",")
+        for region in regions:
+            if region not in REGIONS:
+                LOG.error(f"Bad region detected: {region}")
+                sys.exit(1)
+        return regions
