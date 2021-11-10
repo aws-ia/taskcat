@@ -6,6 +6,7 @@ import cfnlint.core
 import cfnlint.helpers
 from cfnlint.config import ConfigMixIn as CfnLintConfig
 from jsonschema.exceptions import ValidationError
+from taskcat._common_utils import neglect_submodule_templates
 from taskcat._config import Config
 from taskcat._dataclasses import Templates
 
@@ -71,6 +72,9 @@ class Lint:
             for template in self._templates.values():
                 templates.append(template)
                 templates += list(template.descendents)
+            templates = neglect_submodule_templates(
+                self._config.project_root, templates
+            )
             templates = set(templates)
             for template in templates:
                 self._run_checks(template, name, lint_errors, lints)
