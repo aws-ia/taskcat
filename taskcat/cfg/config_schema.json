@@ -182,6 +182,10 @@
                     "pattern": "^[a-z0-9-]*$",
                     "type": "string"
                 },
+                "org_id": {
+                    "description": "Organization ID to use when launching CFN Stacks. starts with o-. It is found on Organization Settings page",
+                    "type": "string"
+                },
                 "owner": {
                     "description": "email address for project owner (not used at present)",
                     "examples": [
@@ -488,6 +492,7 @@
                 "lambda_source_path": null,
                 "lambda_zip_path": null,
                 "name": null,
+                "org_id": null,
                 "owner": null,
                 "package_lambda": null,
                 "parameters": null,
