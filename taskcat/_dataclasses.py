@@ -102,6 +102,9 @@ METADATA: Mapping[str, Mapping[str, Any]] = {
         "examples": [True, False],
     },
     "role_name": {"description": "Role name to use when launching CFN Stacks."},
+    "org_id": {
+        "description": "Organization ID to use when launching CFN Stacks. starts with o-. It is found on Organization Settings page"
+    },
     "stack_name": {"description": "Cloudformation Stack Name"},
     "stack_name_prefix": {"description": "Prefix to apply to generated CFN Stack Name"},
     "stack_name_suffix": {"description": "Suffix to apply to generated CFN Stack Name"},
@@ -247,6 +250,7 @@ class S3BucketObj:
     regional_buckets: bool
     object_acl: str
     taskcat_id: UUID
+    org_id: str
 
     @property
     def sigv4_policy(self):
@@ -265,6 +269,23 @@ class S3BucketObj:
         }
         return json.dumps(policy)
 
+    @property
+    def multi_account_policy(self):
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "Bucket access to member accounts",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": "s3:*",
+                    "Resource": f"arn:{self.partition}:s3:::{self.name}/*",
+                    "Condition": {"StringEquals": {"aws:PrincipalOrgID": self.org_id}},
+                }
+            ],
+        }
+        return json.dumps(policy)
+
     def create(self):
         if self._bucket_matches_existing():
             return
@@ -273,7 +294,6 @@ class S3BucketObj:
             kwargs["CreateBucketConfiguration"] = {"LocationConstraint": self.region}
 
         self.s3_client.create_bucket(**kwargs)
-        error = None
         try:
             self.s3_client.get_waiter("bucket_exists").wait(Bucket=self.name)
 
@@ -284,18 +304,21 @@ class S3BucketObj:
                         "TagSet": [{"Key": "taskcat-id", "Value": self.taskcat_id.hex}]
                     },
                 )
-            if self.sigv4:
+
+            if self.sigv4 is True:
                 self.s3_client.put_bucket_policy(
                     Bucket=self.name, Policy=self.sigv4_policy
                 )
+            if self.org_id is not None:
+                self.s3_client.put_bucket_policy(
+                    Bucket=self.name, Policy=self.multi_account_policy
+                )
         except Exception as e:  # pylint: disable=broad-except
-            error = e
             try:
                 self.s3_client.delete_bucket(Bucket=self.name)
             except Exception as inner_e:  # pylint: disable=broad-except
                 LOG.warning(f"failed to remove bucket {self.name}: {inner_e}")
-        if error:
-            raise error
+            raise e
 
     def empty(self):
         if not self.auto_generated:
@@ -576,6 +599,9 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
         default=None, metadata=METADATA["shorten_stack_name"]
     )
     role_name: Optional[str] = field(default=None, metadata=METADATA["role_name"])
+
+    org_id: Optional[str] = field(default=None, metadata=METADATA["org_id"])
+
     prehooks: Optional[List[HookData]] = field(
         default=None, metadata=METADATA["prehooks"]
     )
