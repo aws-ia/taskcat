@@ -274,6 +274,7 @@ class Config:
             else "private"
         )
         sigv4 = not self.config.project.s3_enable_sig_v2
+        org_id = self.config.project.org_id
         if not test.s3_bucket and not bucket_objects.get(region.account_id):
             name = generate_bucket_name(self.config.project.name)
             auto_generated = True
@@ -296,6 +297,7 @@ class Config:
             taskcat_id=self.uid,
             partition=region.partition,
             regional_buckets=test.s3_regional_buckets,
+            org_id=org_id,
         )
         if new:
             bucket_obj.create()
@@ -309,7 +311,11 @@ class Config:
             if self.config.project.s3_object_acl
             else "private"
         )
+
         sigv4 = not self.config.project.s3_enable_sig_v2
+
+        org_id = self.config.project.org_id
+
         if not test.s3_bucket and not bucket_objects.get(_bucket_obj_key):
             name = generate_regional_bucket_name(region)
             auto_generated = True
@@ -338,6 +344,7 @@ class Config:
             taskcat_id=self.uid,
             partition=region.partition,
             regional_buckets=test.s3_regional_buckets,
+            org_id=org_id,
         )
         if new:
             bucket_obj.create()
