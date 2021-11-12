@@ -281,7 +281,7 @@ class S3BucketObj:
                     "Action": "s3:*",
                     "Resource": f"arn:{self.partition}:s3:::{self.name}/*",
                     "Condition": {
-                        "StringEquals": {"aws:PrincipalOrgID": {self.org_id}}
+                        "StringEquals": {"aws:PrincipalOrgID": self.org_id}
                     },
                 }
             ],
