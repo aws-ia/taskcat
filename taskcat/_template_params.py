@@ -23,6 +23,9 @@ class ParamGen:
     RE_GENRANDSTR = re.compile(r"\$\[taskcat_random-string]", re.IGNORECASE)
     RE_GENNUMB = re.compile(r"\$\[taskcat_random-numbers]", re.IGNORECASE)
     RE_GENAUTOBUCKET = re.compile(r"\$\[taskcat_autobucket]", re.IGNORECASE)
+    RE_GENAUTOBUCKETPREFIX = re.compile(
+        r"\$\[taskcat_autobucket_prefix]", re.IGNORECASE
+    )
     RE_GENAZ = re.compile(r"\$\[\w+_ge[nt]az_\d]", re.IGNORECASE)
     RE_GENAZ_SINGLE = re.compile(
         r"\$\[\w+_ge[nt]singleaz_(?P<az_id>\d+)]", re.IGNORECASE
@@ -125,6 +128,10 @@ class ParamGen:
             # $[taskcat_autobucket]
             self._regex_replace_param_value(
                 self.RE_GENAUTOBUCKET, self._gen_autobucket()
+            )
+            # $[taskcat_autobucket_prefix]
+            self._regex_replace_param_value(
+                self.RE_GENAUTOBUCKETPREFIX, self._get_autobucket_prefix()
             )
 
             # $[taskcat_genpass_X]
@@ -316,6 +323,12 @@ class ParamGen:
 
     def _gen_autobucket(self):
         return self.bucket_name
+
+    def _get_autobucket_prefix(self):
+        bucket_prefix = self.bucket_name
+        if bucket_prefix.lower().startswith("tcat"):
+            bucket_prefix = "-".join(bucket_prefix.split("-")[:2])
+        return bucket_prefix
 
     def _gen_current_region(self):
         return self.region

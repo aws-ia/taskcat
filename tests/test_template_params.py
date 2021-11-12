@@ -183,6 +183,10 @@ class TestParamGen(unittest.TestCase):
             test_pattern_attribute="RE_GENAUTOBUCKET",
         ),
         rp_namedtup(
+            test_string="$[taskcat_autobucket_prefix]",
+            test_pattern_attribute="RE_GENAUTOBUCKETPREFIX",
+        ),
+        rp_namedtup(
             test_string="$[taskcat_current_region]",
             test_pattern_attribute="RE_CURRENT_REGION",
         ),
