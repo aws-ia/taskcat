@@ -39,6 +39,9 @@ METADATA: Mapping[str, Mapping[str, Any]] = {
         "examples": ["Bob.Slydell@example.com"],
     },
     "regions": {"description": "List of AWS regions"},
+    "artifact_regions": {
+        "description": "List of AWS regions where artifacts need to be copied. This helps same region artifact bucket access to resources"
+    },
     "az_ids": {
         "description": "List of Availablilty Zones ID's to exclude when generating "
         "availability zones",
@@ -422,6 +425,7 @@ class TestObj:
         project_root: Path,
         name: TestName,
         regions: List[TestRegion],
+        artifact_regions: List[TestRegion],
         tags: List[Tag],
         uid: UUID,
         _project_name: str,
@@ -435,6 +439,7 @@ class TestObj:
         self.project_root = project_root
         self.name = name
         self.regions = regions
+        self.artifact_regions = artifact_regions
         self.tags = tags
         self.uid = uid
         self._project_name = _project_name
@@ -503,6 +508,9 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
         default=None, metadata=METADATA["s3_regional_buckets"]
     )
     regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
+    artifact_regions: Optional[List[Region]] = field(
+        default=None, metadata=METADATA["artifact_regions"]
+    )
     prehooks: Optional[List[HookData]] = field(
         default=None, metadata=METADATA["prehooks"]
     )
@@ -520,6 +528,9 @@ class TestConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ignore
         default_factory=dict, metadata=METADATA["parameters"]
     )
     regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
+    artifact_regions: Optional[List[Region]] = field(
+        default=None, metadata=METADATA["artifact_regions"]
+    )
     tags: Optional[Dict[TagKey, TagValue]] = field(
         default=None, metadata=METADATA["tags"]
     )
@@ -561,6 +572,9 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     auth: Optional[Dict[Region, str]] = field(default=None, metadata=METADATA["auth"])
     owner: Optional[str] = field(default=None, metadata=METADATA["project__owner"])
     regions: Optional[List[Region]] = field(default=None, metadata=METADATA["regions"])
+    artifact_regions: Optional[List[Region]] = field(
+        default=None, metadata=METADATA["artifact_regions"]
+    )
     az_blacklist: Optional[List[AzId]] = field(
         default=None, metadata=METADATA["az_ids"]
     )

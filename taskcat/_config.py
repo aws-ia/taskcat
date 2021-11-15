@@ -220,33 +220,49 @@ class Config:
                     config_dict[key_section][sub_key] = value
         return config_dict
 
-    def get_regions(self, boto3_cache: Boto3Cache = None):
+    def _get_regions(self, region_parameter_name, test, boto3_cache: Boto3Cache = None):
         if boto3_cache is None:
             boto3_cache = Boto3Cache()
+        region_object = {}
+        for region in getattr(test, region_parameter_name, []):
+            # TODO: comon_utils/determine_profile_for_region
+            profile = (
+                test.auth.get(region, test.auth.get("default", "default"))
+                if test.auth
+                else "default"
+            )
+            region_object[region] = RegionObj(
+                name=region,
+                account_id=boto3_cache.account_id(profile),
+                partition=boto3_cache.partition(profile),
+                profile=profile,
+                _boto3_cache=boto3_cache,
+                taskcat_id=self.uid,
+                _role_name=test.role_name,
+            )
+        return region_object
 
+    def get_regions(self, boto3_cache: Boto3Cache = None):
         region_objects: Dict[str, Dict[str, RegionObj]] = {}
         for test_name, test in self.config.tests.items():
-            region_objects[test_name] = {}
-            for region in test.regions:
-                # TODO: comon_utils/determine_profile_for_region
-                profile = (
-                    test.auth.get(region, test.auth.get("default", "default"))
-                    if test.auth
-                    else "default"
+            region_objects[test_name] = self._get_regions("regions", test, boto3_cache)
+        return region_objects
+
+    def get_artifact_regions(self, boto3_cache: Boto3Cache = None):
+        region_objects: Dict[str, Dict[str, RegionObj]] = {}
+        for test_name, test in self.config.tests.items():
+            if test.artifact_regions is not None:
+                region_objects[test_name] = self._get_regions(
+                    "artifact_regions", test, boto3_cache
                 )
-                region_objects[test_name][region] = RegionObj(
-                    name=region,
-                    account_id=boto3_cache.account_id(profile),
-                    partition=boto3_cache.partition(profile),
-                    profile=profile,
-                    _boto3_cache=boto3_cache,
-                    taskcat_id=self.uid,
-                    _role_name=test.role_name,
+            else:
+                region_objects[test_name] = self._get_regions(
+                    "regions", test, boto3_cache
                 )
         return region_objects
 
     def get_buckets(self, boto3_cache: Boto3Cache = None):
-        regions = self.get_regions(boto3_cache)
+        regions = self.get_artifact_regions(boto3_cache)
         bucket_objects: Dict[str, S3BucketObj] = {}
         bucket_mappings: Dict[str, Dict[str, S3BucketObj]] = {}
         for test_name, test in self.config.tests.items():
@@ -404,6 +420,7 @@ class Config:
         tests = {}
         for test_name, test in self.config.tests.items():
             region_list = []
+            artifact_region_list = []
             tag_list = []
             if test.tags:
                 for tag_key, tag_value in test.tags.items():
@@ -423,6 +440,7 @@ class Config:
                 template=templates[test_name],
                 project_root=self.project_root,
                 regions=region_list,
+                artifact_regions=artifact_region_list,
                 tags=tag_list,
                 uid=self.uid,
                 _project_name=self.config.project.name,

@@ -6,6 +6,18 @@
             "additionalProperties": false,
             "description": "General configuration settings.",
             "properties": {
+                "artifact_regions": {
+                    "description": "List of AWS regions where artifacts need to be copied. This helps same region artifact bucket access to resources",
+                    "items": {
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "auth": {
                     "additionalProperties": {
                         "type": "string"
@@ -125,6 +137,18 @@
             "additionalProperties": false,
             "description": "Project specific configuration section",
             "properties": {
+                "artifact_regions": {
+                    "description": "List of AWS regions where artifacts need to be copied. This helps same region artifact bucket access to resources",
+                    "items": {
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "auth": {
                     "additionalProperties": {
                         "type": "string"
@@ -329,6 +353,18 @@
             "additionalProperties": false,
             "description": "Test specific configuration section.",
             "properties": {
+                "artifact_regions": {
+                    "description": "List of AWS regions where artifacts need to be copied. This helps same region artifact bucket access to resources",
+                    "items": {
+                        "description": "AWS Region name",
+                        "examples": [
+                            "us-east-1"
+                        ],
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
                 "auth": {
                     "additionalProperties": {
                         "type": "string"
@@ -473,6 +509,7 @@
         "general": {
             "$ref": "#/definitions/GeneralConfig",
             "default": {
+                "artifact_regions": null,
                 "auth": null,
                 "parameters": null,
                 "posthooks": null,
@@ -486,6 +523,7 @@
         "project": {
             "$ref": "#/definitions/ProjectConfig",
             "default": {
+                "artifact_regions": null,
                 "auth": null,
                 "az_blacklist": null,
                 "build_submodules": null,
