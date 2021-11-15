@@ -110,7 +110,7 @@ jobs:
     if: branch = main AND fork = false AND type = push 
     script:
       - |
-        echo "${TRAVIS_COMMIT_MESSAGE}" | egrep -i 'Merge pull request.*from aws-quickstart/release.*$'
+        echo "${TRAVIS_COMMIT_MESSAGE}" | egrep -i 'Merge pull request.*from aws-ia/release.*$'
         if [[ $? -eq 0 ]]; then
           LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
           TAG_BODY=$(git --no-pager log --no-merges --oneline ${LAST_RELEASE_COMMIT}..HEAD  --pretty='- %h %s')
