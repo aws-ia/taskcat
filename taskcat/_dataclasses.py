@@ -14,6 +14,7 @@ from taskcat._cfn.template import Template
 from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import merge_nested_dict
 from taskcat.exceptions import TaskCatException
+from taskcat.local_zones import ZONES as LOCAL_ZONES
 
 LOG = logging.getLogger(__name__)
 
@@ -206,8 +207,7 @@ class AzIdField(FieldEncoder):
     def json_schema(self):
         return {
             "type": "string",
-            "pattern": r"^((ap|eu|us|sa|ca|cn|af|me)(n|s|e|w|c|ne|se|nw|sw)"
-            r"[0-9]-az[0-9]|usw2-lax1-az(1|2))$",
+            "pattern": f"({'|'.join(z for z in LOCAL_ZONES)})",
             "description": "Availability Zone ID, eg.: 'use1-az1'",
             "examples": ["usw2-laz1-az1", "use2-az2"],
         }
