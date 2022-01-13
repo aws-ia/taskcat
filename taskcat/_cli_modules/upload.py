@@ -63,6 +63,6 @@ class Upload:
             buckets,
             config.config.project.name,
             config.project_root,
-            dry_run,
             exclude_prefix,
+            dry_run,
         )
