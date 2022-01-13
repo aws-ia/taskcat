@@ -102,7 +102,7 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
                 LambdaBuild(self.config, self.config.project_root)
             # 3. s3 sync
             stage_in_s3(
-                buckets, self.config.config.project.name, self.config.project_root
+                buckets, self.config.config.project.name, self.config.project_root, []
             )
         regions = self.config.get_regions(boto3_cache)
         parameters = self.config.get_rendered_parameters(buckets, regions, templates)
