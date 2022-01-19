@@ -13,7 +13,7 @@ for rn in regions:
         "AvailabilityZones"
     ]:
         if zone["ZoneType"] in ["availability-zone", "local-zone"]:
-            local_zones.add(zone["ZoneName"])
+            local_zones.add(zone["ZoneId"])
 
 with open("./taskcat/local_zones.py", "w") as fh:
     fh.write(f"ZONES = {json.dumps(sorted(local_zones), indent=4)}\n\n")

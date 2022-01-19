@@ -9,8 +9,8 @@ LOG = logging.getLogger(__name__)
 
 
 class S3APIResponse:
-    def __init__(self, x):
-        self._http_code = x["ResponseMetadata"]["HTTPStatusCode"]
+    def __init__(self, _x):
+        self._http_code = _x["ResponseMetadata"]["HTTPStatusCode"]
 
     @property
     def ok(self):
@@ -23,7 +23,7 @@ class S3BucketCreatorException(TaskCatException):
     pass
 
 
-def stage_in_s3(buckets, project_name, project_root, dry_run=False):
+def stage_in_s3(buckets, project_name, project_root, exclude_prefix, dry_run=False):
     distinct_buckets = {}
 
     for test in buckets.values():
@@ -35,13 +35,17 @@ def stage_in_s3(buckets, project_name, project_root, dry_run=False):
         project_name=project_name,
         project_root=project_root,
         dry_run=dry_run,
+        exclude_prefix=exclude_prefix,
     )
     pool.map(func, distinct_buckets.values())
     pool.close()
     pool.join()
 
 
-def _sync_wrap(bucket, project_name, project_root, dry_run):
+def _sync_wrap(bucket, project_name, project_root, dry_run, exclude_prefix):
+    if exclude_prefix:
+        S3Sync.exclude_remote_path_prefixes += exclude_prefix
+        S3Sync.exclude_path_prefixes += exclude_prefix
     S3Sync(
         bucket.s3_client,
         bucket.name,

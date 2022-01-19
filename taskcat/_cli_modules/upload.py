@@ -16,6 +16,7 @@ class Upload:
     Uploads project to S3.
     """
 
+    @CliCore.longform_param_required("exclude_prefix")
     @CliCore.longform_param_required("dry_run")
     def __init__(
         self,
@@ -27,7 +28,8 @@ class Upload:
         key_prefix: str = "",
         dry_run: bool = False,
         object_acl: str = "",
-    ):
+        exclude_prefix: list = None,
+    ):  # pylint: disable=too-many-locals
         """does lambda packaging and uploads to s3
 
         :param config_file: path to taskat project config file
@@ -60,4 +62,10 @@ class Upload:
         ):
             LambdaBuild(config, project_root_path)
         buckets = config.get_buckets(boto3_cache)
-        stage_in_s3(buckets, config.config.project.name, config.project_root, dry_run)
+        stage_in_s3(
+            buckets,
+            config.config.project.name,
+            config.project_root,
+            exclude_prefix,
+            dry_run,
+        )

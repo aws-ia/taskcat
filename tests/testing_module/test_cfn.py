@@ -98,6 +98,7 @@ class TestCFNTest(unittest.TestCase):
             mock_get_buckets.return_value,
             cfn_test.config.config.project.name,
             cfn_test.config.project_root,
+            [],
         )
         mock_get_regions.assert_called_once()
         mock_get_parameters.assert_called_once_with(
