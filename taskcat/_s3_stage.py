@@ -9,8 +9,8 @@ LOG = logging.getLogger(__name__)
 
 
 class S3APIResponse:
-    def __init__(self, x):
-        self._http_code = x["ResponseMetadata"]["HTTPStatusCode"]
+    def __init__(self, _x):
+        self._http_code = _x["ResponseMetadata"]["HTTPStatusCode"]
 
     @property
     def ok(self):

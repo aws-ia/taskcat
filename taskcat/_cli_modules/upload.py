@@ -27,8 +27,9 @@ class Upload:
         disable_lambda_packaging: bool = False,
         key_prefix: str = "",
         dry_run: bool = False,
+        object_acl: str = "",
         exclude_prefix: list = None,
-    ):
+    ):  # pylint: disable=too-many-locals
         """does lambda packaging and uploads to s3
 
         :param config_file: path to taskat project config file
@@ -43,6 +44,8 @@ class Upload:
         project_root_path: Path = Path(project_root).expanduser().resolve()
         input_file_path: Path = project_root_path / config_file
         args: Dict[str, Any] = {"project": {"s3_enable_sig_v2": enable_sig_v2}}
+        if object_acl:
+            args["project"]["s3_object_acl"] = object_acl
         if bucket_name:
             args["project"]["bucket_name"] = bucket_name
         if key_prefix:

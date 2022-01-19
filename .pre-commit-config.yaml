@@ -43,7 +43,7 @@ repos:
   - id: python-check-mock-methods
   - id: python-no-log-warn
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.7.0
+  rev: 1.7.1
   hooks:
   - id: bandit
     files: "^taskcat/"
