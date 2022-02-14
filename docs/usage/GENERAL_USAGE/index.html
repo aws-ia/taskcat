@@ -1178,6 +1178,7 @@ executing function tests of CloudFormation templates. The command for this is:</
 <div class="codehilite"><pre><span></span><code>taskcat <span class="nb">test</span> run
 </code></pre></div>
 
+
 <p>add <code>--help to see the supported flags and arguments</code></p>
 <h3 id="python">Python</h3>
 <p>Taskcat can be imported into Python and used in the testing framework of your choice.</p>
@@ -1196,6 +1197,7 @@ executing function tests of CloudFormation templates. The command for this is:</
         <span class="k">assert</span> <span class="n">stack</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">bucket_name</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created bucket: </span><span class="si">{</span><span class="n">bucket_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
+
 
 <p>The example used here is very simple, you would most likely leverage other python modules like boto3 to do more advanced testing. The <code>CFNTest</code> object can be passed the same arguments as <code>taskcat test run</code>. See the <a href="https://aws-ia.github.io/taskcat/apidocs/taskcat/testing/index.html">docs</a> for more details.</p>
 <h3 id="config-files">Config files</h3>
@@ -1221,6 +1223,7 @@ secrets like API keys can be defined per host outside of source control.</p>
     <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-global-ec2-keypair</span>
 </code></pre></div>
 
+
 <p>Given a simple project config:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">project</span><span class="p">:</span>
   <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-project</span>
@@ -1231,6 +1234,7 @@ secrets like API keys can be defined per host outside of source control.</p>
     <span class="nt">template</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">./template.yaml</span>
 </code></pre></div>
 
+
 <p>The effective test configuration would become:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">tests</span><span class="p">:</span>
   <span class="nt">default</span><span class="p">:</span>
@@ -1239,6 +1243,7 @@ secrets like API keys can be defined per host outside of source control.</p>
     <span class="nt">parameters</span><span class="p">:</span>
       <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-global-ec2-keypair</span>
 </code></pre></div>
+
 
 <p>If any item is re-defined in a project it takes precedence over the global value.
 Anything defined in a test takes precedence over what is defined in the project or
@@ -1256,6 +1261,7 @@ reverse. For example, using the same global config as above, given this project 
       <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-test-ec2-keypair</span>
 </code></pre></div>
 
+
 <p>Would result in this effective test configuration:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">tests</span><span class="p">:</span>
   <span class="nt">default</span><span class="p">:</span>
@@ -1264,6 +1270,7 @@ reverse. For example, using the same global config as above, given this project 
     <span class="nt">parameters</span><span class="p">:</span>
       <span class="nt">KeyPair</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-global-ec2-keypair</span>
 </code></pre></div>
+
 
 <p>Notice that <code>s3_bucket</code> took the most specific value and <code>KeyPair</code> the most general.</p>
 <h3 id="cli-interface">CLI interface</h3>
@@ -1275,9 +1282,11 @@ run from the root of a project. Let's have a look at equivalent command to run a
 taskcat <span class="nb">test</span> run
 </code></pre></div>
 
+
 <p>or run it from anywhere by providing the path to the project root</p>
 <div class="codehilite"><pre><span></span><code>taskcat <span class="nb">test</span> run -p ./quickstart-aws-vpc
 </code></pre></div>
+
 
 <h3 id="configuration-files">Configuration files</h3>
 <p>The configuration files required for taskcat have changed, to ease migration, if taskcat

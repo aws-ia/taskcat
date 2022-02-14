@@ -2648,9 +2648,7 @@
                 <h1 id="module-taskcat_cfnstack">Module taskcat._cfn.stack</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">json</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -3667,13 +3665,16 @@
         <span class="k">return</span> <span class="n">errors</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">GENERIC_ERROR_PATTERNS</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
+
 
 <h2 id="functions">Functions</h2>
 <h3 id="criteria_matches">criteria_matches</h3>
@@ -3683,9 +3684,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nv">criteria_matches</span><span class="ss">(</span><span class="nv">criteria</span>: <span class="nv">dict</span>, <span class="nv">instance</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nv">criteria_matches</span><span class="ss">(</span><span class="nv">criteria</span>: <span class="nv">dict</span>, <span class="nv">instance</span><span class="ss">)</span>:
 
     # <span class="nv">fail</span> <span class="k">if</span> <span class="nv">criteria</span> <span class="nv">includes</span> <span class="nv">an</span> <span class="nv">invalid</span> <span class="nv">property</span>
 
@@ -3708,6 +3708,7 @@
     <span class="k">return</span> <span class="nv">True</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="capabilities">Capabilities</h3>
@@ -3718,9 +3719,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Capabilities:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Capabilities:</span>
 
     <span class="n">IAM</span> = <span class="s">&quot;CAPABILITY_IAM&quot;</span>
 
@@ -3731,20 +3731,25 @@
     <span class="n">ALL</span> = [<span class="n">IAM</span>, <span class="n">NAMED_IAM</span>, <span class="n">AUTO_EXPAND</span>]
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="class-variables">Class variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">ALL</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">AUTO_EXPAND</span>
 </code></pre></div>
+
 
 <div class="codehilite"><pre><span></span><code><span class="n">IAM</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">NAMED_IAM</span>
 </code></pre></div>
+
 
 <h3 id="event">Event</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span>
@@ -3752,9 +3757,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Event</span><span class="p">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Event</span><span class="p">:</span>
 
     <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_dict</span><span class="p">:</span> <span class="n">dict</span><span class="p">):</span>
 
@@ -3801,6 +3805,7 @@
         <span class="k">return</span> <span class="s2">&quot;&lt;Event object {} at {}&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">event_id</span><span class="p">,</span> <span class="n">hex</span><span class="p">(</span><span class="n">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h3 id="events">Events</h3>
@@ -3811,12 +3816,12 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Events</span>(<span class="n">FilterableList</span>):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Events</span>(<span class="n">FilterableList</span>):
 
     <span class="nb">pass</span>
 </code></pre></div>
+
 
 </details>
 <hr />
@@ -3834,6 +3839,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Append object to the end of the list.</p>
 <h4 id="clear">clear</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span>
@@ -3842,6 +3848,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove all items from list.</p>
 <h4 id="copy">copy</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
@@ -3849,6 +3856,7 @@
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return a shallow copy of the list.</p>
 <h4 id="count">count</h4>
@@ -3859,6 +3867,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return number of occurrences of value.</p>
 <h4 id="extend">extend</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">extend</span><span class="p">(</span>
@@ -3868,18 +3877,18 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Extend list by appending elements from the iterable.</p>
 <h4 id="filter">filter</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">criteria</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">criteria</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
@@ -3900,6 +3909,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="index">index</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span>
@@ -3910,6 +3920,7 @@
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
@@ -3922,6 +3933,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Insert object before index.</p>
 <h4 id="pop">pop</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">pop</span><span class="p">(</span>
@@ -3930,6 +3942,7 @@
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Remove and return item at index (default last).</p>
 <p>Raises IndexError if list is empty or index is out of range.</p>
@@ -3941,6 +3954,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove first occurrence of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 <h4 id="reverse">reverse</h4>
@@ -3949,6 +3963,7 @@
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Reverse <em>IN PLACE</em>.</p>
 <h4 id="sort">sort</h4>
@@ -3960,6 +3975,7 @@
     <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Sort the list in ascending order and return None.</p>
 <p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the
@@ -3975,9 +3991,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">FilterableList</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">FilterableList</span><span class="p">(</span><span class="n">list</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -3999,6 +4014,7 @@ ascending or descending, according to their function values.</p>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
 <hr />
@@ -4022,6 +4038,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Append object to the end of the list.</p>
 <h4 id="clear_1">clear</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span>
@@ -4030,6 +4047,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove all items from list.</p>
 <h4 id="copy_1">copy</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
@@ -4037,6 +4055,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return a shallow copy of the list.</p>
 <h4 id="count_1">count</h4>
@@ -4047,6 +4066,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return number of occurrences of value.</p>
 <h4 id="extend_1">extend</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">extend</span><span class="p">(</span>
@@ -4056,18 +4076,18 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Extend list by appending elements from the iterable.</p>
 <h4 id="filter_1">filter</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">criteria</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">criteria</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
@@ -4088,6 +4108,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="index_1">index</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span>
@@ -4098,6 +4119,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
@@ -4110,6 +4132,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Insert object before index.</p>
 <h4 id="pop_1">pop</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">pop</span><span class="p">(</span>
@@ -4118,6 +4141,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Remove and return item at index (default last).</p>
 <p>Raises IndexError if list is empty or index is out of range.</p>
@@ -4129,6 +4153,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove first occurrence of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 <h4 id="reverse_1">reverse</h4>
@@ -4137,6 +4162,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Reverse <em>IN PLACE</em>.</p>
 <h4 id="sort_1">sort</h4>
@@ -4148,6 +4174,7 @@ ascending or descending, according to their function values.</p>
     <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Sort the list in ascending order and return None.</p>
 <p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the
@@ -4161,9 +4188,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Output</span><span class="p">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Output</span><span class="p">:</span>
 
     <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dict</span><span class="p">:</span> <span class="n">dict</span><span class="p">):</span>
 
@@ -4184,6 +4210,7 @@ ascending or descending, according to their function values.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">export_name</span> <span class="o">=</span> <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;ExportName&quot;</span><span class="p">]</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h3 id="parameter">Parameter</h3>
@@ -4192,9 +4219,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Parameter:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Parameter:</span>
 
     <span class="n">def</span> <span class="n">__init__</span>(<span class="nb">self</span>, <span class="n">param_dict:</span> <span class="n">dict</span>):
 
@@ -4239,6 +4265,7 @@ ascending or descending, according to their function values.</p>
         <span class="k">return</span> <span class="n">param_dict</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="methods_2">Methods</h4>
@@ -4248,9 +4275,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">dump</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">dump</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
         <span class="nv">param_dict</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">ParameterKey</span><span class="s2">&quot;</span>: <span class="nv">self</span>.<span class="nv">key</span>}
 
@@ -4265,6 +4291,7 @@ ascending or descending, according to their function values.</p>
         <span class="k">return</span> <span class="nv">param_dict</span>
 </code></pre></div>
 
+
 </details>
 <h3 id="resource">Resource</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Resource</span><span class="p">(</span>
@@ -4275,9 +4302,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Resource:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Resource:</span>
 
     <span class="n">def</span> <span class="n">__init__</span>(
 
@@ -4322,6 +4348,7 @@ ascending or descending, according to their function values.</p>
         <span class="k">return</span> <span class="s">&quot;&lt;Resource {} {}&gt;&quot;</span>.<span class="nb">format</span>(<span class="nb">self</span>.<span class="n">logical_id</span>, <span class="nb">self</span>.<span class="nb">status</span>)
 </code></pre></div>
 
+
 </details>
 <hr />
 <h3 id="resources">Resources</h3>
@@ -4332,12 +4359,12 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Resources</span>(<span class="n">FilterableList</span>):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Resources</span>(<span class="n">FilterableList</span>):
 
     <span class="nb">pass</span>
 </code></pre></div>
+
 
 </details>
 <hr />
@@ -4355,6 +4382,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Append object to the end of the list.</p>
 <h4 id="clear_2">clear</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span>
@@ -4363,6 +4391,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove all items from list.</p>
 <h4 id="copy_2">copy</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
@@ -4370,6 +4399,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return a shallow copy of the list.</p>
 <h4 id="count_2">count</h4>
@@ -4380,6 +4410,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return number of occurrences of value.</p>
 <h4 id="extend_2">extend</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">extend</span><span class="p">(</span>
@@ -4389,18 +4420,18 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Extend list by appending elements from the iterable.</p>
 <h4 id="filter_2">filter</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">criteria</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">criteria</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
@@ -4421,6 +4452,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="index_2">index</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span>
@@ -4431,6 +4463,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
@@ -4443,6 +4476,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Insert object before index.</p>
 <h4 id="pop_2">pop</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">pop</span><span class="p">(</span>
@@ -4451,6 +4485,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Remove and return item at index (default last).</p>
 <p>Raises IndexError if list is empty or index is out of range.</p>
@@ -4462,6 +4497,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove first occurrence of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 <h4 id="reverse_2">reverse</h4>
@@ -4470,6 +4506,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Reverse <em>IN PLACE</em>.</p>
 <h4 id="sort_2">sort</h4>
@@ -4481,6 +4518,7 @@ ascending or descending, according to their function values.</p>
     <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Sort the list in ascending order and return None.</p>
 <p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the
@@ -4498,9 +4536,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Stack</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Stack</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 
     <span class="n">REMOTE_TEMPLATE_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.taskcat/.remote_templates&quot;</span><span class="p">)</span>
 
@@ -5211,11 +5248,13 @@ ascending or descending, according to their function values.</p>
         <span class="k">return</span> <span class="n">errors</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="class-variables_1">Class variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">REMOTE_TEMPLATE_PATH</span>
 </code></pre></div>
+
 
 <h4 id="static-methods">Static methods</h4>
 <h4 id="create">create</h4>
@@ -5230,9 +5269,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stack&#39;</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">create</span><span class="p">(</span><span class="w"></span>
 
@@ -5317,6 +5355,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stack</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="delete">delete</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
@@ -5325,9 +5364,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">delete</span><span class="p">(</span><span class="n">client</span><span class="p">,</span><span class="w"> </span><span class="n">stack_id</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
@@ -5335,6 +5373,7 @@ ascending or descending, according to their function values.</p>
 
 <span class="w">        </span><span class="nf">LOG</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Deleting stack: {stack_id}&quot;</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
 <h4 id="import_existing">import_existing</h4>
@@ -5347,9 +5386,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stack&#39;</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">import_existing</span><span class="p">(</span><span class="w"></span>
 
@@ -5374,13 +5412,16 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stack</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">launch_succeeded</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">status</span>
 </code></pre></div>
+
 
 <h4 id="methods_4">Methods</h4>
 <h4 id="children">children</h4>
@@ -5390,9 +5431,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">Stacks</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">children</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Stacks</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">children</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Stacks</span><span class="o">:</span>
 
         <span class="nf">if</span> <span class="p">(</span>
 
@@ -5409,6 +5449,7 @@ ascending or descending, according to their function values.</p>
         <span class="kr">return</span> <span class="kr">self</span><span class="p">.</span><span class="n">_children</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="descendants_1">descendants</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">descendants</span><span class="p">(</span>
@@ -5417,9 +5458,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">Stacks</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">descendants</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Stacks</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">descendants</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Stacks</span><span class="o">:</span>
 
         <span class="nf">if</span> <span class="n">refresh</span> <span class="kr">or</span> <span class="kr">not</span> <span class="kr">self</span><span class="p">.</span><span class="n">_children</span><span class="o">:</span>
 
@@ -5442,6 +5482,7 @@ ascending or descending, according to their function values.</p>
         <span class="kr">return</span> <span class="n">recurse</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="error_events">error_events</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">error_events</span><span class="p">(</span>
@@ -5452,9 +5493,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">Events</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">error_events</span><span class="p">(</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">error_events</span><span class="p">(</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">,</span><span class="w"> </span><span class="nl">include_generic</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="n">refresh</span><span class="o">=</span><span class="k">False</span><span class="w"></span>
 
@@ -5481,6 +5521,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="events_1">events</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">events</span><span class="p">(</span>
@@ -5490,9 +5531,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">Events</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">events</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">False</span><span class="p">,</span> <span class="n">include_generic</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Events</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">events</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">False</span><span class="p">,</span> <span class="n">include_generic</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Events</span><span class="o">:</span>
 
         <span class="nf">if</span> <span class="n">refresh</span> <span class="kr">or</span> <span class="kr">not</span> <span class="kr">self</span><span class="p">.</span><span class="n">_events</span> <span class="kr">or</span> <span class="kr">self</span><span class="p">.</span><span class="n">_auto_refresh</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">_last_event_refresh</span><span class="p">)</span><span class="o">:</span>
 
@@ -5507,6 +5547,7 @@ ascending or descending, according to their function values.</p>
         <span class="kr">return</span> <span class="n">events</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="refresh">refresh</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span>
@@ -5518,9 +5559,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">refresh</span><span class="p">(</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">refresh</span><span class="p">(</span>
 
         <span class="kr">self</span><span class="p">,</span>
 
@@ -5557,6 +5597,7 @@ ascending or descending, according to their function values.</p>
             <span class="kr">self</span><span class="p">.</span><span class="n">_last_child_refresh</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">()</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="resources_1">resources</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">resources</span><span class="p">(</span>
@@ -5565,9 +5606,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">Resources</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">resources</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resources</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">resources</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span> <span class="n">refresh</span><span class="o">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="kr">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resources</span><span class="o">:</span>
 
         <span class="nf">if</span> <span class="p">(</span>
 
@@ -5584,17 +5624,17 @@ ascending or descending, according to their function values.</p>
         <span class="kr">return</span> <span class="kr">self</span><span class="p">.</span><span class="n">_resources</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="set_stack_properties">set_stack_properties</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_stack_properties</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">stack_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stack_properties</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">set_stack_properties</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">stack_properties</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">set_stack_properties</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">stack_properties</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">get</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">complete</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">complete</span><span class="w"> </span><span class="n">stacks</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">complete</span><span class="w"></span>
 
@@ -5647,6 +5687,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_timer</span><span class="p">.</span><span class="k">start</span><span class="p">()</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="update">update</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
@@ -5656,12 +5697,12 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    def update(self, *args, **kwargs):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    def update(self, *args, **kwargs):
 
         raise NotImplementedError(&quot;Stack updates not implemented&quot;)
 </code></pre></div>
+
 
 </details>
 <h3 id="stackstatus">StackStatus</h3>
@@ -5672,9 +5713,8 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">StackStatus:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">StackStatus:</span>
 
     <span class="n">COMPLETE</span> = [<span class="s">&quot;CREATE_COMPLETE&quot;</span>, <span class="s">&quot;UPDATE_COMPLETE&quot;</span>, <span class="s">&quot;DELETE_COMPLETE&quot;</span>]
 
@@ -5715,17 +5755,21 @@ ascending or descending, according to their function values.</p>
     ]
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="class-variables_2">Class variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">COMPLETE</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">FAILED</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">IN_PROGRESS</span>
 </code></pre></div>
+
 
 <h3 id="stacks">Stacks</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Stacks</span><span class="p">(</span>
@@ -5735,12 +5779,12 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Stacks</span>(<span class="n">FilterableList</span>):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Stacks</span>(<span class="n">FilterableList</span>):
 
     <span class="nb">pass</span>
 </code></pre></div>
+
 
 </details>
 <hr />
@@ -5758,6 +5802,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Append object to the end of the list.</p>
 <h4 id="clear_3">clear</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span>
@@ -5766,6 +5811,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove all items from list.</p>
 <h4 id="copy_3">copy</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
@@ -5773,6 +5819,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return a shallow copy of the list.</p>
 <h4 id="count_3">count</h4>
@@ -5783,6 +5830,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return number of occurrences of value.</p>
 <h4 id="extend_3">extend</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">extend</span><span class="p">(</span>
@@ -5792,18 +5840,18 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Extend list by appending elements from the iterable.</p>
 <h4 id="filter_3">filter</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">criteria</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">criteria</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
@@ -5824,6 +5872,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="index_3">index</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span>
@@ -5834,6 +5883,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
@@ -5846,6 +5896,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Insert object before index.</p>
 <h4 id="pop_3">pop</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">pop</span><span class="p">(</span>
@@ -5854,6 +5905,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Remove and return item at index (default last).</p>
 <p>Raises IndexError if list is empty or index is out of range.</p>
@@ -5865,6 +5917,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove first occurrence of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 <h4 id="reverse_3">reverse</h4>
@@ -5873,6 +5926,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Reverse <em>IN PLACE</em>.</p>
 <h4 id="sort_3">sort</h4>
@@ -5884,6 +5938,7 @@ ascending or descending, according to their function values.</p>
     <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Sort the list in ascending order and return None.</p>
 <p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the
@@ -5899,12 +5954,12 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Tags</span>(<span class="n">FilterableList</span>):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">Tags</span>(<span class="n">FilterableList</span>):
 
     <span class="nb">pass</span>
 </code></pre></div>
+
 
 </details>
 <hr />
@@ -5922,6 +5977,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Append object to the end of the list.</p>
 <h4 id="clear_4">clear</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span>
@@ -5930,6 +5986,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove all items from list.</p>
 <h4 id="copy_4">copy</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
@@ -5937,6 +5994,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return a shallow copy of the list.</p>
 <h4 id="count_4">count</h4>
@@ -5947,6 +6005,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return number of occurrences of value.</p>
 <h4 id="extend_4">extend</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">extend</span><span class="p">(</span>
@@ -5956,18 +6015,18 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Extend list by appending elements from the iterable.</p>
 <h4 id="filter_4">filter</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">criteria</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">filter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">criteria</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
@@ -5988,6 +6047,7 @@ ascending or descending, according to their function values.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">flist</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="index_4">index</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">index</span><span class="p">(</span>
@@ -5998,6 +6058,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
@@ -6010,6 +6071,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Insert object before index.</p>
 <h4 id="pop_4">pop</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">pop</span><span class="p">(</span>
@@ -6018,6 +6080,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Remove and return item at index (default last).</p>
 <p>Raises IndexError if list is empty or index is out of range.</p>
@@ -6029,6 +6092,7 @@ ascending or descending, according to their function values.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Remove first occurrence of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 <h4 id="reverse_4">reverse</h4>
@@ -6037,6 +6101,7 @@ ascending or descending, according to their function values.</p>
     <span class="o">/</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Reverse <em>IN PLACE</em>.</p>
 <h4 id="sort_4">sort</h4>
@@ -6048,6 +6113,7 @@ ascending or descending, according to their function values.</p>
     <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Sort the list in ascending order and return None.</p>
 <p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the

@@ -1222,9 +1222,7 @@
                 <h1 id="module-taskcat_cfntemplate">Module taskcat._cfn.template</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="s s-Atom">import</span> <span class="s s-Atom">logging</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="s s-Atom">import</span> <span class="s s-Atom">logging</span>
 
 <span class="s s-Atom">import</span> <span class="s s-Atom">re</span>
 
@@ -1569,16 +1567,20 @@
         <span class="s s-Atom">return</span> <span class="s s-Atom">parameters</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">tcat_template_cache</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">template_cache_store</span>
 </code></pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="template">Template</h3>
@@ -1587,13 +1589,12 @@
     <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">s3_key_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-    <span class="n">template_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x000001E066DD1340</span><span class="o">&gt;</span>
+    <span class="n">template_cache</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_cfn</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateCache</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f715720d370</span><span class="o">&gt;</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="s s-Atom">class</span> <span class="nv">Template</span><span class="s s-Atom">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="s s-Atom">class</span> <span class="nv">Template</span><span class="s s-Atom">:</span>
 
     <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">init__</span><span class="p">(</span>
 
@@ -1864,20 +1865,25 @@
         <span class="s s-Atom">return</span> <span class="s s-Atom">parameters</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="instance-variables">Instance variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">descendents</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">linesplit</span>
 </code></pre></div>
+
 
 <div class="codehilite"><pre><span></span><code><span class="n">s3_key</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">s3_key_prefix</span>
 </code></pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h4 id="parameters">parameters</h4>
@@ -1886,9 +1892,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NoneType</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">parameters</span><span class="p">(</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">parameters</span><span class="p">(</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"></span>
 
@@ -1903,6 +1908,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">parameters</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="url_prefix">url_prefix</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">url_prefix</span><span class="p">(</span>
@@ -1910,9 +1916,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="s s-Atom">def</span> <span class="nf">url_prefix</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="s s-Atom">def</span> <span class="nf">url_prefix</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
 
         <span class="s s-Atom">if</span> <span class="o">not</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="nn">url</span><span class="p">:</span>
 
@@ -1937,6 +1942,7 @@
         <span class="s s-Atom">return</span> <span class="s s-Atom">url_prefix</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="write">write</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
@@ -1944,11 +1950,10 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>writes raw_template back to file, and reloads decoded template, useful if</p>
 <p>the template has been modified</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;writes raw_template back to file, and reloads decoded template, useful if</span>
 
@@ -1963,6 +1968,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_find_children</span><span class="p">()</span>
 </code></pre></div>
 
+
 </details>
 <h3 id="templatecache">TemplateCache</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">TemplateCache</span><span class="p">(</span>
@@ -1970,9 +1976,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">TemplateCache</span><span class="p">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">TemplateCache</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">store</span><span class="p">:</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2023,6 +2028,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_templates</span><span class="o">[</span><span class="n">template_path</span><span class="o">]</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="methods_1">Methods</h4>
@@ -2033,9 +2039,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cfnlint</span><span class="o">.</span><span class="n">decorators</span><span class="o">.</span><span class="n">refactored</span><span class="o">.</span><span class="n">refactored</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">cls_wrapper</span><span class="o">.&lt;</span><span class="nb">locals</span><span class="o">&gt;.</span><span class="n">Wrapped</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">template_path</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">cfnlint</span><span class="p">.</span><span class="nl">Template</span><span class="p">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">get</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">template_path</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">cfnlint</span><span class="p">.</span><span class="nl">Template</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_lock</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2077,6 +2082,7 @@
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_templates</span><span class="o">[</span><span class="n">template_path</span><span class="o">]</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
                 

@@ -1196,9 +1196,7 @@
                 <h1 id="module-taskcat_cli_modulestest">Module taskcat._cli_modules.test</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="c1"># pylint: disable=duplicate-code</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="c1"># pylint: disable=duplicate-code</span>
 
 <span class="c1"># noqa: B950,F841</span>
 
@@ -1541,10 +1539,12 @@
         <span class="p">)</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="test">Test</h3>
@@ -1555,9 +1555,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">Test</span><span class="p">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">Test</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="ss">&quot;&quot;&quot;</span>
 
@@ -1866,6 +1865,7 @@
 <span class="w">        </span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="static-methods">Static methods</h4>
@@ -1876,6 +1876,7 @@
     <span class="n">region</span><span class="o">=</span><span class="s1">&#39;ALL&#39;</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1914,9 +1915,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">clean</span><span class="p">(</span><span class="nl">project</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"> </span><span class="nl">aws_profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="o">=</span><span class="ss">&quot;ALL&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -1939,6 +1938,7 @@
 <span class="w">        </span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="list">list</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">list</span><span class="p">(</span>
@@ -1946,6 +1946,7 @@
     <span class="n">regions</span><span class="o">=</span><span class="s1">&#39;ALL&#39;</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p><strong>Parameters:</strong></p>
 <table>
@@ -1978,9 +1979,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="nl">profiles</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="o">=</span><span class="ss">&quot;ALL&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -1997,6 +1996,7 @@
 <span class="w">        </span><span class="n">List</span><span class="p">(</span><span class="n">profiles</span><span class="o">=</span><span class="n">profiles</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="o">=</span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="n">stack_type</span><span class="o">=</span><span class="ss">&quot;test&quot;</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="retry">retry</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">retry</span><span class="p">(</span>
@@ -2011,6 +2011,7 @@
     <span class="n">dont_wait_for_delete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>[ALPHA] re-launches a child stack using the same parameters as previous</p>
 <p>launch</p>
@@ -2087,9 +2088,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">retry</span><span class="p">(</span><span class="w"></span>
 
@@ -2242,6 +2241,7 @@
 <span class="w">            </span><span class="n">os</span><span class="p">.</span><span class="n">rmdir</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="run">run</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
@@ -2260,6 +2260,7 @@
     <span class="n">_extra_tags</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_cli_modules</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">List</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>tests whether CloudFormation templates are able to successfully launch</p>
 <p><strong>Parameters:</strong></p>
@@ -2347,9 +2348,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nl">pylint</span><span class="p">:</span><span class="w"> </span><span class="n">disable</span><span class="o">=</span><span class="n">too</span><span class="o">-</span><span class="n">many</span><span class="o">-</span><span class="n">arguments</span><span class="p">,</span><span class="n">W0613</span><span class="p">,</span><span class="n">line</span><span class="o">-</span><span class="n">too</span><span class="o">-</span><span class="n">long</span><span class="w"></span>
 
@@ -2450,6 +2449,7 @@
 <span class="w">            </span><span class="n">test</span><span class="p">.</span><span class="n">report</span><span class="p">(</span><span class="n">output_directory</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="methods">Methods</h4>
 <h4 id="resume">resume</h4>
@@ -2459,10 +2459,9 @@
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>resumes a monitoring of a previously started test run</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">resume</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">run_id</span><span class="ss">)</span>:  # <span class="nv">pylint</span>: <span class="nv">disable</span><span class="o">=</span><span class="nv">no</span><span class="o">-</span><span class="nv">self</span><span class="o">-</span><span class="nv">use</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">resume</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">run_id</span><span class="ss">)</span>:  # <span class="nv">pylint</span>: <span class="nv">disable</span><span class="o">=</span><span class="nv">no</span><span class="o">-</span><span class="nv">self</span><span class="o">-</span><span class="nv">use</span>
 
         <span class="s2">&quot;&quot;&quot;</span><span class="s">resumes a monitoring of a previously started test run</span><span class="s2">&quot;&quot;&quot;</span>
 
@@ -2470,6 +2469,7 @@
 
         <span class="nv">raise</span> <span class="nv">NotImplementedError</span><span class="ss">()</span>
 </code></pre></div>
+
 
 </details>
                 

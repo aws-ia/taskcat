@@ -1126,9 +1126,7 @@
                 <h1 id="module-taskcatiam_policypolicy">Module taskcat.iam_policy.policy</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">json</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -1271,10 +1269,12 @@
         <span class="k">return</span> <span class="n">_policy</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="cfnpolicygenerator">CFNPolicyGenerator</h3>
@@ -1284,9 +1284,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">CFNPolicyGenerator</span><span class="p">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">CFNPolicyGenerator</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">config</span><span class="p">:</span><span class="w"> </span><span class="n">Config</span><span class="p">,</span><span class="w"> </span><span class="nl">output_file</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -1415,6 +1414,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">_policy</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="methods">Methods</h4>
@@ -1424,9 +1424,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">generate_policy</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">generate_policy</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
         <span class="nv">LOG</span>.<span class="nv">warning</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">This is an ALPHA feature. Use with caution</span><span class="s2">&quot;</span><span class="ss">)</span>
 
@@ -1452,6 +1451,7 @@
 
             <span class="nv">_f</span>.<span class="nv">write</span><span class="ss">(</span><span class="nv">json</span>.<span class="nv">dumps</span><span class="ss">(</span><span class="nv">policy</span>, <span class="nv">indent</span><span class="o">=</span><span class="mi">4</span>, <span class="nv">sort_keys</span><span class="o">=</span><span class="nv">True</span><span class="ss">))</span>
 </code></pre></div>
+
 
 </details>
                 

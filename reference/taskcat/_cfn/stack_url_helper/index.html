@@ -1388,9 +1388,7 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">  Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</span>
 
@@ -2041,10 +2039,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">child_local_paths</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="stackurlhelper">StackURLHelper</h3>
@@ -2055,9 +2055,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">StackURLHelper</span><span class="p">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">StackURLHelper</span><span class="p">:</span>
 
     <span class="n">MAX_DEPTH</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Handle at most 20 levels of nesting in TemplateURL expressions</span>
 
@@ -2668,14 +2667,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">child_local_paths</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="class-variables">Class variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">MAX_DEPTH</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">SUBSTITUTION</span>
 </code></pre></div>
+
 
 <h4 id="static-methods">Static methods</h4>
 <h4 id="evaluate_fn_getatt">evaluate_fn_getatt</h4>
@@ -2684,14 +2686,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">evaluate_fn_getatt</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="k">Exception</span><span class="p">(</span><span class="ss">&quot;Fn::GetAtt: not supported&quot;</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
 <h4 id="evaluate_fn_if">evaluate_fn_if</h4>
@@ -2700,10 +2702,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return both possible parts of the expression</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">evaluate_fn_if</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2724,6 +2725,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">results</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_fn_join">evaluate_fn_join</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_fn_join</span><span class="p">(</span>
@@ -2731,10 +2733,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return the joined stuff</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">evaluate_fn_join</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2765,6 +2766,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">results</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_fn_split">evaluate_fn_split</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_fn_split</span><span class="p">(</span>
@@ -2772,14 +2774,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">evaluate_fn_split</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="k">Exception</span><span class="p">(</span><span class="ss">&quot;Fn::Split: not supported&quot;</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
 <h4 id="rewrite_sub_vars_with_values">rewrite_sub_vars_with_values</h4>
@@ -2789,10 +2791,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Rewrite sub vars with actual variable values</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">rewrite_sub_vars_with_values</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span><span class="w"> </span><span class="k">values</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2813,6 +2814,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">result</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="values_to_dict">values_to_dict</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">values_to_dict</span><span class="p">(</span>
@@ -2820,10 +2822,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Rewrite sub vars with actual variable values</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="err">@</span><span class="n">staticmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="err">@</span><span class="n">staticmethod</span>
 
     <span class="n">def</span> <span class="n">values_to_dict</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
 
@@ -2878,6 +2879,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">values_dict</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="methods">Methods</h4>
 <h4 id="evaluate_expression_controller">evaluate_expression_controller</h4>
@@ -2887,10 +2889,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Figure out what type of expression and pass off to handler</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_expression_controller</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_expression_controller</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
 
         <span class="s2">&quot;&quot;&quot;</span><span class="s">Figure out what type of expression and pass off to handler</span><span class="s2">&quot;&quot;&quot;</span>
 
@@ -2933,6 +2934,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nv">results</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_fn_findinmap">evaluate_fn_findinmap</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_fn_findinmap</span><span class="p">(</span>
@@ -2941,9 +2943,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_fn_findinmap</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_fn_findinmap</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
 
         <span class="nb">result</span> <span class="o">=</span> []
 
@@ -2962,6 +2963,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nb">result</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_fn_ref">evaluate_fn_ref</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_fn_ref</span><span class="p">(</span>
@@ -2970,10 +2972,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Since this is runtime data the best we can do is the name in place</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_fn_ref</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_fn_ref</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">expression</span><span class="ss">)</span>:
 
         <span class="s2">&quot;&quot;&quot;</span><span class="s">Since this is runtime data the best we can do is the name in place</span><span class="s2">&quot;&quot;&quot;</span>
 
@@ -2996,6 +2997,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nv">results</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_fn_sub">evaluate_fn_sub</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_fn_sub</span><span class="p">(</span>
@@ -3004,10 +3006,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Return expression with values replaced</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">evaluate_fn_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">evaluate_fn_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Return expression with values replaced&quot;&quot;&quot;</span>
 
@@ -3044,6 +3045,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">results</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="evaluate_string">evaluate_string</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_string</span><span class="p">(</span>
@@ -3053,10 +3055,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Recursively find expressions in the URL and send them to be evaluated</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_string</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">template_url</span>, <span class="nv">depth</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">evaluate_string</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">template_url</span>, <span class="nv">depth</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
 
         <span class="s2">&quot;&quot;&quot;</span><span class="s">Recursively find expressions in the URL and send them to be evaluated</span><span class="s2">&quot;&quot;&quot;</span>
 
@@ -3119,6 +3120,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nv">template_urls</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="find_in_map_lookup">find_in_map_lookup</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">find_in_map_lookup</span><span class="p">(</span>
@@ -3129,9 +3131,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">find_in_map_lookup</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">mappings_map</span>, <span class="nv">first_key</span>, <span class="nv">final_key</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">find_in_map_lookup</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">mappings_map</span>, <span class="nv">first_key</span>, <span class="nv">final_key</span><span class="ss">)</span>:
 
         <span class="nv">step1</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">mappings</span>[<span class="nv">mappings_map</span>.<span class="nv">strip</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">&#39;</span><span class="s2">&quot;</span><span class="ss">)</span>]
 
@@ -3142,6 +3143,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nb">result</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="find_local_child_template">find_local_child_template</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">find_local_child_template</span><span class="p">(</span>
@@ -3151,9 +3153,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">find_local_child_template</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">parent_template_path</span>, <span class="nv">child_template_path</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">find_local_child_template</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">parent_template_path</span>, <span class="nv">child_template_path</span><span class="ss">)</span>:
 
         <span class="nv">final_template_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
@@ -3210,6 +3211,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="flatten_template_url">flatten_template_url</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">flatten_template_url</span><span class="p">(</span>
@@ -3218,10 +3220,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Flatten template_url and return all permutations</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">flatten_template_url</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">template_url</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">flatten_template_url</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">template_url</span><span class="ss">)</span>:
 
         <span class="s2">&quot;&quot;&quot;</span><span class="s">Flatten template_url and return all permutations</span><span class="s2">&quot;&quot;&quot;</span>
 
@@ -3248,6 +3249,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="nv">path_list</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="rewrite_sub_vars">rewrite_sub_vars</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">rewrite_sub_vars</span><span class="p">(</span>
@@ -3257,10 +3259,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Replace the '##var##' placeholders with 'var'</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">rewrite_sub_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_string</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">rewrite_sub_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_string</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Replace the &#39;##var##&#39; placeholders with &#39;var&#39;&quot;&quot;&quot;</span>
 
@@ -3285,6 +3286,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="rewrite_vars">rewrite_vars</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">rewrite_vars</span><span class="p">(</span>
@@ -3294,10 +3296,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
+
 <p>Replace the ${var} placeholders with ##var##</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">rewrite_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_string</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">rewrite_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_string</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Replace the ${var} placeholders with ##var##&quot;&quot;&quot;</span>
 
@@ -3318,6 +3319,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
         <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="template_url_to_path">template_url_to_path</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">template_url_to_path</span><span class="p">(</span>
@@ -3327,9 +3329,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">template_url_to_path</span><span class="ss">(</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">template_url_to_path</span><span class="ss">(</span>
 
         <span class="nv">self</span>,
 
@@ -3359,6 +3360,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 
         <span class="k">return</span> <span class="nv">child_local_paths</span>
 </code></pre></div>
+
 
 </details>
                 

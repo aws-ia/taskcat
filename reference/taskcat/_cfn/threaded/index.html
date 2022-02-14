@@ -1292,9 +1292,7 @@
                 <h1 id="module-taskcat_cfnthreaded">Module taskcat._cfn.threaded</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">uuid</span>
 
@@ -1815,10 +1813,12 @@
         <span class="k">return</span> <span class="n">stacks</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
 </code></pre></div>
+
 
 <h2 id="functions">Functions</h2>
 <h3 id="fan_out">fan_out</h3>
@@ -1830,9 +1830,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">fan_out</span><span class="p">(</span><span class="k">func</span><span class="p">,</span> <span class="n">partial_kwargs</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">fan_out</span><span class="p">(</span><span class="k">func</span><span class="p">,</span> <span class="n">partial_kwargs</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
 
     <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
 
@@ -1849,6 +1848,7 @@
     <span class="k">return</span> <span class="n">results</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="stacker">Stacker</h3>
@@ -1862,9 +1862,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">Stacker</span><span class="p">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">Stacker</span><span class="p">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">NULL_UUID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="p">(</span><span class="nc">int</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
 
@@ -2345,11 +2344,13 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacks</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="class-variables">Class variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">NULL_UUID</span>
 </code></pre></div>
+
 
 <h4 id="static-methods">Static methods</h4>
 <h4 id="from_existing">from_existing</h4>
@@ -2363,9 +2364,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_existing</span><span class="p">(</span><span class="w"></span>
 
@@ -2426,6 +2426,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacker</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="list_stacks">list_stacks</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">list_stacks</span><span class="p">(</span>
@@ -2434,9 +2435,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">list_stacks</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
@@ -2455,6 +2455,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">stack for sublist in stacks for stack in sublist</span><span class="o">]</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="methods">Methods</h4>
 <h4 id="create_stacks">create_stacks</h4>
@@ -2464,9 +2465,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">create_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">8</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">create_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">8</span><span class="ss">)</span>:
 
         <span class="k">if</span> <span class="nv">self</span>.<span class="nv">stacks</span>:
 
@@ -2489,6 +2489,7 @@
         <span class="nv">fan_out</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_create_stacks_for_test</span>, {<span class="s2">&quot;</span><span class="s">tags</span><span class="s2">&quot;</span>: <span class="nv">tags</span>}, <span class="nv">tests</span>, <span class="nv">threads</span><span class="ss">)</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="delete_stacks">delete_stacks</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">delete_stacks</span><span class="p">(</span>
@@ -2499,9 +2500,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">delete_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">criteria</span>: <span class="nv">dict</span> <span class="o">=</span> <span class="nv">None</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span><span class="o">=</span><span class="mi">32</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">delete_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">criteria</span>: <span class="nv">dict</span> <span class="o">=</span> <span class="nv">None</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span><span class="o">=</span><span class="mi">32</span><span class="ss">)</span>:
 
         <span class="k">if</span> <span class="nv">deep</span>:
 
@@ -2520,6 +2520,7 @@
         <span class="ss">)</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="events">events</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">events</span><span class="p">(</span>
@@ -2530,9 +2531,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">events</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">events</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
 
         <span class="k">if</span> <span class="nl">recurse:</span>
 
@@ -2549,6 +2549,7 @@
         <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="resources">resources</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">resources</span><span class="p">(</span>
@@ -2559,9 +2560,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">resources</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">recurse</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">32</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">resources</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">recurse</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">32</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
         <span class="k">if</span> <span class="nv">recurse</span>:
 
@@ -2582,6 +2582,7 @@
         <span class="k">return</span> <span class="nv">merge_dicts</span><span class="ss">(</span><span class="nv">results</span><span class="ss">)</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="status">status</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">status</span><span class="p">(</span>
@@ -2592,9 +2593,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">status</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">recurse:</span> <span class="n">bool</span> <span class="o">=</span> <span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">status</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">recurse:</span> <span class="n">bool</span> <span class="o">=</span> <span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
 
         <span class="k">if</span> <span class="nl">recurse:</span>
 
@@ -2617,6 +2617,7 @@
         <span class="k">return</span> <span class="n">statuses</span>
 </code></pre></div>
 
+
 </details>
 <h4 id="update_stacks">update_stacks</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">update_stacks</span><span class="p">(</span>
@@ -2624,12 +2625,12 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    def update_stacks(self):
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    def update_stacks(self):
 
         raise NotImplementedError()
 </code></pre></div>
+
 
 </details>
                 

@@ -1224,9 +1224,7 @@
                 <h1 id="module-taskcattesting">Module taskcat.testing</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">._cfn_test</span> <span class="kn">import</span> <span class="n">CFNTest</span>  <span class="c1"># noqa: F401</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">._cfn_test</span> <span class="kn">import</span> <span class="n">CFNTest</span>  <span class="c1"># noqa: F401</span>
 
 <span class="kn">from</span> <span class="nn">._lint_test</span> <span class="kn">import</span> <span class="n">LintTest</span>  <span class="c1"># noqa: F401</span>
 
@@ -1234,6 +1232,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CFNTest&quot;</span><span class="p">]</span>
 </code></pre></div>
+
 
 </details>
 <h2 id="sub-modules">Sub-modules</h2>
@@ -1244,7 +1243,7 @@
 <h3 id="cfntest">CFNTest</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">CFNTest</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">Config</span><span class="p">,</span>
-    <span class="n">printer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_tui</span><span class="o">.</span><span class="n">TerminalPrinter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">printer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">taskcat</span><span class="o">.</span><span class="n">_tui</span><span class="o">.</span><span class="n">TerminalPrinter</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">test_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span><span class="p">,</span>
     <span class="n">regions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span><span class="p">,</span>
     <span class="n">skip_upload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1256,9 +1255,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">CFNTest</span><span class="p">(</span><span class="n">BaseTest</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">CFNTest</span><span class="p">(</span><span class="n">BaseTest</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1553,6 +1551,7 @@
         <span class="p">)</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -1570,6 +1569,7 @@
     <span class="n">enable_sig_v2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="o">~</span><span class="n">T</span>
 </code></pre></div>
+
 
 <p>Creates a Test from a Taskcat configuration in dictionary form.</p>
 <p><strong>Parameters:</strong></p>
@@ -1624,9 +1624,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="w"></span>
 
@@ -1683,6 +1681,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="from_file">from_file</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
@@ -1692,6 +1691,7 @@
     <span class="n">enable_sig_v2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="o">~</span><span class="n">T</span>
 </code></pre></div>
+
 
 <p>Creates a Test from a Taskcat config file.</p>
 <p><strong>Parameters:</strong></p>
@@ -1746,9 +1746,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_file</span><span class="p">(</span><span class="w"></span>
 
@@ -1805,16 +1803,20 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">config</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">passed</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">result</span>
 </code></pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h4 id="clean_up">clean_up</h4>
@@ -1822,6 +1824,7 @@
     <span class="bp">self</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
+
 
 <p>Deletes the Test related resources in AWS.</p>
 <p><strong>Raises:</strong></p>
@@ -1839,9 +1842,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">clean_up</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nl">noqa</span><span class="p">:</span><span class="w"> </span><span class="n">C901</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">clean_up</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nl">noqa</span><span class="p">:</span><span class="w"> </span><span class="n">C901</span><span class="w"></span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;Deletes the Test related resources in AWS.</span>
 
@@ -1922,6 +1923,7 @@
 <span class="w">            </span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="report">report</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">report</span><span class="p">(</span>
@@ -1929,6 +1931,7 @@
     <span class="n">output_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;./taskcat_outputs&#39;</span>
 <span class="p">)</span>
 </code></pre></div>
+
 
 <p>Generates a report of the status of Cloudformation stacks.</p>
 <p><strong>Parameters:</strong></p>
@@ -1950,9 +1953,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    def report(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    def report(
 
         self,
 
@@ -1983,12 +1984,14 @@
         ).generate_report()
 </code></pre></div>
 
+
 </details>
 <h4 id="run">run</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
+
 
 <p>Deploys the required Test resources in AWS.</p>
 <p><strong>Raises:</strong></p>
@@ -2010,9 +2013,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">None</span><span class="p">:</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">None</span><span class="p">:</span>
 
         <span class="sd">&quot;&quot;&quot;Deploys the required Test resources in AWS.</span>
 
@@ -2108,6 +2109,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_definition</span><span class="o">.</span><span class="n">stacks</span>
 </code></pre></div>
+
 
 </details>
                 

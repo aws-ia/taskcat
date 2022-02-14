@@ -1224,9 +1224,7 @@
                 <h1 id="module-taskcattestingbase_test">Module taskcat.testing.base_test</h1>
 <p>None</p>
 <p>None</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="c1"># pylint: disable=line-too-long</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="c1"># pylint: disable=line-too-long</span>
 
 <span class="kn">import</span> <span class="nn">uuid</span>
 
@@ -1465,10 +1463,12 @@
     <span class="k">return</span> <span class="n">args</span>
 </code></pre></div>
 
+
 </details>
 <h2 id="variables">Variables</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">T</span>
 </code></pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="basetest">BaseTest</h3>
@@ -1477,9 +1477,8 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">BaseTest</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">BaseTest</span><span class="p">(</span><span class="n">Test</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">    </span><span class="ss">&quot;&quot;&quot;A Generic Test Class that implements the passed</span>
 
@@ -1672,6 +1671,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -1694,6 +1694,7 @@
     <span class="n">enable_sig_v2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="o">~</span><span class="n">T</span>
 </code></pre></div>
+
 
 <p>Creates a Test from a Taskcat configuration in dictionary form.</p>
 <p><strong>Parameters:</strong></p>
@@ -1748,9 +1749,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_dict</span><span class="p">(</span><span class="w"></span>
 
@@ -1807,6 +1806,7 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="from_file">from_file</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
@@ -1816,6 +1816,7 @@
     <span class="n">enable_sig_v2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="o">~</span><span class="n">T</span>
 </code></pre></div>
+
 
 <p>Creates a Test from a Taskcat config file.</p>
 <p><strong>Parameters:</strong></p>
@@ -1870,9 +1871,7 @@
 </tr>
 </tbody>
 </table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_file</span><span class="p">(</span><span class="w"></span>
 
@@ -1929,16 +1928,20 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="w"></span>
 </code></pre></div>
 
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
 <div class="codehilite"><pre><span></span><code><span class="n">config</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">passed</span>
 </code></pre></div>
 
+
 <div class="codehilite"><pre><span></span><code><span class="n">result</span>
 </code></pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h4 id="clean_up">clean_up</h4>
@@ -1947,15 +1950,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
+
 <p>Clean up after the Test.</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">clean_up</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;Clean up after the Test.&quot;&quot;&quot;</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
 <h4 id="run">run</h4>
@@ -1964,15 +1967,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
+
 <p>Run the Test.</p>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;Run the Test.&quot;&quot;&quot;</span><span class="w"></span>
 </code></pre></div>
+
 
 </details>
                 
