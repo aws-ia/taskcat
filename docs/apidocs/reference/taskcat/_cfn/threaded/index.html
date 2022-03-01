@@ -1,0 +1,2714 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-7.3.0">
+    
+    
+      
+        <title>Threaded - taskcat</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.8b42a75e.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#000000">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../../docs/custom.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="black" data-md-color-accent="orange">
+  
+    
+    <script>function __prefix(e){return new URL("../../../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-taskcat_cfnthreaded" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="taskcat" class="md-header__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            taskcat
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Threaded
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/aws-ia/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="taskcat" class="md-nav__button md-logo" aria-label="taskcat" data-md-component="logo">
+      
+  <img src="https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png" alt="logo">
+
+    </a>
+    taskcat
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/aws-ia/taskcat/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    taskcat
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/INSTALLATION/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Usage" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Usage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/usage/GENERAL_USAGE/" class="md-nav__link">
+        General Usage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/usage/PARAMETER_OVERRIDES/" class="md-nav__link">
+        Parameter Overrides
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/usage/PSUEDO_PARAMETERS/" class="md-nav__link">
+        Psuedo Parameters
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/schema/taskcat_schema.html" class="md-nav__link">
+        Configuration Schema
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Administrative
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Administrative" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Administrative
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/administrative/CODE_OF_CONDUCT/" class="md-nav__link">
+        Code of Conduct
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../docs/administrative/CONTRIBUTING/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../taskcat_plugin_testhook/" class="md-nav__link">
+        Taskcat Plugin Testhook
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2" type="checkbox" id="__nav_6_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2">
+          Taskcat
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Taskcat" data-md-level="2">
+        <label class="md-nav__title" for="__nav_6_2">
+          <span class="md-nav__icon md-icon"></span>
+          Taskcat
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exceptions/" class="md-nav__link">
+        Exceptions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../local_zones/" class="md-nav__link">
+        Local Zones
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../regions_to_partitions/" class="md-nav__link">
+        Regions To Partitions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_5" type="checkbox" id="__nav_6_2_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2_5">
+           Cfn
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label=" Cfn" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_5">
+          <span class="md-nav__icon md-icon"></span>
+           Cfn
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack/" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack_url_helper/" class="md-nav__link">
+        Stack Url Helper
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../template/" class="md-nav__link">
+        Template
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Threaded
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Threaded
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fan_out" class="md-nav__link">
+    fan_out
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stacker" class="md-nav__link">
+    Stacker
+  </a>
+  
+    <nav class="md-nav" aria-label="Stacker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from_existing" class="md-nav__link">
+    from_existing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_stacks" class="md-nav__link">
+    list_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_stacks" class="md-nav__link">
+    create_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_stacks" class="md-nav__link">
+    delete_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#events" class="md-nav__link">
+    events
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_stacks" class="md-nav__link">
+    update_stacks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_6" type="checkbox" id="__nav_6_2_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2_6">
+           Cli Modules
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label=" Cli Modules" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_6">
+          <span class="md-nav__icon md-icon"></span>
+           Cli Modules
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/config/" class="md-nav__link">
+        Config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/delete/" class="md-nav__link">
+        Delete
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/deploy/" class="md-nav__link">
+        Deploy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/generate_iam_policy/" class="md-nav__link">
+        Generate Iam Policy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/lint/" class="md-nav__link">
+        Lint
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/list/" class="md-nav__link">
+        List
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/package/" class="md-nav__link">
+        Package
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/test/" class="md-nav__link">
+        Test
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/update_ami/" class="md-nav__link">
+        Update Ami
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../_cli_modules/upload/" class="md-nav__link">
+        Upload
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_7" type="checkbox" id="__nav_6_2_7" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2_7">
+          Iam Policy
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Iam Policy" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_7">
+          <span class="md-nav__icon md-icon"></span>
+          Iam Policy
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../iam_policy/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../iam_policy/policy/" class="md-nav__link">
+        Policy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../iam_policy/tools/" class="md-nav__link">
+        Tools
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6_2_8" type="checkbox" id="__nav_6_2_8" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_2_8">
+          Testing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Testing" data-md-level="3">
+        <label class="md-nav__title" for="__nav_6_2_8">
+          <span class="md-nav__icon md-icon"></span>
+          Testing
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/base_test/" class="md-nav__link">
+        Base Test
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fan_out" class="md-nav__link">
+    fan_out
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stacker" class="md-nav__link">
+    Stacker
+  </a>
+  
+    <nav class="md-nav" aria-label="Stacker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from_existing" class="md-nav__link">
+    from_existing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list_stacks" class="md-nav__link">
+    list_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_stacks" class="md-nav__link">
+    create_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete_stacks" class="md-nav__link">
+    delete_stacks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#events" class="md-nav__link">
+    events
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_stacks" class="md-nav__link">
+    update_stacks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/aws-ia/taskcat/edit/main/reference/taskcat/_cfn/threaded.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="module-taskcat_cfnthreaded">Module taskcat._cfn.threaded</h1>
+<p>None</p>
+<p>None</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="kn">from</span> <span class="nn">multiprocessing.dummy</span> <span class="kn">import</span> <span class="n">Pool</span> <span class="k">as</span> <span class="n">ThreadPool</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._cfn.stack</span> <span class="kn">import</span> <span class="n">Stack</span><span class="p">,</span> <span class="n">Stacks</span><span class="p">,</span> <span class="n">StackStatus</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._client_factory</span> <span class="kn">import</span> <span class="n">Boto3Cache</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._common_utils</span> <span class="kn">import</span> <span class="n">merge_dicts</span>
+
+<span class="kn">from</span> <span class="nn">taskcat._dataclasses</span> <span class="kn">import</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">TestObj</span><span class="p">,</span> <span class="n">TestRegion</span>
+
+<span class="kn">from</span> <span class="nn">taskcat.exceptions</span> <span class="kn">import</span> <span class="n">TaskCatException</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">fan_out</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">partial_kwargs</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">partial_kwargs</span><span class="p">:</span>
+
+        <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">partial_kwargs</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="k">class</span> <span class="nc">Stacker</span><span class="p">:</span>
+
+    <span class="n">NULL_UUID</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+
+        <span class="bp">self</span><span class="p">,</span>
+
+        <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+
+        <span class="n">tests</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TestObj</span><span class="p">],</span>
+
+        <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span> <span class="o">=</span> <span class="n">NULL_UUID</span><span class="p">,</span>
+
+        <span class="n">stack_name_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;tCaT&quot;</span><span class="p">,</span>
+
+        <span class="n">shorten_stack_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+
+        <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tests</span> <span class="o">=</span> <span class="n">tests</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">project_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stack_name_prefix</span> <span class="o">=</span> <span class="n">stack_name_prefix</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shorten_stack_name</span> <span class="o">=</span> <span class="n">shorten_stack_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span> <span class="k">if</span> <span class="n">tags</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span> <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">Stacker</span><span class="o">.</span><span class="n">NULL_UUID</span> <span class="k">else</span> <span class="n">uid</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="p">:</span> <span class="n">Stacks</span> <span class="o">=</span> <span class="n">Stacks</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_tests_to_list</span><span class="p">(</span><span class="n">tests</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TestObj</span><span class="p">]):</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">tests</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">create_stacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="n">TaskCatException</span><span class="p">(</span><span class="s2">&quot;Stacker already initialised with stack objects&quot;</span><span class="p">)</span>
+
+        <span class="n">tests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tests_to_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tests</span><span class="p">)</span>
+
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">Tag</span><span class="p">({</span><span class="s2">&quot;Key&quot;</span><span class="p">:</span> <span class="s2">&quot;taskcat-id&quot;</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="o">.</span><span class="n">hex</span><span class="p">})]</span>
+
+        <span class="n">tags</span> <span class="o">+=</span> <span class="p">[</span>
+
+            <span class="n">Tag</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tags</span>
+
+            <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;taskcat-project-name&quot;</span><span class="p">,</span> <span class="s2">&quot;taskcat-test-name&quot;</span><span class="p">,</span> <span class="s2">&quot;taskcat-id&quot;</span><span class="p">]</span>
+
+        <span class="p">]</span>
+
+        <span class="n">fan_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_stacks_for_test</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">},</span> <span class="n">tests</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_stacks_for_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">):</span>
+
+        <span class="n">stack_name</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">stack_name</span>
+
+        <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">({</span><span class="s2">&quot;Key&quot;</span><span class="p">:</span> <span class="s2">&quot;taskcat-project-name&quot;</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_name</span><span class="p">}))</span>
+
+        <span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">({</span><span class="s2">&quot;Key&quot;</span><span class="p">:</span> <span class="s2">&quot;taskcat-test-name&quot;</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="n">test</span><span class="o">.</span><span class="n">name</span><span class="p">}))</span>
+
+        <span class="n">tags</span> <span class="o">+=</span> <span class="n">test</span><span class="o">.</span><span class="n">tags</span>
+
+        <span class="n">partial_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+
+            <span class="s2">&quot;stack_name&quot;</span><span class="p">:</span> <span class="n">stack_name</span><span class="p">,</span>
+
+            <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="n">test</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">,</span>
+
+            <span class="s2">&quot;test_name&quot;</span><span class="p">:</span> <span class="n">test</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+
+        <span class="p">}</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span><span class="n">Stack</span><span class="o">.</span><span class="n">create</span><span class="p">,</span> <span class="n">partial_kwargs</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">regions</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stacks</span> <span class="o">+=</span> <span class="n">stacks</span>
+
+    <span class="c1"># Not used by tCat at present</span>
+
+    <span class="k">def</span> <span class="nf">update_stacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">delete_stacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">criteria</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">deep</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;deep delete not yet implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delete_stacks_per_client</span><span class="p">,</span>
+
+            <span class="kc">None</span><span class="p">,</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)),</span>
+
+            <span class="n">threads</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_delete_stacks_per_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stacks</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+
+        <span class="n">fan_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delete_stack</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stacks</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">],</span> <span class="n">threads</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_delete_stack</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">Stack</span><span class="p">):</span>
+
+        <span class="n">stack</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">stack_id</span><span class="o">=</span><span class="n">stack</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">stack</span><span class="o">.</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="n">stack</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">per_region_stacks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status_per_client</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">per_region_stacks</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span>
+
+        <span class="n">statuses</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;IN_PROGRESS&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;COMPLETE&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;FAILED&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">region</span><span class="p">:</span>
+
+                <span class="n">statuses</span><span class="p">[</span><span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">statuses</span>
+
+    <span class="k">def</span> <span class="nf">_status_per_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stacks</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">fan_out</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_status</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stacks</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">],</span> <span class="n">threads</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_status</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">Stack</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">status_group</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;COMPLETE&quot;</span><span class="p">,</span> <span class="s2">&quot;IN_PROGRESS&quot;</span><span class="p">,</span> <span class="s2">&quot;FAILED&quot;</span><span class="p">]:</span>
+
+            <span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">StackStatus</span><span class="p">,</span> <span class="n">status_group</span><span class="p">):</span>
+
+                <span class="k">return</span> <span class="n">stack</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">status_group</span><span class="p">,</span> <span class="n">stack</span><span class="o">.</span><span class="n">status_reason</span>
+
+        <span class="k">raise</span> <span class="n">TaskCatException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid stack </span><span class="si">{</span><span class="n">stack</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">per_region_stacks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events_per_client</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;criteria&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">},</span> <span class="n">per_region_stacks</span><span class="p">,</span> <span class="n">threads</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_events_per_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stacks</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_describe_stack_events</span><span class="p">,</span>
+
+            <span class="p">{</span><span class="s2">&quot;criteria&quot;</span><span class="p">:</span> <span class="n">criteria</span><span class="p">},</span>
+
+            <span class="n">stacks</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">],</span>
+
+            <span class="n">threads</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_describe_stack_events</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">Stack</span><span class="p">,</span> <span class="n">criteria</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">stack</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">stack</span><span class="o">.</span><span class="n">events</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resources_per_client</span><span class="p">,</span>
+
+            <span class="p">{</span><span class="s2">&quot;criteria&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">},</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stacks</span><span class="p">),</span>
+
+            <span class="n">threads</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resources_per_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stacks</span><span class="p">,</span> <span class="n">criteria</span><span class="p">,</span> <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;criteria&quot;</span><span class="p">:</span> <span class="n">criteria</span><span class="p">},</span> <span class="n">stacks</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">],</span> <span class="n">threads</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_resources</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">Stack</span><span class="p">,</span> <span class="n">criteria</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">stack</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">stack</span><span class="o">.</span><span class="n">resources</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)}</span>
+
+    <span class="nd">@classmethod</span>
+
+    <span class="k">def</span> <span class="nf">from_existing</span><span class="p">(</span>
+
+        <span class="bp">cls</span><span class="p">,</span>
+
+        <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span>
+
+        <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+
+        <span class="n">tests</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TestObj</span><span class="p">],</span>
+
+        <span class="n">include_deleted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+        <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+        <span class="n">threads</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">include_deleted</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;including deleted stacks not implemented&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">recurse</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">clients</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">TestRegion</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">tests</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+            <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">test</span><span class="o">.</span><span class="n">regions</span><span class="p">:</span>
+
+                <span class="n">client</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;cloudformation&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">client</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">clients</span><span class="p">:</span>
+
+                    <span class="n">clients</span><span class="p">[</span><span class="n">client</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="n">clients</span><span class="p">[</span><span class="n">client</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="n">Stacker</span><span class="o">.</span><span class="n">_import_stacks_per_client</span><span class="p">,</span>
+
+            <span class="p">{</span><span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;project_name&quot;</span><span class="p">:</span> <span class="n">project_name</span><span class="p">,</span> <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">tests</span><span class="p">},</span>
+
+            <span class="n">clients</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+
+            <span class="n">threads</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="n">stacker</span> <span class="o">=</span> <span class="n">Stacker</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span> <span class="n">tests</span><span class="p">,</span> <span class="n">uid</span><span class="p">)</span>
+
+        <span class="n">stacker</span><span class="o">.</span><span class="n">stacks</span> <span class="o">=</span> <span class="n">Stacks</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">stacker</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_import_stacks_per_client</span><span class="p">(</span><span class="n">clients</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">project_name</span><span class="p">,</span> <span class="n">tests</span><span class="p">):</span>
+
+        <span class="c1"># pylint: disable=too-many-locals</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="n">Stacks</span><span class="p">()</span>
+
+        <span class="n">client</span><span class="p">,</span> <span class="n">region</span> <span class="o">=</span> <span class="n">clients</span>
+
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;describe_stacks&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">():</span>
+
+            <span class="k">for</span> <span class="n">stack_props</span> <span class="ow">in</span> <span class="n">page</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">]:</span>
+
+                <span class="k">if</span> <span class="n">stack_props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ParentId&quot;</span><span class="p">):</span>
+
+                    <span class="k">continue</span>
+
+                <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="n">project</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">test</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">stack_props</span><span class="p">[</span><span class="s2">&quot;Tags&quot;</span><span class="p">]:</span>
+
+                    <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s2">&quot;Key&quot;</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;taskcat-id&quot;</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">==</span> <span class="n">uid</span><span class="o">.</span><span class="n">hex</span><span class="p">:</span>
+
+                        <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;taskcat-test-name&quot;</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tests</span><span class="p">:</span>
+
+                        <span class="n">test</span> <span class="o">=</span> <span class="n">v</span>
+
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;taskcat-project-name&quot;</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">==</span> <span class="n">project_name</span><span class="p">:</span>
+
+                        <span class="n">project</span> <span class="o">=</span> <span class="n">v</span>
+
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">test</span> <span class="ow">and</span> <span class="n">project</span><span class="p">:</span>
+
+                    <span class="n">stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="o">.</span><span class="n">import_existing</span><span class="p">(</span>
+
+                        <span class="n">stack_props</span><span class="p">,</span>
+
+                        <span class="n">tests</span><span class="p">[</span><span class="n">test</span><span class="p">]</span><span class="o">.</span><span class="n">template</span><span class="p">,</span>
+
+                        <span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+
+                        <span class="n">test</span><span class="p">,</span>
+
+                        <span class="n">uid</span><span class="p">,</span>
+
+                    <span class="p">)</span>
+
+                    <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stacks</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_group_stacks</span><span class="p">(</span><span class="n">stacks</span><span class="p">:</span> <span class="n">Stacks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+
+        <span class="n">stacks_by_client</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">stack</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
+
+            <span class="n">client</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">client</span>
+
+            <span class="k">if</span> <span class="n">client</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stacks_by_client</span><span class="p">:</span>
+
+                <span class="n">stacks_by_client</span><span class="p">[</span><span class="n">client</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Client&quot;</span><span class="p">:</span> <span class="n">client</span><span class="p">,</span> <span class="s2">&quot;Stacks&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+            <span class="n">stacks_by_client</span><span class="p">[</span><span class="n">client</span><span class="p">][</span><span class="s2">&quot;Stacks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+
+            <span class="n">stacks_by_client</span><span class="p">[</span><span class="n">r</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">stacks_by_client</span>  <span class="c1"># pylint: disable=consider-using-dict-items</span>
+
+        <span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">list_stacks</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="n">regions</span><span class="p">):</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="n">Stacker</span><span class="o">.</span><span class="n">_list_per_profile</span><span class="p">,</span>
+
+            <span class="p">{</span><span class="s2">&quot;regions&quot;</span><span class="p">:</span> <span class="n">regions</span><span class="p">,</span> <span class="s2">&quot;boto_cache&quot;</span><span class="p">:</span> <span class="n">Boto3Cache</span><span class="p">()},</span>
+
+            <span class="n">profiles</span><span class="p">,</span>
+
+            <span class="n">threads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">stack</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">stacks</span> <span class="k">for</span> <span class="n">stack</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_list_per_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">regions</span><span class="p">,</span> <span class="n">boto_cache</span><span class="p">):</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="n">Stacker</span><span class="o">.</span><span class="n">_get_taskcat_stacks</span><span class="p">,</span>
+
+            <span class="p">{</span><span class="s2">&quot;boto_cache&quot;</span><span class="p">:</span> <span class="n">boto_cache</span><span class="p">,</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">profile</span><span class="p">},</span>
+
+            <span class="n">regions</span><span class="p">,</span>
+
+            <span class="n">threads</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">stack</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">stacks</span> <span class="k">for</span> <span class="n">stack</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">_get_taskcat_stacks</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">boto_cache</span><span class="p">:</span> <span class="n">Boto3Cache</span><span class="p">,</span> <span class="n">profile</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="n">cfn</span> <span class="o">=</span> <span class="n">boto_cache</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;cloudformation&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">cfn</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&quot;describe_stacks&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">paginate</span><span class="p">():</span>
+
+                <span class="k">for</span> <span class="n">stack_props</span> <span class="ow">in</span> <span class="n">page</span><span class="p">[</span><span class="s2">&quot;Stacks&quot;</span><span class="p">]:</span>
+
+                    <span class="k">if</span> <span class="n">stack_props</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ParentId&quot;</span><span class="p">):</span>
+
+                        <span class="k">continue</span>
+
+                    <span class="n">stack_id</span> <span class="o">=</span> <span class="n">stack_props</span><span class="p">[</span><span class="s2">&quot;StackId&quot;</span><span class="p">]</span>
+
+                    <span class="n">stack_name</span> <span class="o">=</span> <span class="n">stack_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+                    <span class="n">stack</span> <span class="o">=</span> <span class="p">{</span>
+
+                        <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span>
+
+                        <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">profile</span><span class="p">,</span>
+
+                        <span class="s2">&quot;stack-id&quot;</span><span class="p">:</span> <span class="n">stack_id</span><span class="p">,</span>
+
+                        <span class="s2">&quot;stack-name&quot;</span><span class="p">:</span> <span class="n">stack_name</span><span class="p">,</span>
+
+                    <span class="p">}</span>
+
+                    <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">stack_props</span><span class="p">[</span><span class="s2">&quot;Tags&quot;</span><span class="p">]:</span>
+
+                        <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">tag</span><span class="p">[</span><span class="s2">&quot;Key&quot;</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span>
+
+                        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;taskcat-&quot;</span><span class="p">):</span>
+
+                            <span class="n">stack</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+                    <span class="k">if</span> <span class="n">stack</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;taskcat-id&quot;</span><span class="p">):</span>
+
+                        <span class="n">stack</span><span class="p">[</span><span class="s2">&quot;taskcat-id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="s2">&quot;taskcat-id&quot;</span><span class="p">])</span>
+
+                        <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+
+                <span class="sa">f</span><span class="s2">&quot;Failed to fetch stacks for region </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2"> using profile &quot;</span>
+
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="p">)</span>
+
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">stacks</span>
+</code></pre></div>
+
+
+</details>
+<h2 id="variables">Variables</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">LOG</span>
+</code></pre></div>
+
+
+<h2 id="functions">Functions</h2>
+<h3 id="fan_out">fan_out</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">fan_out</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">,</span>
+    <span class="n">partial_kwargs</span><span class="p">,</span>
+    <span class="n">payload</span><span class="p">,</span>
+    <span class="n">threads</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">fan_out</span><span class="p">(</span><span class="k">func</span><span class="p">,</span> <span class="n">partial_kwargs</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">threads</span><span class="p">):</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">threads</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">partial_kwargs</span><span class="p">:</span>
+
+        <span class="k">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="k">func</span><span class="p">,</span> <span class="o">**</span><span class="n">partial_kwargs</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">func</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+
+
+</details>
+<h2 id="classes">Classes</h2>
+<h3 id="stacker">Stacker</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">Stacker</span><span class="p">(</span>
+    <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">tests</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_dataclasses</span><span class="o">.</span><span class="n">TestObj</span><span class="p">],</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="s1">&#39;00000000-0000-0000-0000-000000000000&#39;</span><span class="p">),</span>
+    <span class="n">stack_name_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;tCaT&#39;</span><span class="p">,</span>
+    <span class="n">shorten_stack_name</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">Stacker</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">NULL_UUID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="p">(</span><span class="nc">int</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">project_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">tests</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, TestObj</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">uid</span><span class="p">:</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NULL_UUID</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">stack_name_prefix</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;tCaT&quot;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">shorten_stack_name</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">tags</span><span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tests</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">project_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">project_name</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">stack_name_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack_name_prefix</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">shorten_stack_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">shorten_stack_name</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tags</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">tags</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">uid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">uuid4</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">uid</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Stacker</span><span class="p">.</span><span class="n">NULL_UUID</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">uid</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="nl">stacks</span><span class="p">:</span><span class="w"> </span><span class="n">Stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacks</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_tests_to_list</span><span class="p">(</span><span class="nl">tests</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, TestObj</span><span class="o">]</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">list</span><span class="p">(</span><span class="n">tests</span><span class="p">.</span><span class="k">values</span><span class="p">())</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">create_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">stacks</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">TaskCatException</span><span class="p">(</span><span class="ss">&quot;Stacker already initialised with stack objects&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_tests_to_list</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">tests</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">Tag({&quot;Key&quot;: &quot;taskcat-id&quot;, &quot;Value&quot;: self.uid.hex})</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tags</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
+
+<span class="n">            Tag(t)</span>
+
+<span class="n">            for t in self.tags</span>
+
+<span class="n">            if t.key not in [&quot;taskcat-project-name&quot;, &quot;taskcat-test-name&quot;, &quot;taskcat-id&quot;</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">fan_out</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_create_stacks_for_test</span><span class="p">,</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;tags&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tags</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_create_stacks_for_test</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">,</span><span class="w"> </span><span class="n">tags</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stack_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">stack_name</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tags</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;Key&quot;</span><span class="err">:</span><span class="w"> </span><span class="ss">&quot;taskcat-project-name&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Value&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">project_name</span><span class="err">}</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tags</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Tag</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;Key&quot;</span><span class="err">:</span><span class="w"> </span><span class="ss">&quot;taskcat-test-name&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Value&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="err">}</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">tags</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">tags</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">partial_kwargs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;stack_name&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">stack_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;template&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;tags&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tags</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="ss">&quot;test_name&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="n">Stack</span><span class="p">.</span><span class="k">create</span><span class="p">,</span><span class="w"> </span><span class="n">partial_kwargs</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">stacks</span><span class="w"></span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="ow">Not</span><span class="w"> </span><span class="n">used</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">tCat</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">present</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">update_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">delete_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">criteria</span><span class="p">:</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">deep</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">deep</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;deep delete not yet implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_delete_stacks_per_client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">None</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">.</span><span class="k">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)),</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_delete_stacks_per_client</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">fan_out</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_delete_stack</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_delete_stack</span><span class="p">(</span><span class="nl">stack</span><span class="p">:</span><span class="w"> </span><span class="n">Stack</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stack</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="n">stack_id</span><span class="o">=</span><span class="n">stack</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">client</span><span class="o">=</span><span class="n">stack</span><span class="p">.</span><span class="n">client</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stack</span><span class="p">.</span><span class="n">refresh</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">status</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;recurse not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">.</span><span class="k">filter</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">per_region_stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_status_per_client</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">per_region_stacks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">statuses</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, dict</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;IN_PROGRESS&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{}</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;COMPLETE&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{}</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;FAILED&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">{}}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">results</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">region</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">statuses</span><span class="o">[</span><span class="n">status[1</span><span class="o">]</span><span class="err">]</span><span class="o">[</span><span class="n">status[0</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">statuses</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_status_per_client</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_status</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_status</span><span class="p">(</span><span class="nl">stack</span><span class="p">:</span><span class="w"> </span><span class="n">Stack</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">status_group</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">[</span><span class="n">&quot;COMPLETE&quot;, &quot;IN_PROGRESS&quot;, &quot;FAILED&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">getattr</span><span class="p">(</span><span class="n">StackStatus</span><span class="p">,</span><span class="w"> </span><span class="n">status_group</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">status_group</span><span class="p">,</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">status_reason</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">TaskCatException</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Invalid stack {stack}&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">events</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">recurse</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;recurse not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">per_region_stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_events_per_client</span><span class="p">,</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;criteria&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">kwargs</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">per_region_stacks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_events_per_client</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="p">,</span><span class="w"> </span><span class="n">criteria</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_describe_stack_events</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;criteria&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">criteria</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">stacks</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_describe_stack_events</span><span class="p">(</span><span class="nl">stack</span><span class="p">:</span><span class="w"> </span><span class="n">Stack</span><span class="p">,</span><span class="w"> </span><span class="n">criteria</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="n">stack</span><span class="p">.</span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">events</span><span class="p">().</span><span class="k">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span><span class="err">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">resources</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">recurse</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;recurse not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_resources_per_client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;criteria&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">kwargs</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_resources_per_client</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="p">,</span><span class="w"> </span><span class="n">criteria</span><span class="p">,</span><span class="w"> </span><span class="nl">threads</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_resources</span><span class="p">,</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;criteria&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">criteria</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">stacks</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_resources</span><span class="p">(</span><span class="nl">stack</span><span class="p">:</span><span class="w"> </span><span class="n">Stack</span><span class="p">,</span><span class="w"> </span><span class="n">criteria</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="n">stack</span><span class="p">.</span><span class="nl">id</span><span class="p">:</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">resources</span><span class="p">().</span><span class="k">filter</span><span class="p">(</span><span class="n">criteria</span><span class="p">)</span><span class="err">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_existing</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">uid</span><span class="p">:</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">project_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">tests</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, TestObj</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">include_deleted</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">recurse</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">threads</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">include_deleted</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;including deleted stacks not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;recurse not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">clients</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">boto3.client, List[TestRegion</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tests</span><span class="p">.</span><span class="k">values</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">regions</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="ss">&quot;cloudformation&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">clients</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">clients</span><span class="o">[</span><span class="n">client</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">clients</span><span class="o">[</span><span class="n">client</span><span class="o">]</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">Stacker</span><span class="p">.</span><span class="n">_import_stacks_per_client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;uid&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;project_name&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">project_name</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;tests&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tests</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">clients</span><span class="p">.</span><span class="n">items</span><span class="p">(),</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacker</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span><span class="w"> </span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="n">uid</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacker</span><span class="p">.</span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacks</span><span class="p">(</span><span class="o">[</span><span class="n">item for sublist in results for item in sublist</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacker</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_import_stacks_per_client</span><span class="p">(</span><span class="n">clients</span><span class="p">,</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="n">project_name</span><span class="p">,</span><span class="w"> </span><span class="n">tests</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">pylint</span><span class="p">:</span><span class="w"> </span><span class="n">disable</span><span class="o">=</span><span class="n">too</span><span class="o">-</span><span class="n">many</span><span class="o">-</span><span class="n">locals</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacks</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">client</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clients</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="ss">&quot;describe_stacks&quot;</span><span class="p">).</span><span class="n">paginate</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">stack_props</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">page</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">stack_props</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;ParentId&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">continue</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;&quot;</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;&quot;</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stack_props</span><span class="o">[</span><span class="n">&quot;Tags&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tag</span><span class="o">[</span><span class="n">&quot;Key&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="o">[</span><span class="n">&quot;Value&quot;</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;taskcat-id&quot;</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">uid</span><span class="p">.</span><span class="nl">hex</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="k">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">elif</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;taskcat-test-name&quot;</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">tests</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">elif</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;taskcat-project-name&quot;</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nl">project_name</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="nl">project</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stack</span><span class="p">.</span><span class="n">import_existing</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">stack_props</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">tests</span><span class="o">[</span><span class="n">test</span><span class="o">]</span><span class="p">.</span><span class="n">template</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">region</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">test</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">uid</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">stacks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacks</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_group_stacks</span><span class="p">(</span><span class="nl">stacks</span><span class="p">:</span><span class="w"> </span><span class="n">Stacks</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">List</span><span class="o">[</span><span class="n">dict</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">stacks_by_client</span><span class="p">:</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">stacks</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">client</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">stacks_by_client</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">stacks_by_client</span><span class="o">[</span><span class="n">client</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="ss">&quot;Client&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">client</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Stacks&quot;</span><span class="err">:</span><span class="w"> </span><span class="err">[]}</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">stacks_by_client</span><span class="o">[</span><span class="n">client</span><span class="o">][</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
+
+<span class="n">            stacks_by_client[r</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stacks_by_client</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nl">pylint</span><span class="p">:</span><span class="w"> </span><span class="n">disable</span><span class="o">=</span><span class="n">consider</span><span class="o">-</span><span class="k">using</span><span class="o">-</span><span class="n">dict</span><span class="o">-</span><span class="n">items</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">]</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">list_stacks</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">Stacker</span><span class="p">.</span><span class="n">_list_per_profile</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;regions&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;boto_cache&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="p">()</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">profiles</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">stack for sublist in stacks for stack in sublist</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_list_per_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="n">boto_cache</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">Stacker</span><span class="p">.</span><span class="n">_get_taskcat_stacks</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;boto_cache&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">boto_cache</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;profile&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">profile</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">regions</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="o">=</span><span class="nf">len</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">stack for sublist in stacks for stack in sublist</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_get_taskcat_stacks</span><span class="p">(</span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="nl">boto_cache</span><span class="p">:</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="p">,</span><span class="w"> </span><span class="nl">profile</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">cfn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">boto_cache</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="ss">&quot;cloudformation&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">profile</span><span class="o">=</span><span class="n">profile</span><span class="p">,</span><span class="w"> </span><span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">cfn</span><span class="p">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="ss">&quot;describe_stacks&quot;</span><span class="p">).</span><span class="n">paginate</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="n">stack_props</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">page</span><span class="o">[</span><span class="n">&quot;Stacks&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="n">stack_props</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;ParentId&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="k">continue</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">stack_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack_props</span><span class="o">[</span><span class="n">&quot;StackId&quot;</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">stack_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack_id</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="ss">&quot;/&quot;</span><span class="p">)</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+
+<span class="w">                        </span><span class="ss">&quot;region&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="ss">&quot;profile&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">profile</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="ss">&quot;stack-id&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">stack_id</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                        </span><span class="ss">&quot;stack-name&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">stack_name</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                    </span><span class="err">}</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">for</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">stack_props</span><span class="o">[</span><span class="n">&quot;Tags&quot;</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tag</span><span class="o">[</span><span class="n">&quot;Key&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="o">[</span><span class="n">&quot;Value&quot;</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                        </span><span class="k">if</span><span class="w"> </span><span class="n">k</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="ss">&quot;taskcat-&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                            </span><span class="n">stack</span><span class="o">[</span><span class="n">k</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="w"></span>
+
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="ss">&quot;taskcat-id&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">stack</span><span class="o">[</span><span class="n">&quot;taskcat-id&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">stack</span><span class="o">[</span><span class="n">&quot;taskcat-id&quot;</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                        </span><span class="n">stacks</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="ow">except</span><span class="w"> </span><span class="k">Exception</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nl">e</span><span class="p">:</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nl">pylint</span><span class="p">:</span><span class="w"> </span><span class="n">disable</span><span class="o">=</span><span class="n">broad</span><span class="o">-</span><span class="ow">except</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">LOG</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">f</span><span class="ss">&quot;Failed to fetch stacks for region {region} using profile &quot;</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">f</span><span class="ss">&quot;{profile} {type(e)} {e}&quot;</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="nf">LOG</span><span class="p">.</span><span class="n">debug</span><span class="p">(</span><span class="ss">&quot;Traceback:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">exc_info</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacks</span><span class="w"></span>
+</code></pre></div>
+
+
+</details>
+<hr />
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">NULL_UUID</span>
+</code></pre></div>
+
+
+<h4 id="static-methods">Static methods</h4>
+<h4 id="from_existing">from_existing</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">from_existing</span><span class="p">(</span>
+    <span class="n">uid</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">,</span>
+    <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">tests</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">taskcat</span><span class="o">.</span><span class="n">_dataclasses</span><span class="o">.</span><span class="n">TestObj</span><span class="p">],</span>
+    <span class="n">include_deleted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">threads</span><span class="o">=</span><span class="mi">32</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">from_existing</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">uid</span><span class="p">:</span><span class="w"> </span><span class="n">uuid</span><span class="p">.</span><span class="n">UUID</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">project_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">tests</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">str, TestObj</span><span class="o">]</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">include_deleted</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">recurse</span><span class="o">=</span><span class="k">False</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">threads</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">include_deleted</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;including deleted stacks not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nl">recurse</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span><span class="ss">&quot;recurse not implemented&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="nl">clients</span><span class="p">:</span><span class="w"> </span><span class="n">Dict</span><span class="o">[</span><span class="n">boto3.client, List[TestRegion</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tests</span><span class="p">.</span><span class="k">values</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test</span><span class="p">.</span><span class="nl">regions</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region</span><span class="p">.</span><span class="n">client</span><span class="p">(</span><span class="ss">&quot;cloudformation&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">clients</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                    </span><span class="n">clients</span><span class="o">[</span><span class="n">client</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">clients</span><span class="o">[</span><span class="n">client</span><span class="o">]</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">Stacker</span><span class="p">.</span><span class="n">_import_stacks_per_client</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;uid&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">uid</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;project_name&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">project_name</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;tests&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">tests</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">clients</span><span class="p">.</span><span class="n">items</span><span class="p">(),</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacker</span><span class="p">(</span><span class="n">project_name</span><span class="p">,</span><span class="w"> </span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="n">uid</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacker</span><span class="p">.</span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Stacks</span><span class="p">(</span><span class="o">[</span><span class="n">item for sublist in results for item in sublist</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">stacker</span><span class="w"></span>
+</code></pre></div>
+
+
+</details>
+<h4 id="list_stacks">list_stacks</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">list_stacks</span><span class="p">(</span>
+    <span class="n">profiles</span><span class="p">,</span>
+    <span class="n">regions</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">list_stacks</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span><span class="w"> </span><span class="n">regions</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">stacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fan_out</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">Stacker</span><span class="p">.</span><span class="n">_list_per_profile</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">{</span><span class="ss">&quot;regions&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">regions</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;boto_cache&quot;</span><span class="err">:</span><span class="w"> </span><span class="n">Boto3Cache</span><span class="p">()</span><span class="err">}</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">profiles</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">threads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">stack for sublist in stacks for stack in sublist</span><span class="o">]</span><span class="w"></span>
+</code></pre></div>
+
+
+</details>
+<h4 id="methods">Methods</h4>
+<h4 id="create_stacks">create_stacks</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stacks</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">create_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">8</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">stacks</span>:
+
+            <span class="nv">raise</span> <span class="nv">TaskCatException</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Stacker already initialised with stack objects</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="nv">tests</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_tests_to_list</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">tests</span><span class="ss">)</span>
+
+        <span class="nv">tags</span> <span class="o">=</span> [<span class="nv">Tag</span><span class="ss">(</span>{<span class="s2">&quot;</span><span class="s">Key</span><span class="s2">&quot;</span>: <span class="s2">&quot;</span><span class="s">taskcat-id</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">Value</span><span class="s2">&quot;</span>: <span class="nv">self</span>.<span class="nv">uid</span>.<span class="nv">hex</span>}<span class="ss">)</span>]
+
+        <span class="nv">tags</span> <span class="o">+=</span> [
+
+            <span class="nv">Tag</span><span class="ss">(</span><span class="nv">t</span><span class="ss">)</span>
+
+            <span class="k">for</span> <span class="nv">t</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">tags</span>
+
+            <span class="k">if</span> <span class="nv">t</span>.<span class="nv">key</span> <span class="nv">not</span> <span class="nv">in</span> [<span class="s2">&quot;</span><span class="s">taskcat-project-name</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">taskcat-test-name</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">taskcat-id</span><span class="s2">&quot;</span>]
+
+        ]
+
+        <span class="nv">fan_out</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">_create_stacks_for_test</span>, {<span class="s2">&quot;</span><span class="s">tags</span><span class="s2">&quot;</span>: <span class="nv">tags</span>}, <span class="nv">tests</span>, <span class="nv">threads</span><span class="ss">)</span>
+</code></pre></div>
+
+
+</details>
+<h4 id="delete_stacks">delete_stacks</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">delete_stacks</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">criteria</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">threads</span><span class="o">=</span><span class="mi">32</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">delete_stacks</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">criteria</span>: <span class="nv">dict</span> <span class="o">=</span> <span class="nv">None</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span><span class="o">=</span><span class="mi">32</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">deep</span>:
+
+            <span class="nv">raise</span> <span class="nv">NotImplementedError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">deep delete not yet implemented</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="nv">fan_out</span><span class="ss">(</span>
+
+            <span class="nv">self</span>.<span class="nv">_delete_stacks_per_client</span>,
+
+            <span class="nv">None</span>,
+
+            <span class="nv">self</span>.<span class="nv">_group_stacks</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">stacks</span>.<span class="nv">filter</span><span class="ss">(</span><span class="nv">criteria</span><span class="ss">))</span>,
+
+            <span class="nv">threads</span>,
+
+        <span class="ss">)</span>
+</code></pre></div>
+
+
+</details>
+<h4 id="events">events</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">events</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">events</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">recurse</span><span class="o">=</span><span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
+
+        <span class="k">if</span> <span class="nl">recurse:</span>
+
+            <span class="n">raise</span> <span class="n">NotImplementedError</span><span class="p">(</span><span class="s">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">per_region_stacks</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">_events_per_client</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;criteria&quot;</span><span class="o">:</span> <span class="n">kwargs</span><span class="p">},</span> <span class="n">per_region_stacks</span><span class="p">,</span> <span class="n">threads</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">merge_dicts</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+
+</details>
+<h4 id="resources">resources</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">resources</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">recurse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="nv">def</span> <span class="nv">resources</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">recurse</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">threads</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">32</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+
+        <span class="k">if</span> <span class="nv">recurse</span>:
+
+            <span class="nv">raise</span> <span class="nv">NotImplementedError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">recurse not implemented</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="nv">results</span> <span class="o">=</span> <span class="nv">fan_out</span><span class="ss">(</span>
+
+            <span class="nv">self</span>.<span class="nv">_resources_per_client</span>,
+
+            {<span class="s2">&quot;</span><span class="s">criteria</span><span class="s2">&quot;</span>: <span class="nv">kwargs</span>},
+
+            <span class="nv">self</span>.<span class="nv">_group_stacks</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">stacks</span><span class="ss">)</span>,
+
+            <span class="nv">threads</span>,
+
+        <span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">merge_dicts</span><span class="ss">(</span><span class="nv">results</span><span class="ss">)</span>
+</code></pre></div>
+
+
+</details>
+<h4 id="status">status</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">status</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">recurse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">status</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">recurse:</span> <span class="n">bool</span> <span class="o">=</span> <span class="n">False</span><span class="p">,</span> <span class="nl">threads:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mh">32</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">:</span>
+
+        <span class="k">if</span> <span class="nl">recurse:</span>
+
+            <span class="n">raise</span> <span class="n">NotImplementedError</span><span class="p">(</span><span class="s">&quot;recurse not implemented&quot;</span><span class="p">)</span>
+
+        <span class="n">stacks</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">stacks</span><span class="p">.</span><span class="n">filter</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">per_region_stacks</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_group_stacks</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="n">fan_out</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_status_per_client</span><span class="p">,</span> <span class="n">None</span><span class="p">,</span> <span class="n">per_region_stacks</span><span class="p">,</span> <span class="n">threads</span><span class="p">)</span>
+
+        <span class="nl">statuses:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">str</span><span class="p">,</span> <span class="n">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;IN_PROGRESS&quot;</span><span class="o">:</span> <span class="p">{},</span> <span class="s">&quot;COMPLETE&quot;</span><span class="o">:</span> <span class="p">{},</span> <span class="s">&quot;FAILED&quot;</span><span class="o">:</span> <span class="p">{}}</span>
+
+        <span class="k">for</span> <span class="n">region</span> <span class="n">in</span> <span class="nl">results:</span>
+
+            <span class="k">for</span> <span class="n">status</span> <span class="n">in</span> <span class="nl">region:</span>
+
+                <span class="n">statuses</span><span class="p">[</span><span class="n">status</span><span class="p">[</span><span class="mh">1</span><span class="p">]][</span><span class="n">status</span><span class="p">[</span><span class="mh">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="mh">2</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">statuses</span>
+</code></pre></div>
+
+
+</details>
+<h4 id="update_stacks">update_stacks</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">update_stacks</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    def update_stacks(self):
+
+        raise NotImplementedError()
+</code></pre></div>
+
+
+</details>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../template/" title="Template" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Template
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../_cli_modules/config/" title="Config" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Config
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.f8263e09.min.js", "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.4fc53ad4.min.js"></script>
+      
+    
+  </body>
+</html>
