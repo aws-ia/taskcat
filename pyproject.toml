@@ -25,7 +25,7 @@ Installation = "docs/INSTALLATION.md"
         "Psuedo Parameters" = "docs/usage/PSUEDO_PARAMETERS.md"
 
 [[tool.portray.mkdocs.nav]]
-"Configuration Schema" = "docs/schema/taskcat_schema.html"
+"Configuration Schema" = "docs/schema/taskcat_schema.md"
 
 [[tool.portray.mkdocs.nav]]
     [[tool.portray.mkdocs.nav.Administrative]]
