@@ -42,8 +42,6 @@
     
       <link rel="stylesheet" href="../../custom.css">
     
-      <link rel="stylesheet" href="../../schema/taskcat_schema/schema_doc.css">
-    
     
       
 
@@ -1113,51 +1111,51 @@
 <td>Retreives another parameter value.</td>
 </tr>
 <tr>
-<td>$[taskcat_current_region]</td>
+<td><code>$[taskcat_current_region]</code></td>
 <td>"us-east-2"</td>
 <td>Region the test is being prepared for</td>
 </tr>
 <tr>
-<td>$[taskcat_project_name]</td>
+<td><code>$[taskcat_project_name]</code></td>
 <td>"my-example-project"</td>
 <td>Name of the project being tested</td>
 </tr>
 <tr>
-<td>$[taskcat_test_name]</td>
+<td><code>$[taskcat_test_name]</code></td>
 <td>"cluster-with-windows-ad"</td>
 <td>Name of the test being tested</td>
 </tr>
 <tr>
-<td>$[taskcat_ssm_/path/to/ssm/parameter]</td>
+<td><code>$[taskcat_ssm_/path/to/ssm/parameter]</code></td>
 <td><em>SSM Parameter Value</em></td>
 <td>Retreives values from SSM</td>
 </tr>
 <tr>
-<td>$[taskcat_secretsmanager_SecretNameOrARN]</td>
+<td><code>$[taskcat_secretsmanager_SecretNameOrARN]</code></td>
 <td><em>Value from SecretsManager</em></td>
 <td>Retreives a secret value from SecretsManager given an name or ARN</td>
 </tr>
 </tbody>
 </table>
 <h4 id="from-defined-in-taskcatyaml">From: (defined in taskcat.yaml')</h4>
-<div class="codehilite"><pre><span></span><code><span class="w">     </span><span class="nl">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">small</span><span class="w"></span>
-<span class="w">     </span><span class="nl">AvailablityZones</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genaz_2</span><span class="o">]</span><span class="w"></span>
-<span class="w">     </span><span class="nl">RandomString</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_random-string</span><span class="o">]</span><span class="w"></span>
-<span class="w">     </span><span class="nl">RandomNumbers</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_random-numbers</span><span class="o">]</span><span class="w"></span>
-<span class="w">     </span><span class="nl">GenerateUUID</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genuuid</span><span class="o">]</span><span class="w"></span>
-<span class="w">     </span><span class="nl">Password</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_genpass_8A</span><span class="o">]</span><span class="w"></span>
-<span class="w">     </span><span class="nl">PasswordConfirm</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="o">[</span><span class="n">taskcat_getval_Password</span><span class="o">]</span><span class="w"></span>
+<div class="codehilite"><pre><span></span><code>     <span class="nt">InstanceType</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">t2.small</span>
+     <span class="nt">AvailablityZones</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_genaz_2]</span>
+     <span class="nt">RandomString</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_random-string]</span>
+     <span class="nt">RandomNumbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_random-numbers]</span>
+     <span class="nt">GenerateUUID</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_genuuid]</span>
+     <span class="nt">Password</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_genpass_8A]</span>
+     <span class="nt">PasswordConfirm</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">$[taskcat_getval_Password]</span>
 </code></pre></div>
 
 
 <h4 id="to-at-runtime-passed-to-cloudformation-api">To: (At runtime passed to cloudformation API)</h4>
-<div class="codehilite"><pre><span></span><code>     InstanceType: t2.small
-     AvailablityZones: us-east-1a: us-east1b
-     RandomString: yysuawpwubvotiqgwjcu
-     RandomNumbers: 56188163597280820763
-     GenerateUUID: 1c2e3483-2c99-45bb-801d-8af68a3b907b
-     Password: tI8zN3iX8
-     PasswordConfirm: tI8zN3iX8
+<div class="codehilite"><pre><span></span><code>     <span class="nt">InstanceType</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">t2.small</span>
+     <span class="nt">AvailablityZones</span><span class="p">:</span> <span class="nt">us-east-1a</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">us-east1b</span>
+     <span class="nt">RandomString</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yysuawpwubvotiqgwjcu</span>
+     <span class="nt">RandomNumbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">56188163597280820763</span>
+     <span class="nt">GenerateUUID</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1c2e3483-2c99-45bb-801d-8af68a3b907b</span>
+     <span class="nt">Password</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tI8zN3iX8</span>
+     <span class="nt">PasswordConfirm</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tI8zN3iX8</span>
 </code></pre></div>
                 
               
@@ -1234,8 +1232,6 @@
     
     
       <script src="../../../assets/javascripts/bundle.4fc53ad4.min.js"></script>
-      
-        <script src="../../schema/taskcat_schema/schema_doc.min.js"></script>
       
     
   </body>
