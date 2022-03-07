@@ -415,6 +415,9 @@ class TestRegion(RegionObj):
         return cls(s3_bucket=s3_bucket, parameters=parameters, **region.__dict__)
 
 
+TestRegion.__test__ = False
+
+
 @dataclass
 # pylint: disable=too-many-instance-attributes
 class TestObj:
@@ -482,6 +485,9 @@ class TestObj:
         if self._shorten_stack_name:
             return "{}{}-{}".format(prefix, self.name, self.uid.hex[:6])
         return "{}{}-{}-{}".format(prefix, self._project_name, self.name, self.uid.hex)
+
+
+TestObj.__test__ = False
 
 
 @dataclass
