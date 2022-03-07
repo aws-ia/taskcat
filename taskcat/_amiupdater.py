@@ -20,7 +20,7 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 REGION_REGEX = re.compile(
-    "((eu|ap|us|af|me|ca|cn|sa)-|(us-gov-))"
+    "((eu|ap|us|af|me|il|ca|cn|sa)-|(us-gov-))"
     "(north(east|west)?|south(east|west)?|central|east|west)-[0-9]",
     re.IGNORECASE,
 )
