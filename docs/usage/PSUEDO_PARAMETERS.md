@@ -14,14 +14,14 @@ Following table describes the supported **psuedo-parameters**.
 | `$[taskcat_random-numbers]` | 56188163597280820763 | Generates random numbers. |
 | `$[taskcat_genuuid]` | 1c2e3483-2c99-45bb-801d-8af68a3b907b | Generates a UUID |
 | `$[taskcat_getval_MyAppPassword]` | _Dynamically generated password for the MyAppPassword parameter_ | Retreives another parameter value.|
-|  $[taskcat_current_region] | "us-east-2" | Region the test is being prepared for |
-|  $[taskcat_project_name] | "my-example-project" | Name of the project being tested |
-|  $[taskcat_test_name] | "cluster-with-windows-ad" | Name of the test being tested |
-|  $[taskcat_ssm_/path/to/ssm/parameter] | _SSM Parameter Value_ | Retreives values from SSM |
-|  $[taskcat_secretsmanager_SecretNameOrARN] |_Value from SecretsManager_ |  Retreives a secret value from SecretsManager given an name or ARN|
+| `$[taskcat_current_region]` | "us-east-2" | Region the test is being prepared for |
+| `$[taskcat_project_name]` | "my-example-project" | Name of the project being tested |
+| `$[taskcat_test_name]` | "cluster-with-windows-ad" | Name of the test being tested |
+| `$[taskcat_ssm_/path/to/ssm/parameter]` | _SSM Parameter Value_ | Retreives values from SSM |
+| `$[taskcat_secretsmanager_SecretNameOrARN]` |_Value from SecretsManager_ |  Retreives a secret value from SecretsManager given an name or ARN|
 
 #### From: (defined in taskcat.yaml')
-```
+```yaml
      InstanceType: t2.small
      AvailablityZones: $[taskcat_genaz_2]
      RandomString: $[taskcat_random-string]
@@ -32,7 +32,7 @@ Following table describes the supported **psuedo-parameters**.
 ```
 
 #### To: (At runtime passed to cloudformation API)
-```
+```yaml
      InstanceType: t2.small
      AvailablityZones: us-east-1a: us-east1b
      RandomString: yysuawpwubvotiqgwjcu
