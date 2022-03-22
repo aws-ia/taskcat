@@ -1,4 +1,4 @@
-import collections
+import collections.abc
 import logging
 import os
 import re
@@ -158,7 +158,7 @@ def pascal_to_snake(pascal):
 
 def merge_nested_dict(old, new):
     for k, v in new.items():
-        if isinstance(old.get(k), dict) and isinstance(v, collections.Mapping):
+        if isinstance(old.get(k), dict) and isinstance(v, collections.abc.Mapping):
             merge_nested_dict(old[k], v)
         else:
             old[k] = v
