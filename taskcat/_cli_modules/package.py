@@ -17,6 +17,8 @@ class Package:
         source_folder: str = "lambda_functions/source",
         zip_folder: str = "lambda_functions/packages",
         config_file: str = ".taskcat.yml",
+        from_ref: str = None,
+        to_ref: str = None,
     ):
         """
         :param project_root: base path for project
@@ -40,4 +42,4 @@ class Package:
         if not config.config.project.package_lambda:
             LOG.info("Lambda packaging disabled by config")
             return
-        LambdaBuild(config, project_root_path)
+        LambdaBuild(config, project_root_path, from_ref, to_ref)

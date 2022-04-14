@@ -7,6 +7,8 @@ from taskcat._config import Config
 from taskcat._dataclasses import ProjectConfig, TestObj
 from taskcat.exceptions import TaskCatException
 
+TestObj.__ini__ = False
+
 
 class TestNewConfig(unittest.TestCase):
     def test_s3_acl_validation(self):
