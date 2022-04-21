@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import json
 
 from taskcat._dataclasses import BaseConfig
