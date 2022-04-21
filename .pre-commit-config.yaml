@@ -2,12 +2,12 @@ exclude: ^(.travis.yml|.pre-commit-config.yaml|.bumpversion.cfg)$
 fail_fast: true
 repos:
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v5.9.3
+  rev: v5.10.1
   hooks:
   - id: isort
     # language_version: python3.6
 - repo: https://github.com/ambv/black
-  rev: 21.10b0
+  rev: 22.3.0
   hooks:
   - id: black
     exclude: regions_to_partitions.py
@@ -43,7 +43,7 @@ repos:
   - id: python-check-mock-methods
   - id: python-no-log-warn
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.7.1
+  rev: 1.7.4
   hooks:
   - id: bandit
     files: "^taskcat/"
@@ -57,7 +57,7 @@ repos:
   - id: update-schema
     name: update-schema
     description: generate schema from dataclasses
-    entry: python generate_schema.py
+    entry: ./generate_schema.py
     language: system
     pass_filenames: false
     always_run: true
