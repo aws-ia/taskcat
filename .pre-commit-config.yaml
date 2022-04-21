@@ -57,7 +57,7 @@ repos:
   - id: update-schema
     name: update-schema
     description: generate schema from dataclasses
-    entry: python generate_schema.py
+    entry: ./generate_schema.py
     language: system
     pass_filenames: false
     always_run: true
