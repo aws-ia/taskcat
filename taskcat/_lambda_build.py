@@ -10,6 +10,9 @@ from uuid import UUID, uuid5
 from requests.exceptions import ReadTimeout
 
 import docker
+from dulwich.diff_tree import tree_changes
+from dulwich.errors import NotGitRepository
+from dulwich.repo import Repo
 
 from ._config import Config
 from .exceptions import TaskCatException
@@ -20,7 +23,14 @@ LOG = logging.getLogger(__name__)
 class LambdaBuild:
     NULL_UUID = UUID("{00000000-0000-0000-0000-000000000000}")
 
-    def __init__(self, config: Config, project_root: Path):
+    def __init__(
+        self,
+        config: Config,
+        project_root: Path,
+        from_ref: str = None,
+        to_ref: str = None,
+    ):
+        self._dirs_with_changes = set()
         self._docker = docker.from_env()
         self._config = config
         self._project_root = Path(project_root).expanduser().resolve()
@@ -30,8 +40,28 @@ class LambdaBuild:
         self._lambda_zip_path = (
             self._project_root / config.config.project.lambda_zip_path
         ).resolve()
+        self._determine_relative_changes_from_commits(from_ref, to_ref)
         self._build_lambdas(self._lambda_source_path, self._lambda_zip_path)
         self._build_submodules()
+
+    def _determine_relative_changes_from_commits(self, from_ref, to_ref):
+        if (not from_ref) or (not to_ref):
+            return
+
+        try:
+            _r = Repo(self._project_root)
+        except NotGitRepository as ngr:
+            raise TaskCatException(
+                f"Directory ({self._project_root}) is not a git repository"
+            ) from ngr
+
+        for change in tree_changes(_r.object_store, _r[from_ref].tree, _r[to_ref].tree):
+            if change.type in ["add", "modify"]:
+                _c = Path(self._project_root / change.new.path.decode()).resolve()
+                self._dirs_with_changes.add(_c.parent)
+            if change.type in ["delete"]:
+                _c = Path(self._project_root / change.old.path.decode()).resolve()
+                self._dirs_with_changes.add(_c.parent)
 
     def _build_submodules(self):
         if not self._config.config.project.build_submodules:
@@ -49,6 +79,7 @@ class LambdaBuild:
             if not source_path.is_dir():
                 continue
             output_path = submodule / rel_zip
+            self._dirs_with_changes = set()
             self._build_lambdas(source_path, output_path)
             self._recurse(submodule, rel_source, rel_zip)
 
@@ -59,6 +90,10 @@ class LambdaBuild:
             if path.is_file():
                 LOG.warning(f"{path} is a file, not a directory, cannot package...")
                 continue
+            if self._dirs_with_changes:
+                _pd = Path(path).resolve()
+                if _pd not in self._dirs_with_changes:
+                    continue
             if (path / "Dockerfile").is_file():
                 tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
                 LOG.info(

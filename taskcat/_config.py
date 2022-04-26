@@ -139,7 +139,7 @@ class Config:
                     "source": str(project_root / "ci/taskcat.yml"),
                     "config": legacy_conf.to_dict(),
                 }
-            except Exception as e:  # pylint: disable=broad-except
+            except Exception as e:  # pylint: disable=broad-except,redefined-outer-name
                 LOG.debug(str(e), exc_info=True)
                 if not template_file:
                     # pylint: disable=raise-missing-from

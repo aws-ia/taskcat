@@ -407,6 +407,7 @@ class Tag:
 
 @dataclass
 class TestRegion(RegionObj):
+    __test__ = False
     s3_bucket: S3BucketObj
     parameters: Dict[ParameterKey, ParameterValue]
 
@@ -421,6 +422,8 @@ TestRegion.__test__ = False
 @dataclass
 # pylint: disable=too-many-instance-attributes
 class TestObj:
+    __test__ = False
+
     def __init__(
         self,
         template_path: Path,

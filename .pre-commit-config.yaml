@@ -7,7 +7,7 @@ repos:
   - id: isort
     # language_version: python3.6
 - repo: https://github.com/ambv/black
-  rev: fc0be6eb1e2a96091e6f64009ee5e9081bf8b6c6  # frozen: 22.1.0
+  rev: 22.3.0
   hooks:
   - id: black
     exclude: regions_to_partitions.py
@@ -57,7 +57,7 @@ repos:
   - id: update-schema
     name: update-schema
     description: generate schema from dataclasses
-    entry: python generate_schema.py
+    entry: ./generate_schema.py
     language: system
     pass_filenames: false
     always_run: true
