@@ -11,6 +11,8 @@ class ConvertConfig:
     Mutating actions regarding the config file
     """
 
+    CLINAME = "config"
+
     @staticmethod
     def convert(
         project_root: str = "./",
