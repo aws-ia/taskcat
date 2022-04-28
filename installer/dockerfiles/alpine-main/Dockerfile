@@ -1,5 +1,4 @@
-FROM python:3.9.12
-#FROM python:3.10.4
+FROM python:3.9.12-alpine3.15
 
 LABEL maintainer="Tony Vattathil tonynv@amazon.com"
 
