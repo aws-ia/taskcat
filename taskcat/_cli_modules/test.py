@@ -167,7 +167,7 @@ class Test:
         with test:
             test.report(output_directory)
 
-    def resume(self, run_id):  # pylint: disable=no-self-use
+    def resume(self, run_id):
         """resumes a monitoring of a previously started test run"""
         # do some stuff
         raise NotImplementedError()
