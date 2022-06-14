@@ -29,6 +29,7 @@ class LambdaBuild:
         project_root: Path,
         from_ref: str = None,
         to_ref: str = None,
+        single_package_name: str = None,
     ):
         self._dirs_with_changes = set()
         self._docker = docker.from_env()
@@ -40,11 +41,16 @@ class LambdaBuild:
         self._lambda_zip_path = (
             self._project_root / config.config.project.lambda_zip_path
         ).resolve()
+        self._single_package_path = None
+        if single_package_name:
+            self._single_package_path = Path(
+                self._lambda_source_path / single_package_name
+            ).resolve()
         self._determine_relative_changes_from_commits(from_ref, to_ref)
         self._build_lambdas(self._lambda_source_path, self._lambda_zip_path)
         self._build_submodules()
 
-    def _determine_relative_changes_from_commits(self, from_ref, to_ref):
+    def _determine_relative_changes_from_commits(self, from_ref, to_ref):  # noqa: C901
         if (not from_ref) or (not to_ref):
             return
 
@@ -58,9 +64,15 @@ class LambdaBuild:
         for change in tree_changes(_r.object_store, _r[from_ref].tree, _r[to_ref].tree):
             if change.type in ["add", "modify"]:
                 _c = Path(self._project_root / change.new.path.decode()).resolve()
+                if self._single_package_path:
+                    if _c.parent != self._single_package_path:
+                        continue
                 self._dirs_with_changes.add(_c.parent)
             if change.type in ["delete"]:
                 _c = Path(self._project_root / change.old.path.decode()).resolve()
+                if self._single_package_path:
+                    if _c.parent != self._single_package_path:
+                        continue
                 self._dirs_with_changes.add(_c.parent)
 
     def _build_submodules(self):
@@ -93,6 +105,9 @@ class LambdaBuild:
             if self._dirs_with_changes:
                 _pd = Path(path).resolve()
                 if _pd not in self._dirs_with_changes:
+                    continue
+            if self._single_package_path:
+                if path != self._single_package_path:
                     continue
             if (path / "Dockerfile").is_file():
                 tag = f"taskcat-build-{uuid5(self.NULL_UUID, str(path)).hex}"
