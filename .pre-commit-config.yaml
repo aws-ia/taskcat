@@ -2,7 +2,7 @@ exclude: ^(.travis.yml|.pre-commit-config.yaml|.bumpversion.cfg)$
 fail_fast: true
 repos:
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: 3ad5e9834d138bc7d9f5a2e7d6485bab5484d0e1  # frozen: v5.10.1
+  rev: v5.10.1
   hooks:
   - id: isort
     # language_version: python3.6
@@ -37,13 +37,13 @@ repos:
     - --no-sort-keys
   - id: check-merge-conflict
 - repo: https://github.com/pre-commit/pygrep-hooks
-  rev: 6f51a66bba59954917140ec2eeeaa4d5e630e6ce  # frozen: v1.9.0
+  rev: v1.9.0
   hooks:
   - id: python-check-blanket-noqa
   - id: python-check-mock-methods
   - id: python-no-log-warn
 - repo: https://github.com/PyCQA/bandit
-  rev: 1ed79063e3672a1c6d91ee27cb648e07a7465344  # frozen: 1.7.4
+  rev: 1.7.4
   hooks:
   - id: bandit
     files: "^taskcat/"
