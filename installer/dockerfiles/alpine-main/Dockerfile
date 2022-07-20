@@ -10,7 +10,7 @@ LABEL container-os=python
 
 #RUN apk update && apk add python3-dev gcc libc-dev
 #RUN apt update && apt install -y libpq-dev gcc python3-dev python3-pip
-RUN apt update && apt install -y gcc
+RUN apt update && apt install -y gcc python3-dev gcc libc-dev go bash
 #RUN pip3 install taskcat
 RUN pip3 install --no-cache-dir taskcat
 
