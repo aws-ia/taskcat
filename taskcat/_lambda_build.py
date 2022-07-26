@@ -175,21 +175,6 @@ class LambdaBuild:
         shutil.make_archive(output_path / "lambda", "zip", build_path)
 
     @staticmethod
-    def _clean_build_log(line):
-        if "stream" in line:
-            line = line["stream"]
-        elif "aux" in line:
-            line = line["aux"]
-        return str(line).strip()
-
-    @staticmethod
-    def _docker_get_base_url():
-        docker_url = "https://127.0.0.1:2375/"
-        if os.getenv("DOCKER_HOST"):
-            docker_url = os.getenv("DOCKER_HOST")
-        return docker_url
-
-    @staticmethod
     def _docker_build(path, tag):
         cli = APIClient()
         build_logs = []
@@ -197,7 +182,7 @@ class LambdaBuild:
             build_logs.append(line)
         output = []
         for line in build_logs:
-            output.append(line.decode("utf-8"))
+            output.append(line.decode("utf-8").strip())
         LOG.debug("docker build logs: \n{}".format("\n".join(output)))
 
     def _docker_extract(self, tag, package_path):
