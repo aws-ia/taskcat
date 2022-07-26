@@ -195,9 +195,9 @@ class LambdaBuild:
         build_logs = []
         for line in cli.build(path=str(path), tag=tag):
             build_logs.append(line)
-        output = ""
+        output = []
         for line in build_logs:
-            print(line.decode())
+            output.append(line.decode("utf-8"))
         LOG.debug("docker build logs: \n{}".format("\n".join(output)))
 
     def _docker_extract(self, tag, package_path):
