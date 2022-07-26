@@ -1,4 +1,4 @@
-FROM python:3.9.12-alpine3.15
+FROM python:3.8.13-alpine3.15
 
 LABEL maintainer="Tony Vattathil tonynv@amazon.com"
 
@@ -16,3 +16,4 @@ RUN pip3 install --no-cache-dir taskcat
 
 # Set the work directory
 WORKDIR /mnt
+
