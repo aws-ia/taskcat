@@ -127,7 +127,8 @@ TagValue = NewType("TagValue", str)
 S3Acl = NewType("S3Acl", str)
 Region = NewType("Region", str)
 AlNumDash = NewType("AlNumDash", str)
-ProjectName = NewType("ProjectName", AlNumDash)
+AlNumDashSlash = NewType("AlNumDashSlash", str)
+ProjectName = NewType("ProjectName", AlNumDashSlash)
 S3BucketName = NewType("S3BucketName", AlNumDash)
 TestName = NewType("TestName", AlNumDash)
 AzId = NewType("AzId", str)
@@ -200,6 +201,19 @@ class AlNumDashField(FieldEncoder):
 
 
 JsonSchemaMixin.register_field_encoders({AlNumDash: AlNumDashField()})
+
+
+class AlNumDashSlashField(FieldEncoder):
+    @property
+    def json_schema(self):
+        return {
+            "type": "string",
+            "pattern": r"^[a-z0-9-/]*$",
+            "description": "accepts lower case letters, numbers, -, /",
+        }
+
+
+JsonSchemaMixin.register_field_encoders({AlNumDashSlash: AlNumDashSlashField()})
 
 
 class AzIdField(FieldEncoder):

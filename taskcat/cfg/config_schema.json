@@ -203,7 +203,7 @@
                     "examples": [
                         "my-project-name"
                     ],
-                    "pattern": "^[a-z0-9-]*$",
+                    "pattern": "^[a-z0-9-/]*$",
                     "type": "string"
                 },
                 "org_id": {
