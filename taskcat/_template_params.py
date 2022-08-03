@@ -2,6 +2,10 @@ import logging
 import random
 import re
 import uuid
+import dulwich
+from dulwich import errors
+from dulwich.repo import Repo
+# from dulwich.errors import NotGitRepository
 from typing import Set
 
 import dulwich
