@@ -1,0 +1,19 @@
+project:
+  template: template1.yaml
+  regions:
+  - us-east-1
+  parameters:
+    ProjectVar: set_in_project
+    OverridenVar: set_in_project
+tests:
+  default:
+    parameters:
+      MyVar: set_in_test
+      OverridenVar: set_in_test
+      GitBranch: $[taskcat_git_branch]
+    regions:
+    - us-west-2
+  other:
+    template: other_template.yaml
+    parameters:
+      ProjectVar: set_in_test
