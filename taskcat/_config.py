@@ -388,6 +388,7 @@ class Config:
                 region = region_objects[test_name][region_name]
                 s3bucket = bucket_objects[test_name][region_name]
                 parameters[test_name][region_name] = ParamGen(
+                    self.project_root,
                     region_params,
                     s3bucket.name,
                     region.name,

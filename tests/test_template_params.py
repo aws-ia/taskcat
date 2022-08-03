@@ -1,9 +1,11 @@
 import copy
 import logging
+import os
 import re
 import unittest
 from collections import namedtuple
 from io import BytesIO
+from pathlib import Path
 from unittest import mock
 
 from taskcat._client_factory import Boto3Cache
@@ -148,6 +150,7 @@ class MockClient:
 
 class TestParamGen(unittest.TestCase):
     class_kwargs = {
+        "project_root": Path("."),
         "param_dict": {},
         "bucket_name": "tcat-tag-skdfklsdfklsjf",
         "region": "us-east-1",
@@ -257,6 +260,9 @@ class TestParamGen(unittest.TestCase):
         ),
         rp_namedtup(
             test_string="$[taskcat_test_name]", test_pattern_attribute="RE_TEST_NAME"
+        ),
+        rp_namedtup(
+            test_string="$[taskcat_git_branch]", test_pattern_attribute="RE_GITBRANCH"
         ),
     ]
 
@@ -440,7 +446,7 @@ class TestParamGen(unittest.TestCase):
         }
         bclient = MockClient
         bclient.logger = logger
-        class_kwargs = self.class_kwargs
+        class_kwargs = copy.deepcopy(self.class_kwargs)
         class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
@@ -496,7 +502,7 @@ class TestParamGen(unittest.TestCase):
         }
         bclient = MockClient
         bclient.logger = logger
-        class_kwargs = self.class_kwargs
+        class_kwargs = copy.deepcopy(self.class_kwargs)
         class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
@@ -515,7 +521,7 @@ class TestParamGen(unittest.TestCase):
         }
         bclient = MockClient
         bclient.logger = logger
-        class_kwargs = self.class_kwargs
+        class_kwargs = copy.deepcopy(self.class_kwargs)
         class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
@@ -529,11 +535,11 @@ class TestParamGen(unittest.TestCase):
         input_params = {"Project_Name": "$[taskcat_project_name]"}
         bclient = MockClient
         bclient.logger = logger
-        class_kwargs = self.class_kwargs
+        class_kwargs = copy.deepcopy(self.class_kwargs)
         class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
-        pg.transform_parameter()
+        # pg.transform_parameter()
         expected_result = {"Project_Name": "foobar"}
         self.assertEqual(pg.results, expected_result)
 
@@ -541,10 +547,33 @@ class TestParamGen(unittest.TestCase):
         input_params = {"Test_Name": "$[taskcat_test_name]"}
         bclient = MockClient
         bclient.logger = logger
-        class_kwargs = self.class_kwargs
+        class_kwargs = copy.deepcopy(self.class_kwargs)
         class_kwargs["param_dict"] = input_params
         class_kwargs["boto_client"] = bclient
         pg = ParamGen(**class_kwargs)
-        pg.transform_parameter()
+        # pg.transform_parameter()
         expected_result = {"Test_Name": "testy_mc_testerson"}
         self.assertEqual(pg.results, expected_result)
+
+    # def test_git_branch_repo(self):
+    #     base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+    #     base_path = Path(base_path + "data/git_branch_with_repo").resolve()
+    #     input_params = {"Branch": "$[taskcat_git_branch]"}
+    #     class_kwargs = copy.deepcopy(self.class_kwargs)
+    #     class_kwargs["param_dict"] = input_params
+    #     class_kwargs["project_root"] = base_path
+    #     pg = ParamGen(**class_kwargs)
+    #     # pg.transform_parameter()
+    #     expected_result = {"Branch": "master"}
+    #     self.assertEqual(pg.results, expected_result)
+
+    def test_git_branch_no_repo(self):
+        base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
+        base_path = Path(base_path + "data/git_branch_with_no_repo").resolve()
+        input_params = {"Branch": "$[taskcat_git_branch]"}
+        class_kwargs = copy.deepcopy(self.class_kwargs)
+        class_kwargs["param_dict"] = input_params
+        class_kwargs["project_root"] = base_path
+        with self.assertRaises(TaskCatException):
+            ParamGen(**class_kwargs)
+            # pg.transform_parameter()

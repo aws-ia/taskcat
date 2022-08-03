@@ -4,6 +4,8 @@ import re
 import uuid
 from typing import Set
 
+import dulwich
+from dulwich.repo import Repo
 from taskcat._common_utils import (
     CommonTools,
     fetch_secretsmanager_parameter_value,
@@ -16,6 +18,7 @@ LOG = logging.getLogger(__name__)
 
 # pylint: disable=too-many-instance-attributes
 class ParamGen:
+    RE_GITBRANCH = re.compile(r"\$\[taskcat_git_branch\]", re.IGNORECASE)
     RE_GETURL = re.compile(r"(?<=._url_)(.+)(?=]$)", re.IGNORECASE)
     RE_COUNT = re.compile(r"(?!\w+_)\d{1,2}", re.IGNORECASE)
     RE_PWTYPE = re.compile(r"(?<=_genpass_)((\d+)(\w)(\]))", re.IGNORECASE)
@@ -49,6 +52,7 @@ class ParamGen:
 
     def __init__(
         self,
+        project_root,
         param_dict,
         bucket_name,
         region,
@@ -80,6 +84,7 @@ class ParamGen:
         self.region = region
         self.project_name = project_name
         self.test_name = test_name
+        self.project_root = project_root
         if not az_excludes:
             self.az_excludes: Set[str] = set()
         else:
@@ -97,6 +102,7 @@ class ParamGen:
                 for idx, value in enumerate(param_value):
                     _nested_param_dict[idx] = value
                 nested_pg = ParamGen(
+                    self.project_root,
                     _nested_param_dict,
                     self.bucket_name,
                     self.region,
@@ -105,7 +111,7 @@ class ParamGen:
                     self.test_name,
                     self.az_excludes,
                 )
-                nested_pg.transform_parameter()
+                # nested_pg.transform_parameter()
                 for result_value in nested_pg.results.values():
                     _results_list.append(result_value)
                 self.param_value = _results_list
@@ -174,6 +180,9 @@ class ParamGen:
                 self.RE_PROJECT_NAME, self._get_project_name()
             )
             self._regex_replace_param_value(self.RE_TEST_NAME, self._get_test_name())
+            # $[taskcat_git_branch]
+            self._git_branch_wrapper(self.RE_GITBRANCH)
+
             self.results.update({self.param_name: self.param_value})
 
     def get_available_azs(self, count):
@@ -339,6 +348,17 @@ class ParamGen:
     def _get_test_name(self):
         return self.test_name
 
+    def _get_git_branch(self):
+        try:
+            repo = Repo(self.project_root)
+        except dulwich.errors.NotGitRepository as exc:
+            raise TaskCatException(
+                f"Project root: ({self.project_root}) is not a git repository. Cannot use '$[taskcat_git_branch]' psuedo-parameter"
+            ) from exc
+        (_, ref), _ = repo.refs.follow(b"HEAD")
+        match = re.search(r"/([^/]+)$", ref.decode("utf-8"))
+        return match[1]
+
     def _gen_password_wrapper(self, gen_regex, type_regex, count_regex):
         if gen_regex.search(self.param_value):
             passlen = int(self.regxfind(count_regex, self.param_value))
@@ -360,6 +380,10 @@ class ParamGen:
             if passlen:
                 param_value = self.genpassword(passlen, gentype)
                 self._regex_replace_param_value(gen_regex, param_value)
+
+    def _git_branch_wrapper(self, git_branch_regex):
+        if git_branch_regex.search(self.param_value):
+            self._regex_replace_param_value(git_branch_regex, self._get_git_branch())
 
     def _gen_az_wrapper(self, genaz_regex, count_regex):
         if genaz_regex.search(self.param_value):
