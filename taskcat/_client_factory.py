@@ -31,7 +31,7 @@ class Boto3Cache:
         self._account_info: Dict[str, Dict[str, str]] = {}
         self._lock_cache_update = False
 
-    def session(self, profile: str = "default", region: str = None) -> boto3.Session:
+    def session(self, profile: str = None, region: str = None) -> boto3.Session:
         region = self._get_region(region, profile)
         try:
             session = self._cache_lookup(
@@ -49,7 +49,7 @@ class Boto3Cache:
         return session
 
     def client(
-        self, service: str, profile: str = "default", region: str = None
+        self, service: str, profile: str = None, region: str = None
     ) -> boto3.client:
         region = self._get_region(region, profile)
         session = self.session(profile, region)
