@@ -31,6 +31,7 @@ class LambdaBuild:
         to_ref: str = None,
         single_package_name: str = None,
     ):
+        self._built_images = set()
         self._dirs_with_changes = set()
         self._docker = docker.from_env()
         self._config = config
@@ -49,6 +50,8 @@ class LambdaBuild:
         self._determine_relative_changes_from_commits(from_ref, to_ref)
         self._build_lambdas(self._lambda_source_path, self._lambda_zip_path)
         self._build_submodules()
+        self._clean_docker_tags()
+
 
     def _determine_relative_changes_from_commits(self, from_ref, to_ref):  # noqa: C901
         if (not from_ref) or (not to_ref):
@@ -96,6 +99,7 @@ class LambdaBuild:
             self._recurse(submodule, rel_source, rel_zip)
 
     def _build_lambdas(self, parent_path: Path, output_path):
+
         if not parent_path.is_dir():
             return
         for path in parent_path.iterdir():
@@ -183,6 +187,7 @@ class LambdaBuild:
 
     def _docker_build(self, path, tag):
         _, logs = self._docker.images.build(path=str(path), tag=tag)
+        self._built_images.add(tag)
         build_logs = []
         for line in logs:
             line = self._clean_build_log(line)
@@ -213,3 +218,10 @@ class LambdaBuild:
             LOG.warning(f"Could not remove container {container.id}")
         os.unlink(tmpfile.name)
         os.removedirs(str(package_path / "output"))
+
+    def _clean_docker_tags(self):
+        for tag in self._built_images:
+            self._docker.images.remove(
+                image=tag,
+                force=True
+            )
