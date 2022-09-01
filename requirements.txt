@@ -13,5 +13,5 @@ jsonschema~=3.0
 docker~=4.0
 dulwich~=0.19
 dataclasses;python_version<"3.7"
-dataclasses-jsonschema>=2.9.0,<3.0
+dataclasses-jsonschema>=2.9.0,<2.15.2
 pip
