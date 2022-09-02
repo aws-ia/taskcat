@@ -46,7 +46,9 @@ def s3_url_maker(bucket, key, s3_client, autobucket=False):
             except ClientError as e:
                 if e.response["Error"]["Code"] != "AccessDenied":
                     raise
-                resp = requests.get(f"https://{bucket}.s3.amazonaws.com/{key}")
+                resp = requests.get(
+                    f"https://{bucket}.s3.amazonaws.com/{key}", timeout=3
+                )
                 location = resp.headers.get("x-amz-bucket-region")
                 if not location:
                     # pylint: disable=raise-missing-from

@@ -58,7 +58,7 @@ class ReportBuilder:
             "https://raw.githubusercontent.com/aws-ia/taskcat/main/"
             "assets/css/taskcat_reporting.css"
         )
-        output_css = requests.get(css_url).text
+        output_css = requests.get(css_url, timeout=3).text
         doc_link = "http://taskcat.io"
 
         with tag("html"):
