@@ -10,6 +10,7 @@ from uuid import UUID, uuid5
 from requests.exceptions import ReadTimeout
 
 import docker
+from docker import APIClient
 from dulwich.diff_tree import tree_changes
 from dulwich.errors import NotGitRepository
 from dulwich.repo import Repo
@@ -174,21 +175,15 @@ class LambdaBuild:
         shutil.make_archive(output_path / "lambda", "zip", build_path)
 
     @staticmethod
-    def _clean_build_log(line):
-        if "stream" in line:
-            line = line["stream"]
-        elif "aux" in line:
-            line = line["aux"]
-        return str(line).strip()
-
-    def _docker_build(self, path, tag):
-        _, logs = self._docker.images.build(path=str(path), tag=tag)
+    def _docker_build(path, tag):
+        cli = APIClient()
         build_logs = []
-        for line in logs:
-            line = self._clean_build_log(line)
-            if line:
-                build_logs.append(line)
-        LOG.debug("docker build logs: \n{}".format("\n".join(build_logs)))
+        for line in cli.build(path=str(path), tag=tag):
+            build_logs.append(line)
+        output = []
+        for line in build_logs:
+            output.append(line.decode("utf-8").strip())
+        LOG.debug("docker build logs: \n{}".format("\n".join(output)))
 
     def _docker_extract(self, tag, package_path):
         container = self._docker.containers.run(image=tag, detach=True)
