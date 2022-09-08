@@ -2,7 +2,6 @@ import fnmatch
 import hashlib
 import logging
 import os
-import re
 import time
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
@@ -35,7 +34,7 @@ class S3Sync:
     exclude_path_prefixes = [
         "lambda_functions/source/",
         "functions/source/",
-        r"\..*/",
+        ".",
         "venv/",
         "taskcat_outputs/",
     ]
@@ -89,7 +88,7 @@ class S3Sync:
                 relpath = ""
             # exclude defined paths
             for prefix in S3Sync.exclude_path_prefixes:
-                if re.search(prefix, relpath):
+                if relpath.startswith(prefix):
                     exclude_path = True
                     break
             if not exclude_path:
