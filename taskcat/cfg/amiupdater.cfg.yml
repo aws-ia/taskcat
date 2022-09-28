@@ -117,8 +117,15 @@ global:
     US2004HVM:
       name: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-????????*
       owner-id: '099720109477'
+    US2204HVM:
+      name: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-????????*
+      owner-id: '099720109477'
     US2004HVMARM:
       name: ubuntu/images/hvm-ssd/ubuntu-focal-20.04-arm64-server-????????*
+      owner-id: '099720109477'
+      architecture: arm64
+    US2204HVMARM:
+      name: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64-server-????????*
       owner-id: '099720109477'
       architecture: arm64
     WS2012R2:
