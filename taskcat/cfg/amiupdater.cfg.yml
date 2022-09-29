@@ -100,6 +100,9 @@ global:
       name: suse-sles-15-v????????-hvm-ssd-arm64
       owner-alias: amazon
       architecture: arm64
+    SLES15SP4HVM:
+      name: suse-sles-15-sp4-v????????-hvm-ssd-x86_64
+      owner-alias: amazon
     US1404HVM:
       name: ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-????????*
       owner-id: '099720109477'
