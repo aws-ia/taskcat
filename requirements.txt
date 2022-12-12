@@ -1,4 +1,4 @@
-pathspec
+pathspec==0.10.3
 reprint
 tabulate>=0.8.2,<1.0
 cfn_lint>=0.13.0,<1.0
