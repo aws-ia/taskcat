@@ -3,6 +3,7 @@ import hashlib
 import logging
 import os
 import time
+import pathspec
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import List
@@ -47,9 +48,13 @@ class S3Sync:
             prefix = prefix + "/"
         self.s3_client = s3_client
         self.dry_run = dry_run
+        self.exclude_patterns = pathspec.PathSpec.from_lines('gitwildmatch', self.exclude_files + self.exclude_path_prefixes + self.exclude_remote_path_prefixes)
         file_list = self._get_local_file_list(path)
         s3_file_list = self._get_s3_file_list(bucket, prefix)
         self._sync(file_list, s3_file_list, bucket, prefix, acl=acl)
+
+    def _exclude_via_gitignore_syntax(self, file_path):
+        return self.exclude_patterns.match_file(file_path)
 
     @staticmethod
     def _hash_file(file_path, chunk_size=8 * 1024 * 1024):
@@ -87,10 +92,8 @@ class S3Sync:
             if relpath == "./":
                 relpath = ""
             # exclude defined paths
-            for prefix in S3Sync.exclude_path_prefixes:
-                if relpath.startswith(prefix):
-                    exclude_path = True
-                    break
+            if self._exclude_via_gitignore_syntax(relpath):
+                exclude_path = True
             if not exclude_path:
                 file_list.update(
                     self._iterate_files(files, root, include_checksums, relpath)
@@ -143,14 +146,9 @@ class S3Sync:
                 is_paginated = False
         return objects
 
-    @staticmethod
-    def _exclude_remote(path):
-        keep = False
-        for exclude in S3Sync.exclude_remote_path_prefixes:
-            if path.startswith(exclude):
-                keep = True
-                break
-        return keep
+
+    def _exclude_remote(self, path):
+        return self._exclude_via_gitignore_syntax(path)
 
     # TODO: refactor
     def _sync(  # noqa: C901
