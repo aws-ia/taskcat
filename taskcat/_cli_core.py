@@ -132,6 +132,8 @@ class CliCore:
                 kwargs.update(
                     {"required": required, "default": default, "dest": param.name}
                 )
+            if param.annotation == list:
+                kwargs.update({"nargs":"+"})
             if action == "store":
                 kwargs.update({"type": val_type})
             if required:
