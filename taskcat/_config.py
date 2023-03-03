@@ -107,7 +107,8 @@ class Config:
             overrides = BaseConfig().to_dict()
             with open(str(overrides_path), "r", encoding="utf-8") as file_handle:
                 override_params = yaml.safe_load(file_handle)
-            overrides["project"]["parameters"] = override_params
+            overrides["project"]["parameters"] = override_params if override_params else {}
+            LOG.debug(f"Value of override_params={override_params}")
             sources.append({"source": str(overrides_path), "config": overrides})
 
         # environment variables
