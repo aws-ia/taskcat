@@ -108,6 +108,10 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         parameters = self.config.get_rendered_parameters(buckets, regions, templates)
         tests = self.config.get_tests(templates, regions, buckets, parameters)
 
+        # Check if we have any valid test if NOT log a message
+        if not tests:
+            LOG.warning("No valid test found.")
+
         # pre-hooks
         execute_hooks("prehooks", self.config, tests, parameters)
 
