@@ -47,7 +47,7 @@ class Upload:
         if object_acl:
             args["project"]["s3_object_acl"] = object_acl
         if bucket_name:
-            args["project"]["bucket_name"] = bucket_name
+            args["project"]["s3_bucket"] = bucket_name
         if key_prefix:
             args["project"]["name"] = key_prefix
         config = Config.create(
