@@ -154,7 +154,6 @@ class Config:
         try:
             with open(str(file_path), "r", encoding="utf-8") as file_handle:
                 config_dict = yaml.safe_load(file_handle)
-                LOG.debug(f"file_path={file_path}, file_handle={file_handle}")
             return config_dict
         except Exception as e:  # pylint: disable=broad-except
             LOG.warning(f"failed to load config from {file_path}")
