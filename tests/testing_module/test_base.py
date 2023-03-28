@@ -19,9 +19,6 @@ class TestBaseTest(unittest.TestCase):
         cls.input_file = ".taskcat.yml"
         cls.project_root_path = Path(__file__).parent / "../data/nested-fail"
         cls.input_file_path = cls.project_root_path / cls.input_file
-        cls.template_file = (
-            Path(__file__).parent / "../data/nested-fail/templates/test.template.yaml"
-        )
 
         cls.base_config = Config.create(
             project_root=cls.project_root_path,
@@ -57,38 +54,8 @@ class TestBaseTest(unittest.TestCase):
 
         self.assertIsInstance(base, Test)
 
-    @patch("taskcat.testing.base_test._build_args")
-    @patch("taskcat.testing.base_test.BaseTest")
-    def test_from_file_template_yaml(self, base_test_mock, args_mock):
-        # given
-        mock_out = base_test_mock.return_value
-
-        # when
-        mock_out.from_file(
-            project_root=self.project_root_path, input_file=self.template_file
-        )
-
-        # then
-        base_test_mock.return_value.from_file.assert_called_with(
-            project_root=self.project_root_path,
-            input_file=self.template_file
-        )
-
-    @patch("taskcat.testing.base_test._build_args")
-    @patch("taskcat.testing.base_test.BaseTest")
-    def test_from_file_taskcat_yaml(self, base_test_mock, args_mock):
-        # given
-        mock_out = base_test_mock.return_value
-
-        # when
-        mock_out.from_file(project_root=self.project_root_path)
-
-        # then
-        base_test_mock.return_value.from_file.assert_called_with(
-            project_root=self.project_root_path
-        )
-
     def test_from_file(self):
+
         base = BaseTest.from_file(project_root=self.project_root_path)
 
         self.assertIsInstance(base, BaseTest, "Should return an instance of BaseTest.")

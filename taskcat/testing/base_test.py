@@ -86,19 +86,11 @@ class BaseTest(Test):
         input_file_path: Path = project_root_path / input_file
         # pylint: disable=too-many-arguments
         args = _build_args(enable_sig_v2, regions, GLOBAL_ARGS.profile)
-
-        # Detect if input file is taskcat config or CloudFormation template
-        if '.taskcat.yml' in input_file or '.taskcat.yaml' in input_file:
-            config = Config.create(
-                project_root=project_root_path,
-                project_config_path=input_file_path,
-                args=args
-        )
-        else:
-            config = Config.create(
-                project_root=project_root_path,
-                template_file=input_file_path,
-                args=args
+        config = Config.create(
+            project_root=project_root_path,
+            project_config_path=input_file_path,
+            args=args
+            # TODO: detect if input file is taskcat config or CloudFormation template
         )
 
         return cls(config)
