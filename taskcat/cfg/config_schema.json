@@ -13,7 +13,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"
@@ -83,7 +83,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"
@@ -144,7 +144,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"
@@ -276,7 +276,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"
@@ -360,7 +360,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"
@@ -444,7 +444,7 @@
                         "examples": [
                             "us-east-1"
                         ],
-                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
+                        "pattern": "^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|west|southeast|southwest|northeast|northwest)-[0-9]$",
                         "type": "string"
                     },
                     "type": "array"

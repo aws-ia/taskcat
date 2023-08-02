@@ -19,6 +19,7 @@ REGIONS = {
     "eu-west-1": "aws",
     "eu-west-2": "aws",
     "eu-west-3": "aws",
+    "il-central-1": "aws",
     "me-central-1": "aws",
     "me-south-1": "aws",
     "sa-east-1": "aws",
@@ -57,6 +58,7 @@ PARTITIONS = {
         "eu-west-1",
         "eu-west-2",
         "eu-west-3",
+        "il-central-1",
         "me-central-1",
         "me-south-1",
         "sa-east-1",
@@ -79,5 +81,7 @@ PARTITIONS = {
     ],
     "aws-iso-b": [
         "us-isob-east-1"
-    ]
+    ],
+    "aws-iso-e": [],
+    "aws-iso-f": []
 }

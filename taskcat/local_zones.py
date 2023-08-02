@@ -29,6 +29,8 @@ ZONES = [
     "apse1-az2",
     "apse1-az3",
     "apse1-bkk1-az1",
+    "apse1-mnl1-az1",
+    "apse2-akl1-az1",
     "apse2-az1",
     "apse2-az2",
     "apse2-az3",
@@ -70,6 +72,9 @@ ZONES = [
     "euw3-az1",
     "euw3-az2",
     "euw3-az3",
+    "ilc1-az1",
+    "ilc1-az2",
+    "ilc1-az3",
     "mec1-az1",
     "mec1-az2",
     "mec1-az3",
@@ -114,7 +119,7 @@ ZONES = [
     "usw2-lax1-az1",
     "usw2-lax1-az2",
     "usw2-pdx1-az1",
-    "usw2-phx1-az1",
+    "usw2-phx2-az1",
     "usw2-sea1-az1"
 ]
 
