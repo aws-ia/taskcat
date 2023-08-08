@@ -516,8 +516,17 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._resources = resources
 
     @staticmethod
-    def delete(client, stack_id) -> None:
-        client.delete_stack(StackName=stack_id)
+    def delete(
+            client, 
+            stack_id, 
+            role_arn: RoleARN = None,
+            ) -> None:
+        delete_options = {
+            "StackId": stack_id,
+        }
+        if role_arn:
+            delete_options["RoleARN"] = role_arn
+        client.delete_stack(**create_options)
         LOG.info(f"Deleting stack: {stack_id}")
 
     def update(self, *args, **kwargs):
