@@ -11,6 +11,7 @@ from typing import Callable, List, Optional, Tuple
 from uuid import UUID, uuid4
 
 import boto3
+from botocore.exceptions import WaiterError
 import yaml
 
 from taskcat._cfn.template import Template, tcat_template_cache
@@ -517,8 +518,17 @@ class Stack:  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def delete(client, stack_id) -> None:
-        client.delete_stack(StackName=stack_id)
-        LOG.info(f"Deleting stack: {stack_id}")
+        try:
+            client.delete_stack(StackName=stack_id)
+            LOG.info(f"Deleting stack: {stack_id}")
+            # Waiting for stack deletion to complete
+            waiter = client.get_waiter('stack_delete_complete')
+            waiter.wait(StackName=stack_id)
+            LOG.info(f"Successfully deleted stack: {stack_id}")
+        except WaiterError as error:
+            LOG.error(f"Failed to delete stack: {stack_id}. Waiter failed: {error}")
+        except Exception as error:
+            LOG.error(f"Could not delete stack {stack_id}. Error: {error}")
 
     def update(self, *args, **kwargs):
         raise NotImplementedError("Stack updates not implemented")
