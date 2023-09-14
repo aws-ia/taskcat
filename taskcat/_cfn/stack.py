@@ -517,18 +517,25 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._resources = resources
 
     @staticmethod
-    def delete(client, stack_id) -> None:
-        try:
-            client.delete_stack(StackName=stack_id)
-            LOG.info(f"Deleting stack: {stack_id}")
-            # Waiting for stack deletion to complete
-            waiter = client.get_waiter('stack_delete_complete')
-            waiter.wait(StackName=stack_id)
-            LOG.info(f"Successfully deleted stack: {stack_id}")
-        except WaiterError as error:
-            LOG.error(f"Failed to delete stack: {stack_id}. Waiter failed: {error}")
-        except Exception as error:
-            LOG.error(f"Could not delete stack {stack_id}. Error: {error}")
+    def delete(client, stack_id, wait_for_delete) -> None:
+        if wait_for_delete:
+            try:
+                client.delete_stack(StackName=stack_id)
+                LOG.info(f"Deleting stack: {stack_id}")
+                # Waiting for stack deletion to complete
+                waiter = client.get_waiter('stack_delete_complete')
+                waiter.wait(StackName=stack_id)
+                LOG.info(f"Successfully deleted stack: {stack_id}")
+            except WaiterError as error:
+                LOG.error(f"Failed to delete stack: {stack_id}. Waiter failed: {error}")
+            except Exception as error:
+                LOG.error(f"Could not delete stack {stack_id}. Error: {error}")
+        else:
+            try:
+                client.delete_stack(StackName=stack_id)
+                LOG.info(f"Deleting stack: {stack_id}")
+            except Exception as error:
+                LOG.error(f"Could not delete stack {stack_id}. Error: {error}")
 
     def update(self, *args, **kwargs):
         raise NotImplementedError("Stack updates not implemented")
