@@ -99,6 +99,7 @@ class Test:
                 keep_failed=keep_failed,
                 minimal_output=minimal_output,
                 dont_wait_for_delete=dont_wait_for_delete,
+                wait_for_delete = False
             )
         except IOError:
             LOG.error("IOError when retrying Test Run")
@@ -124,7 +125,7 @@ class Test:
         minimal_output: bool = False,
         dont_wait_for_delete: bool = False,
         skip_upload: bool = False,
-        _extra_tags: List = None,
+        _extra_tags: List = None
     ):
         """tests whether CloudFormation templates are able to successfully launch
         :param test_names: comma separated list of tests to run
@@ -182,13 +183,15 @@ class Test:
         List(profiles=profiles, regions=regions, stack_type="test")
 
     @staticmethod
-    def clean(project: str, aws_profile: str = "default", region="ALL"):
+    def clean(project: str, aws_profile: str = "default", region="ALL", wait_for_delete: bool = False):
         """
         :param project: project to delete, can be an name or uuid, or ALL to clean all
         tests
         :param aws_profile: aws profile to use for deletion
         :param region: region to delete from, default will scan all regions
+        :param wait_for_delete: wait for stacks to be deleted before returning
         """
         Delete(
-            project=project, aws_profile=aws_profile, region=region, stack_type="test"
+            project=project, aws_profile=aws_profile, region=region, stack_type="test",
+            wait_for_delete=wait_for_delete
         )
