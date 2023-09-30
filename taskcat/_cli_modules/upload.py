@@ -32,7 +32,7 @@ class Upload:
     ):  # pylint: disable=too-many-locals
         """does lambda packaging and uploads to s3
 
-        :param config_file: path to taskat project config file
+        :param config_file: path to taskcat project config file
         :param enable_sig_v2: enable legacy sigv2 requests for auto-created buckets
         :param bucket_name: set bucket name instead of generating it. If regional
         buckets are enabled, will use this as a prefix

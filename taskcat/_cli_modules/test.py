@@ -45,7 +45,7 @@ class Test:
         :param region: region stack is in
         :param stack_name: name of parent stack
         :param resource_name: logical id of child stack that will be re-launched
-        :param config_file: path to either a taskat project config file or a
+        :param config_file: path to either a taskcat project config file or a
         CloudFormation template
         :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
@@ -130,7 +130,7 @@ class Test:
         """tests whether CloudFormation templates are able to successfully launch
         :param test_names: comma separated list of tests to run
         :param regions: comma separated list of regions to test in
-        :param input_file: path to either a taskat project config file or a CloudFormation template
+        :param input_file: path to either a taskcat project config file or a CloudFormation template
         :param project_root: root path of the project relative to input_file
         :param no_delete: don't delete stacks after test is complete
         :param lint_disable: disable cfn-lint checks
