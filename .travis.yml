@@ -14,8 +14,10 @@ branches:
   - main
 
 python:
-  - "3.7.2"
+  - "3.7"
   - "3.8"
+  - "3.9"
+  - "3.10"
 before_install:
   - pip install -r travis-specific-requirements.txt
   - pip install -r dev-requirements.txt
