@@ -17,6 +17,7 @@ setup(
         "taskcat._cli_modules",
         "taskcat.testing",
         "taskcat.iam_policy",
+        "taskcat.project_config",
         "taskcat_plugin_testhook",
     ],
     description="An OpenSource Cloudformation Deployment Framework",
