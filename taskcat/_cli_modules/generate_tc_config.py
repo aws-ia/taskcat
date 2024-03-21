@@ -16,11 +16,13 @@ class GenerateTCConfig:
 
     def __init__(
         self,
-        output_file: str = ".taskcat.yaml",
+        output_file: str = ".taskcat.yml",
         main_template: str = "./templates/template.yaml",
         user_email: str = "noreply@acme.com",
         project_root: str = "./",
-        aws_region: str = "us-east-1"
+        aws_region: str = "us-east-1",
+        verbose_config: bool = False,
+        create_overrides_file: bool = True
     ):
 
         project_root_path = Path(project_root).expanduser().resolve()
@@ -28,4 +30,6 @@ class GenerateTCConfig:
                                output_file=output_file,
                                project_root_path=str(project_root_path),
                                owner_email=user_email,
-                               aws_region=aws_region).generate_config()
+                               aws_region=aws_region,
+                               verbose_config=verbose_config,
+                               create_overrides_file=create_overrides_file).generate_config()

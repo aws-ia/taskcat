@@ -12,6 +12,32 @@ def _add_qs_info(parameter):
     return return_text
 
 
+def _add_help_info(parameter):
+    """Method to add help info to the parameter object"""
+    attributes = [
+        "Description",
+        "AllowedPattern",
+        "AllowedValues",
+        "ConstraintDescription",
+        "Default",
+        "MaxLength",
+        "MaxValue",
+        "MinLength",
+        "NoEcho",
+        "Type"
+    ]
+    helptext = ""
+    for attribute in attributes:
+        if hasattr(parameter, attribute):
+            attr = getattr(parameter, attribute)
+            helptext += (f'    # {attribute}: '
+                         f'{str(attr)}\r\n')
+        # Remove empty lines
+        lines = helptext.split('\n')
+        non_empty_lines = [line for line in lines if line.strip() != '']
+    return '\n'.join(non_empty_lines)
+
+
 def _add_default_info(parameter):
     """Method to to add default value"""
     return_text = ''
@@ -110,7 +136,7 @@ def _add_allowed_value(parameter):
     return return_text
 
 
-def _add_parameter_values(parameter_values):
+def _add_parameter_values(parameter_values, verbose_config: bool):
     """Method to add default value to the parameter object"""
     parameter_help = ""
     parameter_text = ""
@@ -118,9 +144,9 @@ def _add_parameter_values(parameter_values):
 
     parameter_values.sort(key=lambda x: x.name)
     for parameter in parameter_values:
-        # if verbose_config:
-        #     # Write help information
-        #     parameter_help = add_help_info(parameter)
+        if verbose_config:
+            # Write help information
+            parameter_help = _add_help_info(parameter)
         # Set QS Parameters
         if (parameter.name.lower() == "qss3bucketname") \
                 or (parameter.name.lower() == "qss3bucketregion"):
@@ -162,3 +188,14 @@ def _add_parameter_values(parameter_values):
     # Position overriden parameters at the top
     parameter_override += parameter_text
     return parameter_override
+
+
+def _get_parameter_stats(cfg_parameters):
+    """Method to get parameter stats"""
+    p_count = len(cfg_parameters)
+    p_o_count = sum(cfg_parameters[p] == 'OVERRIDE' for p in cfg_parameters)
+    p_b_count = sum(cfg_parameters[p] == '' for p in cfg_parameters)
+    return_text = (f'Total Parameters: {p_count}\r\n'
+                   f'Total Parameters with Overrides: {p_o_count}\r\n'
+                   f'Total Parameters with Blank values: {p_b_count}\r\n')
+    return return_text
