@@ -89,7 +89,7 @@ class BaseTest(Test):
         config = Config.create(
             project_root=project_root_path,
             project_config_path=input_file_path,
-            args=args
+            args=args,
             # TODO: detect if input file is taskcat config or CloudFormation template
         )
 

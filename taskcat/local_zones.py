@@ -120,6 +120,5 @@ ZONES = [
     "usw2-lax1-az2",
     "usw2-pdx1-az1",
     "usw2-phx2-az1",
-    "usw2-sea1-az1"
+    "usw2-sea1-az1",
 ]
-

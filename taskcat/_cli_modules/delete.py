@@ -24,7 +24,7 @@ class Delete:
         region="ALL",
         no_verify: bool = False,
         stack_type: str = "ALL",
-        wait_for_delete: bool = False
+        wait_for_delete: bool = False,
     ):
         """
         :param project: installed project to delete, can be an install name, uuid, or project name
@@ -84,7 +84,7 @@ class Delete:
                     boto3_cache=boto3_cache,
                     job=job,
                     aws_profile=aws_profile,
-                    wait_for_delete=wait_for_delete
+                    wait_for_delete=wait_for_delete,
                 ): [job["name"], job["region"]]
                 for job in jobs
             }
@@ -104,7 +104,9 @@ class Delete:
         client = boto3_cache.client(
             "cloudformation", profile=aws_profile, region=job["region"]
         )
-        Stack.delete(client=client, stack_id=job["stack_id"], wait_for_delete=wait_for_delete)
+        Stack.delete(
+            client=client, stack_id=job["stack_id"], wait_for_delete=wait_for_delete
+        )
 
     # Checks if all regions are valid
     @staticmethod

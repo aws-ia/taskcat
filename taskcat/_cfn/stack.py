@@ -523,7 +523,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
                 client.delete_stack(StackName=stack_id)
                 LOG.info(f"Deleting stack: {stack_id}")
                 # Waiting for stack deletion to complete
-                waiter = client.get_waiter('stack_delete_complete')
+                waiter = client.get_waiter("stack_delete_complete")
                 waiter.wait(StackName=stack_id)
                 LOG.info(f"Successfully deleted stack: {stack_id}")
             except WaiterError as error:
