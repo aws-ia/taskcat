@@ -22,7 +22,7 @@ class GenerateTCConfig:
         project_root: str = "./",
         aws_region: str = "us-east-1",
         verbose_config: bool = False,
-        create_overrides_file: bool = True
+        create_overrides_file: bool = False
     ):
 
         project_root_path = Path(project_root).expanduser().resolve()
