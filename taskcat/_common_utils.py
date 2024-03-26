@@ -128,7 +128,7 @@ def param_list_to_dict(original_keys):
         raise TaskCatException(
             'Invalid parameter file, outermost json element must be a list ("[]")'
         )
-    for (idx, param_dict) in enumerate(original_keys):
+    for idx, param_dict in enumerate(original_keys):
         if not isinstance(param_dict, dict):
             # pylint: disable=raise-missing-from
             raise TaskCatException(

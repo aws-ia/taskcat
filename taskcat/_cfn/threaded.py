@@ -95,7 +95,9 @@ class Stacker:
 
     @staticmethod
     def _delete_stack(stack: Stack, wait_for_delete: bool = False):
-        stack.delete(stack_id=stack.id, client=stack.client, wait_for_delete=wait_for_delete)
+        stack.delete(
+            stack_id=stack.id, client=stack.client, wait_for_delete=wait_for_delete
+        )
         stack.refresh()
 
     def status(self, recurse: bool = False, threads: int = 32, **kwargs):

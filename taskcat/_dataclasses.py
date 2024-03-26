@@ -656,7 +656,7 @@ PROPOGATE_ITEMS = [
     "s3_regional_buckets",
     "prehooks",
     "posthooks",
-    "role_name"
+    "role_name",
 ]
 
 
