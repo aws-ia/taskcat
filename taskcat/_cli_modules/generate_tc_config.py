@@ -21,7 +21,6 @@ class GenerateTCConfig:
         user_email: str = "noreply@acme.com",
         project_root: str = "./",
         aws_region: str = "us-east-1",
-        verbose_config: bool = False,
         create_overrides_file: bool = False
     ):
 
@@ -31,5 +30,4 @@ class GenerateTCConfig:
                                project_root_path=str(project_root_path),
                                owner_email=user_email,
                                aws_region=aws_region,
-                               verbose_config=verbose_config,
                                create_overrides_file=create_overrides_file).generate_config()
