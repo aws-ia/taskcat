@@ -20,8 +20,7 @@ class GenerateTCConfig:
         main_template: str = "./templates/template.yaml",
         user_email: str = "noreply@acme.com",
         project_root: str = "./",
-        aws_region: str = "us-east-1",
-        create_overrides_file: bool = False
+        aws_region: str = "us-east-1"
     ):
 
         project_root_path = Path(project_root).expanduser().resolve()
@@ -29,5 +28,4 @@ class GenerateTCConfig:
                                output_file=output_file,
                                project_root_path=str(project_root_path),
                                owner_email=user_email,
-                               aws_region=aws_region,
-                               create_overrides_file=create_overrides_file).generate_config()
+                               aws_region=aws_region).generate_config()

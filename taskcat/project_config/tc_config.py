@@ -1,9 +1,13 @@
 import logging
+import sys
+import os
+from pathlib import Path
+
 import git
-# from pathlib import Path
-from ruamel.yaml.comments import CommentedMap as OrderedDict
-# from ruamel.yaml.main import round_trip_dump as yaml_dump
 from ruamel.yaml import YAML
+from ruamel.yaml.comments import CommentedMap as OrderedDict
+from taskcat._config import Config
+from taskcat.exceptions import TaskCatException
 from taskcat.project_config.tools import _add_parameter_values, _get_parameter_stats
 
 yaml = YAML()
@@ -15,33 +19,36 @@ class TaskCatConfigGenerator:
     def __init__(
             self, main_template: str, output_file: str,
             project_root_path: str, owner_email: str,
-            aws_region: str, create_overrides_file: bool):
+            aws_region: str):
         self.output_file = output_file
         self.main_template = main_template
         self.project_root_path = project_root_path
         self.owner_email = owner_email
         self.aws_region = aws_region
-        self.create_overrides_file = create_overrides_file
         self.repo = git.Repo(project_root_path, search_parent_directories=True)
         self.repo_name = self.repo.remotes.origin.url.split('.git')[0].split('/')[-1]
 
+
     def generate_config(self):
+        base_path = Path(self.project_root_path).resolve()
+        template_path = base_path / self.main_template
+        project_config_path = base_path / "./.taskcat.yml"
+        global_config_path = base_path / "./.taskcat_global.yml"
+
         LOG.warning("This is an ALPHA feature. Use with caution")
         # Read Yaml file
-        cfn = yaml.load(open(self.main_template, 'r', encoding="utf-8"))
+        cfn = yaml.load(open(template_path, 'r', encoding="utf-8"))
         # Container for each parameter object
         parameters = {}
         # Get data for each parameter
         for n in cfn['Parameters']:
             parameters[n] = cfn['Parameters'][n]
+
         # Create a dict for the config content
         cfg_dict = OrderedDict({
             "project": OrderedDict({
                 "name": self.repo_name,
                 "owner": self.owner_email,
-                "package_lambda": "true",
-                "shorten_stack_name": "true",
-                "s3_regional_buckets": "true",
                 "regions": [self.aws_region],
                 "parameters": _add_parameter_values(parameters)
             }),
@@ -51,14 +58,30 @@ class TaskCatConfigGenerator:
                 })
             })
         })
+
+        # Remove empty config file
+        if os.stat(project_config_path).st_size == 0:
+            os.remove(project_config_path)
+
+        try:
+            config = Config.create(
+                args=cfg_dict,
+                template_file=template_path,
+                project_config_path=project_config_path,
+                global_config_path=global_config_path,
+                env_vars={
+                    "TASKCAT_PROJECT_PACKAGE_LAMBDA": "True",
+                    "TASKCAT_PROJECT_SHORTEN_STACK_NAME": "True",
+                    "TASKCAT_PROJECT_S3_REGIONAL_BUCKETS": "True"},
+            )
+        except TaskCatException as e:
+            LOG.error(e)
+            sys.exit(1)
+
         with open(f'{self.project_root_path}/{self.output_file}',
                   "w+", encoding="utf-8") as outfile:
-            yaml.dump(cfg_dict, outfile)
+            config_dict = config.config.to_dict()
+            config_dict.pop('general')
+            yaml.dump(config_dict, outfile)
         outfile.close()
         print(_get_parameter_stats(cfg_dict['project']['parameters']))
-        # # Create the .taskcat_overrides.yaml file and write the document
-        if self.create_overrides_file:
-            with open(f'{self.project_root_path}//.taskcat_overrides.yml',
-                      "w+", encoding="utf-8") as outfile:
-                yaml.dump(cfg_dict["project"]["parameters"], outfile)
-        outfile.close()
