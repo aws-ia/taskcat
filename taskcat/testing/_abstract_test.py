@@ -60,7 +60,7 @@ class Test(ABC):
         """Clean up after the Test."""
 
     @classmethod
-    def from_file(
+    def from_file(  # noqa: B027
         cls: Type[T],
         project_root: str,
         input_file: str,

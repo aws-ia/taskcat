@@ -3,7 +3,6 @@ import hashlib
 import logging
 import os
 import time
-import pathspec
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import List
@@ -11,6 +10,7 @@ from typing import List
 from boto3.exceptions import S3UploadFailedError
 from boto3.s3.transfer import TransferConfig
 
+import pathspec
 from taskcat._logger import PrintMsg
 from taskcat.exceptions import TaskCatException
 
@@ -48,7 +48,12 @@ class S3Sync:
             prefix = prefix + "/"
         self.s3_client = s3_client
         self.dry_run = dry_run
-        self.exclude_patterns = pathspec.PathSpec.from_lines('gitwildmatch', self.exclude_files + self.exclude_path_prefixes + self.exclude_remote_path_prefixes)
+        self.exclude_patterns = pathspec.PathSpec.from_lines(
+            "gitwildmatch",
+            self.exclude_files
+            + self.exclude_path_prefixes
+            + self.exclude_remote_path_prefixes,
+        )
         file_list = self._get_local_file_list(path)
         s3_file_list = self._get_s3_file_list(bucket, prefix)
         self._sync(file_list, s3_file_list, bucket, prefix, acl=acl)
@@ -145,7 +150,6 @@ class S3Sync:
             else:
                 is_paginated = False
         return objects
-
 
     def _exclude_remote(self, path):
         return self._exclude_via_gitignore_syntax(path)
