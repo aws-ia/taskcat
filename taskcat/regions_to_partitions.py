@@ -35,7 +35,6 @@ REGIONS = {
     "us-iso-east-1": "aws-iso",
     "us-iso-west-1": "aws-iso",
     "us-isob-east-1": "aws-iso-b",
-    "eu-isoe-west-1": "aws-iso-e"
 }
 
 PARTITIONS = {
@@ -68,25 +67,12 @@ PARTITIONS = {
         "us-east-1",
         "us-east-2",
         "us-west-1",
-        "us-west-2"
+        "us-west-2",
     ],
-    "aws-cn": [
-        "cn-north-1",
-        "cn-northwest-1"
-    ],
-    "aws-us-gov": [
-        "us-gov-east-1",
-        "us-gov-west-1"
-    ],
-    "aws-iso": [
-        "us-iso-east-1",
-        "us-iso-west-1"
-    ],
-    "aws-iso-b": [
-        "us-isob-east-1"
-    ],
-    "aws-iso-e": [
-        "eu-isoe-west-1"
-    ],
-    "aws-iso-f": []
+    "aws-cn": ["cn-north-1", "cn-northwest-1"],
+    "aws-us-gov": ["us-gov-east-1", "us-gov-west-1"],
+    "aws-iso": ["us-iso-east-1", "us-iso-west-1"],
+    "aws-iso-b": ["us-isob-east-1"],
+    "aws-iso-e": [],
+    "aws-iso-f": [],
 }
