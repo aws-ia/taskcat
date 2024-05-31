@@ -16,6 +16,7 @@ setup(
         "taskcat._cfn",
         "taskcat._cli_modules",
         "taskcat.testing",
+        "taskcat.project_config",
         "taskcat.iam_policy",
         "taskcat_plugin_testhook",
     ],

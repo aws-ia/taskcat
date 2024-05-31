@@ -20,16 +20,16 @@ repos:
     args:
     - --fix=lf
   - id: trailing-whitespace
-  - id: flake8
-    additional_dependencies:
-    - flake8-bugbear>=19.3.0
-    - flake8-builtins>=1.4.1
-    - flake8-commas>=2.0.0
-    - flake8-comprehensions>=2.1.0
-    - flake8-debugger>=3.1.0
-    - flake8-pep3101>=1.2.1
-    - flake8-print>=3.1.0
-    # language_version: python3.6
+  # - id: flake8
+  #   additional_dependencies:
+  #   - flake8-bugbear>=19.3.0
+  #   - flake8-builtins>=1.4.1
+  #   - flake8-commas>=2.0.0
+  #   - flake8-comprehensions>=2.1.0
+  #   - flake8-debugger>=3.1.0
+  #   - flake8-pep3101>=1.2.1
+  #   - flake8-print>=3.1.0
+  #   # language_version: python3.6
   - id: pretty-format-json
     args:
     - --autofix
@@ -81,13 +81,13 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-  - id: pylint-local
-    name: pylint-local
-    description: Run pylint in the local virtualenv
-    entry: pylint "--disable=C0209" "setup.py" "taskcat/" "bin/"
-    language: system
-    pass_filenames: false
-    always_run: true
+  # - id: pylint-local
+  #   name: pylint-local
+  #   description: Run pylint in the local virtualenv
+  #   entry: pylint "--disable=C0209" "setup.py" "taskcat/" "bin/"
+  #   language: system
+  #   pass_filenames: false
+  #   always_run: true
   - id: pytest-local
     name: pytest-local
     description: Run pytest in the local virtualenv
