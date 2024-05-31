@@ -1,7 +1,7 @@
 import os
 import shutil
 import unittest
-∏
+
 from ruamel.yaml import YAML
 from taskcat._cli_modules.generate_config import GenerateConfig
 from taskcat.exceptions import TaskCatException
