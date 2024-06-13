@@ -19,7 +19,7 @@ class GenerateConfig:
         self,
         output_file: str = ".taskcat.yml",
         main_template: str = "./templates/template.yaml",
-        user_email: str = "noreply@acme.com",
+        user_email: str = "noreply@example.com",
         project_root: str = "./",
         aws_region: str = "us-east-1",
         replace: bool = False,
