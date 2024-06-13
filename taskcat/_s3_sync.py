@@ -3,7 +3,6 @@ import hashlib
 import logging
 import os
 import time
-import pathspec
 from functools import partial
 from multiprocessing.dummy import Pool as ThreadPool
 from typing import List
@@ -11,6 +10,7 @@ from typing import List
 from boto3.exceptions import S3UploadFailedError
 from boto3.s3.transfer import TransferConfig
 
+import pathspec
 from taskcat._logger import PrintMsg
 from taskcat.exceptions import TaskCatException
 

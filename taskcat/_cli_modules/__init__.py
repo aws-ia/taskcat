@@ -1,6 +1,7 @@
 from .config import ConvertConfig  # noqa: F401
 from .delete import Delete  # noqa: F401
 from .deploy import Deploy  # noqa: F401
+from .generate_config import GenerateConfig  # noqa: F401
 from .generate_iam_policy import GenerateIAMPolicy  # noqa: F401
 from .lint import Lint  # noqa: F401
 from .list import List  # noqa: F401
