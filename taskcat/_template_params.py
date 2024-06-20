@@ -172,6 +172,10 @@ class ParamGen:
 
             # $[taskcat_ssm_X]
             self._get_ssm_param_value_wrapper(self.RE_SSM_PARAMETER)
+
+            # $[taskcat_secretsmanager_X]
+            self._get_secretsmanager_param_value_wrapper(self.RE_SECRETSMANAGER_PARAMETER)
+
             # $[taskcat_current_region]
             self._regex_replace_param_value(
                 self.RE_CURRENT_REGION, self._gen_current_region()
