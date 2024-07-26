@@ -58,6 +58,11 @@ class _CfnLogTools:
         # Get stack resources
         cfnlogs = self.get_cfnlogs(stack)
 
+        if stack.launch_exception:
+            with open(str(logpath), "a", encoding="utf-8") as log_output:
+                log_output.write(stack.status_reason)
+            return 
+
         if len(cfnlogs) != 0:
             if cfnlogs[0]["ResourceStatus"] != "CREATE_COMPLETE":
                 if "ResourceStatusReason" in cfnlogs[0]:
