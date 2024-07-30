@@ -10,9 +10,8 @@ cd ${PROJECT_PATH}
 pip install poetry 
 
 LAST_COMMIT_MESSAGE=$(git log --format=%B -n 1 | head -n 1)
-poetry config repositories.test-pypi https://test.pypi.org/legacy/
 set +x
-poetry config pypi-token.test-pypi $(aws --region us-west-2 secretsmanager get-secret-value --secret-id test-pypi --query SecretString --output text)
+poetry config pypi-token.pypi $(aws --region us-west-2 secretsmanager get-secret-value --secret-id pypi --query SecretString --output text)
 set -x
 
 function new_release(){
