@@ -1,0 +1,22 @@
+version: "1.0.0"
+
+#level 2
+init:
+  dockerfile: .project_automation/init/Dockerfile
+  entrypoint: .project_automation/init/entrypoint.sh
+  github_permissions:
+    contents: write
+update:
+  entrypoint: .project_automation/update/entrypoint.sh
+static_tests:
+  entrypoint: .project_automation/static_tests/entrypoint.sh
+functional_tests:
+  enable_docker: true
+  entrypoint: .project_automation/functional_tests/entrypoint.sh
+publication:
+  dockerfile: .project_automation/publication/Dockerfile
+  entrypoint: .project_automation/publication/entrypoint.sh
+  github_permissions:
+    contents: write
+deprecation:
+  entrypoint: .project_automation/deprecation/entrypoint.sh
