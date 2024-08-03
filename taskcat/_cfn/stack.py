@@ -222,7 +222,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._status: str = ""
         self.status_reason: str = ""
         self.disable_rollback: bool = False
-        self.launch_exception: bool = False 
+        self.launch_exception: bool = False
         self.timeout_in_minutes: int = 0
         self.capabilities: List[str] = []
         self.outputs: List[Output] = []
@@ -326,7 +326,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             emsg = e
             stack_id = f"arn:aws:cloudformation:{region.name}:account:stack/FailedToLaunch/FailedToLaunch"
         stack = cls(region, stack_id, template, test_name, uuid)
-        if emsg: 
+        if emsg:
             stack.status = "CREATE_FAILED"
             stack.status_reason = str(emsg)
             stack.launch_exception = True
@@ -433,7 +433,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         children: bool = False,
     ) -> None:
         if self.launch_exception:
-            return 
+            return
         if properties:
             self.set_stack_properties()
         if events:

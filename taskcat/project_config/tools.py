@@ -32,10 +32,6 @@ def _add_parameter_values(parameter_values):
 
     parameter_values = OrderedDict(sorted(parameter_values.items()))
     for parameter in parameter_values:
-        # Add Default values
-        if "Default" in parameter_values[parameter].keys():
-            parameter_dict[parameter] = _add_default_info(parameter_values[parameter])
-            continue
         # Set region info
         if "Region" in parameter_values[parameter].keys():
             parameter_dict[parameter] = _add_region_info(parameter)

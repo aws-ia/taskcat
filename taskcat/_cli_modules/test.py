@@ -99,7 +99,6 @@ class Test:
                 keep_failed=keep_failed,
                 minimal_output=minimal_output,
                 dont_wait_for_delete=dont_wait_for_delete,
-                wait_for_delete=False,
             )
         except IOError:
             LOG.error("IOError when retrying Test Run")
@@ -108,7 +107,6 @@ class Test:
             os.remove(file_path)
         finally:
             os.umask(umask)
-            os.rmdir(tmpdir)
 
     @staticmethod
     # pylint: disable=too-many-arguments,W0613,line-too-long

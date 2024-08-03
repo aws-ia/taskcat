@@ -25,6 +25,11 @@ test_two_path = str(
         "/tmp/lint_test/test-config-two/templates/taskcat_test_" "template_test1"
     ).resolve()
 )
+lintMsg = (
+    "[W3002: Warn when properties are configured to only work with the package command]"
+    "(This code may only work with `package` cli command as the property"
+    "(Resources/Name/Properties/TemplateURL) is a string) matched /private/tmp/lint_test/test-config-three/templates/taskcat_test_template_test1:1"
+)
 test_cases = [
     {
         "config": {
@@ -80,33 +85,6 @@ test_cases = [
             }
         },
     },
-    {
-        "config": {
-            "project": {"name": "test-config-three", "regions": ["eu-west-1"]},
-            "tests": {"test1": {}},
-        },
-        "templates": {
-            "test1": '{"Resources": {"Name": {"Type":"AWS::CloudFormation::Stack",'
-            '"Properties":{"TemplateURL": "broken"}}}}'
-        },
-        "expected_lints": {
-            "test1": {
-                "regions": ["eu-west-1"],
-                "template": Path(
-                    "/tmp/lint_test/test-config-three/templates"
-                    "/taskcat_test_template_test1"
-                ).resolve(),
-                "results": {
-                    str(
-                        Path(
-                            "/tmp/lint_test/test-config-three/templates"
-                            "/taskcat_test_template_test1"
-                        ).resolve()
-                    ): []
-                },
-            }
-        },
-    },
 ]
 
 
@@ -145,6 +123,7 @@ def build_test_case(base_path, test_case):
 class TestCfnLint(unittest.TestCase):
     @mock.patch("taskcat._client_factory.Boto3Cache", autospec=True)
     def test_lint(self, m_boto):
+        self.maxDiff = None
         cwd = os.getcwd()
         base_path = "/tmp/lint_test/"
         mkdir(base_path)

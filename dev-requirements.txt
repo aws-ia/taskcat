@@ -1,5 +1,5 @@
 pre-commit~=2.9.2
 black~=24.3.0
-pylint~=2.3
+pylint~=3.2
 pytest-cov~=2.7
 codecov~=2.0

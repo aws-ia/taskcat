@@ -10,6 +10,7 @@ from taskcat.exceptions import TaskCatException
 
 class TestNewConfig(unittest.TestCase):
     def test_config(self):
+        self.maxDiff = None
         base_path = "./" if os.getcwd().endswith("/tests") else "./tests/"
         base_path = Path(base_path + "data/config_inheritance").resolve()
 
@@ -44,6 +45,7 @@ class TestNewConfig(unittest.TestCase):
                 "template": "template1.yaml",
                 "s3_bucket": "set-in-global",
                 "s3_enable_sig_v2": False,
+                "s3_object_acl": "private",
                 "shorten_stack_name": False,
                 "s3_regional_buckets": False,
             },
@@ -86,6 +88,7 @@ class TestNewConfig(unittest.TestCase):
             "project": {
                 "s3_bucket": str(base_path / ".taskcat_global.yml"),
                 "s3_enable_sig_v2": "TASKCAT_DEFAULT",
+                "s3_object_acl": "CliArgument",
                 "s3_regional_buckets": str(base_path / ".taskcat_global.yml"),
                 "shorten_stack_name": "TASKCAT_DEFAULT",
                 "package_lambda": "EnvoronmentVariable",

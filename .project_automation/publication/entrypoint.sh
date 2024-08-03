@@ -7,7 +7,7 @@ PROJECT_TYPE_PATH=${BASE_PATH}/projecttype
 
 cd ${PROJECT_PATH}
 
-pip install poetry 
+pip install poetry
 
 LAST_COMMIT_MESSAGE=$(git log --format=%B -n 1 | head -n 1)
 set +x

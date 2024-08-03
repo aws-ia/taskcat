@@ -32,6 +32,7 @@ class PackageSingle:
         :param zip_folder: folder to output zip files, relative to the project root
         :param config_file: path to taskcat project config file
         """
+        _pc = None
         project_root_path: Path = Path(project_root).expanduser().resolve()
         if not PROJECT.exists():
             _fd, _path = tempfile.mkstemp()

@@ -31,6 +31,7 @@ PROJECT_ROOT = Path("./").resolve()
 OVERRIDES = Path("./.taskcat_overrides.yml").resolve()
 
 DEFAULTS = {
+    "general": {"parameters": {}},
     "project": {
         "s3_enable_sig_v2": False,
         "build_submodules": True,
@@ -38,7 +39,7 @@ DEFAULTS = {
         "lambda_zip_path": "lambda_functions/packages",
         "lambda_source_path": "lambda_functions/source",
         "shorten_stack_name": False,
-    }
+    },
 }
 
 

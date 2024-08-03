@@ -520,7 +520,7 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     """General configuration settings."""
 
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
-        default=None, metadata=METADATA["parameters"]
+        metadata=METADATA["parameters"], default=None
     )
     tags: Optional[Dict[TagKey, TagValue]] = field(
         default=None, metadata=METADATA["tags"]

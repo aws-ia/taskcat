@@ -61,7 +61,7 @@ class _CfnLogTools:
         if stack.launch_exception:
             with open(str(logpath), "a", encoding="utf-8") as log_output:
                 log_output.write(stack.status_reason)
-            return 
+            return
 
         if len(cfnlogs) != 0:
             if cfnlogs[0]["ResourceStatus"] != "CREATE_COMPLETE":

@@ -1,33 +1,29 @@
 project:
-  name: taskcat
-  owner: noreply@acme.com
-  regions:
-  - us-east-1
-  package_lambda: true
-  lambda_zip_path: lambda_functions/packages
+  build_submodules: true
   lambda_source_path: lambda_functions/source
-  s3_regional_buckets: true
+  lambda_zip_path: lambda_functions/packages
+  name: taskcat
+  owner: noreply@example.com
+  package_lambda: true
   parameters:
     AccessCIDR: 10.0.0.0/16
-    AvailabilityZones: ''
     BucketName: tonynv
-    KeyPairName: ''
     KeyPrefix: sigv2-to-sigv4/
     PublicSubnet1CIDR: 10.0.128.0/20
     PublicSubnet2CIDR: 10.0.144.0/20
     VPCCIDR: 10.0.0.0/16
-  build_submodules: true
-  template: tests/data/standalone_template/test.template_w_parameters.yaml
+  regions:
+  - us-east-1
   s3_enable_sig_v2: false
+  s3_object_acl: private
+  s3_regional_buckets: true
   shorten_stack_name: true
+  template: tests/data/standalone_template/test.template_w_parameters.yaml
 tests:
   default:
-    template: tests/data/standalone_template/test.template_w_parameters.yaml
     parameters:
       AccessCIDR: 10.0.0.0/16
-      AvailabilityZones: ''
       BucketName: tonynv
-      KeyPairName: ''
       KeyPrefix: sigv2-to-sigv4/
       PublicSubnet1CIDR: 10.0.128.0/20
       PublicSubnet2CIDR: 10.0.144.0/20
@@ -35,3 +31,4 @@ tests:
     regions:
     - us-east-1
     s3_regional_buckets: true
+    template: tests/data/standalone_template/test.template_w_parameters.yaml

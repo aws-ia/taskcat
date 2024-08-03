@@ -82,7 +82,7 @@ class StackURLHelper:
         result = original_string.replace(rep_text, rep_with)
 
         if len(result.split("${")) > 1:
-            result = self.rewrite_vars(result, depth=(depth + 1))
+            result = self.rewrite_vars(result, depth=depth + 1)
 
         return result
 
@@ -100,7 +100,7 @@ class StackURLHelper:
         result = original_string.replace(rep_text, rep_with)
 
         if "##" in result:  # Recurse if we have more variables
-            result = self.rewrite_sub_vars(result, depth=(depth + 1))
+            result = self.rewrite_sub_vars(result, depth=depth + 1)
 
         return result
 

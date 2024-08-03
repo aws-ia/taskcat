@@ -2,16 +2,16 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import OrderedDict
+
+import yaml
 
 import git
-from ruamel.yaml import YAML
-from ruamel.yaml.comments import CommentedMap as OrderedDict
+from taskcat._cfn.template import Template
 from taskcat._config import Config
 from taskcat.exceptions import TaskCatException
-from taskcat.project_config.tools import _add_parameter_values, _get_parameter_stats
+from taskcat.project_config.tools import _get_parameter_stats
 
-yaml = YAML()
-yaml.preserve_quotes = True
 LOG = logging.getLogger(__name__)
 LOG_CONFIG = logging.getLogger("taskcat._config")
 LOG_CONFIG.setLevel(logging.ERROR)
@@ -50,14 +50,8 @@ class ConfigGenerator:
 
         LOG.warning("This is an ALPHA feature. Use with caution")
         # Read Yaml file
-        with open(template_path, "r", encoding="utf-8") as f:
-            cfn = yaml.load(f)
-        f.close()
-        # Container for each parameter object
-        parameters = {}
-        # Get data for each parameter
-        for n in cfn["Parameters"]:
-            parameters[n] = cfn["Parameters"][n]
+
+        cfn = Template(template_path, base_path, "", "")
 
         # Create a dict for the config content
         cfg_dict = OrderedDict(
@@ -67,7 +61,7 @@ class ConfigGenerator:
                         "name": self.repo_name,
                         "owner": self.owner_email,
                         "regions": [self.aws_region],
-                        "parameters": _add_parameter_values(parameters),
+                        "parameters": cfn.parameters(),
                     }
                 ),
                 "tests": OrderedDict(
