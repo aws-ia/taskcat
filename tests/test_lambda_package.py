@@ -1,3 +1,4 @@
+import os
 import unittest
 from os import mkdir
 from pathlib import Path
@@ -7,6 +8,7 @@ from unittest.mock import MagicMock, patch
 
 from requests.exceptions import ReadTimeout
 
+import pytest
 from dulwich.repo import Repo
 from taskcat._config import Config
 from taskcat._lambda_build import LambdaBuild
@@ -28,6 +30,9 @@ def m_get_archive(path):
     return (byte_list, None)
 
 
+@pytest.mark.skipif(
+    os.environ.get("NO_DOCKER") != "", reason="build env where docker is unavailable"
+)
 class TestLambdaPackage(unittest.TestCase):
     @patch("taskcat._lambda_build.docker", autospec=True)
     def test_nested_submodules(self, m_docker):

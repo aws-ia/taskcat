@@ -4,6 +4,7 @@
 # managed and local tasks always use these variables for the project and project type path
 PROJECT_PATH=${BASE_PATH}/project
 PROJECT_TYPE_PATH=${BASE_PATH}/projecttype
+export NO_DOCKER=true
 cd $(mktemp -d)
 git clone https://github.com/awslabs/git-secrets.git
 cd git-secrets
