@@ -222,6 +222,7 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         self._status: str = ""
         self.status_reason: str = ""
         self.disable_rollback: bool = False
+        self.launch_exception: bool = False
         self.timeout_in_minutes: int = 0
         self.capabilities: List[str] = []
         self.outputs: List[Output] = []
@@ -318,8 +319,17 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         }
         if region.role_arn:
             create_options["RoleARN"] = region.role_arn
-        stack_id = cfn_client.create_stack(**create_options)["StackId"]
+        emsg = None
+        try:
+            stack_id = cfn_client.create_stack(**create_options)["StackId"]
+        except Exception as e:
+            emsg = e
+            stack_id = f"arn:aws:cloudformation:{region.name}:account:stack/FailedToLaunch/FailedToLaunch"
         stack = cls(region, stack_id, template, test_name, uuid)
+        if emsg:
+            stack.status = "CREATE_FAILED"
+            stack.status_reason = str(emsg)
+            stack.launch_exception = True
         # fetch property values from cfn
         stack.refresh()
         return stack
@@ -422,6 +432,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
         resources: bool = False,
         children: bool = False,
     ) -> None:
+        if self.launch_exception:
+            return
         if properties:
             self.set_stack_properties()
         if events:
@@ -472,6 +484,8 @@ class Stack:  # pylint: disable=too-many-instance-attributes
             existing_props.append(new)
 
     def events(self, refresh: bool = False, include_generic: bool = True) -> Events:
+        if self.launch_exception:
+            return Events()
         if refresh or not self._events or self._auto_refresh(self._last_event_refresh):
             self._fetch_stack_events()
         events = self._events

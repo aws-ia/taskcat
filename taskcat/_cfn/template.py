@@ -199,5 +199,13 @@ class Template:
     ) -> Dict[str, Union[None, str, int, bool, List[Union[int, str]]]]:
         parameters = {}
         for param_key, param in self.template.get("Parameters", {}).items():
-            parameters[param_key] = param.get("Default")
+            pk = str(param_key)
+            p = param.get("Default")
+            if p is not None:
+                if isinstance(p, str):
+                    parameters[pk] = str(p)
+                if isinstance(p, list):
+                    parameters[pk] = list(p)
+                if isinstance(p, dict):
+                    parameters[pk] = dict(p)
         return parameters

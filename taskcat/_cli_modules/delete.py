@@ -34,8 +34,10 @@ class Delete:
         :param no_verify: ignore region verification, delete will not error if an invalid\
             region is detected
         :param stack_type: type of stacks to delete, allowable options are ["project","test","ALL"]
-        :param wait_for_delete: if True, wait for CloudFormation stacks to be deleted before continuing, allowable options are ["True", "False"]
+        :param wait_for_delete: if True, wait for CloudFormation stacks to be deleted before continuing,
+            allowable options are ["True", "False"]
         """
+        regions = []
         boto3_cache = Boto3Cache()
         if region == "default":
             regions = boto3_cache.get_default_region(aws_profile)

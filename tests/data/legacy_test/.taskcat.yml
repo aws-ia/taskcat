@@ -6,6 +6,7 @@ project:
   - us-east-1
   - us-west-2
   s3_bucket: ''
+  s3_object_acl: private
 tests:
   taskcat-json:
     parameters: {}

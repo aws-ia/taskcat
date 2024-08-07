@@ -548,7 +548,7 @@ class TestStack(unittest.TestCase):
         stack.client = mock.Mock()
 
         stack.refresh.reset_mock()
-        stack.delete(client=stack.client, stack_id=stack.id)
+        stack.delete(client=stack.client, stack_id=stack.id, wait_for_delete=True)
         stack.client.delete_stack.assert_called_once()
 
     @mock.patch(

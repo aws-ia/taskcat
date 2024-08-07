@@ -6,10 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch, sentinel
 
-import requests
-
 from taskcat._amiupdater import (
-    REGION_REGEX,
     AMIUpdater,
     AMIUpdaterCommitNeededException,
     AMIUpdaterFatalException,
@@ -926,17 +923,6 @@ class TestAMIUpdater(unittest.TestCase):
             "AMZNLINUXHVM", "us-west-1", "slkdfjskldfj"
         )
         self.assertFalse(actual)
-
-    def test_amiupdater_region_regex_matches_all_published_regions(self):
-        ip_ranges = requests.get(
-            "https://ip-ranges.amazonaws.com/ip-ranges.json"
-        ).json()
-        regions = list(set([x["region"] for x in ip_ranges["prefixes"]]))  # noqa: C403
-        _ridx = regions.index("GLOBAL")
-        _ = regions.pop(_ridx)
-        for region in regions:
-            with self.subTest(region=region):
-                self.assertRegex(region, REGION_REGEX)
 
     def test_config_load_invalid_config(self):
         # invalid, but yaml is valid

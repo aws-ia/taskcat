@@ -141,6 +141,7 @@ class Boto3Cache:
                     raise
                 backoff = (self.RETRIES - retries + delay) * self.BACKOFF
                 sleep(backoff)
+        return None
 
     @staticmethod
     def _get_endpoint_url(service, region):

@@ -60,6 +60,7 @@ class Test(ABC):
         """Clean up after the Test."""
 
     @classmethod
+    @abstractmethod
     def from_file(
         cls: Type[T],
         project_root: str,

@@ -185,7 +185,7 @@ class LambdaBuild:
             output.append(line.decode("utf-8").strip())
         LOG.debug("docker build logs: \n{}".format("\n".join(output)))
 
-    def _docker_extract(self, tag, package_path):
+    def _docker_extract(self, tag, package_path):  # noqa: C901
         container = self._docker.containers.run(image=tag, detach=True)
         exit_code = container.wait()["StatusCode"]
         logs = container.logs()
@@ -218,7 +218,7 @@ class LambdaBuild:
                     if not is_within_directory(path, member_path):
                         raise Exception("Attempted Path Traversal in Tar File")
 
-                tar.extractall(path, members, numeric_owner=numeric_owner)
+                tar.extractall(path, members, numeric_owner=numeric_owner)  # nosec
 
             safe_extract(tar, path=str(package_path))
         try:

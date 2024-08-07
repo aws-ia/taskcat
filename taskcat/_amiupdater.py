@@ -16,12 +16,13 @@ from taskcat._client_factory import Boto3Cache
 from taskcat._common_utils import deep_get, neglect_submodule_templates
 from taskcat._dataclasses import RegionObj
 from taskcat.exceptions import TaskCatException
+from taskcat.regions_to_partitions import REGIONS
 
 LOG = logging.getLogger(__name__)
 
+_REGIONS_JOINED = "|".join(REGIONS.keys())
 REGION_REGEX = re.compile(
-    "((eu|ap|us|af|me|il|ca|cn|sa)-|(us-gov-))"
-    "(north(east|west)?|south(east|west)?|central|east|west)-[0-9]",
+    "(" + _REGIONS_JOINED + ")",
     re.IGNORECASE,
 )
 

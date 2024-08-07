@@ -520,7 +520,7 @@ class GeneralConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
     """General configuration settings."""
 
     parameters: Optional[Dict[ParameterKey, ParameterValue]] = field(
-        default=None, metadata=METADATA["parameters"]
+        metadata=METADATA["parameters"], default=None
     )
     tags: Optional[Dict[TagKey, TagValue]] = field(
         default=None, metadata=METADATA["tags"]
@@ -630,7 +630,7 @@ class ProjectConfig(JsonSchemaMixin, allow_additional_props=False):  # type: ign
         default=None, metadata=METADATA["enable_sig_v2"]
     )
     s3_object_acl: Optional[S3Acl] = field(
-        default=None, metadata=METADATA["s3_object_acl"]
+        default="private", metadata=METADATA["s3_object_acl"]
     )
     shorten_stack_name: Optional[bool] = field(
         default=None, metadata=METADATA["shorten_stack_name"]
