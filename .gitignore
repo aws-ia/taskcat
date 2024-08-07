@@ -20,6 +20,7 @@ tests/data/legacy_test/.taskcat_overrides.yml
 venv/
 .venv/
 .coverage
+.coverage.*
 coverage.xml
 /.pytest_cache/
 /.mypy_cache/
