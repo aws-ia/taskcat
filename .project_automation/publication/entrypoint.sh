@@ -30,8 +30,12 @@ update_release_branch(){
   git push origin main:release/v0.x --force
 }
 
+function _gh_release(){
+  VERSION=$(poetry version | awk '{print $2}')
+  gh release create ${VERSION} --title ${VERSION} --generate-notes
+}
 function _pypi_release(){
-  poetry publish --build -r test-pypi
+  poetry publish --build
 }
 
 set +e
@@ -39,6 +43,7 @@ echo ${LAST_COMMIT_MESSAGE} | egrep -i "Merge pull request.*from aws-ia/release.
 set -e
 if [[ $EC -eq 0 ]]; then
   new_release
+  _gh_release
   _pypi_release
 else
   update_release_branch
