@@ -3,11 +3,17 @@ version = "0.9.51"
 authors = ["Andrew Glenn", "Jay McConnell", "Shivansh Singh", "Tony Vattathil"]
 description = "An OpenSource Cloudformation Deployment Framework"
 name = "taskcat"
+
+[tool.poetry.scripts]
+taskcat = "taskcat._cli:main"
+
 [tool.portray.mkdocs.theme]
 favicon = "https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png"
 logo = "https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/docs/images/tcat.png"
 name = "material"
 palette = {primary = "black", accent = "orange"}
+
+
 
 [tool.portray.mkdocs]
 extra_css = ['docs/custom.css']

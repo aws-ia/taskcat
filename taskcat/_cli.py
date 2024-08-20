@@ -1,9 +1,9 @@
+import importlib.metadata
 import signal
 import sys
 
 import requests
 
-from pkg_resources import get_distribution
 from taskcat._cli_core import GLOBAL_ARGS, CliCore, _get_log_level
 from taskcat._common_utils import exit_with_code
 from taskcat._logger import PrintMsg, init_taskcat_cli_logger
@@ -116,10 +116,7 @@ def get_pip_version(url):
 
 
 def get_installed_version():
-    try:
-        return get_distribution(NAME).version
-    except Exception:  # pylint: disable=broad-except
-        return "[local source] no pip module installed"
+    return importlib.metadata.version(__package__ or __name__)
 
 
 def _sigint_handler(signum, frame):

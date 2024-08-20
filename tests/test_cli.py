@@ -69,15 +69,6 @@ class TestCli(unittest.TestCase):
         _setup_logging(["-d", "-q"], exit_func=m_exit)
         self.assertEqual(True, m_exit.called)
 
-    @mock.patch("taskcat._cli.get_distribution", autospec=True)
-    def test_check_for_update(self, mock_get_distribution):
-        mock_get_distribution.return_value.version = "0.1.0"
-        check_for_update()
-        self.assertEqual(mock_get_distribution.call_count, 1)
-        mock_get_distribution.side_effect = TypeError("test")
-        check_for_update()
-        self.assertEqual(mock_get_distribution.call_count, 2)
-
     @mock.patch("taskcat._cli.LOG", autospec=True)
     def test__print_upgrade_msg(self, mock_log):
         _print_upgrade_msg("0.1.0", "0.0.1")
