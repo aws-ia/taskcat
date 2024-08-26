@@ -54,6 +54,10 @@ class ConfigGenerator:
         cfn = Template(template_path, base_path, "", "")
 
         # Create a dict for the config content
+        params = {}
+        for k, v in cfn.parameters().items():
+            if v is not None:
+                params[k] = v
         cfg_dict = OrderedDict(
             {
                 "project": OrderedDict(
@@ -61,7 +65,7 @@ class ConfigGenerator:
                         "name": self.repo_name,
                         "owner": self.owner_email,
                         "regions": [self.aws_region],
-                        "parameters": cfn.parameters(),
+                        "parameters": params,
                     }
                 ),
                 "tests": OrderedDict(

@@ -208,4 +208,6 @@ class Template:
                     parameters[pk] = list(p)
                 if isinstance(p, dict):
                     parameters[pk] = dict(p)
+            else:
+                parameters[pk] = p
         return parameters
