@@ -47,7 +47,7 @@ class Lint:
 
     @staticmethod
     def _filter_unsupported_regions(regions):
-        lint_regions = set(cfnlint.core.REGIONS)
+        lint_regions = set(cfnlint.helpers.REGIONS)
         if set(regions).issubset(lint_regions):
             return regions
         supported = set(regions).intersection(lint_regions)
