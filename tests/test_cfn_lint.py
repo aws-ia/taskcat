@@ -6,6 +6,7 @@ from unittest import mock
 
 import yaml
 
+import cfnlint.version
 from taskcat._cfn_lint import Lint
 from taskcat._config import Config
 
@@ -30,6 +31,22 @@ lintMsg = (
     "(This code may only work with `package` cli command as the property"
     "(Resources/Name/Properties/TemplateURL) is a string) matched /private/tmp/lint_test/test-config-three/templates/taskcat_test_template_test1:1"
 )
+if cfnlint.version.__version__.startswith("0."):
+    invalid_type_error = [
+        f"[E3001: Basic CloudFormation Resource Check] (Invalid or "
+        f"unsupported Type AWS::Not::Exist for resource Name in "
+        f"eu-west-1) matched "
+        f"{test_two_path}:1"
+    ]
+else:
+    # The format of this message seems to change in 1.3.0 onwards
+    # (prior 1.x versions were pre-releases so not supporting them)
+    invalid_type_error = [
+        f"[E3006: Validate the CloudFormation resource type] (Resource "
+        f"type 'AWS::Not::Exist' does not exist in "
+        f"'eu-west-1') matched "
+        f"{test_two_path}:1"
+    ]
 test_cases = [
     {
         "config": {
@@ -71,12 +88,7 @@ test_cases = [
                             "/tmp/lint_test/test-config-two/templates/taskcat_test_"
                             "template_test1"
                         ).resolve()
-                    ): [
-                        f"[E3001: Basic CloudFormation Resource Check] (Invalid or "
-                        f"unsupported Type AWS::Not::Exist for resource Name in "
-                        f"eu-west-1) matched "
-                        f"{test_two_path}:1"
-                    ]
+                    ): invalid_type_error
                 },
                 "template": Path(
                     "/tmp/lint_test/test-config-two/templates/taskcat_test_template"
