@@ -84,7 +84,7 @@ repos:
   - id: pylint-local
     name: pylint-local
     description: Run pylint in the local virtualenv
-    entry: pylint "--disable=C0209" "setup.py" "taskcat/" "bin/"
+    entry: pylint "--disable=C0209" "taskcat/" "bin/"
     language: system
     pass_filenames: false
     always_run: true
