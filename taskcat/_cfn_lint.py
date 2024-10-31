@@ -2,13 +2,25 @@ import logging
 import re
 import textwrap
 
+import cfnlint.config
 import cfnlint.core
 import cfnlint.helpers
+import cfnlint.version
 from cfnlint.config import ConfigMixIn as CfnLintConfig
 from jsonschema.exceptions import ValidationError
 from taskcat._common_utils import neglect_submodule_templates
 from taskcat._config import Config
 from taskcat._dataclasses import Templates
+
+# Ignoring linting errors here as pylint doesn't seem to handle the conditional nature
+if cfnlint.version.__version__.startswith("0."):
+    from cfnlint.core import (  # pylint:disable=no-name-in-module, ungrouped-imports
+        CfnLintExitException,
+    )
+else:
+    from cfnlint.runner import (  # pylint:disable=no-name-in-module, ungrouped-imports
+        CfnLintExitException,
+    )
 
 LOG = logging.getLogger(__name__)
 
@@ -32,8 +44,24 @@ class Lint:
         except ValidationError as e:
             LOG.error("Error parsing cfn-lint config file: %s", str(e))
             raise
+
+        # There is a change in the way that the cfn lint config class functions between the 0.x and 1.x versions.
+        # In 1.x, the append_rules property getter includes the default rule set along with the loaded configuration
+        # https://github.com/aws-cloudformation/cfn-lint/blob/23ee527fadb43e4fd54238eeea5bc3a169175c91/src/cfnlint/config.py#L773
+        # In 0.x, it only returned the loaded configuration.
+        # https://github.com/aws-cloudformation/cfn-lint/blob/f006cb5d8c7056923f3f21b31c14edfeed3804b5/src/cfnlint/config.py#L730
+        #
+        # This causes issues for us as the get_rules method combines the supplied value with the default rule list,
+        # resulting in a duplicate rule error. get_rules has always behaved this way though, so not sure if we have just missed something
+        # in the intended approach to calling this.
+        if cfnlint.version.__version__.startswith("0."):
+            append_rules = self._cfnlint_config.append_rules
+        else:
+            append_rules = self._cfnlint_config.append_rules
+            append_rules.remove(cfnlint.config._DEFAULT_RULESDIR)
+
         self._rules = cfnlint.core.get_rules(
-            self._cfnlint_config.append_rules,
+            append_rules,
             self._cfnlint_config.ignore_checks,
             self._cfnlint_config.include_checks,
             self._cfnlint_config.configure_rules,
@@ -47,7 +75,7 @@ class Lint:
 
     @staticmethod
     def _filter_unsupported_regions(regions):
-        lint_regions = set(cfnlint.core.REGIONS)
+        lint_regions = set(cfnlint.helpers.REGIONS)
         if set(regions).issubset(lint_regions):
             return regions
         supported = set(regions).intersection(lint_regions)
@@ -91,17 +119,11 @@ class Lint:
         tpath = str(template.template_path)
         results = []
         try:
-            (_, rules, template_matches) = cfnlint.core.get_template_rules(
-                tpath, self._cfnlint_config
+            results = cfnlint.core.run_checks(
+                tpath, template.template, self._rules, lints[name]["regions"]
             )
-            if template_matches:
-                results = template_matches
-            else:
-                results = cfnlint.core.run_checks(
-                    tpath, template.template, rules, lints[name]["regions"]
-                )
             lints[name]["results"][tpath] = results
-        except cfnlint.core.CfnLintExitException as e:
+        except CfnLintExitException as e:
             lint_errors.add(str(e))
         lints[name]["results"][tpath] = results
 
