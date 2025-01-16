@@ -169,7 +169,7 @@ class Template:
                         if child_name:
                             # for child_url in child_name:
                             children.add(child_name)
-            if resource["Type"] == "AWS::CloudFormation::Stack":
+            elif resource["Type"] == "AWS::CloudFormation::Stack":
                 child_name = self._template_url_to_path(
                     template_url=resource["Properties"]["TemplateURL"],
                 )
