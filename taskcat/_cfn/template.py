@@ -13,6 +13,9 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 
+FN_FOREACH_OUTPUT_MAP_INDEX = 2
+
+
 class TemplateCache:
     def __init__(self, store: dict = None):
         self._templates = store if store else {}
@@ -153,7 +156,9 @@ class Template:
             )
         for resource_name, resource in self.template["Resources"].items():
             if resource_name.startswith("Fn::ForEach::"):
-                for replicated_resource in resource[2].values():
+                for replicated_resource in resource[
+                    FN_FOREACH_OUTPUT_MAP_INDEX
+                ].values():
                     if replicated_resource["Type"] == "AWS::CloudFormation::Stack":
                         child_name = self._template_url_to_path(
                             template_url=replicated_resource["Properties"][
@@ -172,9 +177,9 @@ class Template:
                 if child_name:
                     # for child_url in child_name:
                     children.add(child_name)
-        self._process_children(children)
+        self._find_children2(children)
 
-    def _process_children(self, children: set) -> None:
+    def _find_children2(self, children: set) -> None:
         for child in children:
             child_template_instance = None
             for descendent in self.descendents:
