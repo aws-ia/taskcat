@@ -152,8 +152,6 @@ class Template:
                 f"have a Resources section"
             )
         for resource_name, resource in self.template["Resources"].items():
-            # Support for Fn::ForEach Replicated Resources
-            # Docs: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-foreach-example-resource.html#intrinsic-function-reference-foreach-example-replicate-multiple-resources
             if resource_name.startswith("Fn::ForEach::"):
                 for replicated_resource in resource[2].values():
                     if replicated_resource["Type"] == "AWS::CloudFormation::Stack":
