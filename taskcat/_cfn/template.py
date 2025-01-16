@@ -172,6 +172,9 @@ class Template:
                 if child_name:
                     # for child_url in child_name:
                     children.add(child_name)
+        self._process_children(children)
+
+    def _process_children(self, children: set) -> None:
         for child in children:
             child_template_instance = None
             for descendent in self.descendents:
