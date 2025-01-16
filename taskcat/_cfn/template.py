@@ -151,8 +151,19 @@ class Template:
                 f"did not receive a valid template: {self.template_path} does not "
                 f"have a Resources section"
             )
-        for resource in self.template["Resources"].keys():
-            resource = self.template["Resources"][resource]
+        for resource_name, resource in self.template["Resources"].items():
+            # Support for Fn::ForEach Replicated Resources
+            # Docs: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-foreach-example-resource.html#intrinsic-function-reference-foreach-example-replicate-multiple-resources
+            if resource_name.startswith("Fn::ForEach::"):
+                for replicated_resource in resource[2].values():
+                    if replicated_resource["Type"] == "AWS::CloudFormation::Stack":
+                        child_name = self._template_url_to_path(
+                            template_url=replicated_resource["Properties"]["TemplateURL"],
+                        )
+                        # print(child_name)
+                        if child_name:
+                            # for child_url in child_name:
+                            children.add(child_name)
             if resource["Type"] == "AWS::CloudFormation::Stack":
                 child_name = self._template_url_to_path(
                     template_url=resource["Properties"]["TemplateURL"],
