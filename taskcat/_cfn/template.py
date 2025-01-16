@@ -158,7 +158,9 @@ class Template:
                 for replicated_resource in resource[2].values():
                     if replicated_resource["Type"] == "AWS::CloudFormation::Stack":
                         child_name = self._template_url_to_path(
-                            template_url=replicated_resource["Properties"]["TemplateURL"],
+                            template_url=replicated_resource["Properties"][
+                                "TemplateURL"
+                            ],
                         )
                         # print(child_name)
                         if child_name:
