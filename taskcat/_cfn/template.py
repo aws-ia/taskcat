@@ -13,6 +13,9 @@ from taskcat.exceptions import TaskCatException
 LOG = logging.getLogger(__name__)
 
 
+FN_FOREACH_OUTPUT_MAP_INDEX = 2
+
+
 class TemplateCache:
     def __init__(self, store: dict = None):
         self._templates = store if store else {}
@@ -151,9 +154,22 @@ class Template:
                 f"did not receive a valid template: {self.template_path} does not "
                 f"have a Resources section"
             )
-        for resource in self.template["Resources"].keys():
-            resource = self.template["Resources"][resource]
-            if resource["Type"] == "AWS::CloudFormation::Stack":
+        for resource_name, resource in self.template["Resources"].items():
+            if resource_name.startswith("Fn::ForEach::"):
+                for replicated_resource in resource[
+                    FN_FOREACH_OUTPUT_MAP_INDEX
+                ].values():
+                    if replicated_resource["Type"] == "AWS::CloudFormation::Stack":
+                        child_name = self._template_url_to_path(
+                            template_url=replicated_resource["Properties"][
+                                "TemplateURL"
+                            ],
+                        )
+                        # print(child_name)
+                        if child_name:
+                            # for child_url in child_name:
+                            children.add(child_name)
+            elif resource["Type"] == "AWS::CloudFormation::Stack":
                 child_name = self._template_url_to_path(
                     template_url=resource["Properties"]["TemplateURL"],
                 )
@@ -161,6 +177,9 @@ class Template:
                 if child_name:
                     # for child_url in child_name:
                     children.add(child_name)
+        self._find_children2(children)
+
+    def _find_children2(self, children: set) -> None:
         for child in children:
             child_template_instance = None
             for descendent in self.descendents:

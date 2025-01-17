@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::LanguageExtensions
+Parameters:
+  QSS3BucketName:
+    Default: aws-quickstart
+    Type: String
+  QSS3KeyPrefix:
+    Default: fn-foreach-resource-fail/
+    Type: String
+Resources:
+  Fn::ForEach::ChildStackX:
+    - Identifier
+    - - "1"
+    - ChildStack${Identifier}:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+          TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/test.template_inner.yaml'
+          Tags:
+            - Key: child-stack-foreach-id
+              Value: !Sub "id-${Identifier}"
+  Middle2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/test.template_middle2.yaml'
+      Parameters:
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketName: !Ref QSS3BucketName
