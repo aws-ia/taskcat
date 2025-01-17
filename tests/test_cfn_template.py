@@ -14,3 +14,17 @@ class TestCfnTemplate(unittest.TestCase):
         template = templates["taskcat-json"]
         self.assertEqual(1, len(template.children))
         self.assertEqual(4, len(template.descendents))
+
+
+class TestCfnTemplateForEachResource(unittest.TestCase):
+    def test_init(self):
+        test_proj = (
+            Path(__file__).parent / "./data/fn-foreach-resource-fail"
+        ).resolve()
+        c = Config.create(
+            project_config_path=test_proj / ".taskcat.yml", project_root=test_proj
+        )
+        templates = c.get_templates()
+        template = templates["taskcat-json"]
+        self.assertEqual(1, len(template.children))
+        self.assertEqual(4, len(template.descendents))
