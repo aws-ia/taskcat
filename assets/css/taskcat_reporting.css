@@ -3,7 +3,8 @@
 
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,500,700,300,100);
 @import url(https://fonts.googleapis.com/css?family=Comfortaa:700);
-html {} body {
+
+body {
     background-color: #ecf0f1;
     font-family: "Roboto", helvetica, arial, sans-serif;
     font-size: 12px;
@@ -153,7 +154,7 @@ tr:last-child td:last-child {
 }
 td {
     background: #ffffff;
-    padding: 12;
+    padding: 12px;
     text-align: left;
     vertical-align: middle;
     font-weight: 300;
