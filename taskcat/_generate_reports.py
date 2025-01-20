@@ -35,19 +35,16 @@ class ReportBuilder:
             if resource_type == "cfnlog":
                 location = f"{stack_name}-{region}-cfnlogs{extension}"
                 return str(location)
-            if resource_type == "resource_log":
+            elif resource_type == "resource_log":
                 location = f"{stack_name}-{region}-resources{extension}"
                 return str(location)
             return None
 
         def get_teststate(stack: Stack):
             rstatus = stack.status
+            status_css = "class=test-red"
             if rstatus == "CREATE_COMPLETE":
                 status_css = "class=test-green"
-            elif rstatus == "CREATE_FAILED":
-                status_css = "class=test-red"
-            else:
-                status_css = "class=test-red"
             return rstatus, status_css
 
         tag = doc.tag
@@ -61,40 +58,37 @@ class ReportBuilder:
         output_css = requests.get(css_url, timeout=3).text
         doc_link = "http://taskcat.io"
 
+        # Render
+        doc.asis('<!DOCTYPE html>')
         with tag("html"):
             with tag("head"):
-                doc.stag("meta", charset="utf-8")
-                doc.stag("meta", name="viewport", content="width=device-width")
-                with tag("style", type="text/css"):
-                    text(output_css)
+                tag("meta", charset="utf-8")
+                tag("meta", name="viewport", content="width=device-width")
+                with tag("style"):
+                    text("\n" + output_css)
                 with tag("title"):
                     text("TaskCat Report")
-
             with tag("body"):
                 tested_on = time.strftime("%A - %b,%d,%Y @ %H:%M:%S")
-
                 with tag("table", "class=header-table-fill"):
                     with tag("tbody"):
-                        with tag("th", "colspan=2"):
-                            with tag("tr"):
-                                with tag("td"):
-                                    with tag("a", href=repo_link):
-                                        text("GitHub Repo: ")
-                                        text(repo_link)
-                                        doc.stag("br")
-                                    with tag("a", href=doc_link):
-                                        text("Documentation: ")
-                                        text(doc_link)
-                                        doc.stag("br")
-                                    text("Tested on: ")
-                                    text(tested_on)
-                                with tag("td", "class=taskcat-logo"):
-                                    with tag("h3"):
-                                        text(logo)
-            doc.stag("p")
-            with tag("table", "class=table-fill"):
-                with tag("tbody"):
-                    with tag("thread"):
+                        with tag("tr"):
+                            with tag("td"):
+                                with tag("a", href=repo_link):
+                                    text("GitHub Repo: ")
+                                    text(repo_link)
+                                    tag("br")
+                                with tag("a", href=doc_link):
+                                    text("Documentation: ")
+                                    text(doc_link)
+                                    tag("br")
+                                text("Tested on: ")
+                                text(tested_on)
+                            with tag("td", "class=taskcat-logo"):
+                                with tag("h3"):
+                                    text(logo)
+                with tag("table", "class=table-fill"):
+                    with tag("thead"):
                         with tag("tr"):
                             with tag("th", "class=text-center", "width=25%"):
                                 text("Test Name")
@@ -106,42 +100,38 @@ class ReportBuilder:
                                 text("Tested Results")
                             with tag("th", "class=text-left", "width=15%"):
                                 text("Test Logs")
-
-                            for stack in self._stacks.stacks:
-                                with tag("tr", "class= test-footer"):
-                                    with tag("td", "colspan=5"):
-                                        text("")
-
-                                testname = stack.test_name
-                                LOG.info(f"Reporting on {str(stack.id)}")
-                                status, css = get_teststate(stack)
-
-                                with tag("tr"):
-                                    with tag("td", "class=test-info"):
-                                        with tag("h3"):
-                                            text(testname)
-                                    with tag("td", "class=text-left"):
-                                        text(stack.region_name)
-                                    with tag("td", "class=text-left"):
-                                        text(stack.name)
-                                    with tag("td", css):
-                                        text(str(status))
-                                    with tag("td", "class=text-left"):
-                                        clog = get_output_file(
-                                            stack.region_name, stack.name, "cfnlog"
-                                        )
-                                        with tag("a", href=clog):
-                                            text("View Logs ")
-                            with tag("tr", "class= test-footer"):
+                    with tag("tbody"):
+                        for stack in self._stacks.stacks:
+                            LOG.info(f"Reporting on {str(stack.id)}")
+                            status, css = get_teststate(stack)
+                            with tag("tr"):
+                                with tag("td", "class=test-info"):
+                                    with tag("h3"):
+                                        text(stack.test_name)
+                                with tag("td", "class=text-left"):
+                                    text(stack.region_name)
+                                with tag("td", "class=text-left"):
+                                    text(stack.name)
+                                with tag("td", css):
+                                    text(str(status))
+                                with tag("td", "class=text-left"):
+                                    clog = get_output_file(
+                                        stack.region_name, stack.name, "cfnlog"
+                                    )
+                                    with tag("a", href=clog):
+                                        text("View Logs")
+                            with tag("tr", "class=test-footer"):
                                 with tag("td", "colspan=5"):
-                                    vtag = "Generated by taskcat {self._version}"
-                                    text(vtag)
+                                    text("")
+                    with tag("tfoot"):
+                        with tag("tr", "class=test-footer"):
+                            with tag("td", "colspan=5"):
+                                text(f"Generated by taskcat {self._version}")
 
-                        doc.stag("p")
-
-            html_output = yattag.indent(
-                doc.getvalue(), indentation="    ", newline="\r\n", indent_text=True
-            )
-            with open(str(self._output_file.resolve()), "w", encoding="utf-8") as _f:
-                _f.write(html_output)
-            return html_output
+        # Output
+        html_output = yattag.indent(
+            doc.getvalue(), indentation="    ", newline="\r\n", indent_text=True
+        )
+        with open(str(self._output_file.resolve()), "w", encoding="utf-8") as _f:
+            _f.write(html_output)
+        return html_output
