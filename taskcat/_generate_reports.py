@@ -59,7 +59,7 @@ class ReportBuilder:
         doc_link = "http://taskcat.io"
 
         # Render
-        doc.asis('<!DOCTYPE html>')
+        doc.asis("<!DOCTYPE html>")
         with tag("html"):
             with tag("head"):
                 tag("meta", charset="utf-8")
