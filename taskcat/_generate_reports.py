@@ -12,121 +12,144 @@ from ._cfn.threaded import Stacker
 LOG = logging.getLogger(__name__)
 
 
+REPO_LINK = "https://github.com/aws-ia/taskcat"
+DOC_LINK = "http://taskcat.io"
+
+
 class ReportBuilder:
-    """
-    This class generates the test report.
+    """This class generates the test report."""
 
-    """
+    STYLE_SHEET_URL = "https://raw.githubusercontent.com/aws-ia/taskcat/main/assets/css/taskcat_reporting.css"
 
-    def __init__(self, stacks: Stacker, output_file: Path, version: str = "0.9.0"):
+    def __init__(self, stacks: Stacker, output_file: Path, version: str):
         self._stacks = stacks
         self._output_file = output_file
         self._version = version
 
-    # TODO: refactor for readability
-    def generate_report(  # noqa: C901
-        self,
-    ):  # pylint: disable=too-many-locals, too-many-statements
-        doc = yattag.Doc()
+    def _get_output_file(self, region, stack_name, resource_type):
+        """Determine the output file name to use."""
 
-        # Type of cfn log return cfn log file
-        def get_output_file(region, stack_name, resource_type):
-            extension = ".txt"
-            if resource_type == "cfnlog":
-                location = f"{stack_name}-{region}-cfnlogs{extension}"
-                return str(location)
-            if resource_type == "resource_log":
-                location = f"{stack_name}-{region}-resources{extension}"
-                return str(location)
-            return None
+        extension = ".txt"
+        if resource_type == "cfnlog":
+            location = f"{stack_name}-{region}-cfnlogs{extension}"
+            return str(location)
+        if resource_type == "resource_log":
+            location = f"{stack_name}-{region}-resources{extension}"
+            return str(location)
+        return None
 
-        def get_teststate(stack: Stack):
-            rstatus = stack.status
-            status_css = "class=test-red"
-            if rstatus == "CREATE_COMPLETE":
-                status_css = "class=test-green"
-            return rstatus, status_css
+    def _get_stack_status_badge(self, stack: Stack):
+        """Generate a status and associated class from the stack status."""
 
-        tag = doc.tag
-        text = doc.text
-        logo = "taskcat"
-        repo_link = "https://github.com/aws-ia/taskcat"
-        css_url = (
-            "https://raw.githubusercontent.com/aws-ia/taskcat/main/"
-            "assets/css/taskcat_reporting.css"
-        )
-        output_css = requests.get(css_url, timeout=3).text
-        doc_link = "http://taskcat.io"
+        status = stack.status
+        status_class = "test-red"
+        status_icon = "❌"
+        if status == "CREATE_COMPLETE":
+            status_icon = "✅"
+            status_class = "test-green"
+        return f"{status_icon} {status}", status_class
 
-        # Render
+    def _get_css(self):
+        """Gets the latest CSS for the report from this github repo when building the report."""
+
+        stylesheet = """th, td {
+            border: 1px solid black;
+        table {
+            border-collapse: collapse;
+        }
+        td.test-green {
+            background-color: #98FF98;
+        }
+        td.test-red {
+            background-color: #FCB3BC;
+        }
+        """
+        r = requests.get(url=self.__class__.STYLE_SHEET_URL, timeout=3)
+        try:
+            r.raise_for_status()
+            stylesheet = r.text
+        except requests.exceptions.HTTPError as e:
+            LOG.error(
+                f"Failed to fetch stylesheet, falling back to default stylesheet: {e}"
+            )
+
+        return stylesheet
+
+    def _render_document(self, report_timestamp):
+        """Renders the report document HTML."""
+
+        doc, tag, text = yattag.SimpleDoc(stag_end=">").tagtext()
+        stag = doc.stag
+        line = doc.line
+
         doc.asis("<!DOCTYPE html>")
         with tag("html"):
             with tag("head"):
-                tag("meta", charset="utf-8")
-                tag("meta", name="viewport", content="width=device-width")
+                stag("meta", charset="utf-8")
+                stag("meta", name="viewport", content="width=device-width")
                 with tag("style"):
-                    text("\n" + output_css)
-                with tag("title"):
-                    text("TaskCat Report")
+                    text("\n" + self._get_css())
+                line("title", "TaskCat Report")
             with tag("body"):
-                tested_on = time.strftime("%A - %b,%d,%Y @ %H:%M:%S")
-                with tag("table", "class=header-table-fill"):
+                # Header / Banner
+                with tag("table", klass="header-table-fill"):
                     with tag("tbody"):
                         with tag("tr"):
                             with tag("td"):
-                                with tag("a", href=repo_link):
-                                    text("GitHub Repo: ")
-                                    text(repo_link)
-                                    tag("br")
-                                with tag("a", href=doc_link):
-                                    text("Documentation: ")
-                                    text(doc_link)
-                                    tag("br")
-                                text("Tested on: ")
-                                text(tested_on)
-                            with tag("td", "class=taskcat-logo"):
-                                with tag("h3"):
-                                    text(logo)
-                with tag("table", "class=table-fill"):
+                                line("a", f"GitHub Repo: {REPO_LINK}", href=REPO_LINK)
+                                stag("br")
+                                line("a", f"Documentation: {DOC_LINK}", href=DOC_LINK)
+                                stag("br")
+                                text(f"Report Generated: {report_timestamp}")
+                            with tag("td", klass="taskcat-logo"):
+                                line("h3", "taskcat")
+                with tag("table", klass="table-fill"):
                     with tag("thead"):
                         with tag("tr"):
-                            with tag("th", "class=text-center", "width=25%"):
-                                text("Test Name")
-                            with tag("th", "class=text-left", "width=10%"):
-                                text("Tested Region")
-                            with tag("th", "class=text-left", "width=30%"):
-                                text("Stack Name")
-                            with tag("th", "class=text-left", "width=20%"):
-                                text("Tested Results")
-                            with tag("th", "class=text-left", "width=15%"):
-                                text("Test Logs")
+                            line("th", "Test Name", klass="text-center", width="25%")
+                            line("th", "Tested Region", klass="text-left", width="10%")
+                            line("th", "Stack Name", klass="text-left", width="30%")
+                            line("th", "Tested Results", klass="text-left", width="20%")
+                            line("th", "Test Logs", klass="text-left", width="15%")
+                    # Test Results
                     with tag("tbody"):
                         for stack in self._stacks.stacks:
+                            stack: Stack  # type hint
                             LOG.info(f"Reporting on {str(stack.id)}")
-                            status, css = get_teststate(stack)
                             with tag("tr"):
-                                with tag("td", "class=test-info"):
-                                    with tag("h3"):
-                                        text(stack.test_name)
-                                with tag("td", "class=text-left"):
-                                    text(stack.region_name)
-                                with tag("td", "class=text-left"):
-                                    text(stack.name)
-                                with tag("td", css):
-                                    text(str(status))
-                                with tag("td", "class=text-left"):
-                                    clog = get_output_file(
+                                with tag("td", klass="test-info"):
+                                    line("h3", stack.test_name)
+                                line("td", stack.region_name, klass="text-left")
+                                line("td", stack.name, klass="text-left")
+                                status, status_class = self._get_stack_status_badge(
+                                    stack
+                                )
+                                line("td", status, klass=status_class)
+                                with tag("td", klass="text-left"):
+                                    log_file = self._get_output_file(
                                         stack.region_name, stack.name, "cfnlog"
                                     )
-                                    with tag("a", href=clog):
-                                        text("View Logs")
-                            with tag("tr", "class=test-footer"):
-                                with tag("td", "colspan=5"):
-                                    text("")
+                                    line("a", "View Logs", href=log_file)
+                            with tag("tr", klass="test-footer"):
+                                line("td", " ", colspan=5)
+                    # Footer
                     with tag("tfoot"):
-                        with tag("tr", "class=test-footer"):
-                            with tag("td", "colspan=5"):
-                                text(f"Generated by taskcat {self._version}")
+                        with tag("tr", klass="test-footer"):
+                            line(
+                                "td", f"Generated by taskcat {self._version}", colspan=5
+                            )
+
+        return doc
+
+    def generate_report(
+        self,
+    ):
+        """Generate the report."""
+
+        report_timestamp = time.strftime("%A - %b,%d,%Y @ %H:%M:%S")
+
+        # Render
+        doc = self._render_document(report_timestamp)
 
         # Output
         html_output = yattag.indent(
