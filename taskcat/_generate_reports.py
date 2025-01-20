@@ -32,11 +32,11 @@ class ReportBuilder:
         # Type of cfn log return cfn log file
         def get_output_file(region, stack_name, resource_type):
             extension = ".txt"
+            if resource_type == "resource_log":
+                location = f"{stack_name}-{region}-resources{extension}"
+                return str(location)
             if resource_type == "cfnlog":
                 location = f"{stack_name}-{region}-cfnlogs{extension}"
-                return str(location)
-            elif resource_type == "resource_log":
-                location = f"{stack_name}-{region}-resources{extension}"
                 return str(location)
             return None
 
