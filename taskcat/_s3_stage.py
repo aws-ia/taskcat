@@ -23,7 +23,9 @@ class S3BucketCreatorException(TaskCatException):
     pass
 
 
-def stage_in_s3(buckets, project_name, project_root, exclude_prefix, dry_run=False):
+def stage_in_s3(
+    buckets, project_name, project_root, exclude_prefix, dry_run=False, all_files=False
+):
     distinct_buckets = {}
 
     for test in buckets.values():
@@ -36,16 +38,21 @@ def stage_in_s3(buckets, project_name, project_root, exclude_prefix, dry_run=Fal
         project_root=project_root,
         dry_run=dry_run,
         exclude_prefix=exclude_prefix,
+        all_files=all_files,
     )
     pool.map(func, distinct_buckets.values())
     pool.close()
     pool.join()
 
 
-def _sync_wrap(bucket, project_name, project_root, dry_run, exclude_prefix):
+def _sync_wrap(bucket, project_name, project_root, dry_run, exclude_prefix, all_files):
     if exclude_prefix:
         S3Sync.exclude_remote_path_prefixes += exclude_prefix
         S3Sync.exclude_path_prefixes += exclude_prefix
+    if all_files:
+        S3Sync.exclude_files = [".taskcat.yml"]
+        S3Sync.exclude_path_prefixes = []
+        S3Sync.exclude_remote_path_prefixes = []
     S3Sync(
         bucket.s3_client,
         bucket.name,
