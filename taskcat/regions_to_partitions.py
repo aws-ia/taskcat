@@ -40,7 +40,8 @@ REGIONS = {
     "us-isob-east-1": "aws-iso-b",
     "eu-isoe-west-1": "aws-iso-e",
     "us-isof-east-1": "aws-iso-f",
-    "us-isof-south-1": "aws-iso-f"
+    "us-isof-south-1": "aws-iso-f",
+    "eusc-de-east-1": "aws-eusc"
 }
 
 PARTITIONS = {
@@ -99,5 +100,8 @@ PARTITIONS = {
     "aws-iso-f": [
         "us-isof-east-1",
         "us-isof-south-1"
+    ],
+    "aws-eusc": [
+        "eusc-de-east-1"
     ]
 }
