@@ -156,7 +156,7 @@ class RegionField(FieldEncoder):
     def json_schema(self):
         return {
             "type": "string",
-            "pattern": r"^(ap|eu|us|sa|ca|cn|af|me|il|us-gov)-(central|south|north|east|"
+            "pattern": r"^(ap|eu|us|sa|ca|cn|af|me|il|mx|us-gov)-(central|south|north|east|"
             r"west|southeast|southwest|northeast|northwest)-[0-9]$",
             "description": "AWS Region name",
             "examples": ["us-east-1"],
