@@ -1,0 +1,11 @@
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0
+mkdocstrings[python]>=0.23.0
+mkdocs-gen-files>=0.5.0
+mkdocs-literate-nav>=0.6.0
+mkdocs-section-index>=0.3.0
+mkdocs-minify-plugin>=0.7.0
+mkdocs-git-revision-date-localized-plugin>=1.2.0
+pymdown-extensions>=10.0.0
+pillow>=10.0.0
+cairosvg>=2.7.0

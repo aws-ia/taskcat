@@ -1,0 +1,364 @@
+/* AWS Cloudscape Design System inspired theme for TaskCat Documentation */
+
+:root {
+  /* AWS Cloudscape Color Palette */
+  --aws-squid-ink: #232f3e;
+  --aws-orange: #ff9900;
+  --aws-light-blue: #146eb4;
+  --aws-dark-blue: #0073bb;
+  --aws-grey-100: #fafafa;
+  --aws-grey-200: #f2f3f3;
+  --aws-grey-300: #e9ebed;
+  --aws-grey-400: #d5dbdb;
+  --aws-grey-500: #879596;
+  --aws-grey-600: #687078;
+  --aws-grey-700: #414d58;
+  --aws-grey-800: #2a3238;
+  --aws-grey-900: #16191f;
+  
+  /* Status Colors */
+  --aws-green: #037f0c;
+  --aws-red: #d13212;
+  --aws-yellow: #8d6605;
+  
+  /* Semantic Colors */
+  --aws-info: #0972d3;
+  --aws-success: #037f0c;
+  --aws-warning: #8d6605;
+  --aws-error: #d13212;
+  
+  /* Spacing */
+  --aws-space-xs: 4px;
+  --aws-space-s: 8px;
+  --aws-space-m: 16px;
+  --aws-space-l: 24px;
+  --aws-space-xl: 32px;
+  --aws-space-xxl: 48px;
+  
+  /* Border Radius */
+  --aws-border-radius-s: 4px;
+  --aws-border-radius-m: 8px;
+  --aws-border-radius-l: 12px;
+  
+  /* Shadows */
+  --aws-shadow-s: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --aws-shadow-m: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  --aws-shadow-l: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+/* Override Material Design colors with AWS Cloudscape */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--aws-squid-ink);
+  --md-primary-fg-color--light: var(--aws-grey-700);
+  --md-primary-fg-color--dark: var(--aws-grey-900);
+  --md-accent-fg-color: var(--aws-orange);
+  --md-accent-fg-color--transparent: rgba(255, 153, 0, 0.1);
+  
+  /* Text colors */
+  --md-default-fg-color: var(--aws-grey-900);
+  --md-default-fg-color--light: var(--aws-grey-700);
+  --md-default-fg-color--lighter: var(--aws-grey-500);
+  --md-default-fg-color--lightest: var(--aws-grey-400);
+  
+  /* Background colors */
+  --md-default-bg-color: #ffffff;
+  --md-default-bg-color--light: var(--aws-grey-100);
+  --md-default-bg-color--lighter: var(--aws-grey-200);
+  --md-default-bg-color--lightest: var(--aws-grey-300);
+  
+  /* Code colors */
+  --md-code-fg-color: var(--aws-grey-800);
+  --md-code-bg-color: var(--aws-grey-100);
+  
+  /* Link colors */
+  --md-typeset-a-color: var(--aws-light-blue);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--aws-squid-ink);
+  --md-primary-fg-color--light: var(--aws-grey-600);
+  --md-primary-fg-color--dark: var(--aws-grey-800);
+  --md-accent-fg-color: var(--aws-orange);
+  
+  /* Dark mode adjustments */
+  --md-default-fg-color: var(--aws-grey-200);
+  --md-default-fg-color--light: var(--aws-grey-300);
+  --md-default-fg-color--lighter: var(--aws-grey-400);
+  --md-default-fg-color--lightest: var(--aws-grey-500);
+  
+  --md-default-bg-color: var(--aws-grey-900);
+  --md-default-bg-color--light: var(--aws-grey-800);
+  --md-default-bg-color--lighter: var(--aws-grey-700);
+  --md-default-bg-color--lightest: var(--aws-grey-600);
+}
+
+/* Header styling */
+.md-header {
+  background: linear-gradient(135deg, var(--aws-squid-ink) 0%, var(--aws-grey-800) 100%);
+  box-shadow: var(--aws-shadow-s);
+}
+
+.md-header__title {
+  font-weight: 600;
+  color: white;
+}
+
+/* Navigation styling */
+.md-nav__title {
+  font-weight: 600;
+  color: var(--aws-squid-ink);
+}
+
+.md-nav__item--active > .md-nav__link {
+  color: var(--aws-light-blue);
+  font-weight: 600;
+}
+
+/* Tabs styling */
+.md-tabs {
+  background: var(--aws-squid-ink);
+}
+
+.md-tabs__item {
+  height: 48px;
+}
+
+.md-tabs__link {
+  font-weight: 500;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.md-tabs__link:hover,
+.md-tabs__link--active {
+  opacity: 1;
+  color: var(--aws-orange);
+}
+
+/* Content styling */
+.md-content {
+  background: var(--md-default-bg-color);
+}
+
+/* Typography improvements */
+.md-typeset h1 {
+  color: var(--aws-squid-ink);
+  font-weight: 700;
+  border-bottom: 2px solid var(--aws-orange);
+  padding-bottom: var(--aws-space-s);
+}
+
+.md-typeset h2 {
+  color: var(--aws-grey-800);
+  font-weight: 600;
+  margin-top: var(--aws-space-xl);
+}
+
+.md-typeset h3 {
+  color: var(--aws-grey-700);
+  font-weight: 600;
+}
+
+/* Code blocks */
+.md-typeset pre {
+  background: var(--aws-grey-100);
+  border: 1px solid var(--aws-grey-300);
+  border-radius: var(--aws-border-radius-m);
+  box-shadow: var(--aws-shadow-s);
+}
+
+.md-typeset code {
+  background: var(--aws-grey-200);
+  color: var(--aws-grey-800);
+  border-radius: var(--aws-border-radius-s);
+  padding: 2px 6px;
+  font-weight: 500;
+}
+
+/* Tables */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--aws-grey-300);
+  border-radius: var(--aws-border-radius-m);
+  overflow: hidden;
+  box-shadow: var(--aws-shadow-s);
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--aws-squid-ink);
+  color: white;
+  font-weight: 600;
+  padding: var(--aws-space-m);
+}
+
+.md-typeset table:not([class]) td {
+  padding: var(--aws-space-m);
+  border-bottom: 1px solid var(--aws-grey-300);
+}
+
+.md-typeset table:not([class]) tr:nth-child(even) {
+  background: var(--aws-grey-100);
+}
+
+/* Admonitions */
+.md-typeset .admonition {
+  border-radius: var(--aws-border-radius-m);
+  box-shadow: var(--aws-shadow-s);
+  border-left: 4px solid;
+}
+
+.md-typeset .admonition.note {
+  border-left-color: var(--aws-info);
+}
+
+.md-typeset .admonition.tip {
+  border-left-color: var(--aws-success);
+}
+
+.md-typeset .admonition.warning {
+  border-left-color: var(--aws-warning);
+}
+
+.md-typeset .admonition.danger {
+  border-left-color: var(--aws-error);
+}
+
+/* Buttons and links */
+.md-button {
+  background: var(--aws-light-blue);
+  color: white;
+  border-radius: var(--aws-border-radius-m);
+  padding: var(--aws-space-s) var(--aws-space-m);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: var(--aws-shadow-s);
+}
+
+.md-button:hover {
+  background: var(--aws-dark-blue);
+  box-shadow: var(--aws-shadow-m);
+  transform: translateY(-1px);
+}
+
+.md-button--primary {
+  background: var(--aws-orange);
+}
+
+.md-button--primary:hover {
+  background: #e68900;
+}
+
+/* Search */
+.md-search__form {
+  background: white;
+  border-radius: var(--aws-border-radius-l);
+  box-shadow: var(--aws-shadow-m);
+}
+
+.md-search__input {
+  color: var(--aws-grey-800);
+}
+
+/* Footer */
+.md-footer {
+  background: var(--aws-squid-ink);
+  color: var(--aws-grey-300);
+}
+
+.md-footer-meta {
+  background: var(--aws-grey-900);
+}
+
+/* Sidebar */
+.md-sidebar {
+  background: var(--aws-grey-100);
+}
+
+.md-sidebar--secondary {
+  background: var(--aws-grey-50);
+}
+
+/* Custom AWS-style cards */
+.aws-card {
+  background: white;
+  border: 1px solid var(--aws-grey-300);
+  border-radius: var(--aws-border-radius-m);
+  padding: var(--aws-space-l);
+  margin: var(--aws-space-m) 0;
+  box-shadow: var(--aws-shadow-s);
+  transition: box-shadow 0.2s ease;
+}
+
+.aws-card:hover {
+  box-shadow: var(--aws-shadow-m);
+}
+
+.aws-card-header {
+  color: var(--aws-squid-ink);
+  font-weight: 600;
+  font-size: 1.2em;
+  margin-bottom: var(--aws-space-m);
+  display: flex;
+  align-items: center;
+}
+
+.aws-card-header::before {
+  content: "🔧";
+  margin-right: var(--aws-space-s);
+}
+
+/* Status indicators */
+.aws-status {
+  display: inline-block;
+  padding: var(--aws-space-xs) var(--aws-space-s);
+  border-radius: var(--aws-border-radius-s);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.aws-status--success {
+  background: rgba(3, 127, 12, 0.1);
+  color: var(--aws-success);
+}
+
+.aws-status--warning {
+  background: rgba(141, 102, 5, 0.1);
+  color: var(--aws-warning);
+}
+
+.aws-status--error {
+  background: rgba(209, 50, 18, 0.1);
+  color: var(--aws-error);
+}
+
+/* Responsive improvements */
+@media screen and (max-width: 76.1875em) {
+  .md-nav--primary .md-nav__title {
+    background: var(--aws-squid-ink);
+    color: white;
+  }
+}
+
+/* Animation improvements */
+.md-typeset .tabbed-set > input:checked + label {
+  color: var(--aws-orange);
+  border-bottom-color: var(--aws-orange);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--aws-grey-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--aws-grey-500);
+  border-radius: var(--aws-border-radius-s);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--aws-grey-600);
+}

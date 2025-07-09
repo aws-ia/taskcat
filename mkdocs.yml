@@ -1,0 +1,120 @@
+site_name: taskcat Documentation
+site_description: AWS CloudFormation Template Testing Tool - Test your infrastructure as code across multiple regions
+site_author: AWS Solutions Architecture Team
+site_url: https://aws-ia.github.io/taskcat/
+
+repo_name: aws-ia/taskcat
+repo_url: https://github.com/aws-ia/taskcat
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - navigation.expand
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - search.share
+    - toc.integrate
+  icon:
+    repo: fontawesome/brands/github
+  logo: assets/images/tcat.png
+  favicon: assets/images/tcat.png
+
+extra_css:
+  - assets/css/aws-cloudscape.css
+  - assets/css/custom.css
+
+extra_javascript:
+  - assets/js/custom.js
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            merge_init_into_class: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - tables
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Configuration: getting-started/configuration.md
+  - User Guide:
+    - General Usage: usage/GENERAL_USAGE.md
+    - Parameter Overrides: usage/PARAMETER_OVERRIDES.md
+    - Pseudo Parameters: usage/PSUEDO_PARAMETERS.md
+  - API Reference: reference/
+  - Administrative:
+    - Contributing: CONTRIBUTING.md
+    - Code of Conduct: administrative/CODE_OF_CONDUCT.md
+  - Support:
+    - Troubleshooting: support/troubleshooting.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/aws-ia/taskcat
+      name: GitHub Repository
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/taskcat/
+      name: PyPI Package
+
+copyright: Copyright &copy; 2023 Amazon Web Services, Inc. or its affiliates. All Rights Reserved.
