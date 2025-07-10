@@ -1,183 +1,315 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/api/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/configuration/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/dynamic-values/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/examples/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/installation/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/parameter-overrides/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/quickstart/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/schema/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/troubleshooting/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/administrative/CODE_OF_CONDUCT/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/examples/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/examples/advanced/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/examples/basic/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/getting-started/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/getting-started/configuration/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/getting-started/installation/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/getting-started/quickstart/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/SUMMARY/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_amiupdater/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn_lint/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_core/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_client_factory/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_common_utils/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_config/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_dataclasses/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_generate_reports/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_lambda_build/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_legacy_config/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_logger/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_name_generator/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_s3_stage/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_s3_sync/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-03-02</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_template_params/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_tui/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/exceptions/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/local_zones/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/regions_to_partitions/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/_log_stack_events/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/stack/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/stack_url_helper/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/template/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cfn/threaded/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/config/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/delete/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/deploy/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/generate_config/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/generate_iam_policy/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/lint/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/list/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/package/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/package_single/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/update_ami/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/_cli_modules/upload/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/iam_policy/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/iam_policy/policy/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/iam_policy/tools/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/project_config/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/project_config/config/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/project_config/tools/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/_abstract_test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/_cfn_test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/_hooks/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/_lint_test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/_unit_test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/reference/taskcat/testing/base_test/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/schema/taskcat_schema/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/support/troubleshooting/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/usage/DYNAMIC_VALUES/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/usage/GENERAL_USAGE/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/usage/PARAMETER_OVERRIDES/</loc>
+         <lastmod>2025-07-10</lastmod>
+    </url>
+    <url>
+         <loc>https://aws-ia.github.io/taskcat/usage/PSUEDO_PARAMETERS/</loc>
+         <lastmod>2025-07-10</lastmod>
     </url>
 </urlset>
