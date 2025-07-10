@@ -27,6 +27,11 @@ taskcat is a powerful testing framework for AWS CloudFormation templates that he
     <p>Comprehensive automated testing with detailed pass/fail reporting, stack validation, and resource verification.</p>
   </div>
   
+  <div class="feature-card dynamic-values">
+    <h3>Dynamic Values</h3>
+    <p>Runtime-evaluated parameters that pull values from your AWS environment, generate random data, and provide context-aware configurations.</p>
+  </div>
+  
   <div class="feature-card reporting">
     <h3>Rich Reporting</h3>
     <p>Generate detailed HTML reports with deployment status, logs, and visual dashboards to track your testing results.</p>
@@ -46,8 +51,8 @@ Get started in minutes with simple configuration files and intuitive CLI command
 ### 🌍 **Global Testing**
 Test across all AWS regions or specify custom region sets for your deployment requirements.
 
-### 🔧 **Flexible Parameters**
-Use pseudo-parameters for dynamic values, parameter overrides for environment-specific configurations, and AWS service integrations.
+### ⚡ **Dynamic Values**
+Runtime-evaluated parameters that can pull values from your AWS environment, generate random data, and provide context-aware configurations for flexible testing.
 
 ### 📊 **Comprehensive Reports**
 Generate detailed reports with stack outputs, resource details, and deployment timelines.
@@ -78,6 +83,44 @@ Built-in security best practices with IAM role management and secure parameter h
           AvailabilityZones: $[taskcat_genaz_2]
           DatabasePassword: $[taskcat_genpass_16S]
           S3Bucket: $[taskcat_autobucket]
+    ```
+
+=== "Advanced Configuration"
+
+    ```yaml
+    project:
+      name: enterprise-app
+      regions:
+        - us-east-1
+        - us-west-2
+        - eu-west-1
+
+    global:
+      parameters:
+        ProjectName: $[taskcat_project_name]
+        Environment: production
+
+    tests:
+      vpc-infrastructure:
+        template: templates/vpc.yaml
+        parameters:
+          VpcName: $[taskcat_project_name]-vpc-$[taskcat_current_region]
+          AvailabilityZones: $[taskcat_genaz_3]
+          
+      database-tier:
+        template: templates/rds.yaml
+        parameters:
+          DBInstanceId: $[taskcat_project_name]-db-$[taskcat_genuuid]
+          MasterPassword: $[taskcat_secretsmanager_prod/db/password]
+          DBSubnetGroup: $[taskcat_getval_VpcName]-db-subnets
+          
+      application-tier:
+        template: templates/app.yaml
+        parameters:
+          AppName: $[taskcat_project_name]-app
+          S3Bucket: $[taskcat_autobucket]
+          ApiKey: $[taskcat_ssm_/app/api/key]
+          CurrentRegion: $[taskcat_current_region]
     ```
 
 === "CLI Commands"
@@ -153,13 +196,13 @@ taskcat is developed and maintained by the AWS Solutions Architecture team and i
   
   <div class="aws-card">
     <div class="aws-card-header">💬 Community</div>
-    <p>Join our community discussions, ask questions, and share your TaskCat experiences.</p>
+    <p>Join our community discussions, ask questions, and share your taskcat experiences.</p>
     <a href="support/community/" class="md-button">Join Community</a>
   </div>
   
   <div class="aws-card">
     <div class="aws-card-header">🐛 Issues</div>
-    <p>Report bugs, request features, or contribute to the TaskCat project on GitHub.</p>
+    <p>Report bugs, request features, or contribute to the taskcat project on GitHub.</p>
     <a href="https://github.com/aws-ia/taskcat/issues" class="md-button">Report Issue</a>
   </div>
 </div>
@@ -181,20 +224,20 @@ Check out the latest features including enhanced pseudo-parameters, improved AWS
 
 Ready to start testing your CloudFormation templates? Here's your path forward:
 
-1. **[Install TaskCat](getting-started/installation.md)** - Get TaskCat up and running in minutes
+1. **[Install taskcat](getting-started/installation.md)** - Get taskcat up and running in minutes
 2. **[Quick Start Guide](getting-started/quickstart.md)** - Run your first test
 3. **[Configuration Guide](getting-started/configuration.md)** - Learn about advanced configuration options
-4. **[Pseudo-Parameters](usage/PSUEDO_PARAMETERS.md)** - Master dynamic parameter generation
+4. **[Dynamic Values](usage/DYNAMIC_VALUES.md)** - Master runtime-evaluated parameters and AWS environment integration
 5. **[Examples](examples/)** - Explore real-world usage scenarios
 
 <div class="callout info">
 <strong>💡 Pro Tip</strong><br>
-Start with the Quick Start guide to run your first test, then explore the pseudo-parameters documentation to make your templates more flexible and reusable.
+Start with the Quick Start guide to run your first test, then explore Dynamic Values to make your templates flexible with runtime-evaluated parameters that pull from your AWS environment.
 </div>
 
 ---
 
 <div style="text-align: center; margin: 2rem 0; color: #687078;">
-  <p><strong>TaskCat</strong> - Making CloudFormation testing simple, reliable, and scalable.</p>
+  <p><strong>taskcat</strong> - Making CloudFormation testing simple, reliable, and scalable.</p>
   <p>Built with ❤️ by the AWS Solutions Architecture Team</p>
 </div>

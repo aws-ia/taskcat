@@ -117,35 +117,34 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   palette:
-    # Palette toggle for light mode
-    - scheme: default
-      primary: blue
-      accent: orange
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
-    - scheme: slate
-      primary: blue
-      accent: orange
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+    scheme: slate
   features:
-    - navigation.tabs
+    - content.code.copy
+    - content.code.annotate
+    - navigation.instant
+    - navigation.tracking
     - navigation.sections
-    - navigation.expand
-    - navigation.path
+    - navigation.indexes
     - navigation.top
     - search.highlight
     - search.share
+    - search.suggest
+    - toc.follow
     - toc.integrate
-    - content.code.copy
-    - content.code.annotate
   icon:
     repo: fontawesome/brands/github
   logo: assets/images/tcat.png
   favicon: assets/images/tcat.png
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cyborg/bootstrap.min.css
+  - assets/css/cyborg-theme.css
+
+extra_javascript:
+  - assets/js/cyborg-theme.js
 
 plugins:
   - search:
@@ -216,13 +215,16 @@ nav:
   - User Guide:
     - Template Testing: user-guide/template-testing.md
     - Multi-Region Testing: user-guide/multi-region.md
+    - Dynamic Values: user-guide/dynamic-values.md
     - Parameter Overrides: user-guide/parameter-overrides.md
     - Pseudo Parameters: user-guide/pseudo-parameters.md
-  - API Reference: reference/
   - Examples:
     - Basic Usage: examples/basic.md
     - Advanced Scenarios: examples/advanced.md
-  - Contributing: contributing.md
+  - API Reference: reference/
+  - Schema Reference: schema/
+  - Support:
+    - Troubleshooting: support/troubleshooting.md
 
 extra:
   social:
@@ -276,13 +278,13 @@ create_docs_structure() {
     cat > "$DOCS_DIR/getting-started/installation.md" << 'EOF'
 # Installation Guide
 
-Get TaskCat installed and running on your system with our comprehensive installation guide.
+Get taskcat installed and running on your system with our comprehensive installation guide.
 
 ## Prerequisites
 
-Before installing TaskCat, ensure you have:
+Before installing taskcat, ensure you have:
 
-- **Python 3.8+**: TaskCat requires Python 3.8 or higher
+- **Python 3.8+**: taskcat requires Python 3.8 or higher
 - **AWS CLI**: Configured with appropriate credentials
 - **Git**: For cloning repositories and version control
 - **Sufficient AWS Permissions**: See [Required Permissions](#required-permissions)
@@ -291,7 +293,7 @@ Before installing TaskCat, ensure you have:
 
 ### Method 1: PyPI (Recommended)
 
-The easiest way to install TaskCat is via PyPI:
+The easiest way to install taskcat is via PyPI:
 
 ```bash
 pip install taskcat
@@ -335,7 +337,7 @@ taskcat --help
 
 ### Configure AWS Credentials
 
-TaskCat uses AWS credentials from your environment. Configure using:
+taskcat uses AWS credentials from your environment. Configure using:
 
 #### AWS CLI
 ```bash
@@ -350,11 +352,11 @@ export AWS_DEFAULT_REGION=us-east-1
 ```
 
 #### IAM Roles (Recommended for EC2/Lambda)
-TaskCat automatically uses IAM roles when running on AWS services.
+taskcat automatically uses IAM roles when running on AWS services.
 
 ### Required Permissions
 
-TaskCat requires the following AWS permissions:
+taskcat requires the following AWS permissions:
 
 ```json
 {
@@ -406,7 +408,7 @@ EOF
     cat > "$DOCS_DIR/getting-started/quickstart.md" << 'EOF'
 # Quick Start Guide
 
-Get up and running with TaskCat in just a few minutes! This guide will walk you through creating and running your first TaskCat test.
+Get up and running with taskcat in just a few minutes! This guide will walk you through creating and running your first taskcat test.
 
 ## Step 1: Create a Simple Template
 
@@ -415,7 +417,7 @@ First, let's create a basic CloudFormation template to test:
 ```yaml
 # templates/simple-s3.yaml
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Simple S3 bucket for TaskCat testing'
+Description: 'Simple S3 bucket for taskcat testing'
 
 Parameters:
   BucketName:
@@ -442,9 +444,9 @@ Outputs:
       Name: !Sub "${AWS::StackName}-BucketName"
 ```
 
-## Step 2: Create TaskCat Configuration
+## Step 2: Create taskcat Configuration
 
-Create a TaskCat configuration file:
+Create a taskcat configuration file:
 
 ```yaml
 # .taskcat.yml
@@ -469,7 +471,7 @@ Execute the test:
 taskcat test run
 ```
 
-TaskCat will:
+taskcat will:
 1. 🚀 Deploy your template in specified regions
 2. ✅ Validate the deployment
 3. 📊 Generate a detailed report
@@ -490,7 +492,7 @@ Open `taskcat_outputs/index.html` in your browser to see the visual report.
 
 ## What Just Happened?
 
-TaskCat performed these actions:
+taskcat performed these actions:
 
 1. **Template Processing**: Replaced pseudo-parameters with actual values
 2. **Multi-Region Deployment**: Created CloudFormation stacks in us-east-1 and us-west-2
@@ -539,18 +541,18 @@ project:
     - ap-southeast-1
 ```
 
-Congratulations! You've successfully run your first TaskCat test. 🎉
+Congratulations! You've successfully run your first taskcat test. 🎉
 EOF
 
     # Create configuration guide
     cat > "$DOCS_DIR/getting-started/configuration.md" << 'EOF'
 # Configuration Guide
 
-Learn how to configure TaskCat for your specific testing needs with comprehensive configuration options.
+Learn how to configure taskcat for your specific testing needs with comprehensive configuration options.
 
 ## Configuration File Structure
 
-TaskCat uses YAML configuration files (`.taskcat.yml`) with this structure:
+taskcat uses YAML configuration files (`.taskcat.yml`) with this structure:
 
 ```yaml
 project:
@@ -596,7 +598,7 @@ project:
   s3_key_prefix: testing/templates/
   tags:
     Environment: Testing
-    Project: TaskCat
+    Project: taskcat
     Owner: DevOps-Team
 ```
 

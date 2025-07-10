@@ -1,6 +1,6 @@
 # Advanced Examples
 
-This page covers more complex TaskCat configurations and use cases.
+This page covers more complex taskcat configurations and use cases.
 
 ## Multi-Test Configuration
 

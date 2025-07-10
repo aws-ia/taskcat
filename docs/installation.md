@@ -1,56 +1,146 @@
+# Installation
 
-## Installation
+Get taskcat installed and running on your system quickly and easily.
 
-Currently only installation via pip is supported.
+## Prerequisites
 
-### Requirements
-![Python pip](https://img.shields.io/badge/Prerequisites-pip-blue.svg)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/taskcat.svg)](https://pypi.org/project/taskcat/#history)
-![Python pip](https://img.shields.io/badge/Prerequisites-docker-yellow.svg)
+Before installing taskcat, ensure you have:
 
-The host taskcat is run on requires access to an AWS account, this can be done by any
-of the following mechanisms:
+- **Python 3.8+** - taskcat requires Python 3.8 or higher
+- **AWS CLI** - Configured with appropriate credentials  
+- **Git** - For cloning repositories and version control
+- **AWS Permissions** - See [Required Permissions](#required-permissions)
 
-1. Environment variables
-2. Shared credential file (~/.aws/credentials)
-3. AWS config file (~/.aws/config)
-4. Assume Role provider
-5. Boto2 config file (/etc/boto.cfg and ~/.boto)
-6. Instance metadata service on an Amazon EC2 instance that has an IAM role configured.
+## Installation Methods
 
-for more info see the [boto3 credential configuration documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html).
+### PyPI (Recommended)
 
-!!! note
-    docker is only required if building lambda functions using a Dockerfile
+Install taskcat from the Python Package Index:
 
-### Installing via pip3
-
-```python
-pip3 install taskcat
-```
-### Installing via pip3 --user
-*will install taskcat into homedir, useful if you get permissions errors with the regular method*
-
-```python
-pip3 install taskcat --user
+```bash
+pip install taskcat
 ```
 
-???+note
-    The user install dir is platform specific
+### Development Installation
 
-    On Mac:
+Install the latest development version:
 
-    - `~/Library/Python/3.x/bin/taskcat`
+```bash
+pip install git+https://github.com/aws-ia/taskcat.git
+```
 
-    On Linux:
+### Docker
 
-    - `~/.local/bin`
+Use the official Docker image:
 
-!!! warning
-    Be sure to add the python bin dir to your **$PATH**
+```bash
+# Pull the image
+docker pull public.ecr.aws/aws-ia/taskcat:latest
 
-### Windows
+# Run taskcat in a container
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -v ~/.aws:/root/.aws \
+  public.ecr.aws/aws-ia/taskcat:latest --help
+```
 
-Taskcat on Windows is **not supported**.
+## Verification
 
-If you are running Windows 10 we recommend that you install [Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about) and then install taskcat inside the WSL environment. For details, see [Install and configure TaskCat on Microsoft Windows 10](https://aws.amazon.com/blogs/infrastructure-and-automation/install-and-configure-taskcat-on-microsoft-windows-10/).
+Verify your installation:
+
+```bash
+# Check version
+taskcat --version
+
+# Display help
+taskcat --help
+
+# Test basic functionality
+taskcat lint --help
+```
+
+## AWS Configuration
+
+### Configure Credentials
+
+taskcat uses AWS credentials from your environment. Choose one method:
+
+#### AWS CLI Configuration
+```bash
+aws configure
+```
+
+#### Environment Variables
+```bash
+export AWS_ACCESS_KEY_ID=your-access-key
+export AWS_SECRET_ACCESS_KEY=your-secret-key
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+#### IAM Roles (Recommended)
+For EC2 instances or Lambda functions, taskcat automatically uses attached IAM roles.
+
+### Required Permissions
+
+taskcat requires these AWS permissions:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:*",
+        "s3:*",
+        "iam:ListRoles",
+        "iam:PassRole",
+        "ec2:Describe*",
+        "logs:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+!!! warning "Security Note"
+    These are broad permissions for testing. In production, use more restrictive policies based on your specific templates.
+
+## Troubleshooting
+
+### Common Issues
+
+**Python version error:**
+```bash
+# Check Python version
+python --version
+# or
+python3 --version
+```
+
+**Permission denied:**
+```bash
+# Install with user flag
+pip install --user taskcat
+```
+
+**AWS credentials not found:**
+```bash
+# Verify AWS configuration
+aws sts get-caller-identity
+```
+
+### Getting Help
+
+- Check the [Troubleshooting Guide](troubleshooting.md)
+- Visit our [GitHub Issues](https://github.com/aws-ia/taskcat/issues)
+- Join the community discussions
+
+## Next Steps
+
+Once installed, proceed to:
+
+1. [Quick Start](quickstart.md) - Run your first test
+2. [Configuration](configuration.md) - Learn configuration options
+3. [Dynamic Values](dynamic-values.md) - Master runtime parameters

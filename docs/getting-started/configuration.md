@@ -352,6 +352,6 @@ taskcat schema
 
 ## Next Steps
 
-- [Pseudo-Parameters Guide](../usage/PSUEDO_PARAMETERS.md)
+- [Dynamic Values Guide](../usage/DYNAMIC_VALUES.md)
 - [Parameter Overrides](../usage/PARAMETER_OVERRIDES.md)
 - [Advanced Examples](../examples/advanced.md)

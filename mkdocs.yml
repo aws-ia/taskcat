@@ -1,5 +1,5 @@
-site_name: taskcat Documentation
-site_description: AWS CloudFormation Template Testing Tool - Test your infrastructure as code across multiple regions
+site_name: taskcat
+site_description: AWS CloudFormation Template Testing Tool
 site_author: AWS Solutions Architecture Team
 site_url: https://aws-ia.github.io/taskcat/
 
@@ -10,41 +10,38 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   palette:
-    - scheme: default
-      primary: blue
-      accent: orange
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: blue
-      accent: orange
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+    scheme: slate
   features:
     - content.code.copy
-    - navigation.expand
+    - content.code.annotate
+    - navigation.instant
+    - navigation.tracking
     - navigation.sections
-    - navigation.tabs
+    - navigation.indexes
     - navigation.top
     - search.highlight
     - search.share
+    - search.suggest
+    - toc.follow
     - toc.integrate
   icon:
     repo: fontawesome/brands/github
   logo: assets/images/tcat.png
   favicon: assets/images/tcat.png
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 extra_css:
-  - assets/css/aws-cloudscape.css
-  - assets/css/custom.css
+  - https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cyborg/bootstrap.min.css
+  - assets/css/cyborg-theme.css
 
 extra_javascript:
-  - assets/js/custom.js
+  - assets/js/cyborg-theme.js
 
 plugins:
-  - search
+  - search:
+      lang: en
   - gen-files:
       scripts:
         - docs/gen_ref_pages.py
@@ -79,34 +76,36 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      use_pygments: true
   - pymdownx.inlinehilite
   - pymdownx.keys
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+      combine_header_slug: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - getting-started/index.md
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quickstart.md
-    - Configuration: getting-started/configuration.md
-  - User Guide:
-    - General Usage: usage/GENERAL_USAGE.md
-    - Parameter Overrides: usage/PARAMETER_OVERRIDES.md
-    - Pseudo Parameters: usage/PSUEDO_PARAMETERS.md
-  - API Reference: reference/
-  - Administrative:
-    - Contributing: CONTRIBUTING.md
-    - Code of Conduct: administrative/CODE_OF_CONDUCT.md
-  - Support:
-    - Troubleshooting: support/troubleshooting.md
+  - Installation: installation.md
+  - Quick Start: quickstart.md
+  - Configuration: configuration.md
+  - Dynamic Values: dynamic-values.md
+  - Parameter Overrides: parameter-overrides.md
+  - Examples: examples.md
+  - Schema Reference: schema.md
+  - API Reference: api.md
+  - Troubleshooting: troubleshooting.md
 
 extra:
   social:
@@ -116,5 +115,6 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/taskcat/
       name: PyPI Package
+  generator: false
 
-copyright: Copyright &copy; 2023 Amazon Web Services, Inc. or its affiliates. All Rights Reserved.
+copyright: Copyright &copy; 2023 Amazon Web Services, Inc.

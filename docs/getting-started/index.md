@@ -1,120 +1,92 @@
 # Getting Started with taskcat
 
-Welcome to taskcat! This section will guide you through everything you need to know to start testing your AWS CloudFormation templates effectively.
+Welcome to taskcat! This section will get you up and running with AWS CloudFormation template testing in minutes.
 
-## 🚀 Quick Navigation
+## What You'll Learn
 
 <div class="feature-grid">
   <div class="feature-card">
     <h3>📦 Installation</h3>
-    <p>Get taskcat installed and configured on your system with our step-by-step installation guide.</p>
+    <p>Multiple installation methods including pip, Docker, and from source.</p>
     <a href="installation/" class="md-button">Install taskcat</a>
   </div>
   
   <div class="feature-card">
-    <h3>⚡ Quick Start</h3>
-    <p>Run your first taskcat test in minutes with our comprehensive quick start tutorial.</p>
+    <h3>🚀 Quick Start</h3>
+    <p>Run your first test in under 5 minutes with our step-by-step guide.</p>
     <a href="quickstart/" class="md-button">Quick Start</a>
   </div>
   
   <div class="feature-card">
     <h3>⚙️ Configuration</h3>
-    <p>Learn how to configure taskcat for your specific testing needs and environments.</p>
-    <a href="configuration/" class="md-button">Configuration</a>
+    <p>Master taskcat configuration for advanced testing scenarios.</p>
+    <a href="configuration/" class="md-button">Configure</a>
   </div>
 </div>
 
 ## Learning Path
 
-Follow this recommended learning path to master taskcat:
+Follow this recommended path to master taskcat:
 
-### 1. **Prerequisites** ✅
+### 1. **Installation** (5 minutes)
+Get taskcat installed on your system with your preferred method.
+
+### 2. **Quick Start** (10 minutes)
+Create and run your first test to understand the basics.
+
+### 3. **Configuration** (20 minutes)
+Learn about advanced configuration options and best practices.
+
+### 4. **Dynamic Values** (15 minutes)
+Master runtime-evaluated parameters for flexible testing.
+
+## Prerequisites
+
 Before you begin, ensure you have:
-- Python 3.8 or higher
-- AWS CLI configured with appropriate credentials
-- Basic understanding of AWS CloudFormation
-- Git (recommended for version control)
 
-### 2. **Installation** 📦
-Choose your preferred installation method:
-- **PyPI**: `pip install taskcat` (recommended)
-- **Source**: Clone and install from GitHub
-- **Docker**: Use our pre-built Docker images
+- **AWS Account** with appropriate permissions
+- **Python 3.8+** installed on your system
+- **AWS CLI** configured with credentials
+- **Basic CloudFormation knowledge**
 
-### 3. **First Test** 🧪
-Learn the basics by:
-- Creating a simple CloudFormation template
-- Writing your first taskcat configuration
-- Running a test across multiple regions
-- Understanding the test results
+## Quick Installation
 
-### 4. **Advanced Configuration** 🔧
-Explore advanced features:
-- Parameter overrides and pseudo-parameters
-- Multi-test configurations
-- Custom regions and availability zones
-- Integration with AWS services
+```bash
+# Install taskcat via pip
+pip install taskcat
 
-## Common Use Cases
+# Verify installation
+taskcat --version
 
-taskcat is perfect for:
+# Get help
+taskcat --help
+```
 
-### **🏢 Enterprise Development**
-- Validate templates before production deployment
-- Ensure multi-region compatibility
-- Automate testing in CI/CD pipelines
-- Generate compliance reports
+## Your First Test
 
-### **🚀 AWS Quick Starts**
-- Test complex, multi-tier architectures
-- Validate parameter combinations
-- Ensure global deployment readiness
-- Generate customer-ready documentation
+```yaml
+# .taskcat.yml
+project:
+  name: my-first-test
+  regions:
+    - us-east-1
 
-### **🔬 Development & Testing**
-- Rapid template iteration and testing
-- Parameter validation and edge case testing
-- Resource dependency verification
-- Cost optimization through region testing
+tests:
+  basic:
+    template: template.yaml
+    parameters:
+      BucketName: $[taskcat_autobucket]
+```
 
-### **📊 Compliance & Governance**
-- Automated security validation
-- Resource tagging compliance
-- Multi-account testing scenarios
-- Audit trail generation
-
-## What You'll Learn
-
-By the end of this getting started guide, you'll be able to:
-
-- ✅ Install and configure taskcat on your system
-- ✅ Create and run your first taskcat test
-- ✅ Understand taskcat configuration files
-- ✅ Use pseudo-parameters for dynamic testing
-- ✅ Interpret test results and reports
-- ✅ Integrate taskcat into your development workflow
+```bash
+# Run the test
+taskcat test run
+```
 
 ## Need Help?
 
-<div class="callout info">
-<strong>💡 Getting Stuck?</strong><br>
-Don't worry! Check out our <a href="../support/troubleshooting/">troubleshooting guide</a> or visit our <a href="../support/community/">community forums</a> for help.
-</div>
+- 📚 **[Documentation](../usage/GENERAL_USAGE.md)** - Comprehensive guides
+- 💬 **[Community](../support/troubleshooting.md)** - Get help from other users
+- 🐛 **[Issues](https://github.com/aws-ia/taskcat/issues)** - Report bugs or request features
 
-### Quick Links
-- [Troubleshooting Guide](../support/troubleshooting.md)
-- [FAQ](../support/faq.md)
-- [Community Support](../support/community.md)
-- [GitHub Issues](https://github.com/aws-ia/taskcat/issues)
-
-## Ready to Begin?
-
-Let's start with installing taskcat on your system:
-
-<div style="text-align: center; margin: 2rem 0;">
-  <a href="installation/" class="hero-button">Start Installation →</a>
-</div>
-
----
-
-*This guide assumes basic familiarity with AWS CloudFormation. If you're new to CloudFormation, consider reviewing the [AWS CloudFormation User Guide](https://docs.aws.amazon.com/cloudformation/) first.*
+Ready to begin? Start with [Installation](installation.md)!

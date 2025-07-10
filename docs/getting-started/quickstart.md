@@ -97,7 +97,7 @@ taskcat performed these actions:
 Now that you've run your first test, explore:
 
 - [Configuration Guide](configuration.md) - Advanced configuration options
-- [Pseudo-Parameters](../usage/PSUEDO_PARAMETERS.md) - Dynamic parameter generation
+- [Dynamic Values](../usage/DYNAMIC_VALUES.md) - Runtime-evaluated parameters and AWS environment integration
 - [Examples](../examples/) - Real-world usage scenarios
 
 ## Common Next Actions
