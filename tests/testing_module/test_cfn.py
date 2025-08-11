@@ -253,10 +253,15 @@ class TestCFNTest(unittest.TestCase):
 
         self.assertTrue("One or more stacks failed to create:" in str(ex.exception))
 
+    @patch("taskcat.testing._cfn_test.get_installed_version")
     @patch("taskcat.testing._cfn_test.Config")
     @patch("taskcat.testing._cfn_test._CfnLogTools")
     @patch("taskcat.testing._cfn_test.ReportBuilder")
-    def test_report(self, mock_report: mm, mock_log: mm, mock_config: mm):
+    def test_report(
+        self, mock_report: mm, mock_log: mm, mock_config: mm, mock_version: mm
+    ):
+        mock_version.return_value = "1.0.0"
+
         cfn_test = CFNTest(mock_config())
 
         td_mock = MagicMock()
