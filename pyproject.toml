@@ -1,5 +1,5 @@
 [tool.poetry]
-version = "0.9.57"
+version = "0.9.58"
 authors = ["Andrew Glenn", "Jay McConnell", "Shivansh Singh", "Tony Vattathil"]
 description = "An OpenSource Cloudformation Deployment Framework"
 name = "taskcat"
