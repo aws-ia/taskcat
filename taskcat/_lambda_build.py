@@ -178,7 +178,7 @@ class LambdaBuild:
     def _docker_build(path, tag):
         cli = APIClient(os.environ.get("DOCKER_HOST", "unix://var/run/docker.sock"))
         build_logs = []
-        for line in cli.build(path=str(path), tag=tag):
+        for line in cli.build(path=str(path), tag=tag, rm=True):
             build_logs.append(line)
         output = []
         for line in build_logs:
