@@ -1,4 +1,5 @@
 # pylint: disable=line-too-long
+import importlib.metadata
 import logging
 from pathlib import Path
 from typing import List as ListType, Union
@@ -197,8 +198,12 @@ class CFNTest(BaseTest):  # pylint: disable=too-many-instance-attributes
         cfn_logs = _CfnLogTools()
         cfn_logs.createcfnlogs(self.test_definition, report_path)
         ReportBuilder(
-            self.test_definition, report_path / "index.html"
+            self.test_definition, report_path / "index.html", get_installed_version()
         ).generate_report()
+
+
+def get_installed_version():
+    return importlib.metadata.version(__package__ or __name__)
 
 
 def _trim_regions(regions, config):
