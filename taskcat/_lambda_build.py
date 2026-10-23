@@ -204,21 +204,36 @@ class LambdaBuild:
 
             def is_within_directory(directory, target):
 
-                abs_directory = os.path.abspath(directory)
-                abs_target = os.path.abspath(target)
+                abs_directory = os.path.realpath(directory)
+                abs_target = os.path.realpath(target)
 
-                prefix = os.path.commonprefix([abs_directory, abs_target])
-
-                return prefix == abs_directory
+                return os.path.commonpath([abs_directory, abs_target]) == abs_directory
 
             def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
 
                 for member in tar.getmembers():
                     member_path = os.path.join(path, member.name)
                     if not is_within_directory(path, member_path):
-                        raise Exception("Attempted Path Traversal in Tar File")
+                        raise TaskCatException("Attempted Path Traversal in Tar File")
+                    if member.issym() or member.islnk():
+                        # symlink targets are relative to the link's folder,
+                        # hard link targets to the archive root
+                        base = os.path.dirname(member_path) if member.issym() else path
+                        link_target = os.path.join(base, member.linkname)
+                        if not is_within_directory(path, link_target):
+                            raise TaskCatException(
+                                "Attempted Link Outside Target Directory in Tar File"
+                            )
 
-                tar.extractall(path, members, numeric_owner=numeric_owner)  # nosec
+                if hasattr(tarfile, "data_filter"):
+                    tar.extractall(
+                        path, members, numeric_owner=numeric_owner, filter="data"
+                    )
+                else:
+                    # members validated above
+                    tar.extractall(  # nosec B202
+                        path, members, numeric_owner=numeric_owner
+                    )
 
             safe_extract(tar, path=str(package_path))
         try:
