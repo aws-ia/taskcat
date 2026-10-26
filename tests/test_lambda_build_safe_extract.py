@@ -74,8 +74,22 @@ def test_rejects_unsafe_members(tmp_path, members):
     assert not (tmp_path / "packages" / "my_function-evil").exists()
 
 
-@pytest.mark.usefixtures("extraction_mode")
-def test_extracts_safe_members(tmp_path):
+def _data_filter_rejects_subdir_links(tmp_path):
+    # early backports of the data filter resolve symlink targets from the
+    # destination root instead of the link's folder (CPython gh-107845)
+    probe = tarfile.TarInfo("sub/link")
+    probe.type = tarfile.SYMTYPE
+    probe.linkname = "../target"
+    try:
+        tarfile.data_filter(probe, str(tmp_path))
+    except tarfile.FilterError:
+        return True
+    return False
+
+
+def test_extracts_safe_members(tmp_path, extraction_mode):
+    if extraction_mode == "data_filter" and _data_filter_rejects_subdir_links(tmp_path):
+        pytest.skip("tarfile data filter rejects in-tree subdirectory symlinks")
     package_path = _run_extract(
         tmp_path,
         [
