@@ -211,29 +211,40 @@ class LambdaBuild:
 
             def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
 
+                use_data_filter = hasattr(tarfile, "data_filter")
                 for member in tar.getmembers():
                     member_path = os.path.join(path, member.name)
-                    if not is_within_directory(path, member_path):
+                    if (
+                        os.path.isabs(member.name)
+                        or ".." in Path(member.name).parts
+                        or not is_within_directory(path, member_path)
+                    ):
                         raise TaskCatException("Attempted Path Traversal in Tar File")
                     if member.issym() or member.islnk():
                         # symlink targets are relative to the link's folder,
                         # hard link targets to the archive root
                         base = os.path.dirname(member_path) if member.issym() else path
                         link_target = os.path.join(base, member.linkname)
-                        if not is_within_directory(path, link_target):
+                        if os.path.isabs(member.linkname) or not is_within_directory(
+                            path, link_target
+                        ):
                             raise TaskCatException(
                                 "Attempted Link Outside Target Directory in Tar File"
                             )
+                    if not use_data_filter:
+                        # extract one member at a time so realpath() in the checks
+                        # above sees links created by earlier members
+                        tar.extract(  # nosec B202
+                            member, path, numeric_owner=numeric_owner
+                        )
 
-                if hasattr(tarfile, "data_filter"):
-                    tar.extractall(
-                        path, members, numeric_owner=numeric_owner, filter="data"
-                    )
-                else:
-                    # members validated above
-                    tar.extractall(  # nosec B202
-                        path, members, numeric_owner=numeric_owner
-                    )
+                if use_data_filter:
+                    try:
+                        tar.extractall(
+                            path, members, numeric_owner=numeric_owner, filter="data"
+                        )
+                    except tarfile.FilterError as e:
+                        raise TaskCatException(f"Unsafe member in Tar File: {e}") from e
 
             safe_extract(tar, path=str(package_path))
         try:
