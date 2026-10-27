@@ -10,3 +10,4 @@ RUN (type -p wget >/dev/null || ( apt update &&  apt install wget -y)) \
 	&& apt install gh -y
 RUN pip install copier
 RUN pip install bump2version
+RUN pip install awscli
