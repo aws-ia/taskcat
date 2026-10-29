@@ -11,7 +11,13 @@ pip install poetry
 
 LAST_COMMIT_MESSAGE=$(git log --format=%B -n 1 | head -n 1)
 set +x
-poetry config pypi-token.pypi $(aws --region us-west-2 secretsmanager get-secret-value --secret-id pypi --query SecretString --output text)
+PYPI_TOKEN=$(aws --region us-west-2 secretsmanager get-secret-value --secret-id pypi --query SecretString --output text)
+if [[ -z "${PYPI_TOKEN}" ]]; then
+  echo "Failed to fetch PyPI token from Secrets Manager, aborting before release"
+  exit 1
+fi
+poetry config pypi-token.pypi "${PYPI_TOKEN}"
+unset PYPI_TOKEN
 set -x
 
 function new_release(){
