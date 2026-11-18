@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 from typing import List
 
-import pkg_resources
 from taskcat._config import Config
 
 LOG = logging.getLogger(__name__)
@@ -12,8 +11,8 @@ LOG = logging.getLogger(__name__)
 class CFNPolicyGenerator:
     def __init__(self, config: Config, output_file: str):
         self._config = config
-        self._data_file_path = pkg_resources.resource_filename(
-            "taskcat", "/cfg/cfn_resource_iam_policy.json"
+        self._data_file_path = str(
+            Path(__file__).parent.parent / "cfg" / "cfn_resource_iam_policy.json"
         )
         self._output_file = output_file
 
