@@ -29,7 +29,8 @@ class Upload:
         dry_run: bool = False,
         object_acl: str = "",
         exclude_prefix: list = None,
-    ):  # pylint: disable=too-many-locals
+        all_files: bool = False,
+    ):  # pylint: disable=too-many-locals,too-many-arguments
         """does lambda packaging and uploads to s3
 
         :param config_file: path to taskcat project config file
@@ -68,4 +69,5 @@ class Upload:
             config.project_root,
             exclude_prefix,
             dry_run,
+            all_files,
         )
