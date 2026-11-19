@@ -64,13 +64,12 @@ class _CfnLogTools:
             return
 
         if len(cfnlogs) != 0:
-            if cfnlogs[0]["ResourceStatus"] != "CREATE_COMPLETE":
-                if "ResourceStatusReason" in cfnlogs[0]:
-                    reason = cfnlogs[0]["ResourceStatusReason"]
-                else:
-                    reason = "Unknown"
-            else:
+            if cfnlogs[0]["ResourceStatus"] == "CREATE_COMPLETE":
                 reason = "Stack launch was successful"
+            elif "ResourceStatusReason" in cfnlogs[0]:
+                reason = cfnlogs[0]["ResourceStatusReason"]
+            else:
+                reason = "Unknown"
 
             with open(str(logpath), "a", encoding="utf-8") as log_output:
                 log_output.write(
@@ -83,7 +82,7 @@ class _CfnLogTools:
                     "******************************************************************"
                     "***********\n"
                 )
-                log_output.write("ResourceStatusReason:  \n")
+                log_output.write("ResourceStatusReason:")
                 log_output.write(textwrap.fill(str(reason), 85) + "\n")
                 log_output.write(
                     "******************************************************************"
@@ -93,7 +92,7 @@ class _CfnLogTools:
                     "******************************************************************"
                     "***********\n"
                 )
-                log_output.write("Events:  \n")
+                log_output.write("Events:\n")
                 log_output.writelines(tabulate.tabulate(cfnlogs, headers="keys"))
                 log_output.write(
                     "\n****************************************************************"
@@ -118,5 +117,5 @@ class _CfnLogTools:
                 self.write_logs(child, logpath)
         else:
             LOG.error(
-                "No event logs found. Something went wrong at describe event " "call."
+                "No event logs found. Something went wrong at describe event call."
             )
